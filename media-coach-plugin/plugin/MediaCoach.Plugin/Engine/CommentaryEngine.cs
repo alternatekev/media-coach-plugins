@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using MediaCoach.Plugin.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace MediaCoach.Plugin.Engine
 {
@@ -13,8 +14,19 @@ namespace MediaCoach.Plugin.Engine
     /// </summary>
     public class CommentaryEngine
     {
+        // ── Sentiment → category mapping ──────────────────────────────────────
+        private static readonly Dictionary<string, string[]> CategorySentiments =
+            new Dictionary<string, string[]>
+            {
+                { "hardware",          new[] { "technical_analytical", "car_praise" } },
+                { "game_feel",         new[] { "sim_comparison", "technical_analytical" } },
+                { "car_response",      new[] { "excitement_positive", "frustration_negative", "technical_analytical" } },
+                { "racing_experience", new[] { "neutral_narrative", "excitement_positive", "frustration_negative", "self_deprecating" } },
+            };
+
         // ── State ─────────────────────────────────────────────────────────────
         private List<CommentaryTopic> _topics = new List<CommentaryTopic>();
+        private Dictionary<string, string> _sentimentColors = new Dictionary<string, string>();
         private readonly Random _rng = new Random();
 
         // Per-topic last trigger time
@@ -23,10 +35,11 @@ namespace MediaCoach.Plugin.Engine
         private DateTime _globalLastTrigger = DateTime.MinValue;
 
         // Current displayed prompt
-        private volatile string _currentText     = "";
-        private volatile string _currentCategory = "";
-        private volatile string _currentTitle    = "";
-        private DateTime _promptDisplayedAt      = DateTime.MinValue;
+        private volatile string _currentText           = "";
+        private volatile string _currentCategory       = "";
+        private volatile string _currentTitle          = "";
+        private volatile string _currentSentimentColor = "#FF000000";
+        private DateTime _promptDisplayedAt             = DateTime.MinValue;
 
         // ── Settings (set by plugin from Settings object) ─────────────────────
         public double MinIntervalMinutes  { get; set; } = 2.0;
@@ -34,9 +47,10 @@ namespace MediaCoach.Plugin.Engine
         public HashSet<string> EnabledCategories { get; set; }
 
         // ── Public state (read by plugin, passed to dashboard) ───────────────
-        public string CurrentText     => _currentText;
-        public string CurrentCategory => _currentCategory;
-        public string CurrentTitle    => _currentTitle;
+        public string CurrentText           => _currentText;
+        public string CurrentCategory       => _currentCategory;
+        public string CurrentTitle          => _currentTitle;
+        public string CurrentSentimentColor => _currentSentimentColor;
         public bool   IsVisible       => _currentText.Length > 0
                                          && (DateTime.UtcNow - _promptDisplayedAt).TotalSeconds < DisplaySeconds;
         public double SecondsRemaining
@@ -70,6 +84,37 @@ namespace MediaCoach.Plugin.Engine
             {
                 SimHub.Logging.Current.Error($"[MediaCoach] Failed to load topics: {ex.Message}");
                 LoadBuiltinTopics();
+            }
+        }
+
+        public void LoadSentiments(string jsonPath)
+        {
+            if (!File.Exists(jsonPath))
+            {
+                SimHub.Logging.Current.Warn($"[MediaCoach] Sentiments file not found: {jsonPath}");
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(jsonPath);
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                var file = JsonConvert.DeserializeObject<SentimentsFile>(json, settings);
+                if (file?.Sentiments != null)
+                {
+                    _sentimentColors.Clear();
+                    foreach (var s in file.Sentiments)
+                        if (!string.IsNullOrEmpty(s.Id) && !string.IsNullOrEmpty(s.Color))
+                            _sentimentColors[s.Id] = s.Color;
+                }
+                SimHub.Logging.Current.Info($"[MediaCoach] Loaded {_sentimentColors.Count} sentiment colors");
+            }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Error($"[MediaCoach] Failed to load sentiments: {ex.Message}");
             }
         }
 
@@ -146,9 +191,10 @@ namespace MediaCoach.Plugin.Engine
 
         public void ClearPrompt()
         {
-            _currentText     = "";
-            _currentCategory = "";
-            _currentTitle    = "";
+            _currentText           = "";
+            _currentCategory       = "";
+            _currentTitle          = "";
+            _currentSentimentColor = "#FF000000";
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
@@ -176,16 +222,25 @@ namespace MediaCoach.Plugin.Engine
             return false;
         }
 
+        private string PickSentimentColor(string category)
+        {
+            if (!CategorySentiments.TryGetValue(category ?? "", out var ids) || ids.Length == 0)
+                return "#FF000000";
+            string id = ids[_rng.Next(ids.Length)];
+            return _sentimentColors.TryGetValue(id, out var color) ? color : "#FF000000";
+        }
+
         private void ShowPrompt(CommentaryTopic topic)
         {
             if (topic.CommentaryPrompts == null || topic.CommentaryPrompts.Count == 0) return;
 
             string prompt = topic.CommentaryPrompts[_rng.Next(topic.CommentaryPrompts.Count)];
 
-            _currentText     = prompt;
-            _currentCategory = topic.Category;
-            _currentTitle    = topic.Title;
-            _promptDisplayedAt = DateTime.UtcNow;
+            _currentText           = prompt;
+            _currentCategory       = topic.Category;
+            _currentTitle          = topic.Title;
+            _currentSentimentColor = PickSentimentColor(topic.Category);
+            _promptDisplayedAt     = DateTime.UtcNow;
 
             _topicLastTrigger[topic.Id] = DateTime.UtcNow;
             _globalLastTrigger = DateTime.UtcNow;

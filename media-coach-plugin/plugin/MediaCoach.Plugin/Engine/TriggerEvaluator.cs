@@ -83,6 +83,10 @@ namespace MediaCoach.Plugin.Engine
                 case "tyrewearfr":            return s.TyreWearFR;
                 case "tyrewearrl":            return s.TyreWearRL;
                 case "tyrewearrr":            return s.TyreWearRR;
+                case "tyretempfl":            return s.TyreTempFL;
+                case "tyretempfr":            return s.TyreTempFR;
+                case "tyretemprl":            return s.TyreTempRL;
+                case "tyretemprr":            return s.TyreTempRR;
                 default:                      return 0;
             }
         }
@@ -101,10 +105,13 @@ namespace MediaCoach.Plugin.Engine
             // Handle bool-like values (true=1, false=0)
             switch (t.DataPoint?.ToLower())
             {
-                case "brakeabsactive": return t.Value.Value >= 1 ? cur.AbsActive : !cur.AbsActive;
-                case "weatherdeclaredwet": return t.Value.Value >= 1 ? cur.WeatherWet : !cur.WeatherWet;
-                case "isinpit":     return t.Value.Value >= 1 ? cur.IsInPit : !cur.IsInPit;
-                case "isinpitlane": return t.Value.Value >= 1 ? cur.IsInPitLane : !cur.IsInPitLane;
+                case "brakeabsactive":
+                case "absactive":         return t.Value.Value >= 1 ? cur.AbsActive : !cur.AbsActive;
+                case "tcactive":          return t.Value.Value >= 1 ? cur.TcActive  : !cur.TcActive;
+                case "weatherdeclaredwet":
+                case "wet":               return t.Value.Value >= 1 ? cur.WeatherWet : !cur.WeatherWet;
+                case "isinpit":           return t.Value.Value >= 1 ? cur.IsInPit : !cur.IsInPit;
+                case "isinpitlane":       return t.Value.Value >= 1 ? cur.IsInPitLane : !cur.IsInPitLane;
             }
             return Math.Abs(GetValue(cur, t.DataPoint) - t.Value.Value) < 0.001;
         }

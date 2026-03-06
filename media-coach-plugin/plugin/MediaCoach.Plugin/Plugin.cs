@@ -32,9 +32,9 @@ namespace MediaCoach.Plugin
 
         // ── IWPFSettingsV2 ────────────────────────────────────────────────────
 
-        private Control _settingsControl;
+        private SettingsControl _settingsControl;
         public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager)
-            => _settingsControl = new Control(this);
+            => _settingsControl = new SettingsControl(this);
 
         // ── IDataPlugin ───────────────────────────────────────────────────────
 
@@ -49,6 +49,10 @@ namespace MediaCoach.Plugin
             // Load topics dataset
             string topicsPath = ResolveTopicsPath();
             _engine.LoadTopics(topicsPath);
+
+            // Load sentiments (for background colors)
+            string sentimentsPath = ResolveDatasetFile("sentiments.json");
+            _engine.LoadSentiments(sentimentsPath);
 
             // ── Register dashboard properties ─────────────────────────────────
 
@@ -69,6 +73,9 @@ namespace MediaCoach.Plugin
 
             // Current interval setting (so dashboard can display it)
             this.AttachDelegate("SettingIntervalMinutes", () => Settings.MinSuggestionIntervalMinutes);
+
+            // Sentiment color for background tinting (#AARRGGBB, black when no prompt)
+            this.AttachDelegate("CommentarySentimentColor", () => _engine.CurrentSentimentColor);
 
             // ── Actions ───────────────────────────────────────────────────────
 
@@ -144,22 +151,23 @@ namespace MediaCoach.Plugin
 
         private string ResolveTopicsPath()
         {
-            // 1. Use path from settings if set
             if (!string.IsNullOrEmpty(Settings.TopicsFilePath) && File.Exists(Settings.TopicsFilePath))
                 return Settings.TopicsFilePath;
+            return ResolveDatasetFile("commentary_topics.json");
+        }
 
-            // 2. Look for dataset folder next to the DLL
+        private string ResolveDatasetFile(string filename)
+        {
             string dllDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? "";
-            string candidate = Path.Combine(dllDir, "dataset", "commentary_topics.json");
+            string candidate = Path.Combine(dllDir, "dataset", filename);
             if (File.Exists(candidate)) return candidate;
 
-            // 3. Look in PluginsData folder
             string pluginsData = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                "SimHub", "PluginsData", "MediaCoach", "commentary_topics.json");
+                "SimHub", "PluginsData", "MediaCoach", filename);
             if (File.Exists(pluginsData)) return pluginsData;
 
-            SimHub.Logging.Current.Warn("[MediaCoach] commentary_topics.json not found — using built-in fallback topics");
+            SimHub.Logging.Current.Warn($"[MediaCoach] {filename} not found in dataset folder");
             return "";
         }
     }

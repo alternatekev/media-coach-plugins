@@ -7,8 +7,7 @@
     <UseWPF>true</UseWPF>
     <Nullable>disable</Nullable>
     <LangVersion>8.0</LangVersion>
-    <Platforms>x64</Platforms>
-    <Platform>x64</Platform>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
     <!--
@@ -45,10 +44,6 @@
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(SimHubPath)Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MahApps.Metro">
-      <HintPath>$(SimHubPath)MahApps.Metro.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

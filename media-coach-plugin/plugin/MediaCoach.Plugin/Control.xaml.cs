@@ -2,15 +2,16 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using SimHub.Plugins;
 
 namespace MediaCoach.Plugin
 {
-    public partial class Control : UserControl
+    public partial class SettingsControl : UserControl
     {
         private readonly Plugin _plugin;
         private bool _loading = true;
 
-        public Control(Plugin plugin)
+        public SettingsControl(Plugin plugin)
         {
             _plugin = plugin;
             InitializeComponent();
@@ -100,10 +101,7 @@ namespace MediaCoach.Plugin
 
         private void SaveAndApply()
         {
-            _plugin.PluginManager?.SetPropertyValue(
-                "MediaCoach.Plugin.SettingIntervalMinutes",
-                typeof(Plugin),
-                _plugin.Settings.MinSuggestionIntervalMinutes);
+            _plugin.SaveCommonSettings("GeneralSettings", _plugin.Settings);
         }
     }
 }

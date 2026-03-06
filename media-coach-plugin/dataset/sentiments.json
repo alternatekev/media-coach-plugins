@@ -6,6 +6,7 @@
     {
       "id": "excitement_positive",
       "label": "Excitement / Positive",
+      "color": "#FFF57F17",
       "description": "Expressions of genuine excitement, satisfaction, or joy in a moment.",
       "phrases": [
         "Oh that's lovely",
@@ -28,6 +29,7 @@
     {
       "id": "frustration_negative",
       "label": "Frustration / Negative",
+      "color": "#FFB71C1C",
       "description": "Expressions of frustration, disappointment, or mild anger at mistakes or incidents.",
       "phrases": [
         "Oh come on!",
@@ -50,6 +52,7 @@
     {
       "id": "technical_analytical",
       "label": "Technical / Analytical",
+      "color": "#FF0D47A1",
       "description": "Calm, thoughtful analysis of car behavior, setup, or driving technique.",
       "phrases": [
         "So what's happening here is...",
@@ -72,6 +75,7 @@
     {
       "id": "self_deprecating",
       "label": "Self-Deprecating Humor",
+      "color": "#FF4A148C",
       "description": "Light, relatable humor about one's own mistakes or limitations. Jimmy Broadbent style.",
       "phrases": [
         "Absolutely sensational from the Pride of [wherever]",
@@ -92,6 +96,7 @@
     {
       "id": "car_praise",
       "label": "Car Praise",
+      "color": "#FF1B5E20",
       "description": "Expressions of appreciation for a specific car's character or behavior.",
       "phrases": [
         "This car is an absolute weapon",
@@ -110,6 +115,7 @@
     {
       "id": "sim_comparison",
       "label": "Sim Comparison",
+      "color": "#FF006064",
       "description": "Comparisons between different simulators, often in terms of realism or feel.",
       "phrases": [
         "iRacing does this better than any other sim",
@@ -127,6 +133,7 @@
     {
       "id": "neutral_narrative",
       "label": "Neutral Narrative",
+      "color": "#FF263238",
       "description": "Calm play-by-play commentary and situational narration.",
       "phrases": [
         "So we're coming up to the back straight now",
@@ -145,6 +152,7 @@
     {
       "id": "driving_advice",
       "label": "Driving Advice",
+      "color": "#FFE65100",
       "description": "Tips and technique advice aimed at the viewer.",
       "phrases": [
         "If you're learning this corner, the key is patience on the entry",

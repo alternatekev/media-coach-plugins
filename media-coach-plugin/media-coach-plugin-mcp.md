@@ -98,6 +98,6 @@ Install Instructions
 1. Open plugin/MediaCoach.Plugin.sln in Visual Studio on Windows
 2. Set the SIMHUB_PATH environment variable to your SimHub install folder (default: C:\Program Files (x86)\SimHub\)
 3. Build in Release|x64 — DLL deploys directly to SimHub, dataset is copied alongside it
-4. In SimHub → Additional Plugins → enable Media Coach
-5. Import dashboard/MediaCoach.simhubdash via Dash Studio → Import Dashboard
+4. In SimHub → Additional Plugins → enable Media Coach, then restart SimHub
+5. Copy the dashboard/MediaCoach/ folder into SimHub's Dashboards folder, then open it via Dash Studio
 6. Launch iRacing and drive

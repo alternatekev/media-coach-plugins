@@ -19,16 +19,18 @@ namespace MediaCoach.Plugin
         public string LeftMenuTitle => "Media Coach";
 
         // Engine
-        private readonly CommentaryEngine _engine = new CommentaryEngine();
+        private readonly CommentaryEngine  _engine   = new CommentaryEngine();
+        private readonly TelemetryRecorder _recorder = new TelemetryRecorder();
+        private FeedbackEngine _feedback;
 
         // Telemetry frames (current + previous for delta calculations)
         private TelemetrySnapshot _current  = new TelemetrySnapshot();
         private TelemetrySnapshot _previous = new TelemetrySnapshot();
 
         // Frame counter — we evaluate triggers every N frames to reduce CPU load
-        // at 60fps, every 60 frames = ~1 second evaluation cadence
+        // at 60fps, every 6 frames = ~100ms evaluation cadence
         private int _frameCount = 0;
-        private const int EvalEveryNFrames = 60;
+        private const int EvalEveryNFrames = 6;
 
         // ── IWPFSettingsV2 ────────────────────────────────────────────────────
 
@@ -44,6 +46,14 @@ namespace MediaCoach.Plugin
 
             // Load settings
             Settings = this.ReadCommonSettings<Settings>("GeneralSettings", () => new Settings());
+
+            // Initialise feedback engine
+            string feedbackPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "SimHub", "PluginsData", "MediaCoach", "feedback.json");
+            _feedback = new FeedbackEngine(feedbackPath);
+            _engine.GetCooldownMultiplier = id => _feedback.GetMultiplier(id);
+
             ApplySettings();
 
             // Load topics dataset
@@ -68,11 +78,8 @@ namespace MediaCoach.Plugin
             // Short topic title
             this.AttachDelegate("CommentaryTopicTitle", () => _engine.CurrentTitle);
 
-            // Seconds remaining until auto-clear
-            this.AttachDelegate("CommentarySecondsRemaining", () => _engine.SecondsRemaining);
-
-            // Current interval setting (so dashboard can display it)
-            this.AttachDelegate("SettingIntervalMinutes", () => Settings.MinSuggestionIntervalMinutes);
+            // Seconds remaining until auto-clear (integer for clean display)
+            this.AttachDelegate("CommentarySecondsRemaining", () => (int)Math.Round(_engine.SecondsRemaining));
 
             // Sentiment color for background tinting (#AARRGGBB, black when no prompt)
             this.AttachDelegate("CommentarySentimentColor", () => _engine.CurrentSentimentColor);
@@ -86,21 +93,37 @@ namespace MediaCoach.Plugin
                 SimHub.Logging.Current.Info("[MediaCoach] Prompt dismissed by user action");
             });
 
-            // Adjust suggestion interval from Control Mapper / button box
-            this.AddAction("IncreaseInterval", (a, b) =>
+            // Feedback actions — bind to a button box or SimHub Control Mapper
+            this.AddAction("ThumbsUp", (a, b) =>
             {
-                Settings.MinSuggestionIntervalMinutes = Math.Min(10, Settings.MinSuggestionIntervalMinutes + 0.5);
+                _feedback.Record(_engine.CurrentTopicId, _engine.CurrentText, +1);
+                SimHub.Logging.Current.Info($"[MediaCoach] ThumbsUp: {_engine.CurrentTopicId}");
+            });
+
+            this.AddAction("ThumbsDown", (a, b) =>
+            {
+                _feedback.Record(_engine.CurrentTopicId, _engine.CurrentText, -1);
+                SimHub.Logging.Current.Info($"[MediaCoach] ThumbsDown: {_engine.CurrentTopicId}");
+            });
+
+            // Recording toggle actions
+            this.AddAction("StartRecording", (a, b) =>
+            {
+                Settings.RecordMode = true;
                 ApplySettings();
             });
 
-            this.AddAction("DecreaseInterval", (a, b) =>
+            this.AddAction("StopRecording", (a, b) =>
             {
-                Settings.MinSuggestionIntervalMinutes = Math.Max(0.5, Settings.MinSuggestionIntervalMinutes - 0.5);
+                Settings.RecordMode = false;
                 ApplySettings();
             });
 
             // ── Events ────────────────────────────────────────────────────────
             this.AddEvent("NewCommentaryPrompt");
+
+            // Show a brief placeholder so the dashboard is visible before any game starts
+            _engine.ShowDemoPrompt();
 
             SimHub.Logging.Current.Info("[MediaCoach] Initialisation complete");
         }
@@ -119,6 +142,10 @@ namespace MediaCoach.Plugin
             bool wasVisible = _engine.IsVisible;
             _engine.Update(_current, _previous);
 
+            // Write telemetry frame to recording if active
+            if (_recorder.IsRecording)
+                _recorder.Write(_current);
+
             // Fire event when a new prompt appears
             if (_engine.IsVisible && !wasVisible)
                 this.TriggerEvent("NewCommentaryPrompt");
@@ -126,19 +153,31 @@ namespace MediaCoach.Plugin
 
         public void End(PluginManager pluginManager)
         {
+            _recorder.StopRecording();
             this.SaveCommonSettings("GeneralSettings", Settings);
             SimHub.Logging.Current.Info("[MediaCoach] Plugin stopped, settings saved");
         }
 
         // ── Internal helpers ──────────────────────────────────────────────────
 
-        private void ApplySettings()
+        public void ApplySettings()
         {
-            _engine.MinIntervalMinutes = Settings.MinSuggestionIntervalMinutes;
-            _engine.DisplaySeconds     = Settings.PromptDisplaySeconds;
-            _engine.EnabledCategories  = Settings.EnabledCategories?.Count > 0
+            _engine.DisplaySeconds    = Settings.PromptDisplaySeconds;
+            _engine.EnabledCategories = Settings.EnabledCategories?.Count > 0
                 ? new System.Collections.Generic.HashSet<string>(Settings.EnabledCategories)
                 : null;
+
+            if (Settings.RecordMode && !_recorder.IsRecording)
+            {
+                string dir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                    "SimHub", "PluginsData", "MediaCoach", "recordings");
+                _recorder.StartRecording(dir);
+            }
+            else if (!Settings.RecordMode && _recorder.IsRecording)
+            {
+                _recorder.StopRecording();
+            }
         }
 
         private string BuildDisplayText()

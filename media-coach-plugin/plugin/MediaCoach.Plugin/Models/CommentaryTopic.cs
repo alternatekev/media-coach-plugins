@@ -14,6 +14,8 @@ namespace MediaCoach.Plugin.Models
         public string Category { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public string Sentiment { get; set; }
+        public List<string> SessionTypes { get; set; } = new List<string>();
         public List<TriggerCondition> Triggers { get; set; } = new List<TriggerCondition>();
         public List<string> CommentaryPrompts { get; set; } = new List<string>();
         public double CooldownMinutes { get; set; } = 2.0;

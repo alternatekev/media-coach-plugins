@@ -15,24 +15,6 @@
         <TextBlock Text="Real-time commentary prompts for sim racing streams."
                    FontSize="12" Foreground="#999" Margin="0,0,0,24"/>
 
-        <!-- Suggestion Interval -->
-        <TextBlock Text="SUGGESTION INTERVAL" FontSize="11" FontWeight="Bold"
-                   Foreground="#888" Margin="0,0,0,6"/>
-        <Grid Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="60"/>
-            </Grid.ColumnDefinitions>
-            <Slider x:Name="IntervalSlider" Grid.Column="0"
-                    Minimum="0.5" Maximum="10" TickFrequency="0.5"
-                    IsSnapToTickEnabled="True"
-                    ValueChanged="IntervalSlider_ValueChanged"
-                    VerticalAlignment="Center"/>
-            <TextBlock x:Name="IntervalLabel" Grid.Column="1"
-                       VerticalAlignment="Center" HorizontalAlignment="Right"
-                       Foreground="White" FontSize="14" Text="2.0 min"/>
-        </Grid>
-
         <!-- Display Duration -->
         <TextBlock Text="PROMPT DISPLAY DURATION" FontSize="11" FontWeight="Bold"
                    Foreground="#888" Margin="0,0,0,6"/>
@@ -42,13 +24,13 @@
                 <ColumnDefinition Width="60"/>
             </Grid.ColumnDefinitions>
             <Slider x:Name="DisplaySlider" Grid.Column="0"
-                    Minimum="10" Maximum="120" TickFrequency="5"
+                    Minimum="5" Maximum="120" TickFrequency="5"
                     IsSnapToTickEnabled="True"
                     ValueChanged="DisplaySlider_ValueChanged"
                     VerticalAlignment="Center"/>
             <TextBlock x:Name="DisplayLabel" Grid.Column="1"
                        VerticalAlignment="Center" HorizontalAlignment="Right"
-                       Foreground="White" FontSize="14" Text="60 s"/>
+                       Foreground="White" FontSize="14" Text="30 s"/>
         </Grid>
 
         <!-- Show Topic Title toggle -->
@@ -90,6 +72,18 @@
         </Grid>
         <TextBlock Text="Leave empty to auto-detect dataset/commentary_topics.json"
                    FontSize="11" Foreground="#666" Margin="0,0,0,20"/>
+
+        <!-- Telemetry Recording -->
+        <TextBlock Text="TELEMETRY RECORDING" FontSize="11" FontWeight="Bold"
+                   Foreground="#888" Margin="0,0,0,6"/>
+        <CheckBox x:Name="RecordModeCheck" Content="Record telemetry for offline trigger testing"
+                  Foreground="White" FontSize="13" Margin="0,0,0,4"
+                  Checked="RecordModeCheck_Changed" Unchecked="RecordModeCheck_Changed"/>
+        <TextBlock x:Name="RecordingStatusLabel"
+                   Text="Recordings saved to: %ProgramData%\SimHub\PluginsData\MediaCoach\recordings\"
+                   FontSize="10" Foreground="#666" TextWrapping="Wrap" Margin="0,0,0,4"/>
+        <TextBlock Text="Use ThumbsUp / ThumbsDown actions in Control Mapper to rate prompts."
+                   FontSize="10" Foreground="#666" TextWrapping="Wrap" Margin="0,0,0,20"/>
 
         <!-- Status -->
         <Border Background="#0d3d0d" CornerRadius="4" Padding="12,8">

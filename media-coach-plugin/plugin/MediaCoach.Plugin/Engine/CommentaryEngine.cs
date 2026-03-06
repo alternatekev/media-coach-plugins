@@ -31,25 +31,32 @@ namespace MediaCoach.Plugin.Engine
 
         // Per-topic last trigger time
         private readonly Dictionary<string, DateTime> _topicLastTrigger = new Dictionary<string, DateTime>();
-        // Global last suggestion time (enforces 2-min minimum between any suggestions)
-        private DateTime _globalLastTrigger = DateTime.MinValue;
+        // Anti-spam: minimum 10 seconds between any two prompts
+        private DateTime _lastPromptFireTime = DateTime.MinValue;
 
         // Current displayed prompt
         private volatile string _currentText           = "";
         private volatile string _currentCategory       = "";
         private volatile string _currentTitle          = "";
+        private volatile string _currentTopicId        = "";
         private volatile string _currentSentimentColor = "#FF000000";
         private DateTime _promptDisplayedAt             = DateTime.MinValue;
 
         // ── Settings (set by plugin from Settings object) ─────────────────────
-        public double MinIntervalMinutes  { get; set; } = 2.0;
-        public double DisplaySeconds      { get; set; } = 60.0;
+        public double DisplaySeconds      { get; set; } = 30.0;
         public HashSet<string> EnabledCategories { get; set; }
+
+        /// <summary>
+        /// Optional hook — returns a cooldown multiplier for a given topic ID.
+        /// Supplied by the plugin from FeedbackEngine. Default: no adjustment.
+        /// </summary>
+        public Func<string, double> GetCooldownMultiplier { get; set; } = _ => 1.0;
 
         // ── Public state (read by plugin, passed to dashboard) ───────────────
         public string CurrentText           => _currentText;
         public string CurrentCategory       => _currentCategory;
         public string CurrentTitle          => _currentTitle;
+        public string CurrentTopicId        => _currentTopicId;
         public string CurrentSentimentColor => _currentSentimentColor;
         public bool   IsVisible       => _currentText.Length > 0
                                          && (DateTime.UtcNow - _promptDisplayedAt).TotalSeconds < DisplaySeconds;
@@ -63,6 +70,19 @@ namespace MediaCoach.Plugin.Engine
         }
 
         // ── Initialise ────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Shows a brief placeholder prompt so the dashboard is visible on startup
+        /// before any game session begins. Auto-clears after DisplaySeconds.
+        /// </summary>
+        public void ShowDemoPrompt()
+        {
+            _currentText           = "Media Coach is active. Prompts will appear here when telemetry events fire during your session.";
+            _currentCategory       = "hardware";
+            _currentTitle          = "Media Coach Ready";
+            _currentSentimentColor = "#FF263238"; // neutral dark slate
+            _promptDisplayedAt     = DateTime.UtcNow;
+        }
 
         public void LoadTopics(string jsonPath)
         {
@@ -171,16 +191,15 @@ namespace MediaCoach.Plugin.Engine
 
             if (!current.GameRunning) return;
 
-            // Enforce global minimum interval
-            double secondsSinceLast = (DateTime.UtcNow - _globalLastTrigger).TotalSeconds;
-            if (secondsSinceLast < MinIntervalMinutes * 60.0) return;
+            // Anti-spam: enforce 10-second minimum between any two prompts
+            if ((DateTime.UtcNow - _lastPromptFireTime).TotalSeconds < 10.0) return;
 
             // Evaluate topics in randomised order to avoid always preferring the first match
             var shuffled = _topics.OrderBy(_ => _rng.Next()).ToList();
 
             foreach (var topic in shuffled)
             {
-                if (!IsTopicEnabled(topic)) continue;
+                if (!IsTopicEnabled(topic, current.SessionTypeName)) continue;
                 if (!IsTopicCooledDown(topic)) continue;
                 if (!AnyTriggerFires(topic, current, previous)) continue;
 
@@ -194,22 +213,38 @@ namespace MediaCoach.Plugin.Engine
             _currentText           = "";
             _currentCategory       = "";
             _currentTitle          = "";
+            _currentTopicId        = "";
             _currentSentimentColor = "#FF000000";
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
 
-        private bool IsTopicEnabled(CommentaryTopic topic)
+        private bool IsTopicEnabled(CommentaryTopic topic, string sessionTypeName)
         {
-            if (EnabledCategories == null || EnabledCategories.Count == 0) return true;
-            return EnabledCategories.Contains(topic.Category);
+            if (EnabledCategories != null && EnabledCategories.Count > 0)
+                if (!EnabledCategories.Contains(topic.Category)) return false;
+
+            // Session type filter: if topic specifies session types, enforce them
+            if (topic.SessionTypes != null && topic.SessionTypes.Count > 0)
+            {
+                string sn = (sessionTypeName ?? "").ToLowerInvariant();
+                bool matched = false;
+                foreach (var st in topic.SessionTypes)
+                {
+                    if (sn.Contains(st.ToLowerInvariant())) { matched = true; break; }
+                }
+                if (!matched) return false;
+            }
+
+            return true;
         }
 
         private bool IsTopicCooledDown(CommentaryTopic topic)
         {
             if (!_topicLastTrigger.TryGetValue(topic.Id, out DateTime last))
                 return true;
-            return (DateTime.UtcNow - last).TotalMinutes >= topic.CooldownMinutes;
+            double multiplier = GetCooldownMultiplier(topic.Id);
+            return (DateTime.UtcNow - last).TotalMinutes >= topic.CooldownMinutes * multiplier;
         }
 
         private bool AnyTriggerFires(CommentaryTopic topic, TelemetrySnapshot cur, TelemetrySnapshot prev)
@@ -236,14 +271,20 @@ namespace MediaCoach.Plugin.Engine
 
             string prompt = topic.CommentaryPrompts[_rng.Next(topic.CommentaryPrompts.Count)];
 
+            // Use topic's explicit sentiment if set, otherwise fall back to category mapping
+            string sentimentColor = !string.IsNullOrEmpty(topic.Sentiment)
+                ? (_sentimentColors.TryGetValue(topic.Sentiment, out var c) ? c : "#FF000000")
+                : PickSentimentColor(topic.Category);
+
             _currentText           = prompt;
             _currentCategory       = topic.Category;
             _currentTitle          = topic.Title;
-            _currentSentimentColor = PickSentimentColor(topic.Category);
+            _currentTopicId        = topic.Id;
+            _currentSentimentColor = sentimentColor;
             _promptDisplayedAt     = DateTime.UtcNow;
 
             _topicLastTrigger[topic.Id] = DateTime.UtcNow;
-            _globalLastTrigger = DateTime.UtcNow;
+            _lastPromptFireTime = DateTime.UtcNow;
 
             SimHub.Logging.Current.Info($"[MediaCoach] Prompt shown: [{topic.Title}] {prompt}");
         }

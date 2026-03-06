@@ -4,11 +4,8 @@ namespace MediaCoach.Plugin
 {
     public class Settings
     {
-        /// <summary>Minimum minutes between any two commentary suggestions.</summary>
-        public double MinSuggestionIntervalMinutes { get; set; } = 2.0;
-
         /// <summary>How long (seconds) each prompt stays on screen before auto-clearing.</summary>
-        public double PromptDisplaySeconds { get; set; } = 60.0;
+        public double PromptDisplaySeconds { get; set; } = 30.0;
 
         /// <summary>
         /// Categories to include. Empty list = all categories enabled.
@@ -21,5 +18,8 @@ namespace MediaCoach.Plugin
 
         /// <summary>Whether to show the topic title above the prompt text.</summary>
         public bool ShowTopicTitle { get; set; } = true;
+
+        /// <summary>When true, telemetry snapshots are written to a JSONL file for offline analysis.</summary>
+        public bool RecordMode { get; set; } = false;
     }
 }

@@ -23,13 +23,11 @@ namespace MediaCoach.Plugin
         {
             var s = _plugin.Settings;
 
-            IntervalSlider.Value = s.MinSuggestionIntervalMinutes;
-            IntervalLabel.Text   = $"{s.MinSuggestionIntervalMinutes:0.0} min";
-
             DisplaySlider.Value = s.PromptDisplaySeconds;
             DisplayLabel.Text   = $"{s.PromptDisplaySeconds:0} s";
 
-            ShowTitleCheck.IsChecked = s.ShowTopicTitle;
+            ShowTitleCheck.IsChecked  = s.ShowTopicTitle;
+            RecordModeCheck.IsChecked = s.RecordMode;
 
             bool allEnabled = s.EnabledCategories == null || s.EnabledCategories.Count == 0;
             CatHardware.IsChecked    = allEnabled || s.EnabledCategories.Contains("hardware");
@@ -38,14 +36,6 @@ namespace MediaCoach.Plugin
             CatRacingExp.IsChecked   = allEnabled || s.EnabledCategories.Contains("racing_experience");
 
             TopicsPathBox.Text = s.TopicsFilePath ?? "";
-        }
-
-        private void IntervalSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_loading) return;
-            _plugin.Settings.MinSuggestionIntervalMinutes = IntervalSlider.Value;
-            IntervalLabel.Text = $"{IntervalSlider.Value:0.0} min";
-            SaveAndApply();
         }
 
         private void DisplaySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -84,6 +74,13 @@ namespace MediaCoach.Plugin
             SaveAndApply();
         }
 
+        private void RecordModeCheck_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_loading) return;
+            _plugin.Settings.RecordMode = RecordModeCheck.IsChecked == true;
+            SaveAndApply();
+        }
+
         private void BrowseTopics_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new OpenFileDialog
@@ -102,6 +99,7 @@ namespace MediaCoach.Plugin
         private void SaveAndApply()
         {
             _plugin.SaveCommonSettings("GeneralSettings", _plugin.Settings);
+            _plugin.ApplySettings();
         }
     }
 }

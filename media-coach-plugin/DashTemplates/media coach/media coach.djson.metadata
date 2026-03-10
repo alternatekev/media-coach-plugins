@@ -8,7 +8,7 @@
   ],
   "MainPreviewIndex": 0,
   "IsOverlay": false,
-  "OverlaySizeWarning": true,
+  "OverlaySizeWarning": false,
   "MetadataVersion": 2.0,
   "EnableOnDashboardMessaging": true,
   "PitScreensIndexs": [],
@@ -17,7 +17,7 @@
   "Title": "Media Coach",
   "Description": "Telemetry data for Media Coach Plugin",
   "Author": "Kevin Conboy",
-  "Width": 1920.0,
-  "Height": 1280.0,
-  "DashboardVersion": "0.0.1"
+  "Width": 640.0,
+  "Height": 427.0,
+  "DashboardVersion": "0.0.2"
 }

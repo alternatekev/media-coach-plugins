@@ -15,6 +15,20 @@ namespace MediaCoach.Plugin.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string Sentiment { get; set; }
+
+        /// <summary>
+        /// Event severity 1-5. Higher values can interrupt lower-severity prompts.
+        /// 1 = ambient/informational, 2 = notable, 3 = significant, 4 = urgent, 5 = critical.
+        /// </summary>
+        public int Severity { get; set; } = 2;
+
+        /// <summary>
+        /// Short, repeatable on-air description of the event for event-only display mode.
+        /// Uses {value} placeholder for the triggering data value.
+        /// Example: "Tyre temps over {value}°C — fronts are overheating"
+        /// </summary>
+        public string EventExposition { get; set; }
+
         public List<string> SessionTypes { get; set; } = new List<string>();
         public List<TriggerCondition> Triggers { get; set; } = new List<TriggerCondition>();
         public List<string> CommentaryPrompts { get; set; } = new List<string>();

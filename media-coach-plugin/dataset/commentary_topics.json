@@ -1,6 +1,6 @@
 {
-  "version": "3.0",
-  "description": "Commentary topics for Media Coach. Prompts use Kevin's direct, technically-grounded voice. Thresholds tuned to avoid false positives. Driver name placeholders: {ahead}, {behind}.",
+  "version": "4.0",
+  "description": "Commentary topics for Media Coach. Prompts use Kevin's direct, technically-grounded voice. Each topic now includes severity (1-5) for priority-based interruption and eventExposition for event-only display mode. Driver name placeholders: {ahead}, {behind}. Event exposition uses {value} for the primary trigger's current telemetry value.",
   "categories": ["hardware", "game_feel", "car_response", "racing_experience"],
   "topics": [
 
@@ -9,6 +9,8 @@
       "category": "car_response",
       "title": "Big Save",
       "sentiment": "technical_analytical",
+      "severity": 5,
+      "eventExposition": "Snap oversteer — yaw rate hit {value} rad/s, full correction needed",
       "sessionTypes": [],
       "description": "Extreme yaw event — genuine snap oversteer or spin attempt.",
       "triggers": [
@@ -34,6 +36,8 @@
       "category": "racing_experience",
       "title": "Wall / Barrier Contact",
       "sentiment": "frustration_negative",
+      "severity": 5,
+      "eventExposition": "Hard impact — {value}G vertical spike, barrier or car contact",
       "sessionTypes": [],
       "description": "Heavy impact — car hit a barrier or another vehicle at significant speed.",
       "triggers": [
@@ -59,6 +63,8 @@
       "category": "racing_experience",
       "title": "Off Track",
       "sentiment": "self_deprecating",
+      "severity": 4,
+      "eventExposition": "Off track — vertical G spiked to {value}, left the racing surface",
       "sessionTypes": [],
       "description": "Car left the track surface — run-off, gravel, grass.",
       "triggers": [
@@ -83,6 +89,8 @@
       "category": "car_response",
       "title": "Kerb / Curb Hit",
       "sentiment": "technical_analytical",
+      "severity": 2,
+      "eventExposition": "Hard kerb contact — {value}G vertical spike over the apex kerb",
       "sessionTypes": [],
       "description": "Moderate vertical spike from hitting a kerb hard.",
       "triggers": [
@@ -107,6 +115,8 @@
       "category": "car_response",
       "title": "ABS Activation",
       "sentiment": "technical_analytical",
+      "severity": 1,
+      "eventExposition": "ABS fired under braking — system intervened at the lock-up threshold",
       "sessionTypes": [],
       "description": "ABS system fired — brakes locked before the system intervened.",
       "triggers": [
@@ -131,6 +141,8 @@
       "category": "car_response",
       "title": "Traction Control Cut",
       "sentiment": "technical_analytical",
+      "severity": 1,
+      "eventExposition": "TC cut power on corner exit — rear wheels breaking traction",
       "sessionTypes": [],
       "description": "TC cut power on corner exit — rear sliding under throttle.",
       "triggers": [
@@ -155,6 +167,8 @@
       "category": "racing_experience",
       "title": "Close Racing",
       "sentiment": "excitement_positive",
+      "severity": 3,
+      "eventExposition": "Wheel-to-wheel — car within 1% track distance, door-to-door racing",
       "sessionTypes": ["race"],
       "description": "Running wheel-to-wheel or within close proximity of another car.",
       "triggers": [
@@ -179,6 +193,8 @@
       "category": "racing_experience",
       "title": "Position Gained",
       "sentiment": "excitement_positive",
+      "severity": 4,
+      "eventExposition": "Overtake — passed {ahead}, moving up to P{value}",
       "sessionTypes": ["race"],
       "description": "Player moved up a position — made a clean pass.",
       "triggers": [
@@ -202,6 +218,8 @@
       "category": "racing_experience",
       "title": "Position Lost",
       "sentiment": "frustration_negative",
+      "severity": 4,
+      "eventExposition": "Overtaken — {behind} got past, dropped to P{value}",
       "sessionTypes": ["race"],
       "description": "Player dropped a position — was overtaken.",
       "triggers": [
@@ -225,6 +243,8 @@
       "category": "racing_experience",
       "title": "Yellow Flag",
       "sentiment": "neutral_narrative",
+      "severity": 4,
+      "eventExposition": "Yellow flag — caution deployed, incident on track",
       "sessionTypes": [],
       "description": "Yellow flag went active on track.",
       "triggers": [
@@ -248,6 +268,8 @@
       "category": "racing_experience",
       "title": "Debris on Track",
       "sentiment": "neutral_narrative",
+      "severity": 3,
+      "eventExposition": "Debris flag — hazardous material reported on the circuit",
       "sessionTypes": [],
       "description": "Debris flag shown — hazardous material on the circuit.",
       "triggers": [
@@ -272,6 +294,8 @@
       "category": "racing_experience",
       "title": "Race Start",
       "sentiment": "excitement_positive",
+      "severity": 4,
+      "eventExposition": "Race start — lights out, lap 1 underway from P{value}",
       "sessionTypes": ["race"],
       "description": "Race session has just started.",
       "triggers": [
@@ -295,6 +319,8 @@
       "category": "racing_experience",
       "title": "Personal Best Lap",
       "sentiment": "excitement_positive",
+      "severity": 3,
+      "eventExposition": "Personal best — new fastest lap set",
       "sessionTypes": [],
       "description": "New personal best lap time just set.",
       "triggers": [
@@ -318,6 +344,8 @@
       "category": "racing_experience",
       "title": "Pit Lane Entry",
       "sentiment": "neutral_narrative",
+      "severity": 3,
+      "eventExposition": "Pit entry — coming in for service on lap {value}",
       "sessionTypes": ["race"],
       "description": "Player entered pit lane.",
       "triggers": [
@@ -341,6 +369,8 @@
       "category": "car_response",
       "title": "Maximum Cornering Load",
       "sentiment": "car_praise",
+      "severity": 2,
+      "eventExposition": "Peak lateral load — {value}G through this corner, near the grip limit",
       "sessionTypes": [],
       "description": "Very high lateral g sustained through a fast corner.",
       "triggers": [
@@ -365,6 +395,8 @@
       "category": "hardware",
       "title": "FFB Torque Spike",
       "sentiment": "technical_analytical",
+      "severity": 3,
+      "eventExposition": "FFB spike — steering torque jumped by {value}Nm, major front-end load event",
       "sessionTypes": [],
       "description": "Large sudden torque spike through the steering — major kerb or snap load.",
       "triggers": [
@@ -389,6 +421,8 @@
       "category": "racing_experience",
       "title": "Low Fuel",
       "sentiment": "neutral_narrative",
+      "severity": 3,
+      "eventExposition": "Low fuel — tank at {value}%, running close to empty this stint",
       "sessionTypes": ["race"],
       "description": "Fuel level critically low — approaching the end of the stint.",
       "triggers": [
@@ -413,6 +447,8 @@
       "category": "racing_experience",
       "title": "Wet Conditions",
       "sentiment": "neutral_narrative",
+      "severity": 3,
+      "eventExposition": "Wet track declared — conditions changing, grip levels dropping",
       "sessionTypes": [],
       "description": "Track conditions declared wet or rain detected.",
       "triggers": [
@@ -437,6 +473,8 @@
       "category": "car_response",
       "title": "High Tyre Wear",
       "sentiment": "technical_analytical",
+      "severity": 2,
+      "eventExposition": "High tyre wear — front left at {value}% worn, grip is degrading",
       "sessionTypes": [],
       "description": "Significant tyre wear — car behavior degrading.",
       "triggers": [
@@ -473,6 +511,8 @@
       "category": "car_response",
       "title": "Overheating Tyres",
       "sentiment": "technical_analytical",
+      "severity": 3,
+      "eventExposition": "Tyre overheating — front temps at {value}°C, past the operating window",
       "sessionTypes": [],
       "description": "Tyre temperatures significantly over optimal range.",
       "triggers": [
@@ -503,6 +543,8 @@
       "category": "car_response",
       "title": "Major Braking Zone",
       "sentiment": "excitement_positive",
+      "severity": 2,
+      "eventExposition": "Heavy braking — {value}G deceleration into this corner",
       "sessionTypes": [],
       "description": "Extreme longitudinal deceleration — very heavy braking event.",
       "triggers": [
@@ -527,6 +569,8 @@
       "category": "racing_experience",
       "title": "Hot Qualifying Lap",
       "sentiment": "excitement_positive",
+      "severity": 3,
+      "eventExposition": "Hot lap — running {value}s ahead of personal best in qualifying",
       "sessionTypes": ["qual"],
       "description": "Running significantly ahead of personal best in qualifying.",
       "triggers": [
@@ -551,6 +595,8 @@
       "category": "racing_experience",
       "title": "iRacing Incident Points",
       "sentiment": "frustration_negative",
+      "severity": 4,
+      "eventExposition": "Incident — iRacing added penalty points, now at {value}x total",
       "sessionTypes": [],
       "description": "iRacing incident count just increased.",
       "triggers": [
@@ -574,6 +620,8 @@
       "category": "car_response",
       "title": "ERS Battery Low",
       "sentiment": "technical_analytical",
+      "severity": 2,
+      "eventExposition": "ERS depleted — battery at {value}%, no hybrid boost available",
       "sessionTypes": [],
       "description": "ERS battery nearly depleted — losing hybrid power.",
       "triggers": [
@@ -598,6 +646,8 @@
       "category": "game_feel",
       "title": "High Track Temperature",
       "sentiment": "technical_analytical",
+      "severity": 1,
+      "eventExposition": "Track surface at {value}°C — high temps accelerating tyre degradation",
       "sessionTypes": [],
       "description": "Track temperature very high — affects degradation and grip window.",
       "triggers": [
@@ -622,6 +672,8 @@
       "category": "car_response",
       "title": "DRS Open",
       "sentiment": "excitement_positive",
+      "severity": 2,
+      "eventExposition": "DRS open — rear wing flap deployed, straight-line speed boost active",
       "sessionTypes": [],
       "description": "DRS rear wing is open — straight-line speed advantage active.",
       "triggers": [
@@ -646,6 +698,8 @@
       "category": "car_response",
       "title": "Car On The Limit",
       "sentiment": "car_praise",
+      "severity": 1,
+      "eventExposition": "Car hooked up — sustained {value}G lateral load, perfectly balanced",
       "sessionTypes": [],
       "description": "Sustained high lateral load — car working perfectly through a complex corner.",
       "triggers": [

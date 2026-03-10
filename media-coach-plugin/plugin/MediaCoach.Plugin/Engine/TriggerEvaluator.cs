@@ -41,6 +41,13 @@ namespace MediaCoach.Plugin.Engine
 
         // ── Helpers: get named value from snapshot ────────────────────────────
 
+        /// <summary>
+        /// Public accessor for reading a telemetry value by datapoint name.
+        /// Used by CommentaryEngine for event exposition value substitution.
+        /// </summary>
+        public static double GetValuePublic(TelemetrySnapshot s, string dataPoint)
+            => GetValue(s, dataPoint);
+
         private static double GetValue(TelemetrySnapshot s, string dataPoint)
         {
             switch (dataPoint?.ToLower())

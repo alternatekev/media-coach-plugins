@@ -27,6 +27,8 @@ namespace MediaCoach.Plugin
             DisplayLabel.Text   = $"{s.PromptDisplaySeconds:0} s";
 
             ShowTitleCheck.IsChecked  = s.ShowTopicTitle;
+            EventOnlyCheck.IsChecked  = s.EventOnlyMode;
+            DemoModeCheck.IsChecked   = s.DemoMode;
             RecordModeCheck.IsChecked = s.RecordMode;
 
             bool allEnabled = s.EnabledCategories == null || s.EnabledCategories.Count == 0;
@@ -53,6 +55,13 @@ namespace MediaCoach.Plugin
             SaveAndApply();
         }
 
+        private void EventOnlyCheck_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_loading) return;
+            _plugin.Settings.EventOnlyMode = EventOnlyCheck.IsChecked == true;
+            SaveAndApply();
+        }
+
         private void Category_Changed(object sender, RoutedEventArgs e)
         {
             if (_loading) return;
@@ -71,6 +80,13 @@ namespace MediaCoach.Plugin
         {
             if (_loading) return;
             _plugin.Settings.TopicsFilePath = TopicsPathBox.Text.Trim();
+            SaveAndApply();
+        }
+
+        private void DemoModeCheck_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_loading) return;
+            _plugin.Settings.DemoMode = DemoModeCheck.IsChecked == true;
             SaveAndApply();
         }
 

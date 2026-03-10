@@ -66,13 +66,13 @@ namespace MediaCoach.Plugin
 
             // ── Register dashboard properties ─────────────────────────────────
 
-            // The full commentary prompt text
+            // The full commentary prompt text (or event exposition in event-only mode)
             this.AttachDelegate("CommentaryText", () => BuildDisplayText());
 
             // Boolean: whether the panel should be visible
             this.AttachDelegate("CommentaryVisible", () => _engine.IsVisible ? 1 : 0);
 
-            // Category with sentiment label, e.g. "car_response — Technical / Analytical"
+            // Category with severity/sentiment label, e.g. "car_response — Urgent"
             this.AttachDelegate("CommentaryCategory", () =>
             {
                 string cat = _engine.CurrentCategory;
@@ -96,6 +96,10 @@ namespace MediaCoach.Plugin
 
             // Sentiment color for background tinting (#AARRGGBB, black when no prompt)
             this.AttachDelegate("CommentarySentimentColor", () => _engine.CurrentSentimentColor);
+
+            // Severity level (1-5) for the current prompt, 0 when no prompt visible.
+            // Dashboard uses this to toggle per-severity background elements.
+            this.AttachDelegate("CommentarySeverity", () => _engine.IsVisible ? _engine.CurrentSeverity : 0);
 
             // ── Actions ───────────────────────────────────────────────────────
 
@@ -176,6 +180,8 @@ namespace MediaCoach.Plugin
         public void ApplySettings()
         {
             _engine.DisplaySeconds    = Settings.PromptDisplaySeconds;
+            _engine.EventOnlyMode     = Settings.EventOnlyMode;
+            _engine.DemoMode          = Settings.DemoMode;
             _engine.EnabledCategories = Settings.EnabledCategories?.Count > 0
                 ? new System.Collections.Generic.HashSet<string>(Settings.EnabledCategories)
                 : null;
@@ -196,6 +202,16 @@ namespace MediaCoach.Plugin
         private string BuildDisplayText()
         {
             if (!_engine.IsVisible) return "";
+
+            // Event-only mode: show concise exposition instead of commentary prompt
+            if (Settings.EventOnlyMode)
+            {
+                string expo = _engine.CurrentEventExposition;
+                return string.IsNullOrEmpty(expo)
+                    ? _engine.CurrentTitle
+                    : expo;
+            }
+
             if (Settings.ShowTopicTitle && !string.IsNullOrEmpty(_engine.CurrentTitle))
                 return _engine.CurrentTitle + "\n" + _engine.CurrentText;
             return _engine.CurrentText;

@@ -21,5 +21,18 @@ namespace MediaCoach.Plugin
 
         /// <summary>When true, telemetry snapshots are written to a JSONL file for offline analysis.</summary>
         public bool RecordMode { get; set; } = false;
+
+        /// <summary>
+        /// When true, displays a concise exposition of the event and its telemetry value
+        /// instead of the full commentary prompt. Designed for on-air readability.
+        /// </summary>
+        public bool EventOnlyMode { get; set; } = false;
+
+        /// <summary>
+        /// When true, the engine runs a self-contained demo sequence that cycles through
+        /// all event types and severity levels as if a race were in progress.
+        /// Maximum 30 seconds between events. No game session required.
+        /// </summary>
+        public bool DemoMode { get; set; } = false;
     }
 }

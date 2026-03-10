@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\MediaCoach.Plugin.csproj": {}
+    "Y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\MediaCoach.Plugin.csproj": {}
   },
   "projects": {
-    "y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\MediaCoach.Plugin.csproj": {
+    "Y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\MediaCoach.Plugin.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\MediaCoach.Plugin.csproj",
+        "projectUniqueName": "Y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\MediaCoach.Plugin.csproj",
         "projectName": "MediaCoach.Plugin",
-        "projectPath": "y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\MediaCoach.Plugin.csproj",
+        "projectPath": "Y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\MediaCoach.Plugin.csproj",
         "packagesPath": "C:\\Users\\kevinconboy\\.nuget\\packages\\",
-        "outputPath": "y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\obj\\",
+        "outputPath": "Y:\\media-coach-simhub-plugin\\media-coach-plugin\\plugin\\MediaCoach.Plugin\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\kevinconboy\\AppData\\Roaming\\NuGet\\NuGet.Config"

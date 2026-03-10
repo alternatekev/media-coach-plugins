@@ -45,6 +45,90 @@ this is the biggest lift of the update. we need a much more interesting and opin
 1. build a testing system such that we can take recorded race data, and generate transcripts of when a message would occur during a data stream
 2. build a learning system such that we can take feedback to these testing results to fine-tune the eventing system, sentiments, and prompt text
 
+---
+
+## Version 2.0: AI-Generated Commentary via Claude API
+
+Instead of selecting from a pre-written pool of commentary prompts, version 2.0 would call the Claude API (claude-haiku-4-5 for latency reasons) at the moment a telemetry event fires, generating a unique, contextually-aware line of commentary every time. The static `commentaryPrompts` arrays in the topics JSON become system prompt templates and style guides rather than the final text. This is the path toward genuinely non-repetitive, voice-matched, situation-aware commentary.
+
+### Architecture
+
+**New class: `CommentaryGenerator`**
+
+A thin async wrapper around the Anthropic Messages API. Lives in `Engine/CommentaryGenerator.cs`. Responsible for:
+
+1. Building a prompt from the current `TelemetrySnapshot` + the fired `CommentaryTopic`
+2. Making a non-blocking HTTP POST to `https://api.anthropic.com/v1/messages`
+3. Calling back into `CommentaryEngine` with the generated text when the response arrives
+
+The key design constraint is that this must be **fire-and-forget with a callback** — never block the SimHub data loop. The engine fires the API call, immediately shows a brief loading state or the event exposition text (already built), then replaces it with the generated line when it arrives (~200-400ms for Haiku).
+
+**New setting: `AnthropicApiKey`**
+
+Added to `Settings.cs` and surfaced as a password-style text field in `Control.xaml`. The key is stored via SimHub's existing settings serialization (`SaveCommonSettings`) — not to disk in plaintext separately.
+
+**System prompt construction**
+
+The system prompt sent to the API would be assembled from three layers:
+
+1. **Voice/style layer** — drawn from `channel_notes.json`, specifically Kevin's profile. Instructs the model to write in first person, present tense, technically grounded, direct, no filler phrases. The full style notes from `channel_notes.json` for the active channel feed directly into this.
+
+2. **Event layer** — the fired topic's `title`, `sentiment`, `severity`, and `eventExposition` (already interpolated with live telemetry values). Tells the model what just happened and how urgent it is.
+
+3. **Context layer** — a compact telemetry summary: session type, lap number, position, nearest opponents (names + iRatings), tyre state, fuel, weather, and the circuit position if available. Keeps the model grounded in the actual race situation.
+
+Example assembled system prompt for a `position_lost` (severity 4) event:
+```
+You are Kevin, a technically-minded sim racing streamer. Write a single spoken commentary line
+in first person, present tense. Be direct and specific. No filler phrases. Max 25 words.
+
+EVENT: Position Lost [URGENT] — Overtaken by Sarah K. (2847 iR), dropped to P6
+SESSION: Race, lap 14/20, Lime Rock Park
+CONTEXT: P6 of 18, fuel 34%, fronts warm, gap to P7 is 1.2s
+```
+
+The model returns one line. That line replaces the prompt text in `_currentText`.
+
+**Latency handling**
+
+Because even Haiku takes 200-500ms, the display sequence is:
+
+1. Event fires → `CurrentEventExposition` shown immediately (the interpolated short text, already built synchronously)
+2. API call dispatched on a `Task.Run` thread
+3. On API response: if the prompt is still visible (hasn't been interrupted by a higher-severity event), replace the text with the generated line
+
+This means the exposition acts as a loading placeholder. In event-only mode, nothing changes — the exposition is the final output and no API call is made.
+
+**Fallback**
+
+If the API key is empty, the network is unavailable, or the call exceeds a 1.5s timeout, the engine falls back to the existing static prompt pool exactly as today. No degradation in the no-API path.
+
+### New Settings
+
+| Setting | Type | Default | Notes |
+|---|---|---|---|
+| `AnthropicApiKey` | string | "" | Stored via SimHub settings serialization |
+| `AiCommentaryEnabled` | bool | false | Master toggle, requires key to activate |
+| `AiMaxWords` | int | 25 | Caps generated line length |
+| `AiFallbackOnTimeout` | bool | true | Use static pool if API exceeds 1.5s |
+
+### What Doesn't Change
+
+- The trigger system, severity system, interruption logic, and cooldowns are all unchanged. The AI path is purely a replacement for the final text selection step in `ShowPrompt()`.
+- The dashboard requires no changes.
+- Event-only mode bypasses AI generation entirely — the exposition string is always synchronous.
+- The `channel_notes.json` file (currently unused by the plugin) gets a real job: its style profile for the active channel feeds the system prompt.
+
+### Files Affected
+
+- `Settings.cs` — two new fields
+- `Control.xaml` / `Control.xaml.cs` — API key input + AI toggle
+- `Engine/CommentaryGenerator.cs` — new file, async Anthropic API wrapper
+- `Engine/CommentaryEngine.cs` — `ShowPrompt()` calls `CommentaryGenerator` when AI is enabled, handles callback
+- `MediaCoach.Plugin.csproj` — add `System.Net.Http` reference if not already present
+
+---
+
 ## Alpha Testing Results
 
 1. colors still don't show up in the sentiment box. does simhub support hex8, the color format you're using? it doesn't seem to, or the values don't come through correctly. don't update the dashboard here, just the plugin.

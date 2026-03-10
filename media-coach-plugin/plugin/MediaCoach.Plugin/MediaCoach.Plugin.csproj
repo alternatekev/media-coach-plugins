@@ -61,6 +61,21 @@
           SkipUnchangedFiles="true" />
   </Target>
 
+  <!--
+    Post-build: copy the dashboard template so SimHub can open it directly.
+    DashTemplates/ in the repo maps to DashTemplates/ in the SimHub install folder.
+    If you clone this repo into the SimHub directory, no build step is needed for
+    the dashboard — it is already in the right place.
+  -->
+  <Target Name="CopyDashboard" AfterTargets="Build">
+    <ItemGroup>
+      <DashFiles Include="..\..\DashTemplates\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DashFiles)"
+          DestinationFolder="$(SimHubPath)DashTemplates\%(RecursiveDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
   <!-- Debug: launch SimHub when pressing F5 -->
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <StartAction>Program</StartAction>

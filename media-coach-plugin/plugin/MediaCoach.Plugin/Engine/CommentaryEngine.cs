@@ -10,11 +10,35 @@ namespace MediaCoach.Plugin.Engine
 {
     /// <summary>
     /// Core commentary logic. Evaluates telemetry triggers, enforces cooldowns,
-    /// selects prompts, and manages the display lifecycle.
+    /// selects prompts, manages severity-based interruption, and controls the
+    /// display lifecycle.
     /// </summary>
     public class CommentaryEngine
     {
-        // ── Sentiment → category mapping ──────────────────────────────────────
+        // ── Severity → sentiment color mapping ──────────────────────────────
+        // Used when EventOnlyMode is active or when a topic has no explicit sentiment.
+        // Maps severity (1-5) to a color that visually communicates urgency.
+        private static readonly Dictionary<int, string> SeverityColors =
+            new Dictionary<int, string>
+            {
+                { 1, "#FF37474F" },  // slate grey — ambient / informational
+                { 2, "#FF0D47A1" },  // blue — notable
+                { 3, "#FFE65100" },  // orange — significant
+                { 4, "#FFF57F17" },  // amber — urgent
+                { 5, "#FFB71C1C" },  // red — critical
+            };
+
+        private static readonly Dictionary<int, string> SeverityLabels =
+            new Dictionary<int, string>
+            {
+                { 1, "Info" },
+                { 2, "Notable" },
+                { 3, "Significant" },
+                { 4, "Urgent" },
+                { 5, "Critical" },
+            };
+
+        // ── Sentiment → category mapping (retained for non-event-only mode) ─
         private static readonly Dictionary<string, string[]> CategorySentiments =
             new Dictionary<string, string[]>
             {
@@ -32,8 +56,9 @@ namespace MediaCoach.Plugin.Engine
 
         // Per-topic last trigger time
         private readonly Dictionary<string, DateTime> _topicLastTrigger = new Dictionary<string, DateTime>();
-        // Anti-spam: minimum 10 seconds between any two prompts
+        // Anti-spam: minimum seconds between any two prompts (only for same-or-lower severity)
         private DateTime _lastPromptFireTime = DateTime.MinValue;
+        private const double AntiSpamSeconds = 8.0;
 
         // Current displayed prompt
         private volatile string _currentText           = "";
@@ -41,12 +66,22 @@ namespace MediaCoach.Plugin.Engine
         private volatile string _currentTitle          = "";
         private volatile string _currentTopicId        = "";
         private volatile string _currentSentimentLabel = "";
-        private volatile string _currentSentimentColor = "#000000";
+        private volatile string _currentSentimentColor = "#FF000000";
+        private volatile string _currentEventExposition = "";
         private DateTime _promptDisplayedAt             = DateTime.MinValue;
+        private int _currentSeverity                    = 0;
 
-        // ── Settings (set by plugin from Settings object) ─────────────────────
-        public double DisplaySeconds      { get; set; } = 30.0;
+        // ── Demo mode state ──────────────────────────────────────────────────
+        private List<DemoSequence.Step> _demoSteps;
+        private int      _demoIndex      = 0;
+        private DateTime _demoNextFireAt = DateTime.MinValue;
+        private bool     _demoPrev       = false; // tracks DemoMode on→off transitions
+
+        // ── Settings (set by plugin from Settings object) ────────────────────
+        public double DisplaySeconds      { get; set; } = 15.0;
         public HashSet<string> EnabledCategories { get; set; }
+        public bool EventOnlyMode { get; set; } = false;
+        public bool DemoMode      { get; set; } = false;
 
         /// <summary>
         /// Optional hook — returns a cooldown multiplier for a given topic ID.
@@ -61,6 +96,8 @@ namespace MediaCoach.Plugin.Engine
         public string CurrentTopicId        => _currentTopicId;
         public string CurrentSentimentLabel => _currentSentimentLabel;
         public string CurrentSentimentColor => _currentSentimentColor;
+        public string CurrentEventExposition => _currentEventExposition;
+        public int    CurrentSeverity       => _currentSeverity;
         public bool   IsVisible       => _currentText.Length > 0
                                          && (DateTime.UtcNow - _promptDisplayedAt).TotalSeconds < DisplaySeconds;
         public double SecondsRemaining
@@ -72,7 +109,7 @@ namespace MediaCoach.Plugin.Engine
             }
         }
 
-        // ── Initialise ────────────────────────────────────────────────────────
+        // ── Initialise ──────────────────────────────────────────────────────
 
         /// <summary>
         /// Shows a brief placeholder prompt so the dashboard is visible on startup
@@ -83,7 +120,8 @@ namespace MediaCoach.Plugin.Engine
             _currentText           = "Media Coach is active. Prompts will appear here when telemetry events fire during your session.";
             _currentCategory       = "hardware";
             _currentTitle          = "Media Coach Ready";
-            _currentSentimentColor = "#37474F"; // neutral dark slate
+            _currentSentimentColor = "#FF37474F"; // neutral dark slate (AARRGGBB)
+            _currentSeverity       = 1;
             _promptDisplayedAt     = DateTime.UtcNow;
         }
 
@@ -99,7 +137,11 @@ namespace MediaCoach.Plugin.Engine
             try
             {
                 string json = File.ReadAllText(jsonPath);
-                var file = JsonConvert.DeserializeObject<CommentaryTopicsFile>(json);
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                var file = JsonConvert.DeserializeObject<CommentaryTopicsFile>(json, settings);
                 _topics = file?.Topics ?? new List<CommentaryTopic>();
                 SimHub.Logging.Current.Info($"[MediaCoach] Loaded {_topics.Count} topics from {jsonPath}");
             }
@@ -133,8 +175,10 @@ namespace MediaCoach.Plugin.Engine
                     foreach (var s in file.Sentiments)
                     {
                         if (string.IsNullOrEmpty(s.Id)) continue;
-                        if (!string.IsNullOrEmpty(s.Color)) _sentimentColors[s.Id] = s.Color;
-                        if (!string.IsNullOrEmpty(s.Label)) _sentimentLabels[s.Id] = s.Label;
+                        if (!string.IsNullOrEmpty(s.Color))
+                            _sentimentColors[s.Id] = NormalizeColor(s.Color);
+                        if (!string.IsNullOrEmpty(s.Label))
+                            _sentimentLabels[s.Id] = s.Label;
                     }
                 }
                 SimHub.Logging.Current.Info($"[MediaCoach] Loaded {_sentimentColors.Count} sentiment colors");
@@ -147,7 +191,6 @@ namespace MediaCoach.Plugin.Engine
 
         private void LoadBuiltinTopics()
         {
-            // Minimal fallback topics if JSON file is missing
             _topics = new List<CommentaryTopic>
             {
                 new CommentaryTopic
@@ -155,6 +198,8 @@ namespace MediaCoach.Plugin.Engine
                     Id = "car_balance_fallback",
                     Category = "car_response",
                     Title = "Car Balance",
+                    Severity = 2,
+                    EventExposition = "Lateral load at {value}G — car working hard through the corner",
                     CommentaryPrompts = new List<string>
                     {
                         "Talk about how the car is feeling right now — is it balanced or fighting you?",
@@ -171,6 +216,8 @@ namespace MediaCoach.Plugin.Engine
                     Id = "fuel_fallback",
                     Category = "racing_experience",
                     Title = "Fuel Strategy",
+                    Severity = 3,
+                    EventExposition = "Fuel at {value}% — running low on this stint",
                     CommentaryPrompts = new List<string>
                     {
                         "Talk about your fuel situation — how many laps do you have left?"
@@ -184,48 +231,148 @@ namespace MediaCoach.Plugin.Engine
             };
         }
 
-        // ── Main update loop ──────────────────────────────────────────────────
+        // ── Main update loop ────────────────────────────────────────────────
 
         /// <summary>
-        /// Called once per DataUpdate frame. Evaluates triggers and updates
-        /// the current prompt if appropriate. Thread-safe via volatile writes.
+        /// Called once per DataUpdate frame. Branches into demo mode if enabled,
+        /// otherwise evaluates real telemetry triggers. Supports severity-based
+        /// interruption: higher-severity events override lower ones immediately.
+        /// Thread-safe via volatile writes.
         /// </summary>
         public void Update(TelemetrySnapshot current, TelemetrySnapshot previous)
         {
+            if (DemoMode)
+            {
+                UpdateDemo();
+                return;
+            }
+
+            // When demo mode is turned off, reset demo state and clear any demo prompt
+            if (_demoPrev)
+            {
+                _demoSteps      = null;
+                _demoIndex      = 0;
+                _demoNextFireAt = DateTime.MinValue;
+                _demoPrev       = false;
+                ClearPrompt();
+            }
+
             // Auto-clear expired prompts
             if (!IsVisible && _currentText.Length > 0)
                 ClearPrompt();
 
             if (!current.GameRunning) return;
 
-            // Anti-spam: enforce 10-second minimum between any two prompts
-            if ((DateTime.UtcNow - _lastPromptFireTime).TotalSeconds < 10.0) return;
+            // Evaluate topics in severity-descending order so the most important fires first,
+            // then randomize within the same severity tier.
+            var ordered = _topics
+                .OrderByDescending(t => t.Severity)
+                .ThenBy(_ => _rng.Next())
+                .ToList();
 
-            // Evaluate topics in randomised order to avoid always preferring the first match
-            var shuffled = _topics.OrderBy(_ => _rng.Next()).ToList();
-
-            foreach (var topic in shuffled)
+            foreach (var topic in ordered)
             {
                 if (!IsTopicEnabled(topic, current.SessionTypeName)) continue;
                 if (!IsTopicCooledDown(topic)) continue;
                 if (!AnyTriggerFires(topic, current, previous)) continue;
 
+                // Severity-based interruption logic:
+                // If a prompt is currently visible, only replace it if the new topic
+                // has strictly higher severity.
+                if (IsVisible)
+                {
+                    if (topic.Severity <= _currentSeverity)
+                        continue; // skip — current prompt is same or higher severity
+
+                    // Higher-severity event: interrupt immediately
+                    SimHub.Logging.Current.Info(
+                        $"[MediaCoach] Interrupting [{_currentTitle}] (sev {_currentSeverity}) with [{topic.Title}] (sev {topic.Severity})");
+                }
+                else
+                {
+                    // No prompt visible: enforce anti-spam for non-critical events
+                    double elapsed = (DateTime.UtcNow - _lastPromptFireTime).TotalSeconds;
+                    if (elapsed < AntiSpamSeconds && topic.Severity < 4)
+                        continue;
+                }
+
                 ShowPrompt(topic, current);
-                return; // one suggestion at a time
+                return; // one prompt per evaluation
             }
+        }
+
+        /// <summary>
+        /// Demo mode update path. Fires curated steps from DemoSequence in order,
+        /// respecting each step's delay (capped at 30 s). Interruption steps fire
+        /// while the previous prompt is still visible, demonstrating the severity system.
+        /// Loops continuously so the dashboard stays animated.
+        /// </summary>
+        private void UpdateDemo()
+        {
+            _demoPrev = true;
+
+            // Auto-clear expired prompts
+            if (!IsVisible && _currentText.Length > 0)
+                ClearPrompt();
+
+            // Initialise sequence on first entry
+            if (_demoSteps == null)
+            {
+                _demoSteps      = DemoSequence.Build();
+                _demoIndex      = 0;
+                _demoNextFireAt = DateTime.UtcNow; // fire first step immediately
+            }
+
+            if (DateTime.UtcNow < _demoNextFireAt) return;
+
+            // Find the topic for this step
+            int safeIndex = _demoIndex % _demoSteps.Count;
+            var step = _demoSteps[safeIndex];
+            _demoIndex++;
+
+            CommentaryTopic topic = _topics.Find(t => t.Id == step.TopicId);
+            if (topic == null)
+            {
+                // Topic not found (e.g., filtered out) — skip and schedule next
+                double skipDelay = Math.Min(step.DelaySeconds, 30.0);
+                _demoNextFireAt = DateTime.UtcNow.AddSeconds(Math.Max(skipDelay, 3.0));
+                return;
+            }
+
+            // Schedule the NEXT step before firing this one
+            double nextDelay = safeIndex + 1 < _demoSteps.Count
+                ? _demoSteps[safeIndex + 1].DelaySeconds
+                : _demoSteps[0].DelaySeconds;
+            _demoNextFireAt = DateTime.UtcNow.AddSeconds(Math.Min(nextDelay, 30.0));
+
+            // In demo mode, severity-based interruption logic still applies so viewers see it live.
+            if (IsVisible && topic.Severity <= _currentSeverity)
+            {
+                // This step would be blocked — advance immediately so the sequence keeps moving
+                _demoNextFireAt = DateTime.UtcNow.AddSeconds(2.0);
+                return;
+            }
+
+            if (step.IsInterrupt && IsVisible)
+                SimHub.Logging.Current.Info(
+                    $"[MediaCoach][Demo] Interrupting [{_currentTitle}] (sev {_currentSeverity}) with [{topic.Title}] (sev {topic.Severity})");
+
+            ShowPrompt(topic, step.Snapshot);
         }
 
         public void ClearPrompt()
         {
-            _currentText           = "";
-            _currentCategory       = "";
-            _currentTitle          = "";
-            _currentTopicId        = "";
-            _currentSentimentLabel = "";
-            _currentSentimentColor = "#000000";
+            _currentText            = "";
+            _currentCategory        = "";
+            _currentTitle           = "";
+            _currentTopicId         = "";
+            _currentSentimentLabel  = "";
+            _currentSentimentColor  = "#FF000000";
+            _currentEventExposition = "";
+            _currentSeverity        = 0;
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
+        // ── Helpers ─────────────────────────────────────────────────────────
 
         private bool IsTopicEnabled(CommentaryTopic topic, string sessionTypeName)
         {
@@ -265,12 +412,31 @@ namespace MediaCoach.Plugin.Engine
             return false;
         }
 
+        /// <summary>
+        /// Resolves the sentiment color for a topic. In severity-aware mode,
+        /// uses the severity color map. Otherwise falls back to sentiment → category mapping.
+        /// </summary>
+        private string ResolveSentimentColor(CommentaryTopic topic)
+        {
+            // Always use severity colors — they communicate urgency clearly
+            if (SeverityColors.TryGetValue(topic.Severity, out var sevColor))
+                return sevColor; // already in #AARRGGBB format
+
+            // Fallback: explicit sentiment on topic
+            if (!string.IsNullOrEmpty(topic.Sentiment)
+                && _sentimentColors.TryGetValue(topic.Sentiment, out var c))
+                return c;
+
+            // Fallback: random from category mapping
+            return PickSentimentColor(topic.Category);
+        }
+
         private string PickSentimentColor(string category)
         {
             if (!CategorySentiments.TryGetValue(category ?? "", out var ids) || ids.Length == 0)
-                return "#000000";
+                return "#FF000000";
             string id = ids[_rng.Next(ids.Length)];
-            return _sentimentColors.TryGetValue(id, out var color) ? color : "#000000";
+            return _sentimentColors.TryGetValue(id, out var color) ? color : "#FF000000";
         }
 
         private void ShowPrompt(CommentaryTopic topic, TelemetrySnapshot context)
@@ -286,33 +452,114 @@ namespace MediaCoach.Plugin.Engine
                 prompt = prompt.Replace("{behind}", FormatDriver(context.NearestBehindName, context.NearestBehindRating));
             }
 
-            // Resolve sentiment
-            string sentiment = !string.IsNullOrEmpty(topic.Sentiment) ? topic.Sentiment : "";
-            string sentimentColor = !string.IsNullOrEmpty(sentiment)
-                ? (_sentimentColors.TryGetValue(sentiment, out var c) ? c : "#000000")
-                : PickSentimentColor(topic.Category);
-            string sentimentLabel = !string.IsNullOrEmpty(sentiment)
-                ? (_sentimentLabels.TryGetValue(sentiment, out var l) ? l : "")
-                : "";
+            // Build event exposition text (used in event-only mode)
+            string exposition = BuildEventExposition(topic, context);
 
-            _currentText           = prompt;
-            _currentCategory       = topic.Category;
-            _currentTitle          = topic.Title;
-            _currentTopicId        = topic.Id;
-            _currentSentimentLabel = sentimentLabel;
-            _currentSentimentColor = sentimentColor;
-            _promptDisplayedAt     = DateTime.UtcNow;
+            // Resolve sentiment — severity-based color
+            string sentimentColor = ResolveSentimentColor(topic);
+            string sentimentLabel = SeverityLabels.TryGetValue(topic.Severity, out var sl)
+                ? sl
+                : (!string.IsNullOrEmpty(topic.Sentiment) && _sentimentLabels.TryGetValue(topic.Sentiment, out var l) ? l : "");
+
+            _currentText            = prompt;
+            _currentCategory        = topic.Category;
+            _currentTitle           = topic.Title;
+            _currentTopicId         = topic.Id;
+            _currentSentimentLabel  = sentimentLabel;
+            _currentSentimentColor  = sentimentColor;
+            _currentEventExposition = exposition;
+            _currentSeverity        = topic.Severity;
+            _promptDisplayedAt      = DateTime.UtcNow;
 
             _topicLastTrigger[topic.Id] = DateTime.UtcNow;
             _lastPromptFireTime = DateTime.UtcNow;
 
-            SimHub.Logging.Current.Info($"[MediaCoach] Prompt shown: [{topic.Title}] {prompt}");
+            SimHub.Logging.Current.Info($"[MediaCoach] Prompt shown: [{topic.Title}] (sev {topic.Severity}) {prompt}");
+        }
+
+        /// <summary>
+        /// Builds a concise, on-air-readable exposition string for event-only mode.
+        /// Uses the topic's EventExposition template if present, otherwise generates
+        /// a default from the topic title and trigger data.
+        /// </summary>
+        private string BuildEventExposition(CommentaryTopic topic, TelemetrySnapshot context)
+        {
+            string template = topic.EventExposition;
+
+            if (string.IsNullOrEmpty(template))
+            {
+                // Generate a sensible default from the topic title + severity
+                string sevTag = SeverityLabels.TryGetValue(topic.Severity, out var s) ? s.ToUpper() : "";
+                return $"[{sevTag}] {topic.Title}";
+            }
+
+            // Substitute {value} with the primary trigger's current value
+            if (context != null && topic.Triggers.Count > 0)
+            {
+                var primaryTrigger = topic.Triggers[0];
+                double val = TriggerEvaluator.GetValuePublic(context, primaryTrigger.DataPoint);
+                template = template.Replace("{value}", FormatValue(val, primaryTrigger.DataPoint));
+            }
+
+            // Substitute driver-name placeholders
+            if (context != null)
+            {
+                template = template.Replace("{ahead}",  FormatDriver(context.NearestAheadName,  context.NearestAheadRating));
+                template = template.Replace("{behind}", FormatDriver(context.NearestBehindName, context.NearestBehindRating));
+            }
+
+            return template;
+        }
+
+        private static string FormatValue(double val, string dataPoint)
+        {
+            string dp = (dataPoint ?? "").ToLower();
+            // Percentage fields: display as integer percent
+            if (dp.Contains("pct") || dp.Contains("percent") || dp == "fuelpercent" || dp == "fuellevelpct")
+                return $"{val * 100:0}";
+            // Temperatures
+            if (dp.Contains("temp"))
+                return $"{val:0.0}";
+            // Accel / rates: one decimal
+            if (dp.Contains("accel") || dp.Contains("yaw") || dp.Contains("torque"))
+                return $"{val:0.0}";
+            // Lap times: display as seconds
+            if (dp.Contains("laptime") || dp.Contains("delta"))
+                return $"{val:0.000}";
+            // Default: sensible rounding
+            return Math.Abs(val) >= 100 ? $"{val:0}" : $"{val:0.0}";
         }
 
         private static string FormatDriver(string name, int rating)
         {
             if (string.IsNullOrEmpty(name)) return "the car";
             return rating > 0 ? $"{name} ({rating:N0} iR)" : name;
+        }
+
+        /// <summary>
+        /// Converts a color string to #AARRGGBB format for SimHub dashboard compatibility.
+        /// Accepts #RGB, #RRGGBB, or #AARRGGBB input.
+        /// </summary>
+        public static string NormalizeColor(string color)
+        {
+            if (string.IsNullOrEmpty(color)) return "#FF000000";
+            color = color.Trim();
+            if (!color.StartsWith("#")) color = "#" + color;
+
+            // Already in #AARRGGBB format (9 chars)
+            if (color.Length == 9) return color.ToUpper();
+
+            // #RRGGBB format (7 chars) — prepend FF alpha
+            if (color.Length == 7) return "#FF" + color.Substring(1).ToUpper();
+
+            // #RGB shorthand (4 chars)
+            if (color.Length == 4)
+            {
+                char r = color[1], g = color[2], b = color[3];
+                return $"#FF{r}{r}{g}{g}{b}{b}".ToUpper();
+            }
+
+            return "#FF000000";
         }
     }
 }

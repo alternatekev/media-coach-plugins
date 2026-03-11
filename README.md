@@ -38,12 +38,12 @@ The companion plugin reads the same telemetry properties via SimHub's HTTP API a
 │   │   ├── replay_telemetry.py           Offline telemetry replay and scenario generation
 │   │   └── generate_fragments.py         Haiku-powered fragment generation script
 │   ├── DashTemplates/                    SimHub dashboard templates
-│   ├── docs/                             In-depth documentation
-│   ├── install.bat                       One-click Windows installer
-│   └── export.bat                        Export built files from SimHub back to repo
+│   └── docs/                             In-depth documentation
 ├── homebridge-plugin/                    Homebridge platform plugin (TypeScript)
 │   ├── src/__tests__/                    Jest test suite (133 tests)
 │   └── docs/                             Homebridge-specific documentation
+├── install.bat                           One-click Windows installer
+├── export.bat                            Export built files from SimHub back to repo
 └── .github/workflows/                    CI pipelines
 ```
 
@@ -53,7 +53,7 @@ The companion plugin reads the same telemetry properties via SimHub's HTTP API a
 
 Prerequisites: [SimHub](https://www.simhubdash.com/) installed on Windows.
 
-**Double-click `simhub-plugin/install.bat`**. The installer finds your SimHub installation, copies the plugin DLL, dataset files, and dashboard template to the correct locations. It checks whether SimHub is running and warns you to close it first if so.
+**Double-click `install.bat`** (in the repository root). The installer finds your SimHub installation, copies the plugin DLL, dataset files, and dashboard template to the correct locations. It checks whether SimHub is running and warns you to close it first if so.
 
 After installation:
 

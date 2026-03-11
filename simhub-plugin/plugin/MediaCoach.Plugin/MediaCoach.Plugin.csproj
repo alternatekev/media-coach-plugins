@@ -76,6 +76,26 @@
           SkipUnchangedFiles="true" />
   </Target>
 
+  <!--
+    Post-build: copy the built DLL and PDB back into the repo so that
+    simhub-plugin/ always contains the latest build artifacts.
+    RepoPluginDir = simhub-plugin/ (two levels up from this .csproj).
+  -->
+  <PropertyGroup>
+    <RepoPluginDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepoPluginDir>
+  </PropertyGroup>
+  <Target Name="ExportToRepo" AfterTargets="Build">
+    <Copy SourceFiles="$(SimHubPath)MediaCoach.Plugin.dll"
+          DestinationFolder="$(RepoPluginDir)"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(SimHubPath)MediaCoach.Plugin.pdb"
+          DestinationFolder="$(RepoPluginDir)"
+          Condition="Exists('$(SimHubPath)MediaCoach.Plugin.pdb')"
+          SkipUnchangedFiles="true" />
+    <Message Importance="high"
+             Text="Exported DLL+PDB to $(RepoPluginDir)" />
+  </Target>
+
   <!-- Debug: launch SimHub when pressing F5 -->
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <StartAction>Program</StartAction>

@@ -70,11 +70,13 @@ if %ERRORLEVEL%==0 (
 
 :: -------------------------------------------------------------------
 :: 3. Determine script directory (where this .bat lives = repo root)
+::    Plugin files live under simhub-plugin\ subdirectory
 :: -------------------------------------------------------------------
 
 set "REPO_DIR=%~dp0"
 :: Remove trailing backslash
 if "%REPO_DIR:~-1%"=="\" set "REPO_DIR=%REPO_DIR:~0,-1%"
+set "PLUGIN_DIR=%REPO_DIR%\simhub-plugin"
 
 :: -------------------------------------------------------------------
 :: 4. Copy plugin DLL
@@ -82,23 +84,23 @@ if "%REPO_DIR:~-1%"=="\" set "REPO_DIR=%REPO_DIR:~0,-1%"
 
 echo  [1/3] Installing plugin DLL...
 
-if exist "%REPO_DIR%\MediaCoach.Plugin.dll" (
-    copy /Y "%REPO_DIR%\MediaCoach.Plugin.dll" "%SIMHUB_DIR%\MediaCoach.Plugin.dll" >NUL
+if exist "%PLUGIN_DIR%\MediaCoach.Plugin.dll" (
+    copy /Y "%PLUGIN_DIR%\MediaCoach.Plugin.dll" "%SIMHUB_DIR%\MediaCoach.Plugin.dll" >NUL
     if !ERRORLEVEL! NEQ 0 (
         echo        FAILED - could not copy DLL. Is SimHub running?
         goto :error
     )
     echo        OK - MediaCoach.Plugin.dll
 ) else (
-    echo        SKIPPED - MediaCoach.Plugin.dll not found in repo root.
-    echo        Build the plugin first, or copy the DLL to the repo root.
-    echo        See docs\DEVELOPMENT.md for build instructions.
+    echo        SKIPPED - MediaCoach.Plugin.dll not found.
+    echo        Build the plugin first, or copy the DLL to simhub-plugin\.
+    echo        See simhub-plugin\docs\DEVELOPMENT.md for build instructions.
     goto :error
 )
 
 :: Copy PDB if present (optional, for debugging)
-if exist "%REPO_DIR%\MediaCoach.Plugin.pdb" (
-    copy /Y "%REPO_DIR%\MediaCoach.Plugin.pdb" "%SIMHUB_DIR%\MediaCoach.Plugin.pdb" >NUL
+if exist "%PLUGIN_DIR%\MediaCoach.Plugin.pdb" (
+    copy /Y "%PLUGIN_DIR%\MediaCoach.Plugin.pdb" "%SIMHUB_DIR%\MediaCoach.Plugin.pdb" >NUL
 )
 
 :: -------------------------------------------------------------------
@@ -107,8 +109,8 @@ if exist "%REPO_DIR%\MediaCoach.Plugin.pdb" (
 
 echo  [2/3] Installing dataset files...
 
-if exist "%REPO_DIR%\dataset" (
-    xcopy /E /Y /I /Q "%REPO_DIR%\dataset" "%SIMHUB_DIR%\dataset" >NUL
+if exist "%PLUGIN_DIR%\dataset" (
+    xcopy /E /Y /I /Q "%PLUGIN_DIR%\dataset" "%SIMHUB_DIR%\dataset" >NUL
     if !ERRORLEVEL! NEQ 0 (
         echo        FAILED - could not copy dataset folder.
         goto :error
@@ -125,8 +127,8 @@ if exist "%REPO_DIR%\dataset" (
 
 echo  [3/3] Installing dashboard template...
 
-if exist "%REPO_DIR%\DashTemplates" (
-    xcopy /E /Y /I /Q "%REPO_DIR%\DashTemplates" "%SIMHUB_DIR%\DashTemplates" >NUL
+if exist "%PLUGIN_DIR%\DashTemplates" (
+    xcopy /E /Y /I /Q "%PLUGIN_DIR%\DashTemplates" "%SIMHUB_DIR%\DashTemplates" >NUL
     if !ERRORLEVEL! NEQ 0 (
         echo        FAILED - could not copy dashboard templates.
         goto :error

@@ -55,6 +55,7 @@ echo.
 
 set "REPO_DIR=%~dp0"
 if "%REPO_DIR:~-1%"=="\" set "REPO_DIR=%REPO_DIR:~0,-1%"
+set "PLUGIN_DIR=%REPO_DIR%\simhub-plugin"
 
 :: -------------------------------------------------------------------
 :: 3. Export DLL + PDB
@@ -63,7 +64,7 @@ if "%REPO_DIR:~-1%"=="\" set "REPO_DIR=%REPO_DIR:~0,-1%"
 echo  [1/2] Exporting plugin binaries...
 
 if exist "%SIMHUB_DIR%\MediaCoach.Plugin.dll" (
-    copy /Y "%SIMHUB_DIR%\MediaCoach.Plugin.dll" "%REPO_DIR%\MediaCoach.Plugin.dll" >NUL
+    copy /Y "%SIMHUB_DIR%\MediaCoach.Plugin.dll" "%PLUGIN_DIR%\MediaCoach.Plugin.dll" >NUL
     if !ERRORLEVEL! NEQ 0 (
         echo        FAILED - could not copy DLL. Is SimHub running?
         goto :error
@@ -76,7 +77,7 @@ if exist "%SIMHUB_DIR%\MediaCoach.Plugin.dll" (
 )
 
 if exist "%SIMHUB_DIR%\MediaCoach.Plugin.pdb" (
-    copy /Y "%SIMHUB_DIR%\MediaCoach.Plugin.pdb" "%REPO_DIR%\MediaCoach.Plugin.pdb" >NUL
+    copy /Y "%SIMHUB_DIR%\MediaCoach.Plugin.pdb" "%PLUGIN_DIR%\MediaCoach.Plugin.pdb" >NUL
     echo        OK - MediaCoach.Plugin.pdb
 ) else (
     echo        SKIPPED - MediaCoach.Plugin.pdb not found (Release build?)
@@ -89,7 +90,7 @@ if exist "%SIMHUB_DIR%\MediaCoach.Plugin.pdb" (
 echo  [2/2] Exporting dashboard template...
 
 set "DASH_SRC=%SIMHUB_DIR%\DashTemplates\media coach"
-set "DASH_DST=%REPO_DIR%\DashTemplates\media coach"
+set "DASH_DST=%PLUGIN_DIR%\DashTemplates\media coach"
 
 if exist "%DASH_SRC%" (
     :: Copy the main djson and assets
@@ -143,11 +144,11 @@ echo   Export complete.
 echo  ============================================
 echo.
 echo  Exported files:
-echo    %REPO_DIR%\MediaCoach.Plugin.dll
-if exist "%REPO_DIR%\MediaCoach.Plugin.pdb" (
-    echo    %REPO_DIR%\MediaCoach.Plugin.pdb
+echo    %PLUGIN_DIR%\MediaCoach.Plugin.dll
+if exist "%PLUGIN_DIR%\MediaCoach.Plugin.pdb" (
+    echo    %PLUGIN_DIR%\MediaCoach.Plugin.pdb
 )
-echo    %REPO_DIR%\DashTemplates\media coach\
+echo    %PLUGIN_DIR%\DashTemplates\media coach\
 echo.
 echo  NOTE: Dataset files are NOT exported from SimHub.
 echo  The dataset/ folder in the repo is the source of
@@ -155,7 +156,7 @@ echo  truth. Edit dataset files in the repo, then use
 echo  install.bat or rebuild to push them to SimHub.
 echo.
 echo  Ready to commit. Run:
-echo    git add MediaCoach.Plugin.dll MediaCoach.Plugin.pdb DashTemplates/
+echo    git add simhub-plugin/MediaCoach.Plugin.dll simhub-plugin/MediaCoach.Plugin.pdb simhub-plugin/DashTemplates/
 echo    git commit -m "Update built plugin and dashboard"
 echo.
 pause

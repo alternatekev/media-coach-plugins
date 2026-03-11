@@ -3,15 +3,15 @@
   "InGameScreensIndexs": [
     0
   ],
-  "IdleScreensIndexs": [
-    0
-  ],
+  "IdleScreensIndexs": [],
   "MainPreviewIndex": 0,
   "IsOverlay": false,
   "OverlaySizeWarning": false,
   "MetadataVersion": 2.0,
   "EnableOnDashboardMessaging": true,
-  "PitScreensIndexs": [],
+  "PitScreensIndexs": [
+    0
+  ],
   "SimHubVersion": "9.11.3",
   "Category": null,
   "Title": "Media Coach",
@@ -19,5 +19,5 @@
   "Author": "Kevin Conboy",
   "Width": 640.0,
   "Height": 427.0,
-  "DashboardVersion": "0.0.2"
+  "DashboardVersion": "1"
 }

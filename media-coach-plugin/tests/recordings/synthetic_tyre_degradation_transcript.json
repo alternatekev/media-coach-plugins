@@ -8,7 +8,7 @@
     "severity": 2,
     "severityLabel": "Notable",
     "color": "#8C66BB6A",
-    "prompt": "Tyre wear critical. The worn rubber is the limiting factor in every corner now. Pace back.",
+    "prompt": "The tyres are going. The tire model is showing exactly how grip falls off and the car reacts accordingly. Nearly there.",
     "interrupted": false,
     "interruptedTopic": null
   },
@@ -21,7 +21,7 @@
     "severity": 3,
     "severityLabel": "Significant",
     "color": "#B366BB6A",
-    "prompt": "Too hot on the fronts. The tires are past their optimal window and everything gets harder from here. Pace off.",
+    "prompt": "Too hot on the fronts. The grip is going away and there's a physical reason \u2014 the compound can't handle this temperature. Back off now.",
     "interrupted": false,
     "interruptedTopic": null
   }

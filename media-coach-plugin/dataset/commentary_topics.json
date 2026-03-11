@@ -1,5 +1,5 @@
 {
-  "version": "4.0",
+  "version": "5.0",
   "description": "Commentary topics for Media Coach. Prompts use Kevin's direct, technically-grounded voice. Each topic now includes severity (1-5) for priority-based interruption and eventExposition for event-only display mode. Driver name placeholders: {ahead}, {behind}. Event exposition uses {value} for the primary trigger's current telemetry value.",
   "categories": ["hardware", "game_feel", "car_response", "racing_experience"],
   "topics": [
@@ -315,6 +315,32 @@
     },
 
     {
+      "id": "formation_lap",
+      "category": "racing_experience",
+      "title": "Formation / Pace Lap",
+      "sentiment": "neutral_narrative",
+      "severity": 2,
+      "eventExposition": "Formation lap — building to race start, P{value}, check setup one last time",
+      "sessionTypes": ["race"],
+      "description": "Race formation lap — lap zero before lights out.",
+      "triggers": [
+        {
+          "dataPoint": "Lap",
+          "condition": "==",
+          "value": 0,
+          "context": "Lap count is zero in race session"
+        }
+      ],
+      "commentaryPrompts": [
+        "Formation lap. Last chance to check the setup feels right and get focused for the start.",
+        "Pace lap. Running behind the leader, building temperature in the tyres and brakes for what's coming.",
+        "This is the moment before it all gets real. Get the car sorted, tyres warm, head in the right place.",
+        "Building to the start. The formation lap is where you dial in mentally for the first corner chaos."
+      ],
+      "cooldownMinutes": 60
+    },
+
+    {
       "id": "personal_best",
       "category": "racing_experience",
       "title": "Personal Best Lap",
@@ -469,6 +495,32 @@
     },
 
     {
+      "id": "track_temp_cold",
+      "category": "game_feel",
+      "title": "Cold Track Conditions",
+      "sentiment": "neutral_narrative",
+      "severity": 1,
+      "eventExposition": "Cold track surface — {value}°C, low grip conditions, tyres building temperature",
+      "sessionTypes": [],
+      "description": "Track temperature is very cold — grip is limited.",
+      "triggers": [
+        {
+          "dataPoint": "TrackTemp",
+          "condition": "<",
+          "value": 15,
+          "context": "Track surface cold (below 15°C)"
+        }
+      ],
+      "commentaryPrompts": [
+        "Cold track and the grip is limited. The tyres need building and rushing them is how you lose it.",
+        "Track temperature is low. Everything feels a step down from normal — pace builds gradually if you're patient.",
+        "It's cold out there. The window for grip is narrow and the car feels different through every corner.",
+        "Cold conditions. The tyres come in slowly and you have to respect that or the session gets away from you."
+      ],
+      "cooldownMinutes": 10
+    },
+
+    {
       "id": "tyre_wear_high",
       "category": "car_response",
       "title": "High Tyre Wear",
@@ -577,8 +629,8 @@
         {
           "dataPoint": "LapDeltaToBest",
           "condition": "<",
-          "value": -0.6,
-          "context": "Running 0.6s ahead of PB — very fast lap in progress"
+          "value": -0.8,
+          "context": "Running 0.8s ahead of PB — very fast lap in progress"
         }
       ],
       "commentaryPrompts": [
@@ -706,7 +758,7 @@
         {
           "dataPoint": "LatAccel",
           "condition": ">",
-          "value": 4.0,
+          "value": 4.2,
           "context": "Sustained high lateral load — car is right at the grip limit"
         }
       ],
@@ -717,6 +769,108 @@
         "Completely hooked up. The car is communicating everything and responding to everything — that's the feeling you're building the session around."
       ],
       "cooldownMinutes": 7
+    },
+
+    {
+      "id": "black_flag",
+      "category": "racing_experience",
+      "title": "Black Flag",
+      "sentiment": "frustration_negative",
+      "severity": 5,
+      "eventExposition": "Black flag — disqualified from session",
+      "sessionTypes": [],
+      "description": "Black flag received — session disqualification.",
+      "triggers": [
+        {
+          "dataPoint": "SessionFlags",
+          "condition": "black_flag",
+          "context": "Black flag just went active"
+        }
+      ],
+      "commentaryPrompts": [
+        "That's the black flag. The session is done for me — this is the ultimate penalty in iRacing.",
+        "Black flag down. Whatever it was that earned this, it's over now. The race doesn't continue from here.",
+        "Disqualified. That flag means it's done — go to the garage and accept it.",
+        "Black flag and we're out. This is the consequence of whatever led to this point."
+      ],
+      "cooldownMinutes": 10
+    },
+
+    {
+      "id": "rapid_gear_change",
+      "category": "car_response",
+      "title": "Aggressive Gear Shift",
+      "sentiment": "technical_analytical",
+      "severity": 1,
+      "eventExposition": "Aggressive shift — rapid gear change, multiple gears in one corner",
+      "sessionTypes": [],
+      "description": "Rapid multi-gear downshift or upshift event.",
+      "triggers": [
+        {
+          "dataPoint": "Gear",
+          "condition": "rapid_change",
+          "context": "More than 2 gears changed in single frame"
+        }
+      ],
+      "commentaryPrompts": [
+        "Quick downshift sequence there. Multiple gears in rapid succession — that's the aggression the corner demanded.",
+        "Stacked downshift and the car responded. Going from high gear to low quickly like that changes how the car rotates.",
+        "Aggressive gearing decision. The transmission is doing what it needs to do to set up for what's coming next.",
+        "Multi-gear shift and the engine response follows. That sequencing is part of how you manage the rotation into a complex corner."
+      ],
+      "cooldownMinutes": 8
+    },
+
+    {
+      "id": "long_stint",
+      "category": "racing_experience",
+      "title": "Long Stint Distance",
+      "sentiment": "neutral_narrative",
+      "severity": 2,
+      "eventExposition": "Long stint underway — {value} laps completed, management now critical",
+      "sessionTypes": ["race"],
+      "description": "Extended stint milestone — driver is deep into long-distance running.",
+      "triggers": [
+        {
+          "dataPoint": "CompletedLaps",
+          "condition": ">",
+          "value": 15,
+          "context": "More than 15 laps completed — long stint territory"
+        }
+      ],
+      "commentaryPrompts": [
+        "We're deep in the stint now. It's all about management from here — fuel, tyres, and patience.",
+        "This is the marathon part of the race. After fifteen laps it becomes about consistency and smart decisions.",
+        "Long stint mode. The car dynamics are different now with fuel load and tyre wear compounding every lap.",
+        "We're well into it now. The pace has to be sustainable and the strategy has to hold from here to the stop."
+      ],
+      "cooldownMinutes": 15
+    },
+
+    {
+      "id": "session_time_low",
+      "category": "racing_experience",
+      "title": "Session Time Running Out",
+      "sentiment": "neutral_narrative",
+      "severity": 3,
+      "eventExposition": "Time running out — {value} seconds remaining, final laps of the session",
+      "sessionTypes": ["race"],
+      "description": "Session time remaining is critically low — final minutes active.",
+      "triggers": [
+        {
+          "dataPoint": "SessionTimeRemain",
+          "condition": "<",
+          "value": 300,
+          "context": "Less than 5 minutes (300 seconds) remaining"
+        }
+      ],
+      "commentaryPrompts": [
+        "Time's running out. Less than five minutes and every lap counts. The pace has to be maximum now.",
+        "The clock is winding down. This is the final push of the race and it's time to leave everything on the track.",
+        "Running out of time. Whatever position I have now, the gaps have to be managed through to the end.",
+        "The session is almost done. These final minutes are where positions are made and lost — it's go time."
+      ],
+      "cooldownMinutes": 10
     }
 
   ]

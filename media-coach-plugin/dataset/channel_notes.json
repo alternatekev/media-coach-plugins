@@ -217,6 +217,149 @@
         "driving_advice": 0.8
       },
       "transcriptStatus": "pending"
+    },
+
+    {
+      "id": "global_simracing_channel",
+      "handle": "@GlobalSimRacingChannel",
+      "url": "https://www.youtube.com/@GlobalSimRacingChannel",
+      "primarySims": ["iRacing"],
+      "contentStyle": "professional_broadcast",
+      "keyTraits": [
+        "Play-by-play + color analyst dual commentary format",
+        "Race narrative arc: buildup, battle, resolution",
+        "Real-time incident and overtake calling",
+        "Multi-class race coverage with class distinction calls",
+        "Pre and post-race show format",
+        "Key commentators: Joe Peak, Richard Losper, Samuel Reiman"
+      ],
+      "topicWeights": {
+        "hardware": 0.2,
+        "game_feel": 0.4,
+        "car_response": 0.7,
+        "racing_experience": 1.0
+      },
+      "sentimentWeights": {
+        "excitement_positive": 1.0,
+        "neutral_narrative": 0.9,
+        "technical_analytical": 0.7,
+        "frustration_negative": 0.5
+      },
+      "transcriptStatus": "pending"
+    },
+
+    {
+      "id": "racespot_tv",
+      "handle": "@RaceSpotTV",
+      "url": "https://www.youtube.com/@RaceSpotTV",
+      "primarySims": ["iRacing"],
+      "contentStyle": "professional_broadcast_esports",
+      "keyTraits": [
+        "eNASCAR Coca-Cola iRacing Series broadcaster (aired on NBC Sports)",
+        "Lead play-by-play: Evan Posocco ('The Voice of eNASCAR')",
+        "Oval and road course coverage",
+        "TV-grade production with broadcast pacing",
+        "Restart and caution sequence commentary",
+        "Also produces 'Talking Tenths' podcast"
+      ],
+      "topicWeights": {
+        "hardware": 0.2,
+        "game_feel": 0.3,
+        "car_response": 0.6,
+        "racing_experience": 1.0
+      },
+      "sentimentWeights": {
+        "excitement_positive": 1.0,
+        "neutral_narrative": 0.8,
+        "technical_analytical": 0.6,
+        "frustration_negative": 0.5
+      },
+      "transcriptStatus": "pending"
+    },
+
+    {
+      "id": "apex_racing_tv",
+      "handle": "@ApexRacingTV",
+      "url": "https://www.youtube.com/@ApexRacingTV",
+      "primarySims": ["iRacing", "Assetto Corsa Competizione"],
+      "contentStyle": "professional_broadcast",
+      "keyTraits": [
+        "10+ years of sim racing broadcasts",
+        "League and endurance race coverage",
+        "Lead commentator: Chaz Draycott",
+        "Multi-class race management calls",
+        "Also produces 'The Late Apex' sim racing news podcast"
+      ],
+      "topicWeights": {
+        "hardware": 0.3,
+        "game_feel": 0.5,
+        "car_response": 0.6,
+        "racing_experience": 1.0
+      },
+      "sentimentWeights": {
+        "excitement_positive": 0.9,
+        "neutral_narrative": 1.0,
+        "technical_analytical": 0.7,
+        "frustration_negative": 0.5
+      },
+      "transcriptStatus": "pending"
+    },
+
+    {
+      "id": "driver61",
+      "handle": "@Driver61",
+      "url": "https://www.youtube.com/@Driver61",
+      "primarySims": ["iRacing", "Assetto Corsa Competizione", "F1 Games"],
+      "contentStyle": "coaching_instructional",
+      "keyTraits": [
+        "Scott Mansell — 15 years coaching, 1.4M+ subscribers",
+        "Technique-focused: braking points, trail braking, weight transfer",
+        "Telemetry analysis overlay videos comparing driver inputs",
+        "Track guides with line and braking point discussion",
+        "Also developing trophi.ai — AI coaching with real-time voice guidance",
+        "Coaching tone: direct, specific, constructive"
+      ],
+      "topicWeights": {
+        "hardware": 0.4,
+        "game_feel": 0.5,
+        "car_response": 1.0,
+        "racing_experience": 0.6
+      },
+      "sentimentWeights": {
+        "driving_advice": 1.0,
+        "technical_analytical": 1.0,
+        "neutral_narrative": 0.8,
+        "excitement_positive": 0.5
+      },
+      "transcriptStatus": "pending"
+    },
+
+    {
+      "id": "suellio_almeida",
+      "handle": "@SuellioAlmeida",
+      "url": "https://www.youtube.com/@SuellioAlmeida",
+      "primarySims": ["iRacing", "Assetto Corsa Competizione"],
+      "contentStyle": "coaching_competitive",
+      "keyTraits": [
+        "Professional sim racing coach turned real IMSA driver",
+        "2000+ hours coaching, 7000+ students, Logitech G sponsored",
+        "Bridges sim and real-world car behavior — cross-references physics",
+        "Setup explanation and driving technique instruction",
+        "Competitive mindset and race craft coaching"
+      ],
+      "topicWeights": {
+        "hardware": 0.5,
+        "game_feel": 0.6,
+        "car_response": 1.0,
+        "racing_experience": 0.8
+      },
+      "sentimentWeights": {
+        "driving_advice": 1.0,
+        "technical_analytical": 0.9,
+        "neutral_narrative": 0.7,
+        "excitement_positive": 0.6
+      },
+      "transcriptStatus": "pending"
     }
 
   ]

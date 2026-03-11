@@ -1,0 +1,15 @@
+[
+  {
+    "time": 30.0,
+    "time_formatted": "00:00:30",
+    "topicId": "yellow_flag",
+    "title": "Yellow Flag",
+    "category": "racing_experience",
+    "severity": 4,
+    "severityLabel": "Urgent",
+    "color": "#D9EC407A",
+    "prompt": "Yellow flag out. Depending on where this falls in the stint it either saves us or costs us the strategy.",
+    "interrupted": false,
+    "interruptedTopic": null
+  }
+]

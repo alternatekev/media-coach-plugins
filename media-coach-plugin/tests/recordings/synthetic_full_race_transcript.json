@@ -1,5 +1,18 @@
 [
   {
+    "time": 0.0,
+    "time_formatted": "00:00:00",
+    "topicId": "formation_lap",
+    "title": "Formation / Pace Lap",
+    "category": "racing_experience",
+    "severity": 2,
+    "severityLabel": "Notable",
+    "color": "#8CEC407A",
+    "prompt": "Final lap before racing. Last chance to check the setup feels right and get focused for the start. Stay focused.",
+    "interrupted": false,
+    "interruptedTopic": null
+  },
+  {
     "time": 15.0,
     "time_formatted": "00:00:15",
     "topicId": "race_start",
@@ -8,7 +21,7 @@
     "severity": 4,
     "severityLabel": "Urgent",
     "color": "#D9EC407A",
-    "prompt": "We're racing. The work that went into this \u2014 setup, qualifying, pace \u2014 gets tested right now. Survive lap one.",
+    "prompt": "Race start. The season starts right now and the next few laps will set the tone for the whole race. Build from here.",
     "interrupted": false,
     "interruptedTopic": null
   },
@@ -21,7 +34,7 @@
     "severity": 5,
     "severityLabel": "Critical",
     "color": "#FF66BB6A",
-    "prompt": "Nearly lost it. The car pushed past the limit and demanded immediate correction. Feel that feedback.",
+    "prompt": "Massive snap right there. Feel the yaw rate hitting the limit and what it takes to pull it back. Feel that feedback.",
     "interrupted": false,
     "interruptedTopic": null
   },
@@ -34,7 +47,7 @@
     "severity": 4,
     "severityLabel": "Urgent",
     "color": "#D9EC407A",
-    "prompt": "{behind} found a way through. One position lost in the race \u2014 the math just got harder but it's not over. Respond now.",
+    "prompt": "Lost that position. That move was better than my defense and now it's response time. Chase it down.",
     "interrupted": false,
     "interruptedTopic": null
   },
@@ -47,7 +60,7 @@
     "severity": 4,
     "severityLabel": "Urgent",
     "color": "#D9EC407A",
-    "prompt": "Got through. That's a position gained and every one counts in this race. Keep pushing.",
+    "prompt": "Successfully past. The car had the pace and the moment was right \u2014 that's how passes should feel. Next target.",
     "interrupted": false,
     "interruptedTopic": null
   },
@@ -60,7 +73,7 @@
     "severity": 4,
     "severityLabel": "Urgent",
     "color": "#D9EC407A",
-    "prompt": "Caution flag. Something happened and the race has paused itself \u2014 this changes the calculation completely. Race on.",
+    "prompt": "Yellow on the track. The field bunches up and everything we built in terms of gap just resets \u2014 that's racing. Race on.",
     "interrupted": false,
     "interruptedTopic": null
   },
@@ -73,7 +86,7 @@
     "severity": 4,
     "severityLabel": "Urgent",
     "color": "#D9EC407A",
-    "prompt": "Position up. One position at a time is how you build a race and that's one closer to the goal. Keep pushing.",
+    "prompt": "Got through. That move had to be executed perfectly and it was \u2014 credit to the setup and the driving. Build on it.",
     "interrupted": false,
     "interruptedTopic": null
   },
@@ -86,7 +99,7 @@
     "severity": 3,
     "severityLabel": "Significant",
     "color": "#B3EC407A",
-    "prompt": "Best lap set. That lap felt fast and the timer confirms it \u2014 build on this feeling. There's more.",
+    "prompt": "That's it \u2014 personal best. That lap felt fast and the timer confirms it \u2014 build on this feeling.",
     "interrupted": false,
     "interruptedTopic": null
   }

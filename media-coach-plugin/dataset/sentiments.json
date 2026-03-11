@@ -1,6 +1,6 @@
 {
-  "version": "1.2",
-  "description": "Sentiment vocabulary and phrase patterns drawn from sim racing YouTube commentary style. Colors avoid flag colors (red, yellow, blue, orange, black) to prevent collisions with race flag indicators.",
+  "version": "2.0",
+  "description": "Sentiment vocabulary and phrase patterns drawn from sim racing broadcast commentary, team radio transcripts, coaching channels, and Crew Chief-style spotter databases. Colors avoid flag colors (red, yellow, blue, orange, black) to prevent collisions with race flag indicators.",
   "sentiments": [
 
     {
@@ -22,7 +22,12 @@
         "What a feeling, honestly",
         "That exit was chef's kiss",
         "Getting there, getting there",
-        "The car is talking to me now"
+        "The car is talking to me now",
+        "That's the one — that's the move",
+        "Absolutely nailed it",
+        "That's a statement lap right there",
+        "The car came alive in that section",
+        "Everything clicked on that one"
       ]
     },
 
@@ -38,14 +43,17 @@
         "No no no no no",
         "That should not have happened",
         "I lost so much time there",
-        "Genuinely terrible from me",
         "That's a completely amateur mistake",
         "I've given that one away",
         "That's my fault, entirely my fault",
         "Absolutely baffling decision",
         "Why did I brake so early",
-        "I am absolutely hopeless",
-        "That's just not good enough"
+        "That's just not good enough",
+        "Threw it away, completely threw it away",
+        "That's the race right there — gone",
+        "Gave them the position on a plate",
+        "Self-inflicted and I knew it was coming",
+        "That corner has taken more from me than I can afford"
       ]
     },
 
@@ -53,7 +61,7 @@
       "id": "technical_analytical",
       "label": "Technical / Analytical",
       "color": "#00ACC1",
-      "description": "Calm, thoughtful analysis of car behavior, setup, or driving technique.",
+      "description": "Calm, thoughtful analysis of car behavior, setup, or driving technique. Draws from coaching instructional style and telemetry analysis language.",
       "phrases": [
         "So what's happening here is...",
         "The issue is the rear is stepping out under power",
@@ -68,7 +76,12 @@
         "It's all about getting the weight transfer right",
         "I'm losing two tenths in sector two every lap",
         "The setup change made it more neutral",
-        "Brake bias is too far forward for this corner"
+        "Brake bias is too far forward for this corner",
+        "The telemetry shows exactly where I'm losing time",
+        "The minimum speed through that corner tells the whole story",
+        "Weight transfer from braking is doing all the rotation work",
+        "The data doesn't lie — the inputs need to be smoother",
+        "Compare the throttle traces and you see the difference immediately"
       ]
     },
 
@@ -89,7 +102,9 @@
         "That looked intentional and it absolutely was not",
         "My brain said brake later and my body said no",
         "I want to clarify that I practice before recording",
-        "That corner has humiliated me three sessions running"
+        "That corner has humiliated me three sessions running",
+        "I should not be allowed near this car unsupervised",
+        "This is exactly the kind of content nobody should learn from"
       ]
     },
 
@@ -105,10 +120,12 @@
         "It sounds absolutely epic",
         "The way it rotates is just gorgeous",
         "You can feel every bit of grip through the wheel",
-        "This is genuinely one of my favourite cars in sim racing",
         "The braking in this thing is just insane",
         "It rewards commitment so well",
-        "The engineers absolutely nailed the aerodynamics on this"
+        "The engineers absolutely nailed the aerodynamics on this",
+        "The balance is just right — neutral, responsive, alive",
+        "This thing talks to you through the wheel and rewards precision",
+        "You can tell the physics model captured this car properly"
       ]
     },
 
@@ -124,7 +141,7 @@
         "Compared to real life, this sim gets it pretty much right",
         "The tire model here is streets ahead of the competition",
         "This is what I mean when I say this sim is the benchmark",
-        "I've driven the real car and honestly this is frighteningly accurate",
+        "I've driven the real car and this is frighteningly accurate",
         "The physics are brilliant but the sound needs work",
         "Every sim has compromises and this one is pretty minor"
       ]
@@ -134,7 +151,7 @@
       "id": "neutral_narrative",
       "label": "Neutral Narrative",
       "color": "#37474F",
-      "description": "Calm play-by-play commentary and situational narration.",
+      "description": "Calm play-by-play commentary and situational narration. Incorporates broadcast commentary structure and race engineer communication patterns.",
       "phrases": [
         "So we're coming up to the back straight now",
         "I'm going to be very careful here in traffic",
@@ -145,7 +162,12 @@
         "I need to manage the gap to the car behind",
         "Track conditions are improving lap by lap",
         "The safety car is deployed, everyone bunches up",
-        "I'm going to try the late apex approach here"
+        "I'm going to try the late apex approach here",
+        "The field is strung out and the gaps are stable",
+        "Running in clean air now, this is where we build the pace",
+        "Car ahead is closing, setting up for the battle",
+        "The undercut window is open — the call has to come soon",
+        "Fuel numbers are good, we're on plan"
       ]
     },
 
@@ -153,7 +175,7 @@
       "id": "driving_advice",
       "label": "Driving Advice",
       "color": "#AB47BC",
-      "description": "Tips and technique advice aimed at the viewer.",
+      "description": "Tips and technique advice. Draws from coaching channels (Driver61, Suellio Almeida) and structured driving instruction patterns.",
       "phrases": [
         "If you're learning this corner, the key is patience on the entry",
         "Trail braking is what separates fast drivers from very fast drivers",
@@ -163,7 +185,49 @@
         "Smooth inputs are faster than aggressive inputs, always",
         "I'd recommend dialing in your FOV before anything else",
         "Setup changes are meaningless if your driving isn't consistent",
-        "The throttle on corner exit is where time is really made"
+        "The throttle on corner exit is where time is really made",
+        "Brake in a straight line first, then trail into the corner as you turn",
+        "Focus on one corner per session until it becomes automatic",
+        "The reference points don't change — commit to them every lap",
+        "You're overdriving it — back it up two percent and the lap time comes"
+      ]
+    },
+
+    {
+      "id": "spotter_alert",
+      "label": "Spotter / Proximity",
+      "color": "#78909C",
+      "description": "Short, urgent proximity and safety calls inspired by Crew Chief spotter databases and race engineer communication. Used for close racing, flag changes, and immediate hazard warnings.",
+      "phrases": [
+        "Car left, hold your line",
+        "Car right, stay tight",
+        "Clear all around",
+        "Three wide into the corner",
+        "They're closing fast from behind",
+        "You've got the inside, commit to it",
+        "Gap is under a second — they're pushing",
+        "Debris ahead, stay left",
+        "Incident ahead, back it up",
+        "Clear to rejoin, watch traffic"
+      ]
+    },
+
+    {
+      "id": "race_engineer",
+      "label": "Race Engineer / Strategy",
+      "color": "#546E7A",
+      "description": "Strategy-focused communication in the style of F1 team radio and race engineer calls. Covers fuel management, tyre strategy, gap reports, and session management.",
+      "phrases": [
+        "Box this lap, box this lap",
+        "Fuel is marginal — lift and coast into the slow corners",
+        "Gap to car ahead is stable at one point two",
+        "You're faster in sector two, that's where the move is",
+        "Tyres are in the window, push now while you have the grip",
+        "The pace is good, keep this rhythm going",
+        "We're on the alternate strategy, trust the numbers",
+        "The undercut is working — three tenths quicker out of the stop",
+        "Conditions changing — rain on the radar, stay on plan for now",
+        "Pace is dropping, consider your options for the next few laps"
       ]
     }
 

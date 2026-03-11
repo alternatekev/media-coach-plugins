@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "description": "Pre-generated commentary fragments for sentence composition at runtime. Each topic contains openers, bodies, and closers that assemble into complete sentences. Generated with Haiku in Kevin's voice: first person, present tense, technically grounded, direct, no filler.",
+  "version": "2.0",
+  "description": "Pre-generated commentary fragments for sentence composition at runtime. Each topic contains openers, bodies, and closers that assemble into complete sentences. Incorporates vocabulary from broadcast commentary, team radio transcripts, coaching channels, and Crew Chief databases. Generated in Kevin's voice: first person, present tense, technically grounded, direct, no filler.",
   "fragments": [
 
     {
@@ -376,6 +376,37 @@
     },
 
     {
+      "topicId": "formation_lap",
+      "fragments": {
+        "openers": [
+          "Formation lap underway.",
+          "Pace lap running.",
+          "Building to the start.",
+          "Formation lap now.",
+          "Warming everything up.",
+          "Final lap before racing."
+        ],
+        "bodies": [
+          "Last chance to check the setup feels right and get focused for the start.",
+          "Running behind the leader, building temperature in the tyres and brakes for what's coming.",
+          "This is the moment before it all gets real — get the car sorted, tyres warm, head in the right place.",
+          "The formation lap is where you dial in mentally for the first corner chaos.",
+          "Building temperature in the rubber and clearing the brake dust for what's ahead.",
+          "Everything gets one final check as the pace car leads us around.",
+          "The moment before the moment — settle in and prepare mentally.",
+          "This lap sets the tone for how the start goes — make sure it's all ready."
+        ],
+        "closers": [
+          "Almost here.",
+          "Ready now.",
+          "Stay focused.",
+          "One more lap.",
+          ""
+        ]
+      }
+    },
+
+    {
       "topicId": "personal_best",
       "fragments": {
         "openers": [
@@ -556,6 +587,37 @@
           "Find the grip.",
           "Wet driving.",
           "Slow down.",
+          ""
+        ]
+      }
+    },
+
+    {
+      "topicId": "track_temp_cold",
+      "fragments": {
+        "openers": [
+          "Track is cold.",
+          "Low temperature.",
+          "Cold conditions.",
+          "Track surface cold.",
+          "Grip is limited.",
+          "Building heat slowly."
+        ],
+        "bodies": [
+          "The tyres need building and rushing them is how you lose it early.",
+          "Everything feels a step down from normal — pace builds gradually if you're patient.",
+          "The window for grip is narrow and the car feels different through every corner.",
+          "The tyres come in slowly and you have to respect that or the session gets away from you.",
+          "Cold track means cold tyres and that means reduced grip until things warm up.",
+          "Rushing it now will cost you more than being patient in these conditions.",
+          "The car behaves differently when everything is cold — smoother is smarter.",
+          "Building heat gradually is the only way through cold conditions."
+        ],
+        "closers": [
+          "Patience now.",
+          "Builds gradually.",
+          "Stay smooth.",
+          "Warm it up.",
           ""
         ]
       }
@@ -835,6 +897,130 @@
           "This works.",
           "Keep it.",
           "Perfect setup.",
+          ""
+        ]
+      }
+    },
+
+    {
+      "topicId": "black_flag",
+      "fragments": {
+        "openers": [
+          "Black flag.",
+          "That's the flag.",
+          "Disqualified.",
+          "Session over.",
+          "The flag came down.",
+          "Done for today."
+        ],
+        "bodies": [
+          "That's the end of the race — whatever earned this, it's final.",
+          "The black flag is the last word in iRacing — there's no coming back from this.",
+          "The session is finished — time to accept it and move on.",
+          "That's the system making its statement and there's no appealing it.",
+          "The race ends right now with that flag — everything before it doesn't matter anymore.",
+          "One decision, one flag, and the whole session is done.",
+          "That's what disqualification looks like in iRacing — it's complete.",
+          "The flag means it's over and the only place to go is the garage."
+        ],
+        "closers": [
+          "Accept it.",
+          "Move on.",
+          "Lesson learned.",
+          "Next time.",
+          ""
+        ]
+      }
+    },
+
+    {
+      "topicId": "rapid_gear_change",
+      "fragments": {
+        "openers": [
+          "Quick downshift.",
+          "Stacked shift.",
+          "Rapid gearing.",
+          "Multi-gear shift.",
+          "Aggressive shifting.",
+          "Shift sequence."
+        ],
+        "bodies": [
+          "Multiple gears in rapid succession — that's the aggression the corner demanded.",
+          "Going from high gear to low quickly like that changes how the car rotates.",
+          "The transmission is doing what it needs to do to set up for what's coming next.",
+          "That sequencing is part of how you manage the rotation into a complex corner.",
+          "The downshift stack sets up the engine braking needed for entry.",
+          "That rapid gear change puts the engine in the right rev range for the corner.",
+          "Stacking gears quickly gives you the aggression needed for that point on track.",
+          "The multi-gear shift is a technique tool — it's part of the craft."
+        ],
+        "closers": [
+          "Rotation setup.",
+          "Engine braking.",
+          "Corner ready.",
+          "Well timed.",
+          ""
+        ]
+      }
+    },
+
+    {
+      "topicId": "long_stint",
+      "fragments": {
+        "openers": [
+          "Deep in the stint.",
+          "Long distance now.",
+          "Stint is progressing.",
+          "We're committed.",
+          "Many laps in.",
+          "Building laps."
+        ],
+        "bodies": [
+          "We're deep in the stint now — it's all about management from here: fuel, tyres, and patience.",
+          "After many laps it becomes about consistency and smart decisions over pace.",
+          "The car dynamics are different now with fuel load and tyre wear compounding every lap.",
+          "The pace has to be sustainable and the strategy has to hold from here to the stop.",
+          "Long stints are won on consistency — every lap has to be similar to the last one.",
+          "This is where experience matters — knowing how much the car has left and how to manage it.",
+          "The attrition phase of the race starts here — who can maintain pace longest?",
+          "Distance racing is about margins — small decisions compound over many laps."
+        ],
+        "closers": [
+          "Stay consistent.",
+          "Manage resources.",
+          "Pace sustainable.",
+          "Hold it together.",
+          ""
+        ]
+      }
+    },
+
+    {
+      "topicId": "session_time_low",
+      "fragments": {
+        "openers": [
+          "Time's running out.",
+          "Clock winding down.",
+          "Final minutes.",
+          "Very low time.",
+          "Almost done.",
+          "Seconds matter."
+        ],
+        "bodies": [
+          "Less than five minutes and every lap counts — the pace has to be maximum now.",
+          "This is the final push of the race and it's time to leave everything on the track.",
+          "Whatever position I have now, the gaps have to be managed through to the end.",
+          "These final minutes are where positions are made and lost — it's go time.",
+          "The sprint to the end starts now and every tenth is critical.",
+          "Time pressure means one thing — maximum effort for what's left.",
+          "The finish line is close and this is where people make their move.",
+          "Final laps demand absolute commitment because there's no time left to recover."
+        ],
+        "closers": [
+          "Push now.",
+          "All in.",
+          "Final effort.",
+          "This is it.",
           ""
         ]
       }

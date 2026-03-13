@@ -37,6 +37,7 @@ namespace K10MediaCoach.Plugin.Engine
             s.IsInPit          = d.IsInPit != 0;
             s.IsInPitLane      = d.IsInPitLane != 0;
             s.SessionTypeName  = d.SessionTypeName ?? "";
+            s.CarModel         = d.CarModel ?? "";
             s.TyreWearFL       = d.TyreWearFrontLeft;
             s.TyreWearFR       = d.TyreWearFrontRight;
             s.TyreWearRL       = d.TyreWearRearLeft;

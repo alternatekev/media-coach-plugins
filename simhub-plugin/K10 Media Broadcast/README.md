@@ -162,6 +162,23 @@ You can also change the SimHub API URL if the plugin is running on a different m
 
 Settings persist between sessions — they're saved via Electron IPC to a JSON file in the app's user data directory, with a localStorage fallback when running in a browser.
 
+### Layout Position
+
+The settings panel includes a **Position** dropdown that places the dashboard in any screen corner or centered along the top/bottom edge:
+
+| Position | Logo Side | Commentary Side |
+|----------|-----------|-----------------|
+| Top Right (default) | Right edge | Extends left |
+| Top Left | Left edge | Extends right |
+| Bottom Right | Right edge | Extends left, grows upward |
+| Bottom Left | Left edge | Extends right, grows upward |
+| Top Center | Depends on flow | Depends on flow |
+| Bottom Center | Depends on flow | Depends on flow, grows upward |
+
+For center positions, a **Flow Direction** selector appears — choose "Left to Right" (logo on left, content flows right) or "Right to Left" (logo on right, content flows left). Corner positions determine flow automatically based on which side of the screen the dashboard occupies.
+
+The **Swap Vertical** toggle reverses the top and bottom halves of all stacked panel columns. When enabled, tyres move above fuel, pedal traces above car controls, gaps above iRating/Safety, and the car logo above the K10 logo. This is useful when you want specific data closer to the screen edge — for example, placing tyre temps in the top row when the dashboard is at the bottom of the screen so they're closest to the game view. Single-height panels (the tachometer) are unaffected.
+
 ### Window Position
 
 In settings mode (`Ctrl+Shift+S`), drag the overlay anywhere on screen and resize it from the edges. The position and size persist between sessions. Use `Ctrl+Shift+R` to reset to the default position (top-right corner).

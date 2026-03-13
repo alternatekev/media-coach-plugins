@@ -8,7 +8,46 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "start:safe": "cross-env K10_FORCE_SOFTWARE=1 electron ."
+    "start:safe": "cross-env K10_FORCE_SOFTWARE=1 electron .",
+    "build": "npm install electron-builder --save-dev && electron-builder",
+    "build:mac": "npm install electron-builder --save-dev && electron-builder --mac",
+    "build:win": "npm install electron-builder --save-dev && electron-builder --win",
+    "dist": "npm install electron-builder --save-dev && electron-builder --mac --win"
+  },
+  "build": {
+    "appId": "org.k10mediacoach.broadcast",
+    "productName": "K10 Media Broadcast",
+    "files": [
+      "main.js",
+      "preload.js",
+      "dashboard.html",
+      "logomark.png",
+      "icon.png",
+      "icon.ico"
+    ],
+    "icon": "icon.png",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "icon.png",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "darkModeSupport": true
+    },
+    "win": {
+      "icon": "icon.ico",
+      "target": "portable"
+    },
+    "dmg": {
+      "title": "K10 Media Broadcast",
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    }
   },
   "devDependencies": {
     "electron": "^33.0.0",

@@ -380,19 +380,36 @@ namespace K10MediaCoach.Plugin
 
         private void StartHttpServer()
         {
-            try
+            // Try binding in order of preference:
+            // 1. Wildcard (*) — works if SimHub runs as admin or URL ACL is registered
+            // 2. localhost only — always works without admin, sufficient for local overlays
+            string[] prefixes = new[]
             {
-                _httpListener = new HttpListener();
-                _httpListener.Prefixes.Add("http://*:8889/k10mediacoach/");
-                _httpListener.Start();
-                _httpThread = new Thread(HttpServerLoop) { IsBackground = true, Name = "K10MediaCoach-HTTP" };
-                _httpThread.Start();
-                SimHub.Logging.Current.Info("[K10MediaCoach] HTTP state server listening on port 8889");
-            }
-            catch (Exception ex)
+                "http://*:8889/k10mediacoach/",
+                "http://localhost:8889/k10mediacoach/"
+            };
+
+            foreach (var prefix in prefixes)
             {
-                SimHub.Logging.Current.Warn($"[K10MediaCoach] HTTP server failed to start: {ex.Message}");
+                try
+                {
+                    _httpListener = new HttpListener();
+                    _httpListener.Prefixes.Add(prefix);
+                    _httpListener.Start();
+                    _httpThread = new Thread(HttpServerLoop) { IsBackground = true, Name = "K10MediaCoach-HTTP" };
+                    _httpThread.Start();
+                    SimHub.Logging.Current.Info($"[K10MediaCoach] HTTP state server listening on port 8889 (prefix: {prefix})");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    SimHub.Logging.Current.Warn($"[K10MediaCoach] HTTP server failed with prefix {prefix}: {ex.Message}");
+                    try { _httpListener?.Close(); } catch { }
+                    _httpListener = null;
+                }
             }
+
+            SimHub.Logging.Current.Warn("[K10MediaCoach] HTTP server could not start on any prefix — dashboard overlay will not receive data");
         }
 
         private void StopHttpServer()
@@ -496,7 +513,7 @@ namespace K10MediaCoach.Plugin
                     Jp(sb, "DataCorePlugin.GameData.Position", s.Position);
                     Jp(sb, "DataCorePlugin.GameData.CurrentLap", s.CurrentLap);
                     Jp(sb, "DataCorePlugin.GameData.BestLapTime", s.LapBestTime, ic);
-                    Jp(sb, "DataCorePlugin.GameData.CarModel", Escape(""));
+                    Jp(sb, "DataCorePlugin.GameData.CarModel", Escape(s.CarModel ?? ""));
                     Jp(sb, "IRacingExtraProperties.iRacing_DriverInfo_IRating", 0);
                     Jp(sb, "IRacingExtraProperties.iRacing_DriverInfo_SafetyRating", 0.0, ic);
                     Jp(sb, "IRacingExtraProperties.iRacing_Opponent_Ahead_Gap", 0.0, ic);

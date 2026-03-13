@@ -24,6 +24,7 @@ namespace K10MediaCoach.Plugin.Engine
         public bool   IsInPit           { get; set; }
         public bool   IsInPitLane       { get; set; }
         public string SessionTypeName   { get; set; }
+        public string CarModel          { get; set; } = "";
         public double TyreWearFL        { get; set; }
         public double TyreWearFR        { get; set; }
         public double TyreWearRL        { get; set; }

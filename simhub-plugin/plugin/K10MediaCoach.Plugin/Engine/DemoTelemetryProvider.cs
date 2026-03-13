@@ -66,6 +66,16 @@ namespace K10MediaCoach.Plugin.Engine
         public double BestLapTime    { get; private set; } = 92.410;
         public string CarModel       { get; private set; } = "BMW M4 GT3";
 
+        // Cycle through different car models in demo to exercise the logo system
+        private static readonly string[] _demoCarModels = new[]
+        {
+            "BMW M4 GT3", "Porsche 911 GT3 R", "Ferrari 296 GT3",
+            "Mercedes-AMG GT3", "McLaren 720S GT3", "Audi R8 LMS GT3",
+            "Lamborghini Huracan GT3", "Chevrolet Corvette Z06 GT3.R",
+            "Ford Mustang GT3", "Aston Martin Vantage GT3"
+        };
+        private int _demoCarIdx = 0;
+
         public int    IRating        { get; private set; } = 2673;
         public double SafetyRating   { get; private set; } = 3.24;
 
@@ -90,6 +100,13 @@ namespace K10MediaCoach.Plugin.Engine
                 _trackPos -= 1.0;
                 CurrentLap++;
                 Fuel = Math.Max(0.5, Fuel - FuelPerLap);
+
+                // Cycle car model every 2 laps
+                if (CurrentLap % 2 == 0)
+                {
+                    _demoCarIdx = (_demoCarIdx + 1) % _demoCarModels.Length;
+                    CarModel = _demoCarModels[_demoCarIdx];
+                }
                 RemainingLaps = Math.Max(0, RemainingLaps - 1);
 
                 // Wear degrades slightly each lap

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="dashboard-prototype/logomark.png" alt="K10 Media Coach" width="200">
+  <img src="src/images/logomark.png" alt="K10 Media Coach" width="200">
 </p>
 
 # K10 Media Coach

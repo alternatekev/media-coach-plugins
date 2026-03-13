@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <LangVersion>10</LangVersion>
+    <AssemblyName>K10MediaCoach.TestRunner</AssemblyName>
+    <RootNamespace>K10MediaCoach.TestRunner</RootNamespace>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Shared source files from the plugin — linked, not copied -->
+  <ItemGroup>
+    <Compile Include="..\..\plugin\K10MediaCoach.Plugin\Engine\TelemetrySnapshot.cs"
+             Link="Shared\TelemetrySnapshot.cs" />
+    <Compile Include="..\..\plugin\K10MediaCoach.Plugin\Engine\TriggerEvaluator.cs"
+             Link="Shared\TriggerEvaluator.cs" />
+    <Compile Include="..\..\plugin\K10MediaCoach.Plugin\Models\CommentaryTopic.cs"
+             Link="Shared\CommentaryTopic.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>

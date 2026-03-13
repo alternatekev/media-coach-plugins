@@ -453,13 +453,13 @@ describe('SimHubClient', () => {
 
       // Verify correct endpoint paths
       expect(capturedUrls.some((url) =>
-        url.includes('MediaCoach.Plugin.CommentarySeverity'),
+        url.includes('K10MediaCoach.Plugin.CommentarySeverity'),
       )).toBe(true);
       expect(capturedUrls.some((url) =>
-        url.includes('MediaCoach.Plugin.CommentaryVisible'),
+        url.includes('K10MediaCoach.Plugin.CommentaryVisible'),
       )).toBe(true);
       expect(capturedUrls.some((url) =>
-        url.includes('MediaCoach.Plugin.CommentarySentimentColor'),
+        url.includes('K10MediaCoach.Plugin.CommentarySentimentColor'),
       )).toBe(true);
     });
   });

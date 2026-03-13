@@ -1,0 +1,23 @@
+{
+  "ScreenCount": 1.0,
+  "InGameScreensIndexs": [
+    0
+  ],
+  "IdleScreensIndexs": [],
+  "MainPreviewIndex": 0,
+  "IsOverlay": true,
+  "OverlaySizeWarning": false,
+  "MetadataVersion": 2.0,
+  "EnableOnDashboardMessaging": true,
+  "PitScreensIndexs": [
+    0
+  ],
+  "SimHubVersion": "9.11.3",
+  "Category": null,
+  "Title": "K10 Media Broadcast",
+  "Description": "Full telemetry broadcast overlay for sim racing streams — HTML dashboard with live SimHub data",
+  "Author": "Kevin Conboy",
+  "Width": 3440.0,
+  "Height": 1440.0,
+  "DashboardVersion": "1"
+}

@@ -8,7 +8,7 @@ import { HSBColor } from './types';
  *
  * Install dependency on the Pi:
  *   sudo /opt/homebridge/bin/npm install \
- *     --prefix /var/lib/homebridge/node_modules/homebridge-media-coach-lights \
+ *     --prefix /var/lib/homebridge/node_modules/homebridge-k10-media-coach-lights \
  *     hap-controller
  *
  * Setup flow:
@@ -31,7 +31,7 @@ function getHttpClient() {
       throw new Error(
         'hap-controller package not found. Install it with:\n' +
         'sudo /opt/homebridge/bin/npm install ' +
-        '--prefix /var/lib/homebridge/node_modules/homebridge-media-coach-lights hap-controller',
+        '--prefix /var/lib/homebridge/node_modules/homebridge-k10-media-coach-lights hap-controller',
       );
     }
   }

@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K10 Media Coach Dashboard — Prototype v1</title>
+<style>
+  /* ═══════════════════════════════════════════════
+     RESET & BASE
+     ═══════════════════════════════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    /* — Sentiment Hues (from plugin) — */
+    --hue-hardware:   187;   /* #00ACC1  cyan */
+    --hue-game-feel:  291;   /* #AB47BC  purple */
+    --hue-car:        123;   /* #66BB6A  green */
+    --hue-racing:     340;   /* #EC407A  magenta/pink */
+
+    /* — Active sentiment (JS toggles these) — */
+    --sentiment-h: 0;
+    --sentiment-s: 0%;
+    --sentiment-l: 0%;
+    --sentiment-alpha: 0;
+
+    /* — Layout — */
+    --dash-w: 640px;
+    --dash-max-h: 560px;
+    --corner-r: 10px;
+    --corner-r-sm: 6px;
+    --gap: 6px;
+    --pad: 10px;
+
+    /* — Palette — */
+    --bg: hsla(0, 0%, 14%, 0.42);
+    --bg-solid: hsl(0, 0%, 14%);
+    --bg-panel: hsla(0, 0%, 10%, 0.55);
+    --bg-logo: hsla(0, 0%, 6%, 0.72);
+    --border: hsla(0, 0%, 100%, 0.07);
+    --text-primary: hsla(0, 0%, 100%, 0.92);
+    --text-secondary: hsla(0, 0%, 100%, 0.55);
+    --text-dim: hsla(0, 0%, 100%, 0.30);
+
+    /* — Accent — */
+    --red: #e53935;
+    --green: #43a047;
+    --blue: #1e88e5;
+    --amber: #ffb300;
+    --orange: #fb8c00;
+    --cyan: #00acc1;
+
+    /* — Typography scale (Corbel → fallback) — */
+    --ff: 'Corbel', 'Segoe UI', system-ui, sans-serif;
+    --fs-xxl: 42px;
+    --fs-xl: 26px;
+    --fs-lg: 16px;
+    --fs-md: 12px;
+    --fs-sm: 10px;
+    --fs-xs: 9px;
+    --fw-black: 900;
+    --fw-bold: 700;
+    --fw-semi: 600;
+    --fw-medium: 500;
+    --fw-regular: 400;
+
+    /* — Transitions — */
+    --t-fast: 180ms ease;
+    --t-med: 350ms ease;
+    --t-slow: 600ms ease-out;
+  }
+
+  body {
+    font-family: var(--ff);
+    color: var(--text-primary);
+    background: #111;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ═══════════════════════════════════════════════
+     DASHBOARD SHELL
+     ═══════════════════════════════════════════════ */
+  .dashboard {
+    width: var(--dash-w);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    filter: drop-shadow(0 8px 32px rgba(0,0,0,0.6));
+    transition: all var(--t-slow);
+    position: relative;
+  }
+
+  /* — Sentiment tint overlay on entire dashboard — */
+  .dashboard::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--corner-r);
+    background: hsla(var(--sentiment-h), var(--sentiment-s), var(--sentiment-l), var(--sentiment-alpha));
+    pointer-events: none;
+    z-index: 0;
+    transition: background var(--t-slow);
+  }
+
+  .dashboard > * { position: relative; z-index: 1; }
+
+  /* ═══════════════════════════════════════════════
+     ROW LAYOUT
+     ═══════════════════════════════════════════════ */
+  .row {
+    display: flex;
+    gap: var(--gap);
+    width: 100%;
+  }
+
+  /* ═══════════════════════════════════════════════
+     PANEL (shared)
+     ═══════════════════════════════════════════════ */
+  .panel {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--corner-r);
+    padding: var(--pad);
+    backdrop-filter: blur(12px);
+    transition: background var(--t-slow), border-color var(--t-med);
+    overflow: hidden;
+  }
+
+  .panel-label {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semi);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    white-space: nowrap;
+  }
+
+  /* ═══════════════════════════════════════════════
+     1. LOGO BLOCK (top-right)
+     ═══════════════════════════════════════════════ */
+  .logo-area {
+    background: var(--bg-logo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+    min-height: 52px;
+    padding: 10px 18px;
+    border-radius: var(--corner-r);
+    border: 1px solid var(--border);
+  }
+  .logo-area img {
+    height: 32px;
+    width: auto;
+    opacity: 0.92;
+  }
+
+  /* ═══════════════════════════════════════════════
+     2. RATINGS (iRating / SR)
+     ═══════════════════════════════════════════════ */
+  .rating-block {
+    flex: 0 0 auto;
+    min-width: 90px;
+    text-align: center;
+  }
+  .rating-value {
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-black);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .rating-delta {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semi);
+    margin-top: 2px;
+  }
+  .rating-delta.positive { color: var(--green); }
+  .rating-delta.negative { color: var(--red); }
+
+  /* ═══════════════════════════════════════════════
+     3. POSITION / LAP / DELTA
+     ═══════════════════════════════════════════════ */
+  .position-block {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .pos-number {
+    font-size: 48px;
+    font-weight: var(--fw-black);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    min-width: 50px;
+    text-align: center;
+  }
+  .pos-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .pos-meta-row {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
+    color: var(--text-secondary);
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .pos-meta-row .val {
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+  }
+  .delta {
+    font-size: var(--fs-lg);
+    font-weight: var(--fw-bold);
+    font-variant-numeric: tabular-nums;
+  }
+  .delta.ahead { color: var(--green); }
+  .delta.behind { color: var(--red); }
+
+  /* ═══════════════════════════════════════════════
+     4. TRACK MAP (simplified)
+     ═══════════════════════════════════════════════ */
+  .map-panel {
+    flex: 0 0 130px;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .map-svg {
+    width: 110px;
+    height: 110px;
+  }
+  .map-track {
+    fill: none;
+    stroke: hsla(0,0%,100%,0.12);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .map-player {
+    fill: var(--cyan);
+    filter: drop-shadow(0 0 4px var(--cyan));
+  }
+  .map-opponent {
+    fill: hsla(0,0%,100%,0.35);
+    r: 2.5;
+  }
+  .map-opponent.close { fill: var(--orange); r: 3; }
+
+  /* ═══════════════════════════════════════════════
+     5. TACHOMETER (horizontal roundrect bars)
+     ═══════════════════════════════════════════════ */
+  .tacho-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .tacho-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .tacho-rpm {
+    font-size: var(--fs-lg);
+    font-weight: var(--fw-bold);
+    font-variant-numeric: tabular-nums;
+  }
+  .tacho-gear {
+    font-size: var(--fs-xxl);
+    font-weight: var(--fw-black);
+    line-height: 1;
+    min-width: 36px;
+    text-align: center;
+  }
+  .tacho-bar-track {
+    display: flex;
+    gap: 2px;
+    height: 18px;
+    align-items: stretch;
+  }
+  .tacho-seg {
+    flex: 1;
+    border-radius: 3px;
+    background: hsla(0,0%,100%,0.06);
+    transition: background var(--t-fast);
+    position: relative;
+  }
+  .tacho-seg.lit-green { background: var(--green); }
+  .tacho-seg.lit-yellow { background: var(--amber); }
+  .tacho-seg.lit-red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .tacho-seg.lit-redline {
+    background: var(--red);
+    box-shadow: 0 0 12px var(--red);
+    animation: redline-pulse 0.3s ease-in-out infinite alternate;
+  }
+  @keyframes redline-pulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     6. PEDAL HISTOGRAM + LIVE BAR
+     ═══════════════════════════════════════════════ */
+  .pedals-area {
+    flex: 0 0 180px;
+    display: flex;
+    gap: 4px;
+    height: 90px;
+  }
+  .pedal-channel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .pedal-channel-label {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semi);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .pedal-channel-label.throttle { color: var(--green); }
+  .pedal-channel-label.brake { color: var(--red); }
+  .pedal-channel-label.clutch { color: var(--blue); }
+  .pedal-viz {
+    flex: 1;
+    display: flex;
+    gap: 1px;
+    align-items: flex-end;
+  }
+  .pedal-hist-bar {
+    flex: 1;
+    border-radius: 1px 1px 0 0;
+    min-height: 1px;
+    transition: height 60ms linear;
+  }
+  .pedal-hist-bar.throttle { background: var(--green); opacity: 0.6; }
+  .pedal-hist-bar.brake { background: var(--red); opacity: 0.6; }
+  .pedal-hist-bar.clutch { background: var(--blue); opacity: 0.6; }
+  /* live bar (rightmost, brighter) */
+  .pedal-hist-bar.live { opacity: 1; flex: 0 0 4px; border-radius: 2px; }
+  .pedal-pct {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    margin-top: 1px;
+  }
+
+  /* ═══════════════════════════════════════════════
+     7. SPEED
+     ═══════════════════════════════════════════════ */
+  .speed-block {
+    text-align: center;
+    flex: 0 0 auto;
+    min-width: 80px;
+  }
+  .speed-value {
+    font-size: 38px;
+    font-weight: var(--fw-black);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+  }
+  .speed-unit {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    color: var(--text-dim);
+  }
+
+  /* ═══════════════════════════════════════════════
+     8. CAR CONTROLS (BB / TC / ABS)
+     ═══════════════════════════════════════════════ */
+  .car-controls {
+    display: flex;
+    gap: var(--gap);
+    flex: 1;
+  }
+  .ctrl-item {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    border-radius: var(--corner-r-sm);
+    background: hsla(0,0%,100%,0.03);
+    border: 1px solid transparent;
+    transition: all var(--t-med);
+    position: relative;
+    overflow: hidden;
+  }
+  .ctrl-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+    pointer-events: none;
+  }
+  .ctrl-item.changed::after {
+    opacity: 1;
+    animation: ctrl-flash 1.2s ease-out forwards;
+  }
+  @keyframes ctrl-flash {
+    0% { background: hsla(45, 100%, 60%, 0.25); }
+    100% { background: transparent; }
+  }
+  .ctrl-label {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semi);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .ctrl-value {
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-black);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ═══════════════════════════════════════════════
+     9. TYRE TEMPS (compact 2×2)
+     ═══════════════════════════════════════════════ */
+  .tyre-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    flex: 0 0 auto;
+  }
+  .tyre-cell {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    text-align: center;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-variant-numeric: tabular-nums;
+    border: 1px solid hsla(0,0%,100%,0.05);
+  }
+  .tyre-cell.cold { color: hsl(200,70%,60%); border-color: hsla(200,70%,60%,0.15); }
+  .tyre-cell.optimal { color: var(--green); border-color: hsla(123,40%,50%,0.15); }
+  .tyre-cell.hot { color: var(--amber); border-color: hsla(45,100%,50%,0.12); }
+  .tyre-cell.danger { color: var(--red); border-color: hsla(0,70%,50%,0.15); }
+
+  /* ═══════════════════════════════════════════════
+     10. FUEL GAUGE (visual state)
+     ═══════════════════════════════════════════════ */
+  .fuel-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .fuel-bar-outer {
+    height: 16px;
+    border-radius: 4px;
+    background: hsla(0,0%,100%,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .fuel-bar-inner {
+    height: 100%;
+    border-radius: 4px;
+    transition: width var(--t-med), background var(--t-med);
+    position: relative;
+  }
+  .fuel-bar-inner.healthy { background: linear-gradient(90deg, hsl(123,45%,35%), hsl(123,50%,45%)); }
+  .fuel-bar-inner.caution { background: linear-gradient(90deg, hsl(35,90%,40%), hsl(45,100%,50%)); }
+  .fuel-bar-inner.critical { background: linear-gradient(90deg, hsl(0,70%,35%), hsl(0,70%,50%)); animation: fuel-warn 1s ease-in-out infinite alternate; }
+  @keyframes fuel-warn {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+  .fuel-bar-pit-marker {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--text-primary);
+    opacity: 0.7;
+  }
+  .fuel-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .fuel-stats .val { font-weight: var(--fw-bold); color: var(--text-primary); }
+  .fuel-pit-suggest {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--amber);
+    text-align: right;
+  }
+
+  /* ═══════════════════════════════════════════════
+     11. MEDIA COACH COMMENTARY BANNER
+     ═══════════════════════════════════════════════ */
+  .commentary-banner {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.4s ease,
+                padding 0.4s ease;
+    padding: 0 var(--pad);
+    border-radius: var(--corner-r);
+    border: 1px solid transparent;
+  }
+  .commentary-banner.visible {
+    max-height: 200px;
+    opacity: 1;
+    padding: var(--pad);
+    background: hsla(var(--commentary-h, 0), 50%, 25%, 0.45);
+    border-color: hsla(var(--commentary-h, 0), 50%, 50%, 0.3);
+    backdrop-filter: blur(12px);
+  }
+  .commentary-title {
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-black);
+    line-height: 1.1;
+    margin-bottom: 4px;
+    transition: color var(--t-med);
+  }
+  .commentary-text {
+    font-size: var(--fs-lg);
+    font-weight: var(--fw-medium);
+    line-height: 1.35;
+    color: var(--text-primary);
+  }
+  .commentary-meta {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semi);
+    color: var(--text-secondary);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ═══════════════════════════════════════════════
+     12. LAP TIMES (compact)
+     ═══════════════════════════════════════════════ */
+  .lap-times {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+  }
+  .lap-time-item {
+    flex: 1;
+    text-align: center;
+  }
+  .lap-time-value {
+    font-size: var(--fs-lg);
+    font-weight: var(--fw-bold);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .lap-time-value.best { color: hsl(280, 80%, 70%); }
+  .lap-time-value.last { color: var(--text-primary); }
+
+  /* ═══════════════════════════════════════════════
+     13. GAPS (ahead/behind)
+     ═══════════════════════════════════════════════ */
+  .gaps-panel {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+  }
+  .gap-item {
+    flex: 1;
+    text-align: center;
+  }
+  .gap-driver {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gap-time {
+    font-size: var(--fs-lg);
+    font-weight: var(--fw-bold);
+    font-variant-numeric: tabular-nums;
+  }
+  .gap-time.ahead { color: var(--green); }
+  .gap-time.behind { color: var(--red); }
+  .gap-ir {
+    font-size: var(--fs-xs);
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ═══════════════════════════════════════════════
+     ANIMATIONS / UTILITY
+     ═══════════════════════════════════════════════ */
+  .skew-accent {
+    /* Inspired by the angled logomark lettering */
+    transform: skewX(-6deg);
+    display: inline-block;
+  }
+
+  /* Demo toggle button (not part of final dash) */
+  .demo-controls {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 999;
+  }
+  .demo-btn {
+    font-family: var(--ff);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border: 1px solid hsla(0,0%,100%,0.2);
+    border-radius: 6px;
+    background: hsla(0,0%,15%,0.9);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .demo-btn:hover { background: hsla(0,0%,25%,0.9); border-color: hsla(0,0%,100%,0.4); }
+  .demo-btn.active { border-color: var(--cyan); color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     DASHBOARD
+     ═══════════════════════════════════════════════ -->
+<div class="dashboard" id="dashboard">
+
+  <!-- ROW 1: Logo + iRating + SR + Position/Lap/Delta -->
+  <div class="row">
+    <!-- Logo -->
+    <div class="logo-area">
+      <img src="data:image/png;base64,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" alt="Media Coach" />
+    </div>
+
+    <!-- iRating -->
+    <div class="panel rating-block">
+      <div class="panel-label">iRating</div>
+      <div class="rating-value">2847</div>
+      <div class="rating-delta positive">+38</div>
+    </div>
+
+    <!-- Safety Rating -->
+    <div class="panel rating-block">
+      <div class="panel-label">Safety</div>
+      <div class="rating-value">B 3.21</div>
+      <div class="rating-delta negative">-0.12</div>
+    </div>
+
+    <!-- Position / Lap / Delta -->
+    <div class="panel position-block">
+      <div class="pos-number"><span class="skew-accent">P6</span></div>
+      <div class="pos-meta">
+        <div class="pos-meta-row">Lap <span class="val">14</span> / 20</div>
+        <div class="pos-meta-row">Best <span class="val">1:08.341</span></div>
+        <div class="delta ahead">−0.243</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Tach + Gear + Speed -->
+  <div class="row">
+    <div class="panel tacho-area">
+      <div class="tacho-header">
+        <div>
+          <span class="tacho-rpm">6,840</span>
+          <span style="font-size:var(--fs-xs); color:var(--text-dim); margin-left:4px;">RPM</span>
+        </div>
+        <div class="tacho-gear">3</div>
+        <div class="speed-block">
+          <div class="speed-value">142</div>
+          <div class="speed-unit">MPH</div>
+        </div>
+      </div>
+      <div class="tacho-bar-track" id="tachoBar">
+        <!-- 24 segments, filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Pedals + Car Controls + Tyres -->
+  <div class="row">
+    <!-- Pedal Histograms -->
+    <div class="panel pedals-area" id="pedalsArea">
+      <div class="pedal-channel">
+        <div class="pedal-channel-label throttle">THR</div>
+        <div class="pedal-viz" id="throttleHist"></div>
+        <div class="pedal-pct" style="color:var(--green);">72%</div>
+      </div>
+      <div class="pedal-channel">
+        <div class="pedal-channel-label brake">BRK</div>
+        <div class="pedal-viz" id="brakeHist"></div>
+        <div class="pedal-pct" style="color:var(--red);">0%</div>
+      </div>
+      <div class="pedal-channel">
+        <div class="pedal-channel-label clutch">CLT</div>
+        <div class="pedal-viz" id="clutchHist"></div>
+        <div class="pedal-pct" style="color:var(--blue);">0%</div>
+      </div>
+    </div>
+
+    <!-- Car Controls: BB / TC / ABS -->
+    <div class="panel car-controls">
+      <div class="ctrl-item" id="ctrlBB">
+        <div class="ctrl-label">BB</div>
+        <div class="ctrl-value">56%</div>
+      </div>
+      <div class="ctrl-item" id="ctrlTC">
+        <div class="ctrl-label">TC</div>
+        <div class="ctrl-value">4</div>
+      </div>
+      <div class="ctrl-item" id="ctrlABS">
+        <div class="ctrl-label">ABS</div>
+        <div class="ctrl-value">3</div>
+      </div>
+    </div>
+
+    <!-- Tyre Temps -->
+    <div class="panel" style="flex:0 0 auto;">
+      <div class="panel-label">Tyres °F</div>
+      <div class="tyre-grid">
+        <div class="tyre-cell optimal">218</div>
+        <div class="tyre-cell hot">241</div>
+        <div class="tyre-cell optimal">210</div>
+        <div class="tyre-cell optimal">224</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 4: Track Map + Fuel + Gaps -->
+  <div class="row">
+    <!-- Track Map -->
+    <div class="panel map-panel">
+      <svg class="map-svg" viewBox="0 0 100 100">
+        <!-- Simplified track outline (Lime Rock-ish) -->
+        <path class="map-track" d="M 20,80 C 10,80 5,65 10,50 C 15,30 30,15 50,12 C 70,9 85,20 90,40 C 95,60 85,75 70,80 C 60,83 45,82 35,78 Z" />
+        <!-- Opponent dots -->
+        <circle class="map-opponent" cx="15" cy="55" r="2.5" />
+        <circle class="map-opponent close" cx="30" cy="76" r="3" />
+        <circle class="map-opponent" cx="55" cy="13" r="2.5" />
+        <circle class="map-opponent" cx="88" cy="45" r="2.5" />
+        <!-- Player dot -->
+        <circle class="map-player" cx="25" cy="78" r="4" />
+      </svg>
+    </div>
+
+    <!-- Fuel -->
+    <div class="panel fuel-panel">
+      <div class="panel-label">Fuel</div>
+      <div class="fuel-bar-outer">
+        <div class="fuel-bar-inner caution" style="width: 42%;">
+          <div class="fuel-bar-pit-marker" style="left: 28%;"></div>
+        </div>
+      </div>
+      <div class="fuel-stats">
+        <span><span class="val">4.2</span> L</span>
+        <span>Avg <span class="val">1.62</span> L/lap</span>
+        <span>Est <span class="val">2.6</span> laps</span>
+      </div>
+      <div class="fuel-pit-suggest">PIT LAP 16</div>
+    </div>
+
+    <!-- Gaps -->
+    <div class="panel gaps-panel">
+      <div class="gap-item">
+        <div class="panel-label">Ahead</div>
+        <div class="gap-driver">M. Torres</div>
+        <div class="gap-time ahead">−1.34</div>
+        <div class="gap-ir">3102 iR</div>
+      </div>
+      <div class="gap-item">
+        <div class="panel-label">Behind</div>
+        <div class="gap-driver">S. Kimura</div>
+        <div class="gap-time behind">+0.82</div>
+        <div class="gap-ir">2847 iR</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 5: COMMENTARY BANNER (animated expand/collapse) -->
+  <div class="commentary-banner" id="commentaryBanner" style="--commentary-h: 123;">
+    <div class="commentary-title" id="commentaryTitle" style="color: hsl(123, 55%, 65%);">Close Battle</div>
+    <div class="commentary-text" id="commentaryText">S. Kimura (2847 iR) is right on your rear — they found the gap out of Turn 5 and they're setting up for a move into the braking zone.</div>
+    <div class="commentary-meta" id="commentaryMeta">racing_experience — Urgent</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     DEMO CONTROLS (prototype only)
+     ═══════════════════════════════════════════════ -->
+<div class="demo-controls">
+  <button class="demo-btn" onclick="toggleCommentary('car')">Car Event</button>
+  <button class="demo-btn" onclick="toggleCommentary('race')">Race Event</button>
+  <button class="demo-btn" onclick="toggleCommentary('hardware')">Hardware</button>
+  <button class="demo-btn" onclick="hideCommentary()">Dismiss</button>
+  <button class="demo-btn" onclick="cycleRPM()">Rev Up</button>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════
+  // TACHOMETER SETUP
+  // ═══════════════════════════════════════════════
+  const TACH_SEGS = 24;
+  const tachoBar = document.getElementById('tachoBar');
+  for (let i = 0; i < TACH_SEGS; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'tacho-seg';
+    tachoBar.appendChild(seg);
+  }
+
+  function updateTacho(pct) {
+    // pct = 0-1 of redline
+    const segs = tachoBar.children;
+    const lit = Math.round(pct * TACH_SEGS);
+    for (let i = 0; i < TACH_SEGS; i++) {
+      segs[i].className = 'tacho-seg';
+      if (i < lit) {
+        const frac = i / TACH_SEGS;
+        if (frac < 0.6) segs[i].classList.add('lit-green');
+        else if (frac < 0.8) segs[i].classList.add('lit-yellow');
+        else if (frac < 0.92) segs[i].classList.add('lit-red');
+        else segs[i].classList.add('lit-redline');
+      }
+    }
+  }
+  updateTacho(0.72); // initial state — 6840 of ~9500 redline
+
+  // ═══════════════════════════════════════════════
+  // PEDAL HISTOGRAM SETUP
+  // ═══════════════════════════════════════════════
+  const HIST_BARS = 20;
+  function setupHistogram(containerId, cssClass) {
+    const container = document.getElementById(containerId);
+    for (let i = 0; i < HIST_BARS; i++) {
+      const bar = document.createElement('div');
+      bar.className = `pedal-hist-bar ${cssClass}`;
+      if (i === HIST_BARS - 1) bar.classList.add('live');
+      container.appendChild(bar);
+    }
+  }
+  setupHistogram('throttleHist', 'throttle');
+  setupHistogram('brakeHist', 'brake');
+  setupHistogram('clutchHist', 'clutch');
+
+  // Fake pedal trace data
+  const throttleTrace = [0.3,0.4,0.55,0.65,0.7,0.72,0.75,0.8,0.85,0.9,0.95,1,1,0.95,0.85,0.7,0.6,0.5,0.65,0.72];
+  const brakeTrace =    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  const clutchTrace =   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+  function renderHistogram(containerId, data) {
+    const bars = document.getElementById(containerId).children;
+    for (let i = 0; i < data.length && i < bars.length; i++) {
+      bars[i].style.height = Math.max(1, data[i] * 100) + '%';
+    }
+  }
+  renderHistogram('throttleHist', throttleTrace);
+  renderHistogram('brakeHist', brakeTrace);
+  renderHistogram('clutchHist', clutchTrace);
+
+  // ═══════════════════════════════════════════════
+  // COMMENTARY BANNER TOGGLE
+  // ═══════════════════════════════════════════════
+  const sentimentMap = {
+    car:      { h: 123, title: 'Close Battle',   text: 'S. Kimura (2847 iR) is right on your rear — they found the gap out of Turn 5 and they\'re setting up for a move into the braking zone.', meta: 'racing_experience — Urgent', titleColor: 'hsl(123,55%,65%)' },
+    race:     { h: 340, title: 'Position Lost',   text: 'They got through. S. Kimura (2847 iR) outbraked you into the chicane — dropped to P7. The gap behind is what matters now.', meta: 'racing_experience — Urgent', titleColor: 'hsl(340,65%,65%)' },
+    hardware: { h: 187, title: 'FFB Spike',       text: 'Massive torque spike through the wheel — 28Nm peak. The surface is talking to you here, feel for the limit through the load changes.', meta: 'hardware — Significant', titleColor: 'hsl(187,60%,60%)' },
+  };
+
+  const banner = document.getElementById('commentaryBanner');
+  const dashboard = document.getElementById('dashboard');
+
+  function toggleCommentary(type) {
+    const s = sentimentMap[type];
+    banner.style.setProperty('--commentary-h', s.h);
+    document.getElementById('commentaryTitle').textContent = s.title;
+    document.getElementById('commentaryTitle').style.color = s.titleColor;
+    document.getElementById('commentaryText').textContent = s.text;
+    document.getElementById('commentaryMeta').textContent = s.meta;
+    banner.classList.add('visible');
+
+    // Tint entire dashboard
+    dashboard.style.setProperty('--sentiment-h', s.h);
+    dashboard.style.setProperty('--sentiment-s', '40%');
+    dashboard.style.setProperty('--sentiment-l', '20%');
+    dashboard.style.setProperty('--sentiment-alpha', '0.08');
+  }
+
+  function hideCommentary() {
+    banner.classList.remove('visible');
+    dashboard.style.setProperty('--sentiment-alpha', '0');
+  }
+
+  // ═══════════════════════════════════════════════
+  // REV ANIMATION (demo)
+  // ═══════════════════════════════════════════════
+  let revPct = 0.72;
+  let revDir = 1;
+  let revInterval = null;
+
+  function cycleRPM() {
+    if (revInterval) { clearInterval(revInterval); revInterval = null; return; }
+    revInterval = setInterval(() => {
+      revPct += revDir * 0.02;
+      if (revPct >= 1) { revPct = 1; revDir = -1; }
+      if (revPct <= 0.15) { revPct = 0.15; revDir = 1; }
+      updateTacho(revPct);
+      const rpm = Math.round(revPct * 9500);
+      document.querySelector('.tacho-rpm').textContent = rpm.toLocaleString();
+      // Update gear roughly
+      const gear = revPct > 0.85 ? 5 : revPct > 0.65 ? 4 : revPct > 0.45 ? 3 : revPct > 0.25 ? 2 : 1;
+      document.querySelector('.tacho-gear').textContent = gear;
+    }, 50);
+  }
+
+  // Show commentary on load for demo
+  setTimeout(() => toggleCommentary('car'), 800);
+</script>
+</body>
+</html>

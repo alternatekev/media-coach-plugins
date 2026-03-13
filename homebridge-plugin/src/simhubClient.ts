@@ -2,7 +2,7 @@ import * as http from 'http';
 import { SimHubState } from './types';
 
 /**
- * HTTP client for Media Coach state endpoint.
+ * HTTP client for K10 Media Coach state endpoint.
  *
  * The SimHub plugin exposes a lightweight JSON REST endpoint on port 8889:
  *   GET http://<host>:8889/mediacoach/
@@ -37,7 +37,7 @@ export class SimHubClient {
 
       if (this.lastError) {
         this.lastError = '';
-        this.log('[MediaCoach] SimHub connection restored');
+        this.log('[K10MediaCoach] SimHub connection restored');
       }
 
       return state;
@@ -45,7 +45,7 @@ export class SimHubClient {
       const msg = error instanceof Error ? error.message : String(error);
       if (this.lastError !== msg) {
         this.lastError = msg;
-        this.log(`[MediaCoach] SimHub connection error: ${msg}`);
+        this.log(`[K10MediaCoach] SimHub connection error: ${msg}`);
       }
       return this.defaultState();
     }

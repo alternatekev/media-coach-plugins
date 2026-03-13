@@ -6,7 +6,7 @@ The test suite covers five layers: C# unit tests for the SimHub plugin logic, Py
 
 | Suite | Language | Framework | Tests | What It Covers |
 |-------|----------|-----------|-------|----------------|
-| MediaCoach.Tests | C# | NUnit (.NET 6.0) | 200+ | Trigger evaluation, fragment assembly, color resolution, dataset validation |
+| K10MediaCoach.Tests | C# | NUnit (.NET 6.0) | 200+ | Trigger evaluation, fragment assembly, color resolution, dataset validation |
 | validate_datasets.py | Python | unittest | 28 | JSON structure, cross-references, threshold regressions |
 | replay_telemetry.py | Python | — | 7 scenarios | End-to-end trigger pipeline against synthetic telemetry |
 | Homebridge tests | TypeScript | Jest | 133 | Color mapping, SimHub client, per-light mode overrides |
@@ -15,7 +15,7 @@ The test suite covers five layers: C# unit tests for the SimHub plugin logic, Py
 ## C# Unit Tests
 
 ```
-tests/MediaCoach.Tests/
+tests/K10MediaCoach.Tests/
 ├── TriggerEvaluatorTests.cs        84 tests — all 18 trigger conditions
 ├── FragmentAssemblerTests.cs       35 tests — assembly, repetition, placeholders
 ├── ColorResolverTests.cs           50+ tests — category/severity colors, flag collisions
@@ -38,7 +38,7 @@ The TestHelpers mirror the plugin's logic exactly. They're kept in sync manually
 ### Running
 
 ```bash
-cd tests/MediaCoach.Tests
+cd tests/K10MediaCoach.Tests
 dotnet test --verbosity normal
 ```
 
@@ -196,7 +196,7 @@ python3 tools/replay_telemetry.py generate full_race
 python3 tools/test_installer.py
 
 # C# (.NET 6.0 SDK)
-cd tests/MediaCoach.Tests && dotnet test
+cd tests/K10MediaCoach.Tests && dotnet test
 
 # Homebridge (Node.js 18+)
 cd homebridge-plugin && npm ci && npm test

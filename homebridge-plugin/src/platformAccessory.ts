@@ -9,7 +9,7 @@ import { HSBColor, LightConfig, PlatformAccessoryContext } from './types';
  * Homebridge platform accessory for a single lightbulb
  * Wraps a Lightbulb service with Hue, Saturation, Brightness, and On characteristics
  */
-export class MediaCoachLightAccessory {
+export class K10MediaCoachLightAccessory {
   private service: Service;
   private currentHue: number = 0;
   private currentSaturation: number = 0;
@@ -28,9 +28,9 @@ export class MediaCoachLightAccessory {
     // Set accessory information
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Media Coach')
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'K10 Media Coach')
       .setCharacteristic(this.platform.Characteristic.Model, 'SimHub Light Control')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'MC-' + this.accessory.UUID)
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'K10MC-' + this.accessory.UUID)
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '1.0.0');
 
     // Name characteristic on the Lightbulb service (required by HAP spec)

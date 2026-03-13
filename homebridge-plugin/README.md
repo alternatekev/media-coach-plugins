@@ -1,10 +1,10 @@
-# Homebridge Media Coach Lights Plugin
+# Homebridge K10 Media Coach Lights Plugin
 
-A Homebridge plugin that maps SimHub Media Coach telemetry to HomeKit-connected smart lights. Control light colors based on race flags, driver proximity, and event severity in real-time.
+A Homebridge plugin that maps SimHub K10 Media Coach telemetry to HomeKit-connected smart lights. Control light colors based on race flags, driver proximity, and event severity in real-time.
 
 ## Features
 
-- Polls SimHub HTTP API for Media Coach plugin state
+- Polls SimHub HTTP API for K10 Media Coach plugin state
 - Maps race flags (green, yellow, red, black, blue, debris) to light colors
 - Proximity-based warnings (car distance on track)
 - Event severity coloring (info through critical)
@@ -16,7 +16,7 @@ A Homebridge plugin that maps SimHub Media Coach telemetry to HomeKit-connected 
 
 ### Prerequisites
 
-1. **SimHub** running with the Media Coach plugin active
+1. **SimHub** running with the K10 Media Coach plugin active
 2. **SimHub Web Server** enabled (SimHub Settings → Plugins → Web Server)
 3. **Homebridge** installed (v1.6.0 or later)
 
@@ -24,12 +24,12 @@ A Homebridge plugin that maps SimHub Media Coach telemetry to HomeKit-connected 
 
 1. Install the plugin via Homebridge UI:
    - Go to Homebridge → Plugins → Install Plugin
-   - Search for `homebridge-media-coach-lights`
+   - Search for `homebridge-k10-media-coach-lights`
    - Click Install
 
 2. Configure the plugin:
    - Go to Homebridge → Settings
-   - Find "Media Coach Lights" platform
+   - Find "K10 Media Coach Lights" platform
    - Enter your SimHub HTTP API URL (default: `http://localhost:8888`)
    - Set poll interval (default: 500ms)
    - Choose light mode (flags_only, events_only, or all_colors)
@@ -39,7 +39,7 @@ A Homebridge plugin that maps SimHub Media Coach telemetry to HomeKit-connected 
    - Open Apple Home app
    - Tap + in top left corner
    - Select "Add Accessory"
-   - Choose "Media Coach" from Homebridge
+   - Choose "K10 Media Coach" from Homebridge
    - Assign to a room
 
 ## Configuration
@@ -106,7 +106,7 @@ When enabled (default), lights blink for:
 - Check SimHub web server is enabled (Settings → Plugins → Web Server)
 - Verify SimHub URL in plugin config (default: `http://localhost:8888`)
 - Check Homebridge logs for connection errors
-- Ensure Media Coach plugin is active in SimHub
+- Ensure K10 Media Coach plugin is active in SimHub
 
 ### Colors not showing
 - Verify HomeKit light supports color changes (RGB bulbs required)
@@ -145,12 +145,12 @@ npm install
 npm run build
 
 # 2. Copy the built plugin into Homebridge's plugin directory
-sudo cp -r /path/to/media-coach-plugins/homebridge-plugin \
-    /var/lib/homebridge/node_modules/homebridge-media-coach-lights
+sudo cp -r /path/to/k10-media-coach-plugins/homebridge-plugin \
+    /var/lib/homebridge/node_modules/homebridge-k10-media-coach-lights
 
 # 3. Fix ownership (Homebridge runs as the homebridge user)
 sudo chown -R homebridge:homebridge \
-    /var/lib/homebridge/node_modules/homebridge-media-coach-lights
+    /var/lib/homebridge/node_modules/homebridge-k10-media-coach-lights
 
 # 4. Restart Homebridge
 sudo systemctl restart homebridge
@@ -160,8 +160,8 @@ On subsequent deploys, only the `dist/` folder needs to be re-copied:
 
 ```bash
 npm run build && \
-sudo cp -r dist /var/lib/homebridge/node_modules/homebridge-media-coach-lights/ && \
-sudo chown -R homebridge:homebridge /var/lib/homebridge/node_modules/homebridge-media-coach-lights && \
+sudo cp -r dist /var/lib/homebridge/node_modules/homebridge-k10-media-coach-lights/ && \
+sudo chown -R homebridge:homebridge /var/lib/homebridge/node_modules/homebridge-k10-media-coach-lights && \
 sudo systemctl restart homebridge
 ```
 
@@ -173,7 +173,7 @@ sudo tail -f /var/lib/homebridge/homebridge.log
 
 Expected startup output:
 ```
-Loaded plugin: homebridge-media-coach-lights@1.0.0
+Loaded plugin: homebridge-k10-media-coach-lights@1.0.0
 Registered accessory: Sim Rig Light
 Starting SimHub polling (interval: 500ms)
 Homebridge v1.x.x is running on port 51370
@@ -188,13 +188,13 @@ Homebridge v1.x.x is running on port 51370
 
 ## API Reference
 
-The plugin expects SimHub Media Coach plugin to expose these properties via HTTP API:
+The plugin expects SimHub K10 Media Coach plugin to expose these properties via HTTP API:
 
-- `MediaCoach.Plugin.CommentarySeverity` - Event severity (0-5)
-- `MediaCoach.Plugin.CommentaryVisible` - Event visible flag (0/1)
-- `MediaCoach.Plugin.CommentarySentimentColor` - Sentiment color (#AARRGGBB)
-- `MediaCoach.Plugin.CurrentFlagState` - Race flag state (green/yellow/red/etc.)
-- `MediaCoach.Plugin.NearestCarDistance` - Nearest opponent distance (0.0-1.0)
+- `K10MediaCoach.Plugin.CommentarySeverity` - Event severity (0-5)
+- `K10MediaCoach.Plugin.CommentaryVisible` - Event visible flag (0/1)
+- `K10MediaCoach.Plugin.CommentarySentimentColor` - Sentiment color (#AARRGGBB)
+- `K10MediaCoach.Plugin.CurrentFlagState` - Race flag state (green/yellow/red/etc.)
+- `K10MediaCoach.Plugin.NearestCarDistance` - Nearest opponent distance (0.0-1.0)
 
 ## License
 
@@ -206,4 +206,4 @@ Kevin Conboy
 
 ---
 
-For more information on Media Coach, visit: http://www.alternate.org
+For more information on K10 Media Coach, visit: http://www.alternate.org

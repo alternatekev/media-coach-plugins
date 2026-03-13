@@ -1,5 +1,5 @@
 /**
- * Shared type definitions for the Media Coach Homebridge plugin
+ * Shared type definitions for the K10 Media Coach Homebridge plugin
  */
 
 export type LightMode = 'flags_only' | 'events_only' | 'all_colors';

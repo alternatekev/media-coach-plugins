@@ -1,4 +1,8 @@
-# Media Coach
+<p align="center">
+  <img src="dashboard-prototype/logomark.png" alt="K10 Media Coach" width="200">
+</p>
+
+# K10 Media Coach
 
 Two plugins that work together: a **SimHub plugin** that generates real-time commentary prompts from sim racing telemetry, and a **Homebridge plugin** that drives Apple HomeKit smart lights from the same data. The SimHub plugin watches what happens on track — spins, overtakes, tyre wear, flag changes, close battles — and surfaces contextual commentary on a dashboard overlay. The Homebridge plugin translates that telemetry into light colors, so your room reacts to what's happening in the race.
 
@@ -20,7 +24,7 @@ The companion plugin reads the same telemetry properties via SimHub's HTTP API a
 
 ```
 ├── simhub-plugin/                        SimHub plugin and data
-│   ├── plugin/MediaCoach.Plugin/         C# plugin (NET Framework 4.8, WPF)
+│   ├── plugin/K10MediaCoach.Plugin/      C# plugin (NET Framework 4.8, WPF)
 │   │   ├── Engine/                       Commentary engine, trigger evaluator, fragments
 │   │   ├── Models/                       Data models (topics, sentiments)
 │   │   └── Properties/                   Assembly metadata
@@ -31,7 +35,7 @@ The companion plugin reads the same telemetry properties via SimHub's HTTP API a
 │   │   ├── channel_notes.json            Voice-matching style profiles
 │   │   └── commentary_sources.json       Alternative transcript source index
 │   ├── tests/
-│   │   ├── MediaCoach.Tests/             C# unit tests (NUnit, 200+ tests)
+│   │   ├── K10MediaCoach.Tests/          C# unit tests (NUnit, 200+ tests)
 │   │   ├── validate_datasets.py          Python dataset validation (28 tests)
 │   │   └── recordings/                   Synthetic telemetry transcripts
 │   ├── tools/
@@ -58,11 +62,11 @@ Prerequisites: [SimHub](https://www.simhubdash.com/) installed on Windows.
 After installation:
 
 1. Launch SimHub
-2. Enable "Media Coach" in the plugin list
-3. Open the "media coach" dashboard template
+2. Enable "K10 Media Coach" in the plugin list
+3. Open the "k10 media coach" dashboard template
 4. Configure display timing, category filters, and event-only mode in the plugin settings panel
 
-The plugin exposes all its data as SimHub properties (prefixed `MediaCoach.Plugin.*`), so you can build your own dashboard layout or integrate the properties into an existing one.
+The plugin exposes all its data as SimHub properties (prefixed `K10MediaCoach.Plugin.*`), so you can build your own dashboard layout or integrate the properties into an existing one.
 
 To build from source instead: **[simhub-plugin/docs/DEVELOPMENT.md](simhub-plugin/docs/DEVELOPMENT.md)**
 
@@ -77,17 +81,17 @@ cd homebridge-plugin
 npm install && npm run build && npm link
 ```
 
-Add the `MediaCoachLights` platform to your Homebridge `config.json`:
+Add the `K10MediaCoachLights` platform to your Homebridge `config.json`:
 
 ```json
 {
-  "platform": "MediaCoachLights",
-  "name": "Media Coach Lights",
+  "platform": "K10MediaCoachLights",
+  "name": "K10 Media Coach Lights",
   "simhubUrl": "http://localhost:8888",
   "mode": "all_colors",
   "enableBlink": true,
   "lights": [
-    { "name": "Sim Rig Light", "uniqueId": "media-coach-light-1" }
+    { "name": "Sim Rig Light", "uniqueId": "k10-media-coach-light-1" }
   ]
 }
 ```
@@ -131,7 +135,7 @@ Four test suites run without SimHub, iRacing, or any external service:
 
 ```bash
 # C# unit tests (200+ tests, NUnit)
-cd simhub-plugin/tests/MediaCoach.Tests && dotnet test
+cd simhub-plugin/tests/K10MediaCoach.Tests && dotnet test
 
 # Python dataset validation (28 tests)
 python3 simhub-plugin/tests/validate_datasets.py

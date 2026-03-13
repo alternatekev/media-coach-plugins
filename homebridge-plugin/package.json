@@ -1,7 +1,7 @@
 {
-  "name": "homebridge-media-coach-lights",
+  "name": "homebridge-k10-media-coach-lights",
   "version": "1.0.0",
-  "description": "Homebridge plugin for Media Coach SimHub integration - maps telemetry to HomeKit light colors",
+  "description": "Homebridge plugin for K10 Media Coach SimHub integration - maps telemetry to HomeKit light colors",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -17,7 +17,7 @@
     "homebridge-plugin",
     "homebridge",
     "simhub",
-    "media-coach",
+    "k10-media-coach",
     "racing",
     "lights"
   ],

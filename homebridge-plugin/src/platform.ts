@@ -8,7 +8,7 @@ import {
   API,
 } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { MediaCoachLightAccessory } from './platformAccessory';
+import { K10MediaCoachLightAccessory } from './platformAccessory';
 import { SimHubClient } from './simhubClient';
 import { MerossClient } from './merossClient';
 import { VocolincClient } from './vocolincClient';
@@ -22,16 +22,16 @@ import {
 } from './types';
 
 /**
- * Media Coach Homebridge Platform Plugin
+ * K10 Media Coach Homebridge Platform Plugin
  * Polls SimHub HTTP API and maps telemetry to HomeKit light colors
  */
-export class MediaCoachLightsPlatform implements DynamicPlatformPlugin {
+export class K10MediaCoachLightsPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
   // Track accessories
   public readonly accessories: PlatformAccessory[] = [];
-  private lightAccessories: Map<string, MediaCoachLightAccessory> = new Map();
+  private lightAccessories: Map<string, K10MediaCoachLightAccessory> = new Map();
   private merossClients: Map<string, MerossClient> = new Map();
   private vocolincClients: Map<string, VocolincClient> = new Map();
   private flagSensors: Map<FlagSensorName, FlagSensorAccessory> = new Map();
@@ -50,7 +50,7 @@ export class MediaCoachLightsPlatform implements DynamicPlatformPlugin {
     config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.log.info('Initializing Media Coach Lights platform');
+    this.log.info('Initializing K10 Media Coach Lights platform');
 
     // Parse and validate configuration
     this.config = this.parseConfig(config as unknown as PluginConfig);
@@ -85,7 +85,7 @@ export class MediaCoachLightsPlatform implements DynamicPlatformPlugin {
         saturation: 50,
         brightness: 30,
       },
-      lights: config.lights || [{ name: 'Media Coach', uniqueId: 'media-coach-light-1' }],
+      lights: config.lights || [{ name: 'K10 Media Coach', uniqueId: 'k10-media-coach-light-1' }],
       enableFlagSensors: config.enableFlagSensors !== false,
     };
   }
@@ -94,7 +94,7 @@ export class MediaCoachLightsPlatform implements DynamicPlatformPlugin {
    * Called by Homebridge to discover and restore accessories
    */
   discoverAccessories(): void {
-    this.log.info('Discovering Media Coach light accessories');
+    this.log.info('Discovering K10 Media Coach light accessories');
 
     for (const lightConfig of this.config.lights) {
       const uuid = this.api.hap.uuid.generate(lightConfig.uniqueId);
@@ -116,7 +116,7 @@ export class MediaCoachLightsPlatform implements DynamicPlatformPlugin {
       }
 
       // Create the light accessory handler and store reference
-      const lightAccessory = new MediaCoachLightAccessory(this, accessory);
+      const lightAccessory = new K10MediaCoachLightAccessory(this, accessory);
       this.lightAccessories.set(uuid, lightAccessory);
 
       // Create Meross client if this light has a local Meross device configured
@@ -167,11 +167,11 @@ export class MediaCoachLightsPlatform implements DynamicPlatformPlugin {
    * Sensors are named "<first light name> - <Flag> Flag", e.g. "Sim Rig Light - Yellow Flag"
    */
   private discoverFlagSensors(): void {
-    const baseName = this.config.lights[0]?.name ?? 'Media Coach';
+    const baseName = this.config.lights[0]?.name ?? 'K10 Media Coach';
 
     for (const flagName of FLAG_SENSOR_NAMES) {
       const displayName = `${baseName} - ${flagName.charAt(0).toUpperCase() + flagName.slice(1)} Flag`;
-      const uuid = this.api.hap.uuid.generate(`media-coach-flag-sensor-${flagName}`);
+      const uuid = this.api.hap.uuid.generate(`k10-media-coach-flag-sensor-${flagName}`);
       let accessory = this.accessories.find((acc) => acc.UUID === uuid);
 
       if (!accessory) {

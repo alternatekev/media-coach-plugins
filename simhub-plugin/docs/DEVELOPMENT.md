@@ -19,18 +19,18 @@ The `.csproj` references SimHub DLLs from the SimHub installation directory. Set
 # Environment variable (recommended)
 set SIMHUB_PATH=C:\Program Files (x86)\SimHub\
 
-# Or edit plugin/MediaCoach.Plugin/MediaCoach.Plugin.csproj directly:
+# Or edit plugin/K10MediaCoach.Plugin/K10MediaCoach.Plugin.csproj directly:
 # <SimHubPath>C:\Your\SimHub\Path\</SimHubPath>
 ```
 
 ### Building
 
 ```bash
-dotnet build plugin/MediaCoach.Plugin/MediaCoach.Plugin.sln
+dotnet build plugin/K10MediaCoach.Plugin/K10MediaCoach.Plugin.sln
 ```
 
 The build automatically:
-1. Compiles `MediaCoach.Plugin.dll` to the SimHub directory
+1. Compiles `K10MediaCoach.Plugin.dll` to the SimHub directory
 2. Copies `dataset/` to `SimHub\dataset\` (post-build target `CopyDataset`)
 3. Copies `DashTemplates/` to `SimHub\DashTemplates\` (post-build target `CopyDashboard`)
 
@@ -93,7 +93,7 @@ npm run test:coverage
 npm run lint
 ```
 
-After `npm link`, restart Homebridge to pick up changes. The plugin is registered as `homebridge-media-coach-lights` and uses the `MediaCoachLights` platform alias.
+After `npm link`, restart Homebridge to pick up changes. The plugin is registered as `homebridge-k10-media-coach-lights` and uses the `K10MediaCoachLights` platform alias.
 
 ### Dependencies
 
@@ -138,7 +138,7 @@ All test suites run without SimHub, iRacing, or any external service:
 
 ```bash
 # C# unit tests (200+ tests, NUnit, .NET 6.0)
-cd tests/MediaCoach.Tests && dotnet test
+cd tests/K10MediaCoach.Tests && dotnet test
 
 # Python dataset validation (28 tests)
 python3 tests/validate_datasets.py
@@ -167,21 +167,21 @@ After building in Visual Studio or via `dotnet build`, the compiled DLL lands in
 **Double-click `export.bat`** in the repository root, or run it from a terminal.
 
 The export tool copies:
-- `MediaCoach.Plugin.dll` and `.pdb` from SimHub to the repo root
-- The `DashTemplates/media coach/` folder from SimHub to the repo (excluding `_Backups/`)
+- `K10MediaCoach.Plugin.dll` and `.pdb` from SimHub to the repo root
+- The `DashTemplates/k10 media coach/` folder from SimHub to the repo (excluding `_Backups/`)
 
 It does **not** copy the `dataset/` folder back — the repo is the source of truth for dataset files. Changes to datasets should be made in the repo and pushed to SimHub via `install.bat` or a rebuild.
 
 ```bash
 # After export, the typical commit flow is:
-git add MediaCoach.Plugin.dll MediaCoach.Plugin.pdb DashTemplates/
+git add K10MediaCoach.Plugin.dll K10MediaCoach.Plugin.pdb DashTemplates/
 git commit -m "Update built plugin and dashboard"
 ```
 
 ## Project Layout
 
 ```
-├── plugin/MediaCoach.Plugin/       SimHub plugin source (C#)
+├── plugin/K10MediaCoach.Plugin/    SimHub plugin source (C#)
 │   ├── Engine/                     Core logic (no manual edits to .csproj needed)
 │   ├── Models/                     Data models
 │   └── Properties/                 Assembly info
@@ -189,7 +189,7 @@ git commit -m "Update built plugin and dashboard"
 │   └── src/__tests__/              Jest tests
 ├── dataset/                        Shared data files (JSON)
 ├── tests/
-│   ├── MediaCoach.Tests/           C# unit tests (.NET 6.0, NUnit)
+│   ├── K10MediaCoach.Tests/        C# unit tests (.NET 6.0, NUnit)
 │   ├── validate_datasets.py        Python dataset validation
 │   └── recordings/                 Synthetic telemetry transcripts
 ├── tools/

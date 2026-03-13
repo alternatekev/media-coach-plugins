@@ -18,7 +18,7 @@ export class FlagSensorAccessory {
   ) {
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Media Coach')
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'K10 Media Coach')
       .setCharacteristic(this.platform.Characteristic.Model, 'Flag Sensor')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'FLAG-' + this.accessory.UUID)
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '1.0.0');

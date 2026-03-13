@@ -1,16 +1,16 @@
 # SimHub Plugin Architecture
 
-The Media Coach plugin is a .NET Framework 4.8 WPF plugin for [SimHub](https://www.simhubdash.com/). It reads telemetry from any supported sim (with full feature support for iRacing), evaluates trigger conditions against live data, and surfaces commentary prompts through SimHub's property system for display on dashboards and consumption by companion tools.
+The K10 Media Coach plugin is a .NET Framework 4.8 WPF plugin for [SimHub](https://www.simhubdash.com/). It reads telemetry from any supported sim (with full feature support for iRacing), evaluates trigger conditions against live data, and surfaces commentary prompts through SimHub's property system for display on dashboards and consumption by companion tools.
 
 ## Project Structure
 
 ```
-plugin/MediaCoach.Plugin/
+plugin/K10MediaCoach.Plugin/
 ├── Plugin.cs                           Entry point, lifecycle, dashboard properties
 ├── Settings.cs                         User-configurable settings (serialized by SimHub)
 ├── Control.xaml / Control.xaml.cs       WPF settings panel
-├── MediaCoach.Plugin.csproj            Build config (targets SimHub install directory)
-├── MediaCoach.Plugin.sln               Solution file
+├── K10MediaCoach.Plugin.csproj         Build config (targets SimHub install directory)
+├── K10MediaCoach.Plugin.sln            Solution file
 ├── Properties/AssemblyInfo.cs          Assembly metadata
 └── Engine/
     ├── CommentaryEngine.cs             Core logic: trigger eval, prompt selection, color
@@ -71,7 +71,7 @@ The `.csproj` targets .NET Framework 4.8 and builds directly into the SimHub ins
 
 ```bash
 # Build
-dotnet build plugin/MediaCoach.Plugin/MediaCoach.Plugin.sln
+dotnet build plugin/K10MediaCoach.Plugin/K10MediaCoach.Plugin.sln
 
 # The DLL and dataset folder are copied to SimHub automatically via post-build targets
 ```

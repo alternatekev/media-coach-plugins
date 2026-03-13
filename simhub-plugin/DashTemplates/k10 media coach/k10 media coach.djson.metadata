@@ -1,0 +1,23 @@
+{
+  "ScreenCount": 1.0,
+  "InGameScreensIndexs": [
+    0
+  ],
+  "IdleScreensIndexs": [],
+  "MainPreviewIndex": 0,
+  "IsOverlay": false,
+  "OverlaySizeWarning": false,
+  "MetadataVersion": 2.0,
+  "EnableOnDashboardMessaging": true,
+  "PitScreensIndexs": [
+    0
+  ],
+  "SimHubVersion": "9.11.3",
+  "Category": null,
+  "Title": "K10 Media Coach",
+  "Description": "Telemetry data for K10 Media Coach Plugin",
+  "Author": "Kevin Conboy",
+  "Width": 640.0,
+  "Height": 427.0,
+  "DashboardVersion": "1"
+}

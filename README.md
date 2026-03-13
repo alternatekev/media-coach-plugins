@@ -4,6 +4,8 @@
 
 # K10 Media Coach
 
+![Dashboard](simhub-plugin/docs/dashboard-screenshot.png)
+
 Two plugins that work together: a **SimHub plugin** that generates real-time commentary prompts from sim racing telemetry, and a **Homebridge plugin** that drives Apple HomeKit smart lights from the same data. The SimHub plugin watches what happens on track — spins, overtakes, tyre wear, flag changes, close battles — and surfaces contextual commentary on a dashboard overlay. The Homebridge plugin translates that telemetry into light colors, so your room reacts to what's happening in the race.
 
 Built for iRacing with cross-game fallback support via SimHub's telemetry abstraction.
@@ -21,8 +23,6 @@ The prompts are written in first person, present tense, technically grounded —
 The companion plugin reads the same telemetry properties via SimHub's HTTP API and translates them into HomeKit light colors: flags as colored lights, severity as brightness, proximity as red/orange warning indicators. Multiple lights can run different modes independently, so one light can show flags while another responds to the full telemetry stream.
 
 ### K10 Media Broadcast — Stream Overlay Dashboard
-
-![Dashboard](simhub-plugin/docs/dashboard-screenshot.png)
 
 A standalone Electron overlay that renders the full telemetry HUD as a transparent window on top of the sim. The dashboard shows gear, speed, and RPM with a color-coded tachometer; pedal input traces; fuel level with per-lap consumption and pit stop estimates; four-corner tyre temperatures with heat-map coloring; brake bias, traction control, and ABS settings; race position with gap times to the cars ahead and behind; iRating and Safety Rating; and the commentary engine's live prompts. The commentary panel slides in from the left when events fire, tinted to match the event's sentiment color.
 
@@ -101,9 +101,7 @@ Add the `K10MediaCoachLights` platform to your Homebridge `config.json`:
   "simhubUrl": "http://localhost:8888",
   "mode": "all_colors",
   "enableBlink": true,
-  "lights": [
-    { "name": "Sim Rig Light", "uniqueId": "k10-media-coach-light-1" }
-  ]
+  "lights": [{ "name": "Sim Rig Light", "uniqueId": "k10-media-coach-light-1" }]
 }
 ```
 
@@ -115,11 +113,11 @@ Add the `K10MediaCoachLights` platform to your Homebridge `config.json`:
 
 **3. Three light modes are available:**
 
-| Mode | What It Shows |
-|------|---------------|
-| `flags_only` | iRacing flags as colored lights (green, yellow, red, blue, etc.) |
-| `events_only` | Proximity warnings and track events as color shifts |
-| `all_colors` | Flags + severity + proximity combined (recommended) |
+| Mode          | What It Shows                                                    |
+| ------------- | ---------------------------------------------------------------- |
+| `flags_only`  | iRacing flags as colored lights (green, yellow, red, blue, etc.) |
+| `events_only` | Proximity warnings and track events as color shifts              |
+| `all_colors`  | Flags + severity + proximity combined (recommended)              |
 
 Each light can override the global mode independently — run one light for flags and another for full telemetry. Blinking effects (flag pulses, proximity warnings) are configurable per-light.
 
@@ -127,20 +125,20 @@ Full setup walkthrough with multi-light configuration, automation scripts, and t
 
 ## Documentation
 
-| Document | Covers |
-|----------|--------|
-| **SimHub Plugin** | |
-| [simhub-plugin/docs/SIMHUB_PLUGIN.md](simhub-plugin/docs/SIMHUB_PLUGIN.md) | Plugin architecture, cross-game support, settings, dashboard properties |
-| [simhub-plugin/docs/COMMENTARY_ENGINE.md](simhub-plugin/docs/COMMENTARY_ENGINE.md) | Trigger evaluation pipeline, severity interruption, fragment assembly, color system, cooldowns |
-| **Homebridge Plugin** | |
-| [homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md](homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md) | Platform architecture, color mapping, polling loop, per-light overrides |
-| [homebridge-plugin/docs/HOMEKIT.md](homebridge-plugin/docs/HOMEKIT.md) | Apple HomeKit setup instructions, light modes, multi-light configuration, troubleshooting |
-| **Dashboard Overlay** | |
-| [simhub-plugin/K10 Media Broadcast/README.md](simhub-plugin/K10%20Media%20Broadcast/README.md) | Electron overlay setup, panel reference, architecture, ARM compatibility, OBS integration |
-| **Shared** | |
-| [simhub-plugin/docs/DATASETS.md](simhub-plugin/docs/DATASETS.md) | Topic schema, trigger conditions, fragment format, sentiment reference, how to add new topics |
-| [simhub-plugin/docs/TESTING.md](simhub-plugin/docs/TESTING.md) | All four test suites, synthetic scenarios, CI integration, telemetry recording/replay |
-| [simhub-plugin/docs/DEVELOPMENT.md](simhub-plugin/docs/DEVELOPMENT.md) | Building from source, project setup, contributor workflow |
+| Document                                                                                       | Covers                                                                                         |
+| ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **SimHub Plugin**                                                                              |                                                                                                |
+| [simhub-plugin/docs/SIMHUB_PLUGIN.md](simhub-plugin/docs/SIMHUB_PLUGIN.md)                     | Plugin architecture, cross-game support, settings, dashboard properties                        |
+| [simhub-plugin/docs/COMMENTARY_ENGINE.md](simhub-plugin/docs/COMMENTARY_ENGINE.md)             | Trigger evaluation pipeline, severity interruption, fragment assembly, color system, cooldowns |
+| **Homebridge Plugin**                                                                          |                                                                                                |
+| [homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md](homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md)     | Platform architecture, color mapping, polling loop, per-light overrides                        |
+| [homebridge-plugin/docs/HOMEKIT.md](homebridge-plugin/docs/HOMEKIT.md)                         | Apple HomeKit setup instructions, light modes, multi-light configuration, troubleshooting      |
+| **Dashboard Overlay**                                                                          |                                                                                                |
+| [simhub-plugin/K10 Media Broadcast/README.md](simhub-plugin/K10%20Media%20Broadcast/README.md) | Electron overlay setup, panel reference, architecture, ARM compatibility, OBS integration      |
+| **Shared**                                                                                     |                                                                                                |
+| [simhub-plugin/docs/DATASETS.md](simhub-plugin/docs/DATASETS.md)                               | Topic schema, trigger conditions, fragment format, sentiment reference, how to add new topics  |
+| [simhub-plugin/docs/TESTING.md](simhub-plugin/docs/TESTING.md)                                 | All four test suites, synthetic scenarios, CI integration, telemetry recording/replay          |
+| [simhub-plugin/docs/DEVELOPMENT.md](simhub-plugin/docs/DEVELOPMENT.md)                         | Building from source, project setup, contributor workflow                                      |
 
 ## Testing
 
@@ -170,44 +168,44 @@ The commentary voice, phrase patterns, and fragment vocabulary are informed by t
 
 ### Sim Racing YouTube Creators
 
-| Channel | Style | License |
-|---------|-------|---------|
-| [Jimmy Broadbent](https://www.youtube.com/@JimmyBroadbent) | High-energy, humorous race commentary | YouTube Standard License (auto-captions) |
-| [Matt Malone / MG Charoudin](https://www.youtube.com/@MGCharoudin) | Nürburgring-focused, technical | YouTube Standard License |
-| [Jaaames](https://www.youtube.com/@jaaames) | Competitive iRacing, analytical | YouTube Standard License |
-| [Traxion.GG](https://www.youtube.com/@Traxion) | Sim racing news and reviews | YouTube Standard License |
-| [JustHun Gaming](https://www.youtube.com/@JustHunGaming) | ACC competitive, setup-focused | YouTube Standard License |
-| [Project Sim Racing](https://www.youtube.com/@ProjectSimRacing) | Community broadcasts | YouTube Standard License |
-| [Just Sim Racing](https://www.youtube.com/@JustSimRacing) | Multi-sim, wheel-to-wheel focus | YouTube Standard License |
-| [Redd500 Gaming](https://www.youtube.com/@Redd500) | iRacing oval/road, narrative style | YouTube Standard License |
+| Channel                                                            | Style                                 | License                                  |
+| ------------------------------------------------------------------ | ------------------------------------- | ---------------------------------------- |
+| [Jimmy Broadbent](https://www.youtube.com/@JimmyBroadbent)         | High-energy, humorous race commentary | YouTube Standard License (auto-captions) |
+| [Matt Malone / MG Charoudin](https://www.youtube.com/@MGCharoudin) | Nürburgring-focused, technical        | YouTube Standard License                 |
+| [Jaaames](https://www.youtube.com/@jaaames)                        | Competitive iRacing, analytical       | YouTube Standard License                 |
+| [Traxion.GG](https://www.youtube.com/@Traxion)                     | Sim racing news and reviews           | YouTube Standard License                 |
+| [JustHun Gaming](https://www.youtube.com/@JustHunGaming)           | ACC competitive, setup-focused        | YouTube Standard License                 |
+| [Project Sim Racing](https://www.youtube.com/@ProjectSimRacing)    | Community broadcasts                  | YouTube Standard License                 |
+| [Just Sim Racing](https://www.youtube.com/@JustSimRacing)          | Multi-sim, wheel-to-wheel focus       | YouTube Standard License                 |
+| [Redd500 Gaming](https://www.youtube.com/@Redd500)                 | iRacing oval/road, narrative style    | YouTube Standard License                 |
 
 ### Professional Broadcast Commentary
 
-| Source | Style | License |
-|--------|-------|---------|
+| Source                                                                      | Style                                         | License                  |
+| --------------------------------------------------------------------------- | --------------------------------------------- | ------------------------ |
 | [Global SimRacing Channel](https://www.youtube.com/@GlobalSimRacingChannel) | Professional sim racing broadcasts since 2013 | YouTube Standard License |
-| [RaceSpot TV](https://www.youtube.com/@RaceSpotTV) | eNASCAR official broadcast partner | YouTube Standard License |
-| [Apex Racing TV](https://www.youtube.com/@ApexRacingTV) | iRacing league broadcasts | YouTube Standard License |
+| [RaceSpot TV](https://www.youtube.com/@RaceSpotTV)                          | eNASCAR official broadcast partner            | YouTube Standard License |
+| [Apex Racing TV](https://www.youtube.com/@ApexRacingTV)                     | iRacing league broadcasts                     | YouTube Standard License |
 
 ### Coaching and Instructional
 
-| Source | Style | License |
-|--------|-------|---------|
-| [Driver61](https://www.youtube.com/@Driver61) | Professional racing coach, technique breakdowns | YouTube Standard License |
-| [Suellio Almeida / Virtual Racing School](https://www.youtube.com/@VirtualRacingSchool) | Data-driven coaching, telemetry analysis | YouTube Standard License |
+| Source                                                                                  | Style                                           | License                  |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------ |
+| [Driver61](https://www.youtube.com/@Driver61)                                           | Professional racing coach, technique breakdowns | YouTube Standard License |
+| [Suellio Almeida / Virtual Racing School](https://www.youtube.com/@VirtualRacingSchool) | Data-driven coaching, telemetry analysis        | YouTube Standard License |
 
 ### Structured Phrase Databases
 
-| Source | Usage | License |
-|--------|-------|---------|
+| Source                                                    | Usage                                                      | License                                                                   |
+| --------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------- |
 | [Crew Chief V4](https://gitlab.com/mr_belern/CrewChiefV4) | Spotter phrase patterns and audio composition architecture | [GPL-3.0](https://gitlab.com/mr_belern/CrewChiefV4/-/blob/master/LICENSE) |
 
 The composable fragment system (opener + body + closer) is directly inspired by Crew Chief V4's audio clip composition architecture, where pre-recorded audio fragments are assembled at runtime from folder hierarchies. The text fragment approach is an adaptation of that concept for written commentary.
 
 ### User Content
 
-| Source | Usage |
-|--------|-------|
+| Source                                    | Usage                                                          |
+| ----------------------------------------- | -------------------------------------------------------------- |
 | [alternate.org](http://www.alternate.org) | Voice matching reference for Kevin's personal commentary style |
 
 ### AI-Assisted Content

@@ -39,7 +39,7 @@
 
   ════════════════════════════════════════════════════════════════
 -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Barlow+Semi+Condensed:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -52,9 +52,9 @@
     --dash-h: 200px;
     --row-h: calc((var(--dash-h) - var(--gap)) / 2);
 
-    --bg: hsla(0, 0%, 14%, 0.53);
-    --bg-panel: hsla(0, 0%, 10%, 0.69);
-    --bg-logo: hsla(0, 0%, 6%, 0.90);
+    --bg: hsla(0, 0%, 14%, 0.80);
+    --bg-panel: hsla(0, 0%, 10%, 1.0);
+    --bg-logo: hsla(0, 0%, 6%, 1.0);
     --border: hsla(0, 0%, 100%, 0.07);
     --text-primary: hsla(0, 0%, 100%, 1.0);
     --text-secondary: hsla(0, 0%, 100%, 0.69);
@@ -170,11 +170,27 @@
 
   .dashboard {
     position: fixed;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: var(--row-h) var(--row-h) auto;
+    gap: var(--gap);
+    transition: all var(--t-slow);
+  }
+  .main-row {
+    grid-column: 1;
+    grid-row: 1 / 3;
     display: flex;
     gap: var(--gap);
     height: var(--dash-h);
-    filter: drop-shadow(0 4px 20px rgba(0,0,0,0.55));
-    transition: all var(--t-slow);
+    align-items: stretch;
+  }
+  .timer-row {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .commentary-col {
+    grid-column: 2;
+    grid-row: 1 / 3;
   }
 
   /* ═══════════════════════════════════════════════
@@ -189,13 +205,16 @@
   .dashboard.layout-tc { top: 10px; left: 50%; transform: translateX(-50%); }
   .dashboard.layout-bc { bottom: 100px; left: 50%; transform: translateX(-50%); }
 
-  /* Flow RTL — logo on right edge, commentary extends left (right-side/default) */
-  .dashboard.flow-rtl { flex-direction: row-reverse; }
-  .dashboard.flow-rtl > .main-area { flex-direction: row; }
+  /* Flow RTL — logo on right edge, commentary extends left */
+  .dashboard.flow-rtl { grid-template-columns: auto 1fr; }
+  .dashboard.flow-rtl .main-row { grid-column: 2; flex-direction: row-reverse; }
+  .dashboard.flow-rtl .main-area { flex-direction: row; }
+  .dashboard.flow-rtl .timer-row { grid-column: 2; }
+  .dashboard.flow-rtl .commentary-col { grid-column: 1; grid-row: 1 / 3; }
 
   /* Flow LTR — logo on left edge, commentary extends right */
-  .dashboard.flow-ltr { flex-direction: row; }
-  .dashboard.flow-ltr > .main-area { flex-direction: row-reverse; }
+  .dashboard.flow-ltr .main-row { flex-direction: row; }
+  .dashboard.flow-ltr .main-area { flex-direction: row-reverse; }
 
   /* ── Corner rounding overrides for LTR flow ── */
   .dashboard.flow-ltr .fuel-block  {
@@ -307,15 +326,16 @@
     flex-shrink: 0;
   }
   .commentary-col.visible {
-    width: 240px;
+    width: 280px;
     opacity: 1;
   }
   .commentary-inner {
-    width: 240px;
+    width: 280px;
+    flex: 1;
     background: hsla(var(--commentary-h, 0), 50%, 22%, 0.48);
     border: 1px solid hsla(var(--commentary-h, 0), 50%, 45%, 0.25);
     border-radius: var(--corner-r);
-    padding: 10px;
+    padding: 14px;
     backdrop-filter: blur(50px);
     -webkit-backdrop-filter: blur(50px);
     display: flex;
@@ -324,22 +344,24 @@
     transition: background 0.8s ease, border-color 0.8s ease;
   }
   .commentary-title {
-    font-size: var(--fs-xl);
+    font-size: 24px;
     font-weight: var(--fw-black);
     line-height: 1.1;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
   }
   .commentary-text {
-    font-size: var(--fs-lg);
+    font-family: 'Barlow Semi Condensed', var(--ff);
+    font-size: 19px;
     font-weight: var(--fw-medium);
     line-height: 1.4;
     color: var(--text-primary);
   }
   .commentary-meta {
-    font-size: var(--fs-xs);
+    font-size: 12px;
     font-weight: var(--fw-semi);
     color: var(--text-secondary);
-    margin-top: 6px;
+    margin-top: auto;
+    padding-top: 8px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -414,12 +436,12 @@
   .logo-square img {
     width: 56px;
     height: auto;
-    opacity: 0.92;
+    opacity: 1;
   }
   .logo-square svg {
     width: 60%;
     height: 60%;
-    opacity: 0.8;
+    opacity: 0.96;
   }
   .car-logo-icon {
     display: flex;
@@ -431,7 +453,7 @@
   .car-logo-icon svg {
     width: 44px;
     height: 44px;
-    opacity: 0.8;
+    opacity: 0.96;
   }
   .car-model-label {
     font-size: 12px;
@@ -506,21 +528,30 @@
     display: flex;
     gap: 2px;
     flex: 1;
-    align-items: stretch;
+    align-items: flex-end;
     margin-top: 4px;
   }
   .tacho-seg {
     flex: 1;
-    border-radius: 3px;
-    background: hsla(0,0%,100%,0.06);
-    transition: background var(--t-fast);
-    height: 100%;
+    border-radius: 2px 2px 0 0;
+    background: hsla(0,0%,100%,0.08);
+    transition: background var(--t-fast), height 60ms linear;
+    min-height: 2px;
+    height: 2px;
   }
-  .tacho-seg.lit-green  { background: var(--green); }
-  .tacho-seg.lit-yellow { background: var(--amber); }
-  .tacho-seg.lit-red    { background: var(--red); box-shadow: 0 0 4px var(--red); }
-  .tacho-seg.lit-redline { background: var(--red); box-shadow: 0 0 8px var(--red); animation: redline-pulse 0.3s ease-in-out infinite alternate; }
-  @keyframes redline-pulse { 0%{opacity:.7} 100%{opacity:1} }
+  .tacho-seg.lit-green  { background: var(--green); opacity: 1; }
+  .tacho-seg.lit-yellow { background: var(--amber); opacity: 1; }
+  .tacho-seg.lit-red    { background: var(--red); box-shadow: 0 0 6px var(--red); opacity: 1; }
+  .tacho-seg.lit-redline { background: var(--red); box-shadow: 0 0 10px var(--red); animation: redline-pulse 0.3s ease-in-out infinite alternate; }
+  @keyframes redline-pulse { 0%{opacity:.84} 100%{opacity:1} }
+  .tacho-block.tacho-redline {
+    box-shadow: inset 0 0 24px hsla(0, 85%, 50%, 0.30), 0 0 15px hsla(0, 85%, 50%, 0.18);
+    animation: tacho-redline-flash 0.25s ease-in-out infinite alternate;
+  }
+  @keyframes tacho-redline-flash {
+    0%   { border-color: hsla(0, 80%, 50%, 0.4); }
+    100% { border-color: hsla(0, 80%, 50%, 0.7); }
+  }
 
   /* ═══════════════════════════════════════════════
      POSITION/RATING + GAPS
@@ -648,11 +679,25 @@
     color: var(--text-secondary);
     text-align: right;
   }
+  .pos-meta-row:first-child {
+    font-size: 16px;
+    font-weight: var(--fw-semi);
+  }
+  .pos-meta-row:first-child .val {
+    font-size: 27px;
+  }
   .pos-meta-row .val {
     font-weight: var(--fw-bold);
     color: var(--text-primary);
   }
   .pos-meta-row .val.purple { color: var(--purple); }
+  .pos-meta-row.best-row {
+    font-size: 16px;
+    font-weight: var(--fw-semi);
+  }
+  .pos-meta-row.best-row .val {
+    font-size: 22px;
+  }
 
   /* Gaps — side-by-side */
   .gaps-block {
@@ -700,7 +745,7 @@
     text-overflow: ellipsis;
   }
   .gap-time {
-    font-size: 16px;
+    font-size: 19px;
     font-weight: var(--fw-black);
     font-variant-numeric: tabular-nums;
     line-height: 1.1;
@@ -711,6 +756,78 @@
     font-size: var(--fs-xs);
     color: var(--text-dim);
     font-variant-numeric: tabular-nums;
+  }
+
+  /* ═══════════════════════════════════════════════
+     RACE TIMER MODULE
+     ═══════════════════════════════════════════════ */
+  .timer-row {
+    display: flex;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease;
+  }
+  .timer-row.timer-visible {
+    max-height: 80px;
+  }
+  /* RTL: timer on right side, offset inward past logo + tacho */
+  .dashboard.flow-rtl .timer-row {
+    justify-content: flex-end;
+    padding-right: calc(var(--row-h) + 140px + var(--gap) * 2);
+  }
+  /* LTR: timer on left side, offset inward past logo + tacho */
+  .dashboard.flow-ltr .timer-row {
+    justify-content: flex-start;
+    padding-left: calc(var(--row-h) + 140px + var(--gap) * 2);
+  }
+
+  /* Bottom layouts: timer row above main row */
+  .dashboard.layout-br,
+  .dashboard.layout-bl,
+  .dashboard.layout-bc { grid-template-rows: auto var(--row-h) var(--row-h); }
+  .dashboard.layout-br .timer-row,
+  .dashboard.layout-bl .timer-row,
+  .dashboard.layout-bc .timer-row { grid-row: 1; }
+  .dashboard.layout-br .main-row,
+  .dashboard.layout-bl .main-row,
+  .dashboard.layout-bc .main-row { grid-row: 2 / 4; }
+  .dashboard.layout-br .commentary-col,
+  .dashboard.layout-bl .commentary-col,
+  .dashboard.layout-bc .commentary-col { grid-row: 2 / 4; }
+  .dashboard.layout-br.flow-rtl .commentary-col,
+  .dashboard.layout-bl.flow-rtl .commentary-col,
+  .dashboard.layout-bc.flow-rtl .commentary-col { grid-row: 2 / 4; }
+  /* Top layouts: timer row below main row (default grid order) */
+
+  .race-timer-block {
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 6px 8px;
+  }
+  .race-timer-value {
+    font-size: 28px;
+    font-weight: var(--fw-black);
+    color: #FFFFFF;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .race-timer-lap {
+    font-size: 13px;
+    font-weight: var(--fw-medium);
+    color: var(--text-dim);
+    font-style: italic;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    margin-top: 3px;
+  }
+  .race-timer-lap .timer-label {
+    font-weight: var(--fw-semi);
+    color: var(--text-secondary);
+    margin-right: 3px;
   }
 
   /* ═══════════════════════════════════════════════
@@ -843,6 +960,17 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Per-control bar colors */
+  #ctrlBB::before  { background: hsla(355, 75%, 55%, 0.12); }
+  #ctrlTC::before  { background: hsla(215, 75%, 55%, 0.12); }
+  #ctrlABS::before { background: hsla(48, 80%, 55%, 0.12); }
+  #ctrlBB .ctrl-value  { color: hsl(355, 80%, 65%); }
+  #ctrlTC .ctrl-value  { color: hsl(215, 80%, 68%); }
+  #ctrlABS .ctrl-value { color: hsl(48, 85%, 62%); }
+  #ctrlBB .ctrl-label  { color: hsl(355, 50%, 55%); }
+  #ctrlTC .ctrl-label  { color: hsl(215, 50%, 58%); }
+  #ctrlABS .ctrl-label { color: hsl(48, 55%, 52%); }
+
   /* Hidden controls (car doesn't have TC/ABS) */
   .ctrl-item.ctrl-hidden { display: none; }
 
@@ -896,9 +1024,9 @@
     min-height: 1px;
     transition: height 60ms linear;
   }
-  .pedal-hist-bar.throttle { background: var(--green); opacity: 0.45; }
-  .pedal-hist-bar.brake { background: var(--red); opacity: 0.55; }
-  .pedal-hist-bar.clutch { background: var(--blue); opacity: 0.45; }
+  .pedal-hist-bar.throttle { background: var(--green); opacity: 0.54; }
+  .pedal-hist-bar.brake { background: var(--red); opacity: 0.66; }
+  .pedal-hist-bar.clutch { background: var(--blue); opacity: 0.54; }
   .pedal-hist-bar.live { opacity: 1; flex: 0 0 4px; border-radius: 2px; }
 
   /* ═══════════════════════════════════════════════
@@ -944,13 +1072,13 @@
   .fuel-bar-inner.healthy { background: linear-gradient(90deg, hsl(123,45%,35%), hsl(123,50%,45%)); }
   .fuel-bar-inner.caution { background: linear-gradient(90deg, hsl(35,90%,40%), hsl(45,100%,50%)); }
   .fuel-bar-inner.critical { background: linear-gradient(90deg, hsl(0,70%,35%), hsl(0,70%,50%)); animation: fuel-warn 1s ease-in-out infinite alternate; }
-  @keyframes fuel-warn { 0%{opacity:.7} 100%{opacity:1} }
+  @keyframes fuel-warn { 0%{opacity:.84} 100%{opacity:1} }
   .fuel-bar-pit-marker {
     position: absolute;
     top: 0; bottom: 0;
     width: 2px;
     background: var(--text-primary);
-    opacity: 0.7;
+    opacity: 0.84;
   }
   .fuel-stats {
     display: flex;
@@ -1032,11 +1160,11 @@
     bottom: auto;
     top: -28px;
   }
-  body.settings-active .conn-status { opacity: 0.8; pointer-events: auto; }
+  body.settings-active .conn-status { opacity: 0.96; pointer-events: auto; }
   .conn-status.connected { background: #4caf50; }
   .conn-status.disconnected { background: #f44336; animation: conn-pulse 2s infinite; }
   .conn-status.connecting { background: #ff9800; }
-  @keyframes conn-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+  @keyframes conn-pulse { 0%,100% { opacity: 0.48; } 50% { opacity: 1; } }
 
   /* Connection setup banner */
   .conn-banner {
@@ -1250,6 +1378,7 @@
 
 <div class="dashboard layout-tr flow-rtl" id="dashboard">
 
+  <div class="main-row">
   <div class="main-area">
 
     <!-- COL: Fuel (top) + Tyres (bottom) — separate panels -->
@@ -1335,7 +1464,7 @@
             <div class="pos-number"><span class="skew-accent">P—</span></div>
             <div class="pos-meta">
               <div class="pos-meta-row">Lap <span class="val">—</span></div>
-              <div class="pos-meta-row"><span class="val purple">—:——.———</span></div>
+              <div class="pos-meta-row best-row">Best <span class="val purple">—:——.———</span></div>
             </div>
           </div>
         </div>
@@ -1385,7 +1514,7 @@
             <div class="pos-number"><span class="skew-accent">P—</span></div>
             <div class="pos-meta">
               <div class="pos-meta-row">Lap <span class="val">—</span></div>
-              <div class="pos-meta-row"><span class="val purple">—:——.———</span></div>
+              <div class="pos-meta-row best-row">Best <span class="val purple">—:——.———</span></div>
             </div>
           </div>
         </div>
@@ -1406,6 +1535,7 @@
           <div class="gap-ir"></div>
         </div>
       </div>
+
     </div>
 
     <!-- COL: Tachometer -->
@@ -1424,7 +1554,7 @@
     <!-- COL: Logo (two stacked squares) -->
     <div class="logo-col">
       <div class="logo-square" id="k10LogoSquare">
-        <img src="logomark.png" alt="K10 Media Coach" style="width:75%;height:auto;opacity:0.92;">
+        <img src="logomark.png" alt="K10 Media Coach" style="width:75%;height:auto;opacity:1;">
       </div>
       <div class="logo-square" id="carLogoSquare">
         <!-- Generic logo (replaced by JS when CarModel data arrives) -->
@@ -1444,8 +1574,17 @@
     </div>
 
   </div><!-- /main-area -->
+  </div><!-- /main-row -->
 
-  <!-- COMMENTARY — hidden by default, shown via showCommentary() -->
+  <!-- ROW: Race Timer — aligned with position box -->
+  <div class="timer-row">
+    <div class="panel race-timer-block" id="raceTimerBlock">
+      <div class="race-timer-value" id="raceTimerValue">0:00:00</div>
+      <div class="race-timer-lap"><span class="timer-label">Last</span> <span id="lastLapTimeValue">—:——.———</span></div>
+    </div>
+  </div>
+
+  <!-- COMMENTARY — spans both rows, hidden by default -->
   <div class="commentary-col" id="commentaryCol" style="--commentary-h: 0;">
     <div class="commentary-inner" id="commentaryInner">
       <div class="commentary-title" id="commentaryTitle"></div>
@@ -1658,6 +1797,9 @@
         else if (f < 0.73) { segs[i].classList.add('lit-yellow'); topColor = 'yellow'; }
         else if (f < 0.91) { segs[i].classList.add('lit-red'); topColor = 'red'; }
         else { segs[i].classList.add('lit-redline'); topColor = 'red'; }
+        segs[i].style.height = '100%';
+      } else {
+        segs[i].style.height = '2px';
       }
     }
     rpmText.style.color = RPM_COLORS[topColor];
@@ -1733,8 +1875,22 @@
     ratingActive = !ratingActive;
   }
 
+  // Force position page visible (used when timer row is showing)
+  function showPositionPage() {
+    const r = document.getElementById('ratingPage');
+    const p = document.getElementById('positionPage');
+    const d1 = document.getElementById('dotRating');
+    const d2 = document.getElementById('dotPos');
+    if (ratingActive) {
+      r.classList.replace('active', 'inactive');
+      p.classList.replace('inactive', 'active');
+      d1.classList.remove('active'); d2.classList.add('active');
+      ratingActive = false;
+    }
+  }
+
   // Cycling interval — call cycleRatingPos() from SimHub timer or JS setInterval
-  // setInterval(cycleRatingPos, 45000);
+  // setInterval(cycleRatingPos, 10000);
 
   // ═══ iRATING BAR CHART ═══
   function updateIRBar(iRating) {
@@ -1979,6 +2135,11 @@
     'IRacingExtraProperties.iRacing_Opponent_Behind_Name',
     'IRacingExtraProperties.iRacing_Opponent_Ahead_IRating',
     'IRacingExtraProperties.iRacing_Opponent_Behind_IRating',
+    'DataCorePlugin.GameData.SessionTimeSpan',
+    'DataCorePlugin.GameData.CurrentLapTime',
+    'DataCorePlugin.GameData.LastLapTime',
+    'DataCorePlugin.GameData.RemainingTime',
+    'DataCorePlugin.GameData.TotalLaps',
     'K10MediaCoach.Plugin.CommentaryVisible',
     'K10MediaCoach.Plugin.CommentaryText',
     'K10MediaCoach.Plugin.CommentaryTopicTitle',
@@ -2013,6 +2174,11 @@
     'K10MediaCoach.Plugin.Demo.CurrentLap',
     'K10MediaCoach.Plugin.Demo.BestLapTime',
     'K10MediaCoach.Plugin.Demo.CarModel',
+    'K10MediaCoach.Plugin.Demo.SessionTime',
+    'K10MediaCoach.Plugin.Demo.CurrentLapTime',
+    'K10MediaCoach.Plugin.Demo.LastLapTime',
+    'K10MediaCoach.Plugin.Demo.RemainingTime',
+    'K10MediaCoach.Plugin.Demo.TotalLaps',
     'K10MediaCoach.Plugin.Demo.IRating',
     'K10MediaCoach.Plugin.Demo.SafetyRating',
     'K10MediaCoach.Plugin.Demo.GapAhead',
@@ -2032,7 +2198,7 @@
   // ─── State ───
   let _pollFrame = 0;
   let _cycleFrameCount = 0;
-  const _cycleIntervalFrames = Math.round(45000 / POLL_MS); // 45s
+  const _cycleIntervalFrames = Math.round(10000 / POLL_MS); // 10s
   let _thrHist = new Array(20).fill(0);
   let _brkHist = new Array(20).fill(0);
   let _cltHist = new Array(20).fill(0);
@@ -2053,6 +2219,9 @@
   let _pollActive = false; // prevent overlapping requests
   let _connFails = 0;      // consecutive fetch failures — drives backoff
   let _backoffUntil = 0;   // timestamp: skip polls until this time
+  let _prevLap = 0;           // previous lap number — detect lap change
+  let _timerHideTimeout = null; // auto-hide timer after showing
+  let _timerPinned = false;    // true when timer stays visible for end-of-race
 
   // Manufacturer map — keys are lowercase substrings matched against CarModel
   const _mfrMap = {
@@ -2269,7 +2438,14 @@
     if (gearEl) gearEl.textContent = gear;
     if (rpmEl) rpmEl.textContent = rpm > 0 ? Math.round(rpm) : '0';
     if (speedEl) speedEl.textContent = speed > 0 ? Math.round(speed) : '0';
-    updateTacho(maxRpm > 0 ? Math.min(1, rpm / maxRpm) : 0);
+    const rpmRatio = maxRpm > 0 ? Math.min(1, rpm / maxRpm) : 0;
+    updateTacho(rpmRatio);
+    // Redline flash on entire tacho block
+    const tachoBlock = document.querySelector('.tacho-block');
+    if (tachoBlock) {
+      if (rpmRatio >= 0.91) tachoBlock.classList.add('tacho-redline');
+      else tachoBlock.classList.remove('tacho-redline');
+    }
 
     // ─── Pedals ───
     let thr = +d('DataCorePlugin.GameData.Throttle', 'Demo.Throttle') || 0;
@@ -2348,7 +2524,7 @@
     setCtrlVisibility(true, tcOk, absOk);
 
     const bbEl = document.querySelector('#ctrlBB .ctrl-value');
-    if (bbEl) { bbEl.textContent = bb > 0 ? bb.toFixed(1) + '%' : '—'; document.getElementById('ctrlBB').style.setProperty('--ctrl-pct', (bb > 0 ? Math.min(100, ((bb-30)/40)*100) : 0) + '%'); }
+    if (bbEl) { bbEl.textContent = bb > 0 ? bb.toFixed(1) : '—'; document.getElementById('ctrlBB').style.setProperty('--ctrl-pct', (bb > 0 ? Math.min(100, ((bb-30)/40)*100) : 0) + '%'); }
     if (tcOk) { const el = document.querySelector('#ctrlTC .ctrl-value'); if (el) { el.textContent = Math.round(+tc); document.getElementById('ctrlTC').style.setProperty('--ctrl-pct', Math.min(100, (+tc/12)*100) + '%'); } }
     if (absOk) { const el = document.querySelector('#ctrlABS .ctrl-value'); if (el) { el.textContent = Math.round(+abs); document.getElementById('ctrlABS').style.setProperty('--ctrl-pct', Math.min(100, (+abs/12)*100) + '%'); } }
 
@@ -2368,6 +2544,56 @@
       document.querySelectorAll('.pos-number').forEach(el => flashElement(el, pos < _lastPosition ? 'ahead-changed' : 'behind-changed'));
     }
     _lastPosition = pos;
+
+    // ─── Race Timer + Last Lap + End-of-Race Logic ───
+    const sessionTime = +d('DataCorePlugin.GameData.SessionTimeSpan', 'Demo.SessionTime') || 0;
+    const lastLapTime = +d('DataCorePlugin.GameData.LastLapTime', 'Demo.LastLapTime') || 0;
+    const remTime = +d('DataCorePlugin.GameData.RemainingTime', 'Demo.RemainingTime') || 0;
+    const totalLaps = +d('DataCorePlugin.GameData.TotalLaps', 'Demo.TotalLaps') || 0;
+    const remLaps = +d('DataCorePlugin.GameData.RemainingLaps', 'Demo.RemainingLaps') || 0;
+    const timerEl = document.getElementById('raceTimerValue');
+    const timerRow = document.querySelector('.timer-row');
+    if (timerEl) {
+      if (sessionTime > 0) {
+        const h = Math.floor(sessionTime / 3600);
+        const m = Math.floor((sessionTime % 3600) / 60);
+        const s = Math.floor(sessionTime % 60);
+        timerEl.textContent = h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      } else {
+        timerEl.textContent = '0:00:00';
+      }
+    }
+    const lastLapEl = document.getElementById('lastLapTimeValue');
+    if (lastLapEl) { lastLapEl.textContent = fmtLap(lastLapTime); }
+
+    // Detect lap change → show timer block + force position page
+    if (lap > 0 && lap !== _prevLap && _prevLap > 0 && timerRow) {
+      timerRow.classList.add('timer-visible');
+      showPositionPage();
+      // Clear any pending hide
+      if (_timerHideTimeout) clearTimeout(_timerHideTimeout);
+      // Auto-hide after 30s unless pinned for end-of-race
+      if (!_timerPinned) {
+        _timerHideTimeout = setTimeout(() => {
+          if (!_timerPinned) timerRow.classList.remove('timer-visible');
+        }, 30000);
+      }
+    }
+    _prevLap = lap;
+
+    // End-of-race: pin timer visible for final 3 laps or final 5 minutes
+    const isTimedRace = totalLaps <= 0 || totalLaps > 9999;
+    const isEndOfRace = isTimedRace
+      ? (remTime > 0 && remTime <= 300)   // final 5 minutes for timed races
+      : (remLaps > 0 && remLaps <= 3);    // final 3 laps for lap races
+    if (isEndOfRace && timerRow) {
+      _timerPinned = true;
+      showPositionPage();
+      if (_timerHideTimeout) { clearTimeout(_timerHideTimeout); _timerHideTimeout = null; }
+      timerRow.classList.add('timer-visible');
+    } else if (_timerPinned && !isEndOfRace) {
+      _timerPinned = false; // race ended or data reset
+    }
 
     // ─── iRating / Safety ───
     const ir = _demo ? (+v('K10MediaCoach.Plugin.Demo.IRating') || 0) : (+v('IRacingExtraProperties.iRacing_DriverInfo_IRating') || 0);
@@ -2418,7 +2644,9 @@
     }
 
     // ─── Cycling timer ───
-    if (_cycleFrameCount >= _cycleIntervalFrames) { _cycleFrameCount = 0; cycleRatingPos(); }
+    // Suppress cycling while timer row is visible — keep position page showing
+    const _timerShowing = timerRow && timerRow.classList.contains('timer-visible');
+    if (_cycleFrameCount >= _cycleIntervalFrames) { _cycleFrameCount = 0; if (!_timerShowing) cycleRatingPos(); }
 
     _pollActive = false;
   }

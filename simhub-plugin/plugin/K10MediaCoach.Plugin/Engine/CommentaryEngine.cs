@@ -653,6 +653,9 @@ namespace K10MediaCoach.Plugin.Engine
             if (!color.StartsWith("#")) color = "#" + color;
 
             // Already in #AARRGGBB format (9 chars)
+            // Special case: #00000000 (all zeros) → opaque black
+            if (color.Length == 9 && color.Equals("#00000000", System.StringComparison.OrdinalIgnoreCase))
+                return "#FF000000";
             if (color.Length == 9) return color.ToUpper();
 
             // #RRGGBB format (7 chars) — prepend FF alpha

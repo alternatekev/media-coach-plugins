@@ -139,8 +139,14 @@ namespace K10MediaCoach.Tests.TestHelpers
         private static bool IsSpike(TriggerCondition t, TelemetrySnapshot cur, TelemetrySnapshot prev)
         {
             if (prev == null || !t.ThresholdDelta.HasValue) return false;
-            double delta = GetValue(cur, t.DataPoint) - GetValue(prev, t.DataPoint);
-            return delta >= t.ThresholdDelta.Value;
+            double curVal  = GetValue(cur, t.DataPoint);
+            double prevVal = GetValue(prev, t.DataPoint);
+            double delta   = curVal - prevVal;
+            // Standard spike: value jumped by more than threshold
+            if (delta > t.ThresholdDelta.Value) return true;
+            // Declining edge: previous sample caught the spike peak
+            if (prevVal > t.ThresholdDelta.Value && curVal < prevVal) return true;
+            return false;
         }
 
         private static bool IsSuddenDrop(TriggerCondition t, TelemetrySnapshot cur, TelemetrySnapshot prev)

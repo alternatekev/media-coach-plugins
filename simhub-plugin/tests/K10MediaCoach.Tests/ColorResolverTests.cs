@@ -122,7 +122,7 @@ namespace K10MediaCoach.Tests
             Assert.AreEqual(expected, result);
         }
 
-        [TestCase("#RGB", "#FFRRGGGBB")]
+        [TestCase("#RGB", "#FFRRGGBB")]
         [TestCase("#FFF", "#FFFFFFFF")]
         [TestCase("#000", "#FF000000")]
         public void NormalizeColor_With4DigitHex_ExpandsAndPrependsFF(string input, string expected)

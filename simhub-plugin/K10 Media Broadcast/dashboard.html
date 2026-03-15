@@ -4148,25 +4148,25 @@
     if (sample.p1) {
       // P1 gold — brighter the further they climbed
       const heat = Math.min(Math.abs(sample.delta), 5);
-      const alpha = 0.22 + heat * 0.09;  // 0.22 → 0.67
-      const lit   = 48 + heat * 3;       // 48 → 63  (brighter)
-      return 'hsla(42, 60%, ' + lit + '%, ' + alpha.toFixed(2) + ')';
+      const alpha = 0.26 + heat * 0.11;  // 0.26 → 0.81
+      const lit   = 58 + heat * 4;       // 58 → 78
+      return 'hsla(42, 72%, ' + lit + '%, ' + alpha.toFixed(2) + ')';
     }
     const d = sample.delta;
-    if (d === 0) return 'hsla(210, 35%, 45%, 0.20)';
+    if (d === 0) return 'hsla(210, 42%, 54%, 0.24)';
     if (d < 0) {
       // Gained positions — green, brighter with more positions gained
       const heat = Math.min(Math.abs(d), 5);
-      const alpha = 0.18 + heat * 0.10;   // 1 pos: 0.28, 2: 0.38, 3: 0.48 ...
-      const sat   = 32 + heat * 7;        // 39 → 67
-      const lit   = 38 + heat * 4;        // 42 → 58  (brighter)
+      const alpha = 0.22 + heat * 0.12;   // 1 pos: 0.34, 2: 0.46, 3: 0.58 ...
+      const sat   = 38 + heat * 8;        // 46 → 78
+      const lit   = 46 + heat * 5;        // 51 → 71
       return 'hsla(145, ' + sat + '%, ' + lit + '%, ' + alpha.toFixed(2) + ')';
     }
     // Lost positions — red, brighter with more positions lost
     const heat = Math.min(d, 5);
-    const alpha = 0.18 + heat * 0.10;
-    const sat   = 32 + heat * 7;
-    const lit   = 40 + heat * 4;
+    const alpha = 0.22 + heat * 0.12;
+    const sat   = 38 + heat * 8;
+    const lit   = 48 + heat * 5;
     return 'hsla(0, ' + sat + '%, ' + lit + '%, ' + alpha.toFixed(2) + ')';
   }
 
@@ -5221,7 +5221,7 @@
         uniform float uDPR;       // devicePixelRatio compensation
 
         float pulse(float t, float speed, float base) {
-          return base + (1.0 - base) * (0.5 + 0.5 * sin(t * speed));
+          return base + (1.0 - base) * (0.5 + 0.5 * sin(t * speed * 0.6));
         }
 
         void main() {
@@ -5243,7 +5243,7 @@
             float fillH = uThr * 0.8;
             float dy = max(0.0, uv.y - (1.0 - fillH));
             float glow = exp(-dx * dx * (4.0 / dpr2)) * exp(-dy * (0.8 / dpr2) / max(fillH, 0.01)) * uThr;
-            float p = pulse(uTime, 6.0 + uThr * 4.0, 0.7);
+            float p = pulse(uTime, 4.0 + uThr * 2.0, 0.88);
             col += vec3(0.18, 0.82, 0.34) * glow * 0.3 * dpr2 * p;
             alpha += glow * 0.12 * dpr2 * p;
           }
@@ -5254,11 +5254,11 @@
             float fillH = uBrk * 0.8;
             float dy = max(0.0, uv.y - (1.0 - fillH));
             float glow = exp(-dx * dx * (4.0 / dpr2)) * exp(-dy * (0.8 / dpr2) / max(fillH, 0.01)) * uBrk;
-            float p = pulse(uTime, 5.0 + uBrk * 6.0, 0.65);
-            // Brake gets extra intensity — full send
-            float intensity = uBrk >= 0.9 ? 0.6 : 0.4;
+            float p = pulse(uTime, 3.5 + uBrk * 2.5, 0.88);
+            // Brake gets moderate extra intensity at full pressure
+            float intensity = uBrk >= 0.9 ? 0.45 : 0.35;
             col += vec3(0.92, 0.22, 0.20) * glow * intensity * dpr2 * p;
-            alpha += glow * 0.14 * dpr2 * p;
+            alpha += glow * 0.12 * dpr2 * p;
           }
 
           // Clutch glow
@@ -5267,7 +5267,7 @@
             float fillH = uClt * 0.8;
             float dy = max(0.0, uv.y - (1.0 - fillH));
             float glow = exp(-dx * dx * (4.0 / dpr2)) * exp(-dy * (0.8 / dpr2) / max(fillH, 0.01)) * uClt;
-            float p = pulse(uTime, 5.5 + uClt * 3.0, 0.7);
+            float p = pulse(uTime, 3.5 + uClt * 2.0, 0.88);
             col += vec3(0.25, 0.50, 0.92) * glow * 0.28 * dpr2 * p;
             alpha += glow * 0.11 * dpr2 * p;
           }

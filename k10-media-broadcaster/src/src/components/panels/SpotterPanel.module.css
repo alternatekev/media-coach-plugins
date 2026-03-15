@@ -1,0 +1,32 @@
+.spotter-panel {
+  position: fixed;
+  z-index: 50;
+}
+
+.sp-inner {
+  padding: 6px 12px;
+  border-radius: var(--corner-r);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sp-inner.sp-active {
+  opacity: 1;
+}
+
+.sp-danger {
+  background: hsla(0, 70%, 45%, 0.85);
+  color: white;
+}
+
+.sp-warn {
+  background: hsla(40, 80%, 45%, 0.85);
+  color: white;
+}
+
+.sp-clear {
+  background: hsla(130, 60%, 35%, 0.85);
+  color: white;
+}

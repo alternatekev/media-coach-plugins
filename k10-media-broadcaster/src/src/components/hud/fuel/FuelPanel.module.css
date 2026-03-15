@@ -1,0 +1,114 @@
+.fuel-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding: var(--pad);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-top-left-radius: var(--corner-r);
+  color: var(--text-primary);
+  font-family: var(--ff);
+}
+
+.panel-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+
+.fuel-remaining {
+  font-size: 22px;
+  font-weight: var(--fw-black);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.unit {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semi);
+  color: var(--text-secondary);
+  margin-left: 2px;
+}
+
+.fuel-bar-outer {
+  height: 8px;
+  border-radius: 2px;
+  background: hsla(0, 0%, 100%, 0.06);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+
+.fuel-bar-inner {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.healthy {
+  background: linear-gradient(90deg, hsl(123, 45%, 35%), hsl(123, 50%, 45%));
+}
+
+.low {
+  background: linear-gradient(90deg, hsl(35, 90%, 40%), hsl(45, 100%, 50%));
+}
+
+.critical {
+  background: linear-gradient(90deg, hsl(0, 70%, 35%), hsl(0, 70%, 50%));
+  animation: fuel-warn 1s ease-in-out infinite alternate;
+}
+
+@keyframes fuel-warn {
+  0% {
+    opacity: 0.84;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fuel-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  justify-content: center;
+}
+
+.val {
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.fuel-pit-suggest {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.05em;
+  color: var(--red);
+  text-align: center;
+  padding: 4px 2px;
+  border: 1px solid hsla(0, 70%, 50%, 0.3);
+  border-radius: 2px;
+  background: hsla(0, 70%, 50%, 0.08);
+  animation: fuel-pit-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes fuel-pit-pulse {
+  0%, 100% {
+    opacity: 1;
+    border-color: hsla(0, 70%, 50%, 0.3);
+  }
+  50% {
+    opacity: 0.7;
+    border-color: hsla(0, 70%, 50%, 0.6);
+  }
+}

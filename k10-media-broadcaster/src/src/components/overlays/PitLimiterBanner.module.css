@@ -1,0 +1,39 @@
+.pit-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.pit-banner.pit-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pit-inner {
+  background: hsla(30, 90%, 50%, 0.9);
+  color: #000;
+  padding: 8px 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pit-label {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.pit-speed {
+  font-family: var(--ff-mono);
+  font-size: 16px;
+  font-weight: 700;
+}

@@ -1,0 +1,86 @@
+.logoCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: var(--row-h, 98px);
+  height: calc(var(--row-h, 98px) * 2 + 2px);
+}
+
+.logoSquare {
+  width: var(--row-h, 98px);
+  height: var(--row-h, 98px);
+  background: var(--bg-logo, #0a0a0a);
+  border: 1px solid var(--border-color, #333);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.logoCol .logoSquare:first-child {
+  border-radius: 4px 4px 0 0;
+}
+
+.logoCol .logoSquare:last-child {
+  border-radius: 0 0 4px 4px;
+  border-top: none;
+}
+
+.logoImg {
+  width: 75%;
+  height: auto;
+  max-height: 80%;
+  object-fit: contain;
+}
+
+.carLogoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60%;
+  position: relative;
+}
+
+.carLogoSvg {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carLogoSvg :global(svg) {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.carLogoPlaceholder {
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
+.carModelLabel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-value, #fff);
+  text-align: center;
+  padding: 4px;
+  width: 100%;
+  height: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+  line-height: 1.2;
+}

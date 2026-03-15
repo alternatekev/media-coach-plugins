@@ -1,0 +1,79 @@
+.incidents-panel {
+  position: fixed;
+  width: 140px;
+  z-index: 50;
+}
+
+.inc-count {
+  font-size: 48px;
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.inc-level-0 .inc-count {
+  color: var(--green);
+}
+
+.inc-level-1 .inc-count {
+  color: hsl(90, 60%, 55%);
+}
+
+.inc-level-2 .inc-count {
+  color: hsl(50, 80%, 55%);
+}
+
+.inc-level-3 .inc-count {
+  color: var(--orange);
+}
+
+.inc-level-4 .inc-count {
+  color: hsl(15, 80%, 55%);
+}
+
+.inc-level-5 .inc-count {
+  color: var(--red);
+}
+
+.inc-thresh {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+}
+
+.inc-thresh-label {
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.inc-thresh-val {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+}
+
+.thresh-near {
+  color: var(--amber);
+}
+
+.thresh-crit {
+  color: var(--orange);
+}
+
+.thresh-hit {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.inc-flash {
+  animation: inc-flash-anim 0.6s ease-out;
+}
+
+@keyframes inc-flash-anim {
+  0% {
+    text-shadow: 0 0 20px currentColor;
+  }
+  100% {
+    text-shadow: none;
+  }
+}

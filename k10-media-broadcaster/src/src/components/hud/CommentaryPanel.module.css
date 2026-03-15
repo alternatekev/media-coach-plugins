@@ -1,0 +1,64 @@
+.commentaryCol {
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease 0.05s;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.commentaryCol.visible {
+  width: 280px;
+  opacity: 1;
+}
+
+.commentaryInner {
+  width: 280px;
+  flex: 1;
+  border-radius: var(--corner-r);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.commentaryTitle {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.commentaryText {
+  font-family: 'Barlow Semi Condensed', sans-serif;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.commentaryScroll {
+  overflow: hidden;
+  flex: 1;
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+.commentaryScroll.autoScroll {
+  animation: commentary-scroll 8s linear infinite;
+}
+
+@keyframes commentary-scroll {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,153 @@
+.leaderboardPanel {
+  position: fixed;
+  width: 280px;
+  max-height: 400px;
+  z-index: 50;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.lbScroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Positioning classes */
+.lbTopLeft {
+  top: 8px;
+  left: 8px;
+}
+
+.lbTopRight {
+  top: 8px;
+  right: 8px;
+}
+
+.lbBottomLeft {
+  bottom: 8px;
+  left: 8px;
+}
+
+.lbBottomRight {
+  bottom: 8px;
+  right: 8px;
+}
+
+/* Row styling */
+.lbRow {
+  display: flex;
+  align-items: center;
+  padding: 2px 6px;
+  gap: 4px;
+  font-size: 11px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  line-height: 1.3;
+}
+
+/* Player row highlight */
+.lbRow.lbPlayer {
+  background: hsla(210, 60%, 50%, 0.12);
+  border-color: hsla(210, 60%, 50%, 0.25);
+}
+
+/* P1 gold treatment */
+.lbRow.lbP1 {
+  background: hsla(42, 80%, 50%, 0.12);
+  border-color: hsla(42, 80%, 50%, 0.35);
+  font-weight: 600;
+}
+
+/* Position relative to start */
+.lbRow.lbAhead {
+  background: hsla(145, 60%, 45%, 0.10);
+  border-color: hsla(145, 60%, 45%, 0.25);
+}
+
+.lbRow.lbBehind {
+  background: hsla(0, 60%, 50%, 0.10);
+  border-color: hsla(0, 60%, 50%, 0.25);
+}
+
+/* Pit lane dimming */
+.lbRow.lbPit {
+  opacity: 0.4;
+}
+
+/* Column styling */
+.lbPos {
+  width: 22px;
+  font-weight: 700;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.lbName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.lbLap {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  min-width: 45px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.lbLap.lapPb {
+  color: var(--purple);
+  font-weight: 600;
+}
+
+.lbLap.lapFast {
+  color: var(--green);
+}
+
+.lbLap.lapSlow {
+  color: var(--text-dim);
+}
+
+.lbIr {
+  width: 30px;
+  text-align: right;
+  color: var(--text-dim);
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.lbGap {
+  width: 42px;
+  text-align: right;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.lbGap.gapAhead {
+  color: var(--green);
+}
+
+.lbGap.gapBehind {
+  color: var(--red);
+}
+
+.lbSpark {
+  width: 44px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  opacity: 0.6;
+}

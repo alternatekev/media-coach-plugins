@@ -1,0 +1,1038 @@
+/* K10 Media Broadcaster — Component Styles
+   ═════════════════════════════════════════════════════════════════
+   Shared panel, value, and typography component styles
+*/
+
+@import 'tokens.css';
+
+/* ═════════════════════════════════════════════════════════════
+   PANEL BASE STYLES
+   ═════════════════════════════════════════════════════════════ */
+
+.panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: var(--pad);
+  transition: background var(--t-slow), border-color var(--t-med);
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UNIFIED GRID ROUNDING — only outer corners get radius
+   ───────────────────────────────────────────────────────────── */
+.fuel-block {
+  border-top-left-radius: var(--corner-r);
+}
+.tyres-block {
+  border-bottom-left-radius: var(--corner-r);
+}
+.tacho-block {
+  border-top-right-radius: var(--corner-r);
+  border-bottom-right-radius: var(--corner-r);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PANEL LABELS — section headers
+   ───────────────────────────────────────────────────────────── */
+.panel-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   VALUE DISPLAYS — numeric and text values
+   ═════════════════════════════════════════════════════════════ */
+
+/* Generic value class — used for monetary, numeric, and rating values */
+.val {
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LABEL/VALUE PAIRS — common pattern
+   ───────────────────────────────────────────────────────────── */
+.label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+/* ═════════════════════════════════════════════════════════════
+   MAIN AREA & COLUMN LAYOUTS
+   ═════════════════════════════════════════════════════════════ */
+
+.main-area {
+  display: flex;
+  flex-direction: row;
+  gap: var(--gap);
+  align-items: stretch;
+  height: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CYCLING / CAROUSEL SYSTEM
+   ───────────────────────────────────────────────────────────── */
+
+.cycle-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.cycle-page {
+  transition: opacity 1s ease;
+  position: absolute;
+  inset: 0;
+  padding: var(--pad);
+}
+
+.cycle-page.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+.cycle-page.inactive {
+  opacity: 0;
+  z-index: 1;
+}
+
+.cycle-sizer {
+  visibility: hidden;
+  position: relative;
+  padding: var(--pad);
+}
+
+.cycle-dots {
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  z-index: 5;
+}
+
+.cycle-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: hsla(0, 0%, 100%, 0.2);
+  transition: background 0.3s;
+}
+
+.cycle-dot.active {
+  background: hsla(0, 0%, 100%, 0.6);
+}
+
+/* ═════════════════════════════════════════════════════════════
+   LOGO COLUMN — two stacked squares
+   ═════════════════════════════════════════════════════════════ */
+
+.logo-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  flex-shrink: 0;
+}
+
+.logo-square {
+  position: relative;
+  background: var(--bg-logo);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--row-h);
+  height: var(--row-h);
+  border-radius: 0;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.logo-col .logo-square:first-child {
+  border-top-left-radius: var(--corner-r);
+  border-top-right-radius: var(--corner-r);
+}
+
+.logo-col .logo-square:last-child {
+  border-bottom-left-radius: var(--corner-r);
+  border-bottom-right-radius: var(--corner-r);
+}
+
+.logo-square img {
+  width: 56px;
+  height: auto;
+  opacity: 1;
+}
+
+.logo-square svg {
+  width: 60%;
+  height: 60%;
+  opacity: 0.96;
+}
+
+.car-logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.car-logo-icon svg {
+  width: 44px;
+  height: 44px;
+  opacity: 0.96;
+}
+
+.car-model-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 90%;
+  padding: 0 4px 2px;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.car-model-label:empty {
+  display: none;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   TACHOMETER
+   ═════════════════════════════════════════════════════════════ */
+
+.tacho-block {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 140px;
+  position: relative;
+}
+
+.tacho-top-row {
+  display: flex;
+  align-items: flex-start;
+  height: var(--row-h);
+  overflow: hidden;
+}
+
+.tacho-gear {
+  font-size: 96px;
+  font-weight: var(--fw-black);
+  line-height: 0.85;
+  text-align: left;
+}
+
+.tacho-speed-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+}
+
+.tacho-rpm {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s ease, text-shadow 0.15s ease-out, transform 0.15s ease-out;
+  text-align: right;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.tacho-rpm.rpm-pulse-green {
+  text-shadow: 0 0 8px var(--green), 0 0 16px hsla(140, 70%, 50%, 0.3);
+  transform: scale(1.04);
+}
+
+.tacho-rpm.rpm-pulse-yellow {
+  text-shadow: 0 0 8px var(--amber), 0 0 16px hsla(45, 90%, 55%, 0.3);
+  transform: scale(1.04);
+}
+
+.tacho-rpm.rpm-pulse-red {
+  text-shadow: 0 0 10px var(--red), 0 0 20px hsla(0, 80%, 50%, 0.4);
+  transform: scale(1.06);
+}
+
+.speed-value {
+  font-size: 28px;
+  font-weight: var(--fw-black);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  text-align: right;
+}
+
+.speed-unit {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-dim);
+  text-align: right;
+  line-height: 1;
+}
+
+.tacho-bar-track {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+.tacho-seg {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background: hsla(0, 0%, 100%, 0.08);
+  transition: background var(--t-fast), height 60ms linear;
+  min-height: 2px;
+  height: 2px;
+}
+
+.tacho-seg.lit-green {
+  background: var(--green);
+  opacity: 1;
+}
+
+.tacho-seg.lit-yellow {
+  background: var(--amber);
+  opacity: 1;
+}
+
+.tacho-seg.lit-red {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+  opacity: 1;
+}
+
+.tacho-seg.lit-redline {
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+  animation: redline-pulse 0.3s ease-in-out infinite alternate;
+}
+
+.tacho-block.tacho-redline {
+  box-shadow: inset 0 0 24px hsla(0, 85%, 50%, 0.30), 0 0 6px 1px hsla(0, 85%, 50%, 0.12);
+  animation: tacho-redline-flash 0.25s ease-in-out infinite alternate;
+}
+
+/* WebGL FX overlay canvases */
+.gl-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  border-radius: inherit;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   FUEL & TYRES
+   ═════════════════════════════════════════════════════════════ */
+
+.fuel-tyres-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  flex-shrink: 0;
+  width: 160px;
+}
+
+.fuel-block,
+.tyres-block {
+  flex: 1;
+}
+
+.fuel-remaining {
+  font-size: 22px;
+  font-weight: var(--fw-black);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.fuel-remaining .unit {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semi);
+  color: var(--text-secondary);
+}
+
+.fuel-bar-outer {
+  height: 8px;
+  border-radius: 2px;
+  background: hsla(0, 0%, 100%, 0.06);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+
+.fuel-bar-inner {
+  height: 100%;
+  border-radius: 2px;
+  transition: width var(--t-med), background var(--t-med);
+}
+
+.fuel-bar-inner.healthy {
+  background: linear-gradient(90deg, hsl(123, 45%, 35%), hsl(123, 50%, 45%));
+}
+
+.fuel-bar-inner.caution {
+  background: linear-gradient(90deg, hsl(35, 90%, 40%), hsl(45, 100%, 50%));
+}
+
+.fuel-bar-inner.critical {
+  background: linear-gradient(90deg, hsl(0, 70%, 35%), hsl(0, 70%, 50%));
+  animation: fuel-warn 1s ease-in-out infinite alternate;
+}
+
+.fuel-bar-pit-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text-primary);
+  opacity: 0.84;
+}
+
+.fuel-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  justify-content: center;
+}
+
+.fuel-stats .val {
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.fuel-pit-suggest {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--amber);
+  margin-top: 2px;
+  text-align: center;
+}
+
+.tyre-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+
+.tyre-cell {
+  font-size: 13px;
+  font-weight: var(--fw-black);
+  text-align: center;
+  padding: 3px 2px;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid hsla(0, 0%, 100%, 0.05);
+}
+
+.tyre-cell.cold {
+  color: hsl(200, 70%, 60%);
+  border-color: hsla(200, 70%, 60%, 0.15);
+}
+
+.tyre-cell.optimal {
+  color: var(--green);
+  border-color: hsla(123, 40%, 50%, 0.15);
+}
+
+.tyre-cell.hot {
+  color: var(--amber);
+  border-color: hsla(45, 100%, 50%, 0.12);
+}
+
+.tyre-cell.danger {
+  color: var(--red);
+  border-color: hsla(0, 70%, 50%, 0.15);
+}
+
+.tyre-label {
+  font-size: 6px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.tyre-wear-bar {
+  height: 2px;
+  border-radius: 2px;
+  background: hsla(0, 0%, 100%, 0.06);
+  margin-top: 1px;
+}
+
+.tyre-wear-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--green);
+}
+
+/* ═════════════════════════════════════════════════════════════
+   CONTROLS & PEDALS
+   ═════════════════════════════════════════════════════════════ */
+
+.controls-pedals-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  flex-shrink: 0;
+  width: 170px;
+}
+
+.car-controls {
+  display: flex;
+  gap: var(--gap);
+  flex: 1;
+}
+
+.ctrl-item {
+  flex: 1;
+  text-align: center;
+  padding: 4px;
+  border-radius: var(--corner-r-sm);
+  background: hsla(0, 0%, 100%, 0.03);
+  border: 1px solid transparent;
+  transition: all var(--t-med);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  --flash-color: hsla(45, 80%, 55%, 0.18);
+  --ctrl-pct: 0%;
+}
+
+.ctrl-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ctrl-item.changed::after {
+  animation: value-flash 1.4s ease-out forwards;
+}
+
+.ctrl-item::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--ctrl-pct);
+  background: hsla(0, 0%, 100%, 0.04);
+  pointer-events: none;
+  transition: height var(--t-med);
+}
+
+.ctrl-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semi);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  position: relative;
+  z-index: 1;
+}
+
+.ctrl-value {
+  font-size: 22px;
+  font-weight: var(--fw-black);
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Per-control colors */
+#ctrlBB::before { background: hsla(355, 75%, 33%, 0.12); }
+#ctrlTC::before { background: hsla(215, 75%, 33%, 0.12); }
+#ctrlABS::before { background: hsla(48, 80%, 33%, 0.12); }
+#ctrlBB .ctrl-value { color: hsl(355, 80%, 65%); }
+#ctrlTC .ctrl-value { color: hsl(215, 80%, 68%); }
+#ctrlABS .ctrl-value { color: hsl(48, 85%, 62%); }
+#ctrlBB .ctrl-label { color: hsl(355, 50%, 55%); }
+#ctrlTC .ctrl-label { color: hsl(215, 50%, 58%); }
+#ctrlABS .ctrl-label { color: hsl(48, 55%, 52%); }
+
+.ctrl-item.ctrl-changed::before {
+  background: hsla(0, 0%, 100%, 0.14) !important;
+  transition: none !important;
+}
+
+.ctrl-item.ctrl-changed .ctrl-value {
+  filter: brightness(1.4);
+}
+
+.ctrl-item.ctrl-flash-out::before {
+  transition: background 1.2s ease !important;
+}
+
+.ctrl-item.ctrl-flash-out .ctrl-value {
+  animation: ctrl-bar-flash 1.2s ease forwards;
+}
+
+.ctrl-item.ctrl-active::after {
+  opacity: 1 !important;
+}
+
+#ctrlABS.ctrl-active { background: hsla(48, 80%, 55%, 0.23); }
+#ctrlTC.ctrl-active { background: hsla(215, 75%, 55%, 0.23); }
+#ctrlBB.ctrl-active { background: hsla(355, 75%, 55%, 0.23); }
+
+.ctrl-item.ctrl-hidden {
+  display: none;
+}
+
+.ctrl-no-adj {
+  display: none;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  color: hsla(0, 0%, 100%, 0.25);
+  text-transform: uppercase;
+}
+
+.car-controls.no-adj .ctrl-no-adj {
+  display: flex;
+}
+
+.pedals-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+
+.pedal-labels-row {
+  display: flex;
+  gap: 6px;
+  justify-content: space-around;
+}
+
+.pedal-label-group {
+  text-align: center;
+}
+
+.pedal-channel-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pedal-channel-label.throttle { color: var(--green); }
+.pedal-channel-label.brake { color: var(--red); }
+.pedal-channel-label.clutch { color: var(--blue); }
+
+.pedal-pct {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.pedal-viz-stack {
+  flex: 1;
+  position: relative;
+}
+
+.pedal-viz-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 1px;
+  align-items: flex-end;
+}
+
+.pedal-viz-layer.throttle-layer { z-index: 1; }
+.pedal-viz-layer.brake-layer { z-index: 2; flex-direction: row-reverse; }
+.pedal-viz-layer.clutch-layer { z-index: 3; }
+
+.pedal-hist-bar {
+  flex: 1;
+  border-radius: 1px 1px 0 0;
+  min-height: 1px;
+  transition: height 60ms linear;
+}
+
+.pedal-hist-bar.throttle { background: var(--green); opacity: 0.54; }
+.pedal-hist-bar.brake { background: var(--red); opacity: 0.66; }
+.pedal-hist-bar.clutch { background: var(--blue); opacity: 0.54; }
+.pedal-hist-bar.live { opacity: 1; flex: 0 0 4px; border-radius: 2px; }
+
+/* ═════════════════════════════════════════════════════════════
+   MAPS
+   ═════════════════════════════════════════════════════════════ */
+
+.maps-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  flex-shrink: 0;
+  width: 96px;
+}
+
+.map-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.map-svg { width: 92%; height: 92%; }
+
+.map-track {
+  fill: none;
+  stroke: hsla(0, 0%, 100%, 0.12);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.map-player {
+  fill: var(--cyan);
+}
+
+.map-opponent { fill: hsla(0, 0%, 100%, 0.35); }
+.map-opponent.close { fill: var(--orange); }
+
+.map-zoom-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.map-zoom-svg {
+  width: 280px;
+  height: 280px;
+  transition: transform 0.3s ease;
+}
+
+.map-zoom-label {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   POSITION, RATING & GAPS
+   ═════════════════════════════════════════════════════════════ */
+
+.pos-gaps-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  flex-shrink: 0;
+  width: 150px;
+}
+
+.rating-pos-block {
+  width: 100%;
+  flex: 1;
+}
+
+.rating-value {
+  font-size: 22px;
+  font-weight: var(--fw-black);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.rating-delta {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semi);
+  margin-top: 2px;
+}
+
+.rating-delta.positive { color: var(--green); }
+.rating-delta.negative { color: var(--red); }
+
+.rating-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.rating-item {
+  flex: 1;
+  text-align: center;
+}
+
+.ir-bar-container {
+  margin-top: 4px;
+}
+
+.ir-bar-track {
+  position: relative;
+  height: 8px;
+  background: hsla(0, 0%, 100%, 0.06);
+  border-radius: 2px;
+  overflow: visible;
+}
+
+.ir-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, hsl(200, 60%, 40%), hsl(200, 70%, 55%));
+  transition: width var(--t-med);
+}
+
+.ir-bar-ticks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ir-bar-tick {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: hsla(0, 0%, 100%, 0.25);
+}
+
+.ir-bar-tick-label {
+  position: absolute;
+  top: 10px;
+  font-size: 6px;
+  font-weight: var(--fw-medium);
+  color: var(--text-dim);
+  transform: translateX(-50%);
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-pie-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.sr-pie-svg {
+  width: 36px;
+  height: 36px;
+}
+
+.sr-pie-bg {
+  fill: none;
+  stroke: hsla(0, 0%, 100%, 0.06);
+  stroke-width: 5;
+}
+
+.sr-pie-fill {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--t-med), stroke var(--t-med);
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.pos-layout {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  height: 100%;
+}
+
+.pos-number {
+  font-size: 44px;
+  font-weight: var(--fw-black);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+.skew-accent {
+  transform: skewX(-6deg);
+  display: inline-block;
+}
+
+.pos-delta {
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.02em;
+  text-align: left;
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.4s ease, color 0.4s ease;
+}
+
+.pos-delta.visible { opacity: 1; }
+.pos-delta.delta-up { color: hsl(145, 50%, 55%); }
+.pos-delta.delta-down { color: hsl(0, 50%, 60%); }
+.pos-delta.delta-same { color: var(--text-secondary); opacity: 0; }
+
+.pos-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-left: auto;
+  padding-top: 2px;
+}
+
+.pos-meta-row {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.pos-meta-row:first-child {
+  font-size: 16px;
+  font-weight: var(--fw-semi);
+}
+
+.pos-meta-row:first-child .val {
+  font-size: 27px;
+}
+
+.pos-meta-row .val {
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.pos-meta-row .val.purple {
+  color: var(--purple);
+}
+
+.pos-meta-row.best-row {
+  font-size: 16px;
+  font-weight: var(--fw-semi);
+}
+
+.pos-meta-row.best-row .val {
+  font-family: var(--ff-mono);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.gaps-block {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  flex: 1;
+}
+
+.gap-item {
+  flex: 1;
+  text-align: center;
+  padding: 4px;
+  border-radius: var(--corner-r-sm);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--t-med);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+}
+
+.gap-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gap-item.ahead-changed::after { animation: value-flash 1.4s ease-out forwards; }
+.gap-item.ahead-changed { --flash-color: hsla(123, 60%, 45%, 0.16); }
+.gap-item.behind-changed::after { animation: value-flash 1.4s ease-out forwards; }
+.gap-item.behind-changed { --flash-color: hsla(15, 80%, 50%, 0.16); }
+.gap-item.gap-closing::after { animation: value-flash 1.4s ease-out forwards; }
+.gap-item.gap-closing { --flash-color: hsla(0, 65%, 50%, 0.18); }
+.gap-item.gap-growing::after { animation: value-flash 1.4s ease-out forwards; }
+.gap-item.gap-growing { --flash-color: hsla(123, 55%, 45%, 0.14); }
+
+.gap-normal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 100%;
+  flex: 1;
+}
+
+.gap-driver {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gap-time {
+  font-family: var(--ff-mono);
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.gap-time.ahead { color: var(--green); }
+.gap-time.behind { color: var(--red); }
+
+.gap-ir {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}

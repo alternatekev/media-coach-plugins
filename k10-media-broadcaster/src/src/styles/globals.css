@@ -1,0 +1,285 @@
+/* K10 Media Broadcaster — Global Reset & Base Styles
+   ═════════════════════════════════════════════════════════════════
+   Universal reset, body defaults, and all keyframe animations
+*/
+
+@import 'tokens.css';
+
+/* ─────────────────────────────────────────────────────────────
+   RESET — box-sizing, margins, padding
+   ───────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BODY — global defaults
+   ───────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--ff);
+  color: var(--text-primary);
+  background: transparent;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.03em;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   NUMERIC DISPLAYS — use tabular numbers for alignment
+   ───────────────────────────────────────────────────────────── */
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   OPAQUE MODE — green-screen chroma-key for OBS
+   ───────────────────────────────────────────────────────────── */
+body.opaque-mode {
+  background: #00FF00;
+}
+body.opaque-mode .panel {
+  background: hsl(0, 0%, 8%) !important;
+}
+body.opaque-mode .commentary-inner {
+  background: hsla(var(--commentary-h, 0), 50%, 8%, 1) !important;
+}
+body.opaque-mode .dashboard {
+  filter: none !important;
+}
+body.opaque-mode .dashboard::before {
+  background: hsla(var(--sentiment-h), var(--sentiment-s), 6%, var(--sentiment-alpha)) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SETTINGS MODE — drag and move hints
+   ───────────────────────────────────────────────────────────── */
+body.settings-drag {
+  -webkit-app-region: drag;
+  cursor: move;
+}
+body.settings-drag::after {
+  content: 'SETTINGS MODE \2022 Ctrl+Shift+S TO LOCK';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: rgba(255, 165, 0, 0.9);
+  color: #000;
+  text-align: center;
+  font: bold 12px/28px system-ui, sans-serif;
+  letter-spacing: 1px;
+  z-index: 99999;
+  -webkit-app-region: drag;
+}
+body.green-screen-mode.settings-drag::after {
+  content: 'DRAG TO MOVE \2022 RESIZE EDGES \2022 Ctrl+Shift+S TO LOCK';
+}
+
+/* Keep interaction elements clickable in settings */
+body.settings-drag button,
+body.settings-drag input,
+body.settings-drag select,
+body.settings-drag .settings-toggle,
+body.settings-drag .settings-close,
+body.settings-drag .settings-overlay,
+body.settings-drag .settings-panel,
+body.settings-drag .conn-banner {
+  -webkit-app-region: no-drag;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UTILITY — Section hiding
+   ───────────────────────────────────────────────────────────── */
+.section-hidden {
+  display: none !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UTILITY — Settings hint text
+   ───────────────────────────────────────────────────────────── */
+.settings-hint {
+  font-size: 9px;
+  color: hsla(0, 0%, 100%, 0.35);
+  padding: 2px 0 6px;
+  line-height: 1.4;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ═════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────
+   TACHOMETER — RPM and redline pulsing
+   ───────────────────────────────────────────────────────────── */
+@keyframes redline-pulse {
+  0% { opacity: 0.84; }
+  100% { opacity: 1; }
+}
+
+@keyframes tacho-redline-flash {
+  0% {
+    border-color: hsla(0, 80%, 50%, 0.4);
+    box-shadow: inset 0 0 20px hsla(0, 85%, 50%, 0.22), 0 0 4px 0px hsla(0, 85%, 50%, 0.08);
+  }
+  100% {
+    border-color: hsla(0, 80%, 50%, 0.65);
+    box-shadow: inset 0 0 28px hsla(0, 85%, 50%, 0.35), 0 0 10px 2px hsla(0, 85%, 50%, 0.18);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FUEL — low fuel warning animation
+   ───────────────────────────────────────────────────────────── */
+@keyframes fuel-warn {
+  0% { opacity: 0.84; }
+  100% { opacity: 1; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   VALUE CHANGES — flash effect on control/gap changes
+   ───────────────────────────────────────────────────────────── */
+@keyframes value-flash {
+  0% { background: var(--flash-color, hsla(45, 100%, 60%, 0.22)); }
+  100% { background: transparent; }
+}
+
+@keyframes ctrl-bar-flash {
+  0% { filter: brightness(1.4); }
+  100% { filter: brightness(1.0); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DATA CHANGES — datastream value highlight
+   ───────────────────────────────────────────────────────────── */
+@keyframes ds-val-flash {
+  0% { filter: brightness(1.8); text-shadow: 0 0 6px currentColor; }
+  100% { filter: brightness(1.0); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   INCIDENTS — count increment flash
+   ───────────────────────────────────────────────────────────── */
+@keyframes inc-flash {
+  0% { filter: brightness(1.6); transform: scale(1.06); }
+  100% { filter: brightness(1.0); transform: scale(1.0); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   COMMENTARY SCROLL — scrolling text animation
+   ───────────────────────────────────────────────────────────── */
+@keyframes commentaryScroll {
+  0% { transform: translateY(0); }
+  20% { transform: translateY(0); }
+  80% { transform: translateY(var(--scroll-distance, 0px)); }
+  95% { transform: translateY(var(--scroll-distance, 0px)); }
+  100% { transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FLAGS — racing flag glow animations
+   ───────────────────────────────────────────────────────────── */
+@keyframes flag-glow-yellow {
+  0% { box-shadow: inset 0 0 18px hsla(48, 95%, 50%, 0.60), 0 0 10px hsla(48, 95%, 50%, 0.30); }
+  100% { box-shadow: inset 0 0 30px hsla(48, 95%, 50%, 1.0), 0 0 20px hsla(48, 95%, 50%, 0.66); }
+}
+
+@keyframes flag-glow-red {
+  0% { box-shadow: inset 0 0 18px hsla(0, 85%, 50%, 0.66), 0 0 10px hsla(0, 85%, 50%, 0.36); }
+  100% { box-shadow: inset 0 0 30px hsla(0, 85%, 50%, 1.0), 0 0 20px hsla(0, 85%, 50%, 0.75); }
+}
+
+@keyframes flag-glow-blue {
+  0% { box-shadow: inset 0 0 18px hsla(220, 80%, 55%, 0.60), 0 0 10px hsla(220, 80%, 55%, 0.30); }
+  100% { box-shadow: inset 0 0 30px hsla(220, 80%, 55%, 1.0), 0 0 20px hsla(220, 80%, 55%, 0.66); }
+}
+
+@keyframes flag-glow-green {
+  0% { box-shadow: inset 0 0 18px hsla(130, 70%, 45%, 0.60), 0 0 10px hsla(130, 70%, 45%, 0.30); border-color: hsla(130, 70%, 45%, 0.75); }
+  100% { box-shadow: inset 0 0 30px hsla(130, 70%, 45%, 1.0), 0 0 20px hsla(130, 70%, 45%, 0.66); border-color: hsla(130, 70%, 45%, 1.0); }
+}
+
+@keyframes flag-glow-white {
+  0% { box-shadow: inset 0 0 14px hsla(0, 0%, 90%, 0.45), 0 0 8px hsla(0, 0%, 90%, 0.24); border-color: hsla(0, 0%, 90%, 0.54); }
+  100% { box-shadow: inset 0 0 26px hsla(0, 0%, 90%, 0.90), 0 0 16px hsla(0, 0%, 90%, 0.48); border-color: hsla(0, 0%, 90%, 1.0); }
+}
+
+@keyframes flag-glow-debris {
+  0% { box-shadow: inset 0 0 18px hsla(35, 80%, 50%, 0.45), 0 0 10px hsla(0, 80%, 50%, 0.24); }
+  100% { box-shadow: inset 0 0 30px hsla(35, 80%, 50%, 0.90), 0 0 20px hsla(0, 80%, 50%, 0.45); }
+}
+
+@keyframes flag-glow-checkered {
+  0% { box-shadow: inset 0 0 14px hsla(0, 0%, 100%, 0.36), 0 0 8px hsla(0, 0%, 100%, 0.18); }
+  100% { box-shadow: inset 0 0 26px hsla(0, 0%, 100%, 0.84), 0 0 16px hsla(0, 0%, 100%, 0.42); }
+}
+
+@keyframes flag-glow-black {
+  0% { box-shadow: inset 0 0 18px hsla(0, 80%, 40%, 0.45), 0 0 8px hsla(0, 80%, 40%, 0.24); }
+  100% { box-shadow: inset 0 0 28px hsla(0, 80%, 40%, 1.0), 0 0 16px hsla(0, 80%, 40%, 0.54); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RACE CONTROL BANNER — glow and flag scroll
+   ───────────────────────────────────────────────────────────── */
+@keyframes rc-glow {
+  0% { box-shadow: 0 4px 24px hsla(0, 0%, 0%, 0.6), inset 0 -1px 0 hsla(48, 90%, 55%, 0.24), 0 0 8px hsla(48, 85%, 50%, 0.24); }
+  100% { box-shadow: 0 4px 24px hsla(0, 0%, 0%, 0.6), inset 0 -1px 0 hsla(48, 90%, 55%, 0.45), 0 0 18px hsla(48, 85%, 50%, 0.54); }
+}
+
+@keyframes rc-glow-red {
+  0% { box-shadow: 0 4px 24px hsla(0, 0%, 0%, 0.6), 0 0 8px hsla(0, 80%, 50%, 0.30); }
+  100% { box-shadow: 0 4px 24px hsla(0, 0%, 0%, 0.6), 0 0 18px hsla(0, 80%, 50%, 0.66); }
+}
+
+@keyframes rc-flag-scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 34px 34px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PIT LIMITER — glowing indicator
+   ───────────────────────────────────────────────────────────── */
+@keyframes pit-glow {
+  0% { box-shadow: inset 0 0 14px hsla(200, 80%, 60%, 0.15), 0 0 10px hsla(200, 80%, 60%, 0.10); }
+  100% { box-shadow: inset 0 0 28px hsla(200, 80%, 60%, 0.35), 0 0 20px hsla(200, 80%, 60%, 0.22); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   START LIGHTS — F1-style light animations
+   ───────────────────────────────────────────────────────────── */
+@keyframes light-pulse-red {
+  0% { box-shadow: 0 0 20px 6px hsla(0, 90%, 50%, 0.45), 0 0 50px 14px hsla(0, 90%, 50%, 0.15), inset 0 0 10px hsla(0, 100%, 70%, 0.35); }
+  100% { box-shadow: 0 0 30px 10px hsla(0, 90%, 50%, 0.60), 0 0 70px 20px hsla(0, 90%, 50%, 0.25), inset 0 0 14px hsla(0, 100%, 70%, 0.50); }
+}
+
+@keyframes light-pulse-green {
+  0% { box-shadow: 0 0 28px 10px hsla(130, 90%, 45%, 0.50), 0 0 70px 20px hsla(130, 90%, 45%, 0.20), inset 0 0 14px hsla(130, 100%, 65%, 0.40); }
+  100% { box-shadow: 0 0 40px 16px hsla(130, 90%, 45%, 0.65), 0 0 100px 30px hsla(130, 90%, 45%, 0.30), inset 0 0 18px hsla(130, 100%, 65%, 0.55); }
+}
+
+@keyframes go-flash {
+  0% { transform: translateX(-50%) scale(1); }
+  100% { transform: translateX(-50%) scale(1.12); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FLAG WAVING — majestic wave animation
+   ───────────────────────────────────────────────────────────── */
+@keyframes flag-wave-majestic {
+  0% { transform: skewY(0deg) scaleX(1); }
+  25% { transform: skewY(1.5deg) scaleX(1.02); }
+  50% { transform: skewY(0deg) scaleX(1); }
+  75% { transform: skewY(-1.5deg) scaleX(1.02); }
+  100% { transform: skewY(0deg) scaleX(1); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CONNECTION STATUS — pulse animation
+   ───────────────────────────────────────────────────────────── */
+@keyframes conn-pulse {
+  0%, 100% { opacity: 0.48; }
+  50% { opacity: 1; }
+}

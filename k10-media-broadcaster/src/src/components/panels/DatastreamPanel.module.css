@@ -1,0 +1,145 @@
+.datastreamPanel {
+  position: fixed;
+  width: 200px;
+  z-index: 50;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px;
+}
+
+/* Positioning classes */
+.dsTopLeft {
+  top: 8px;
+  left: 8px;
+}
+
+.dsTopRight {
+  top: 8px;
+  right: 8px;
+}
+
+.dsBottomLeft {
+  bottom: 8px;
+  left: 8px;
+}
+
+.dsBottomRight {
+  bottom: 8px;
+  right: 8px;
+}
+
+/* Main grid layout */
+.dsInner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* G-Force section spans full width */
+.dsGforce {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dsGforceCanvas {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.dsValues {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.dsValueItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Grid items */
+.dsItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 4px;
+  border-radius: 2px;
+}
+
+/* Typography */
+.dsLabel {
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.dsValue {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.dsPositive {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.dsNegative {
+  color: var(--green);
+}
+
+.dsNeutral {
+  color: var(--text-dim);
+}
+
+/* Yaw rate bar */
+.dsBar {
+  position: relative;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dsBarCenter {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dsBarFill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+/* Flash animation for value changes */
+@keyframes dsFlashAnim {
+  0% {
+    background: rgba(255, 255, 0, 0.15);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.dsFlash {
+  animation: dsFlashAnim 0.4s ease-out;
+}

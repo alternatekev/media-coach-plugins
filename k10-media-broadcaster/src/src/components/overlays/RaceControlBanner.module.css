@@ -1,0 +1,53 @@
+.rc-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: opacity 0.4s, transform 0.4s;
+}
+
+.rc-banner.rc-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.rc-inner {
+  padding: 12px 20px;
+  text-align: center;
+}
+
+.rc-title {
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.rc-detail {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.rc-flag-yellow .rc-inner {
+  background: hsla(48, 95%, 50%, 0.9);
+  color: #000;
+}
+
+.rc-flag-red .rc-inner {
+  background: hsla(0, 85%, 45%, 0.9);
+  color: #fff;
+}
+
+.rc-flag-checkered .rc-inner {
+  background: hsla(0, 0%, 15%, 0.95);
+  color: #fff;
+}
+
+.rc-flag-black .rc-inner {
+  background: hsla(0, 0%, 8%, 0.95);
+  color: var(--red);
+}

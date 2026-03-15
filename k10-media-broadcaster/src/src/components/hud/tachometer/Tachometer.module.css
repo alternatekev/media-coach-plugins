@@ -1,0 +1,141 @@
+.tacho-block {
+  display: flex;
+  flex-direction: column;
+  width: 140px;
+  gap: var(--gap);
+  padding: var(--pad);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-top-right-radius: var(--corner-r);
+  border-bottom-right-radius: var(--corner-r);
+  color: var(--text-primary);
+  font-family: var(--ff);
+  transition: box-shadow 0.1s ease;
+}
+
+.tacho-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+}
+
+.tacho-gear {
+  font-size: 96px;
+  font-weight: var(--fw-black);
+  line-height: 0.85;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+.tacho-speed-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+}
+
+.speed-value {
+  font-size: 28px;
+  font-weight: var(--fw-black);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: right;
+}
+
+.speed-unit {
+  font-size: 10px;
+  font-weight: var(--fw-semi);
+  color: var(--text-secondary);
+  text-align: right;
+  line-height: 1;
+}
+
+.tacho-rpm {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s ease, text-shadow 0.15s ease-out, transform 0.15s ease-out;
+  text-align: right;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.rpm-pulse-green {
+  text-shadow: 0 0 8px var(--green), 0 0 16px hsla(140, 70%, 50%, 0.3);
+  transform: scale(1.04);
+}
+
+.rpm-pulse-yellow {
+  text-shadow: 0 0 8px var(--amber), 0 0 16px hsla(45, 90%, 55%, 0.3);
+  transform: scale(1.04);
+}
+
+.rpm-pulse-red {
+  text-shadow: 0 0 10px var(--red), 0 0 20px hsla(0, 80%, 50%, 0.4);
+  transform: scale(1.06);
+}
+
+.tacho-bar-track {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+.tacho-seg {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background: hsla(0, 0%, 100%, 0.08);
+  transition: background 0.15s ease, height 60ms linear;
+  min-height: 2px;
+  height: 2px;
+}
+
+.lit-green {
+  background: var(--green);
+  opacity: 1;
+}
+
+.lit-yellow {
+  background: var(--amber);
+  opacity: 1;
+}
+
+.lit-red {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+  opacity: 1;
+}
+
+.lit-redline {
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+  animation: redline-pulse 0.3s ease-in-out infinite alternate;
+  opacity: 1;
+}
+
+@keyframes redline-pulse {
+  0% {
+    opacity: 0.84;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.tacho-redline {
+  box-shadow: inset 0 0 24px hsla(0, 85%, 50%, 0.3), 0 0 6px 1px hsla(0, 85%, 50%, 0.12);
+  animation: tacho-redline-flash 0.25s ease-in-out infinite alternate;
+}
+
+@keyframes tacho-redline-flash {
+  0% {
+    border-color: hsla(0, 80%, 50%, 0.4);
+    box-shadow: inset 0 0 20px hsla(0, 85%, 50%, 0.22), 0 0 4px 0px hsla(0, 85%, 50%, 0.08);
+  }
+  100% {
+    border-color: hsla(0, 80%, 50%, 0.65);
+    box-shadow: inset 0 0 24px hsla(0, 85%, 50%, 0.3), 0 0 6px 1px hsla(0, 85%, 50%, 0.12);
+  }
+}

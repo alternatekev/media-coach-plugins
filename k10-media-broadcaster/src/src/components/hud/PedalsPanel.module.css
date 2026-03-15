@@ -1,0 +1,87 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--border-color, #333);
+  background: var(--bg-panel, #0a0a0a);
+  border-radius: 4px;
+}
+
+.pedalLabelsRow {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+}
+
+.pedalLabelGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pedalChannelLabelThrottle,
+.pedalChannelLabelBrake,
+.pedalChannelLabelClutch {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.pedalChannelLabelThrottle {
+  color: var(--green, #00ff00);
+}
+
+.pedalChannelLabelBrake {
+  color: var(--red, #ff0000);
+}
+
+.pedalChannelLabelClutch {
+  color: var(--blue, #0080ff);
+}
+
+.pedalPct {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.pedalVizStack {
+  display: flex;
+  gap: 2px;
+  height: 80px;
+  align-items: flex-end;
+}
+
+.pedalVizLayerThrottle,
+.pedalVizLayerBrake,
+.pedalVizLayerClutch {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  align-items: stretch;
+}
+
+.pedalVizLayerThrottle .pedalBar {
+  background-color: var(--green, #00ff00);
+  opacity: 0.8;
+}
+
+.pedalVizLayerBrake .pedalBar {
+  background-color: var(--red, #ff0000);
+  opacity: 0.8;
+}
+
+.pedalVizLayerClutch .pedalBar {
+  background-color: var(--blue, #0080ff);
+  opacity: 0.8;
+}
+
+.pedalBar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  min-height: 1px;
+}

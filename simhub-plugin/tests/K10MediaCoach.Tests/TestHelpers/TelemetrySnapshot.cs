@@ -88,6 +88,7 @@ namespace K10MediaCoach.Tests.TestHelpers
         public int    GriddedCars       { get; set; }
         public int    TotalCars         { get; set; }
         public int    PaceMode          { get; set; }
+        public string TrackCountry { get; set; } = "";
 
         // ── iRacing flag bitmasks (from irsdk_Flags enum) ────────────────────
         public const int FLAG_CHECKERED = 0x0001;

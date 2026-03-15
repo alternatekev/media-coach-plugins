@@ -112,6 +112,7 @@ namespace K10MediaCoach.Plugin.Engine
         /// <summary>Start lights phase: 0=off, 1-5=red lights building, 6=all red, 7=green (go!), 8=done.</summary>
         public int    LightsPhase     { get; private set; } = 0;
         public bool   IsStandingStart { get; private set; } = false;
+        public string TrackCountry  { get; private set; } = "DE"; // Germany as demo default
 
         // ── Formation lap demo cycle ──
         private double _formationTimer   = 0;
@@ -466,6 +467,7 @@ namespace K10MediaCoach.Plugin.Engine
             _formationTimer      = 0;
             _formationLightsStep = 0;
             _formationLightsTimer = 0;
+            TrackCountry = "DE"; // Nürburgring default
         }
 
         // ── Helpers ─────────────────────────────────────────────────────────

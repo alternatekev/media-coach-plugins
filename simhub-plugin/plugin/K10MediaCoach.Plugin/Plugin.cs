@@ -762,6 +762,7 @@ namespace K10MediaCoach.Plugin
                     Jp(sb, "K10MediaCoach.Plugin.Grid.StartType", Escape("rolling"));
                     // Lights phase: 0=off for live (dashboard derives from state changes)
                     Jp(sb, "K10MediaCoach.Plugin.Grid.LightsPhase", 0);
+                    Jp(sb, "K10MediaCoach.Plugin.Grid.TrackCountry", Escape(s.TrackCountry ?? ""));
 
                     // ── Demo Grid state ──
                     Jp(sb, "K10MediaCoach.Plugin.Demo.Grid.SessionState", dt.SessionState);
@@ -770,6 +771,7 @@ namespace K10MediaCoach.Plugin
                     Jp(sb, "K10MediaCoach.Plugin.Demo.Grid.PaceMode", dt.PaceMode);
                     Jp(sb, "K10MediaCoach.Plugin.Demo.Grid.LightsPhase", dt.LightsPhase);
                     Jp(sb, "K10MediaCoach.Plugin.Demo.Grid.StartType", Escape(dt.IsStandingStart ? "standing" : "rolling"));
+                    Jp(sb, "K10MediaCoach.Plugin.Demo.Grid.TrackCountry", Escape(dt.TrackCountry ?? ""));
 
                     // ── Driver name (for leaderboard display) ──
                     // Prefer live player name from game data; fall back to settings

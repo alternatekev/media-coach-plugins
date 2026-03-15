@@ -151,6 +151,15 @@ namespace K10MediaCoach.Plugin.Engine
             // ── Grid / Formation state ────────────────────────────────────
             s.SessionState = GetRaw<int>(pm, "SessionState");
             s.PaceMode     = GetRaw<int>(pm, "PaceMode");
+            // Track country — try iRacing WeekendInfo.TrackCountry, fall back to SimHub property
+            try
+            {
+                string country = GetPluginProp<string>(pm, "DataCorePlugin.GameData.TrackCountry") ?? "";
+                if (string.IsNullOrEmpty(country))
+                    country = GetRaw<string>(pm, "WeekendInfo.TrackCountry") ?? "";
+                s.TrackCountry = country;
+            }
+            catch { s.TrackCountry = ""; }
 
             // Count gridded cars: cars NOT on pit road from CarIdxOnPitRoad array
             if (s.CarIdxOnPitRoad != null && s.CarIdxOnPitRoad.Length > 0)

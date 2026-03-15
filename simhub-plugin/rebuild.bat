@@ -42,25 +42,50 @@ echo.
 :: ── 1. Close SimHub ──────────────────────────────────────────
 echo  [1/3] Closing SimHub...
 
-tasklist /FI "IMAGENAME eq SimHubWPF.exe" 2>NUL | find /I "SimHubWPF.exe" >NUL
-if %ERRORLEVEL%==0 (
-    echo        Sending close signal...
-    taskkill /IM SimHubWPF.exe >NUL 2>&1
-    :: Give it a few seconds to shut down gracefully
-    timeout /t 4 /nobreak >NUL
-
-    :: Check if it's still running — force kill if needed
-    tasklist /FI "IMAGENAME eq SimHubWPF.exe" 2>NUL | find /I "SimHubWPF.exe" >NUL
-    if !ERRORLEVEL!==0 (
-        echo        Still running, force closing...
-        taskkill /F /IM SimHubWPF.exe >NUL 2>&1
-        timeout /t 2 /nobreak >NUL
+:: Kill all SimHub-related processes (main app + child services)
+set "KILLED=0"
+for %%P in (SimHubWPF.exe SimHub.exe SimHubElectron.exe) do (
+    tasklist /FI "IMAGENAME eq %%P" 2>NUL | find /I "%%P" >NUL 2>&1
+    if !ERRORLEVEL! == 0 (
+        echo        Killing %%P...
+        taskkill /F /IM %%P >NUL 2>&1
+        set "KILLED=1"
     )
-    echo        SimHub closed.
-) else (
-    echo        SimHub not running.
 )
+
+if "!KILLED!"=="1" (
+    echo        Waiting for processes to exit...
+    :: Poll until SimHubWPF.exe is gone, up to 15 seconds
+    for /L %%I in (1,1,15) do (
+        tasklist /FI "IMAGENAME eq SimHubWPF.exe" 2>NUL | find /I "SimHubWPF.exe" >NUL 2>&1
+        if !ERRORLEVEL! NEQ 0 goto :simhub_stopped
+        timeout /t 1 /nobreak >NUL
+    )
+    :: If we get here, it's still running after 15s
+    echo        WARNING: SimHub may still be running after 15s wait.
+    echo        Attempting force kill on all matching processes...
+    taskkill /F /IM SimHubWPF.exe /T >NUL 2>&1
+    timeout /t 3 /nobreak >NUL
+)
+
+:simhub_stopped
+:: Final verification
+tasklist /FI "IMAGENAME eq SimHubWPF.exe" 2>NUL | find /I "SimHubWPF.exe" >NUL 2>&1
+if !ERRORLEVEL! == 0 (
+    echo.
+    echo  ══════════════════════════════════════════════
+    echo   ERROR: Could not stop SimHub. Build aborted.
+    echo   Close SimHub manually and try again.
+    echo  ══════════════════════════════════════════════
+    echo.
+    pause
+    exit /b 1
+)
+echo        SimHub stopped.
 echo.
+
+:: Brief pause to release file locks
+timeout /t 2 /nobreak >NUL
 
 :: ── 2. Rebuild plugin ────────────────────────────────────────
 echo  [2/3] Building plugin (%CONFIG%)...

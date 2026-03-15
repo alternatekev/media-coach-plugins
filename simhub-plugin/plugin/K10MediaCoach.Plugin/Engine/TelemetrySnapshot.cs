@@ -121,6 +121,8 @@ namespace K10MediaCoach.Plugin.Engine
         public int    TotalCars         { get; set; }
         /// <summary>iRacing PaceMode: 0=NotPacing, 1=Pacing, 2=Approaching, 3=FieldCrossSF.</summary>
         public int    PaceMode          { get; set; }
+        /// <summary>ISO country code of the track location (e.g. "DE", "US", "GB").</summary>
+        public string TrackCountry { get; set; } = "";
 
         // ── iRacing flag bitmasks (from irsdk_Flags enum) ────────────────────
         public const int FLAG_CHECKERED = 0x0001;

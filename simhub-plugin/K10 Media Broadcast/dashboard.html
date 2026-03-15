@@ -112,13 +112,9 @@
   }
   body.opaque-mode .panel {
     background: hsl(0, 0%, 8%) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
   }
   body.opaque-mode .commentary-inner {
     background: hsla(var(--commentary-h, 0), 50%, 8%, 1) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
   }
   body.opaque-mode .dashboard {
     filter: none !important;
@@ -290,8 +286,6 @@
     border: 1px solid var(--border);
     border-radius: 0;
     padding: var(--pad);
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     transition: background var(--t-slow), border-color var(--t-med);
     overflow: hidden;
   }
@@ -338,8 +332,6 @@
     border: 1px solid hsla(var(--commentary-h, 0), 50%, 27%, 0.50);
     border-radius: var(--corner-r);
     padding: 14px;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -541,12 +533,11 @@
   .tacho-rpm {
     font-size: var(--fs-lg);
     font-weight: var(--fw-bold);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums; /* TODO: extract to shared numeric-display class */
     transition: color 0.2s ease, text-shadow 0.15s ease-out, transform 0.15s ease-out;
     text-align: right;
     line-height: 1;
     margin-top: 2px;
-    text-shadow: none;
   }
   .tacho-rpm.rpm-pulse-green  { text-shadow: 0 0 8px var(--green), 0 0 16px hsla(140, 70%, 50%, 0.3); transform: scale(1.04); }
   .tacho-rpm.rpm-pulse-yellow { text-shadow: 0 0 8px var(--amber), 0 0 16px hsla(45, 90%, 55%, 0.3); transform: scale(1.04); }
@@ -555,7 +546,7 @@
     font-size: 28px;
     font-weight: var(--fw-black);
     line-height: 1;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums; /* TODO: extract to shared numeric-display class */
     letter-spacing: -0.01em;
     text-align: right;
   }
@@ -1094,7 +1085,6 @@
   }
   .map-player {
     fill: var(--cyan);
-    filter: drop-shadow(0 0 3px var(--cyan));
   }
   .map-opponent { fill: hsla(0,0%,100%,0.35); }
   .map-opponent.close { fill: var(--orange); }
@@ -1438,8 +1428,6 @@
     border: 1px solid hsla(0, 0%, 100%, 0.14);
     border-radius: 8px;
     padding: 6px 0;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     overflow: hidden;
   }
   .lb-header {
@@ -1458,7 +1446,7 @@
     gap: 4px;
     padding: 3px 10px;
     font-size: 11px;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums; /* TODO: extract to shared numeric-display class (used 17 times total) */
     border-bottom: 1px solid hsla(0, 0%, 100%, 0.06);
     transition: background 0.3s ease;
     position: relative;
@@ -1570,8 +1558,6 @@
     overflow: hidden;
     background: hsla(0, 0%, 5%, 1.0);
     border: 1px solid hsla(0, 0%, 100%, 0.14);
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     padding: 2px;
   }
   .rt-canvas {
@@ -1603,8 +1589,6 @@
     border: 1px solid hsla(0, 0%, 100%, 0.14);
     border-radius: 8px;
     padding: 6px 10px 8px;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     position: relative;
   }
   .ds-header {
@@ -1695,7 +1679,7 @@
   }
   @keyframes ds-val-flash {
     0%   { filter: brightness(1.8); text-shadow: 0 0 6px currentColor; }
-    100% { filter: brightness(1.0); text-shadow: none; }
+    100% { filter: brightness(1.0); }
   }
 
   /* ═══════════════════════════════════════════════
@@ -1719,8 +1703,6 @@
     border: 1px solid hsla(0, 0%, 100%, 0.14);
     border-radius: 8px;
     padding: 4px 8px 6px;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     text-align: center;
     transition: background 0.4s ease, border-color 0.4s ease;
   }
@@ -1836,8 +1818,6 @@
     border-top: none;
     border-radius: 0 0 14px 14px;
     padding: 16px 36px 18px 28px;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     box-shadow: 0 6px 40px hsla(0, 0%, 0%, 0.7), inset 0 -1px 0 hsla(48, 90%, 55%, 0.10);
     position: relative;
     overflow: hidden;
@@ -1999,8 +1979,6 @@
     border: 2px solid hsla(200, 80%, 60%, 0.60);
     border-radius: 10px;
     padding: 10px 28px;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     animation: pit-glow 2.5s ease-in-out infinite alternate;
   }
   .pit-icon {
@@ -2067,8 +2045,6 @@
     border: 1px solid hsla(220, 60%, 50%, 0.20);
     border-radius: 8px;
     padding: 6px 10px;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
     opacity: 0;
     transform: translateY(6px);
     transition: opacity 0.4s ease, transform 0.4s ease;
@@ -2126,8 +2102,6 @@
     border: 1px solid hsla(220, 60%, 40%, 0.25);
     border-radius: 14px;
     padding: 28px 48px;
-    backdrop-filter: blur(60px);
-    -webkit-backdrop-filter: blur(60px);
     min-width: 340px;
     transition: opacity 0.6s ease, transform 0.5s ease;
   }
@@ -2275,6 +2249,57 @@
     100% { transform: translateX(-50%) scale(1.12); }
   }
 
+  /* ── Country flag waving background ────────── */
+  .grid-flag {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    overflow: hidden;
+    border-radius: 14px;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .grid-flag.flag-active {
+    opacity: 1;
+  }
+  .grid-flag-stripe {
+    position: absolute;
+    left: -20%;
+    width: 140%;
+    height: 33.34%;
+  }
+  .grid-flag-stripe:nth-child(1) { top: 0; }
+  .grid-flag-stripe:nth-child(2) { top: 33.33%; }
+  .grid-flag-stripe:nth-child(3) { top: 66.66%; }
+
+  /* Slow majestic wave — wider period, gentler amplitude than warning flags */
+  .grid-flag-stripe {
+    animation: flag-wave-majestic 6s ease-in-out infinite;
+    transform-origin: left center;
+  }
+  .grid-flag-stripe:nth-child(2) {
+    animation-delay: -1.2s;
+  }
+  .grid-flag-stripe:nth-child(3) {
+    animation-delay: -2.4s;
+  }
+  @keyframes flag-wave-majestic {
+    0%   { transform: skewY(0deg) scaleX(1); }
+    25%  { transform: skewY(1.5deg) scaleX(1.02); }
+    50%  { transform: skewY(0deg) scaleX(1); }
+    75%  { transform: skewY(-1.5deg) scaleX(1.02); }
+    100% { transform: skewY(0deg) scaleX(1); }
+  }
+  /* Overlay darkening so text remains readable over bright flag colors */
+  .grid-flag::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: hsla(0, 0%, 0%, 0.55);
+    z-index: 1;
+  }
+
+
   /* Dim other modules during grid/lights */
   body.grid-active .panel,
   body.grid-active .leaderboard-panel,
@@ -2355,7 +2380,6 @@
     transition: background 0.5s, opacity 0.3s;
     opacity: 0;
     pointer-events: none;
-    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
   }
   /* Bottom layouts: dot goes above */
   .dashboard.layout-br .conn-status,
@@ -2386,8 +2410,6 @@
     font-family: var(--ff);
     color: #ccc;
     min-width: 340px;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
   }
   .conn-banner.visible { display: block; }
   .conn-banner h3 { margin: 0 0 6px; font-size: 15px; color: #fff; font-weight: 600; }
@@ -2610,6 +2632,7 @@
 </head>
 <body>
 
+<!-- COMPONENT: Main Dashboard -->
 <div class="dashboard layout-tr flow-rtl" id="dashboard">
 
   <div class="main-row">
@@ -2847,7 +2870,7 @@
 
 </div><!-- /dashboard -->
 
-<!-- CONNECTION SETUP BANNER (shown when plugin server unreachable) -->
+<!-- COMPONENT: Connection Setup Banner (shown when plugin server unreachable) -->
 <div class="conn-banner" id="connBanner">
   <h3><span class="conn-dot"></span>Can't reach SimHub</h3>
   <p>Enter the IP of your SimHub machine.<br>Leave as localhost if SimHub runs on this computer.</p>
@@ -2859,7 +2882,7 @@
   </div>
 </div>
 
-<!-- LEADERBOARD -->
+<!-- COMPONENT: Leaderboard Panel -->
 <div class="leaderboard-panel lb-bottom lb-right" id="leaderboardPanel">
   <div class="lb-inner">
     <canvas class="lb-gl gl-overlay" id="lbPlayerGlCanvas"></canvas>
@@ -2873,7 +2896,7 @@
   </div>
 </div>
 
-<!-- DATASTREAM — advanced telemetry panel, positioned adjacent to leaderboard -->
+<!-- COMPONENT: Datastream Panel (advanced telemetry) -->
 <div class="datastream-panel ds-bottom ds-right" id="datastreamPanel">
   <div class="ds-inner">
     <div class="ds-header">Datastream</div>
@@ -2933,7 +2956,7 @@
   </div>
 </div>
 
-<!-- INCIDENTS MODULE — standalone incident counter -->
+<!-- COMPONENT: Incidents Panel (incident counter) -->
 <div class="incidents-panel inc-bottom inc-right" id="incidentsPanel">
   <div class="inc-inner">
     <div class="inc-label">Incidents</div>
@@ -2947,7 +2970,7 @@
   </div>
 </div>
 
-<!-- RACE CONTROL MESSAGE BANNER -->
+<!-- COMPONENT: Race Control Banner (flag/message display) -->
 <div class="rc-banner" id="rcBanner">
   <div class="rc-inner">
     <!-- Race control tower icon — yellow/white on black -->
@@ -2976,7 +2999,7 @@
   </div>
 </div>
 
-<!-- PIT LIMITER BANNER -->
+<!-- COMPONENT: Pit Limiter Banner -->
 <div class="pit-banner" id="pitBanner">
   <div class="pit-inner">
     <div class="pit-icon">P</div>
@@ -2985,7 +3008,7 @@
   </div>
 </div>
 
-<!-- SPOTTER MESSAGES -->
+<!-- COMPONENT: Spotter Panel (voice messages) -->
 <div class="spotter-panel sp-bottom sp-left" id="spotterPanel">
   <div class="sp-inner" id="spotterInner">
     <div class="sp-header">Spotter</div>
@@ -2993,10 +3016,15 @@
   </div>
 </div>
 
-<!-- FORMATION LAP / GRID START -->
+<!-- COMPONENT: Grid Module (formation lap / pre-race info) -->
 <div class="grid-module" id="gridModule">
   <!-- Pre-race info (visible during formation) -->
   <div class="grid-info" id="gridInfo">
+    <div class="grid-flag" id="gridFlag">
+      <div class="grid-flag-stripe" id="flagStripe1"></div>
+      <div class="grid-flag-stripe" id="flagStripe2"></div>
+      <div class="grid-flag-stripe" id="flagStripe3"></div>
+    </div>
     <div class="grid-title">Formation Lap</div>
     <div class="grid-countdown" id="gridCountdown">—</div>
     <div class="grid-cars"><span id="gridCarsGridded">0</span> <span class="grid-cars-total">/ <span id="gridCarsTotal">0</span> gridded</span></div>
@@ -3015,7 +3043,7 @@
   </div>
 </div>
 
-<!-- SETTINGS OVERLAY -->
+<!-- COMPONENT: Settings Overlay (configuration panel) -->
 <div class="settings-overlay" id="settingsOverlay">
   <div class="settings-panel">
     <div class="settings-title">K10 Media Broadcast</div>
@@ -3937,7 +3965,9 @@
     'K10MediaCoach.Plugin.Demo.Grid.TotalCars',
     'K10MediaCoach.Plugin.Demo.Grid.PaceMode',
     'K10MediaCoach.Plugin.Demo.Grid.LightsPhase',
-    'K10MediaCoach.Plugin.Demo.Grid.StartType'
+    'K10MediaCoach.Plugin.Demo.Grid.StartType',
+    'K10MediaCoach.Plugin.Grid.TrackCountry',
+    'K10MediaCoach.Plugin.Demo.Grid.TrackCountry'
   ];
 
   // ─── State ───
@@ -5587,6 +5617,35 @@
   //  FORMATION LAP / GRID START
   // ══════════════════════════════════════════════════════════════════
 
+  // Country flag colors — [stripe1, stripe2, stripe3] top to bottom
+  const _countryFlags = {
+    'DE': ['#000000', '#DD0000', '#FFCC00'],       // Germany: black, red, gold
+    'US': ['#B22234', '#FFFFFF', '#3C3B6E'],       // USA: red, white, blue
+    'GB': ['#012169', '#C8102E', '#FFFFFF'],       // UK: blue, red, white
+    'IT': ['#009246', '#FFFFFF', '#CE2B37'],       // Italy: green, white, red
+    'FR': ['#002395', '#FFFFFF', '#ED2939'],       // France: blue, white, red
+    'ES': ['#AA151B', '#F1BF00', '#AA151B'],       // Spain: red, yellow, red
+    'BE': ['#000000', '#FAE042', '#ED2939'],       // Belgium: black, yellow, red
+    'NL': ['#AE1C28', '#FFFFFF', '#21468B'],       // Netherlands: red, white, blue
+    'AT': ['#ED2939', '#FFFFFF', '#ED2939'],       // Austria: red, white, red
+    'HU': ['#CE2939', '#FFFFFF', '#477050'],       // Hungary: red, white, green
+    'JP': ['#FFFFFF', '#BC002D', '#FFFFFF'],       // Japan: white, red, white
+    'AU': ['#00008B', '#FFFFFF', '#012169'],       // Australia: blue, white, blue
+    'BR': ['#009B3A', '#FEDF00', '#002776'],       // Brazil: green, yellow, blue
+    'MX': ['#006847', '#FFFFFF', '#CE1126'],       // Mexico: green, white, red
+    'CA': ['#FF0000', '#FFFFFF', '#FF0000'],       // Canada: red, white, red
+    'AE': ['#00732F', '#FFFFFF', '#FF0000'],       // UAE: green, white, red
+    'SG': ['#EF3340', '#FFFFFF', '#EF3340'],       // Singapore: red, white, red
+    'BH': ['#CE1126', '#FFFFFF', '#CE1126'],       // Bahrain: red, white, red
+    'SA': ['#006C35', '#FFFFFF', '#006C35'],       // Saudi Arabia: green, white, green
+    'MC': ['#CE1126', '#FFFFFF', '#CE1126'],       // Monaco: red, white, red
+    'AZ': ['#0092BC', '#EF3340', '#00AF66'],       // Azerbaijan: blue, red, green
+    'CN': ['#DE2910', '#FFDE00', '#DE2910'],       // China: red, gold, red
+    'PT': ['#006600', '#FF0000', '#003399'],       // Portugal: green, red, blue
+    'QA': ['#8A1538', '#FFFFFF', '#8A1538'],       // Qatar: maroon, white, maroon
+    'ZA': ['#007749', '#FFB81C', '#DE3831'],       // South Africa: green, gold, red
+  };
+
   function updateGrid(p, isDemo) {
     const pre = isDemo ? 'K10MediaCoach.Plugin.Demo.Grid.' : 'K10MediaCoach.Plugin.Grid.';
     const sessionState = +(p[pre + 'SessionState']) || 0;
@@ -5617,6 +5676,8 @@
         mod.classList.remove('grid-fadeout');
         // Reset lights
         resetLightBulbs();
+        const flagElReset = document.getElementById('gridFlag');
+        if (flagElReset) flagElReset.classList.remove('flag-active');
       }, 2000);
       return;
     }
@@ -5637,6 +5698,9 @@
       info.classList.add('info-hidden');
       lights.classList.add('lights-active');
       updateStartLights(lightsPhase);
+      // Hide flag during lights
+      const flagElLights = document.getElementById('gridFlag');
+      if (flagElLights) flagElLights.classList.remove('flag-active');
     } else {
       info.classList.remove('info-hidden');
       lights.classList.remove('lights-active');
@@ -5649,6 +5713,19 @@
       const stEl = document.getElementById('gridStartType');
       stEl.textContent = startType === 'standing' ? 'Standing Start' : 'Rolling Start';
       stEl.className = 'grid-start-type ' + startType;
+
+      // Country flag background
+      const countryCode = (p[pre + 'TrackCountry'] || '').toUpperCase();
+      const flagEl = document.getElementById('gridFlag');
+      const flagColors = _countryFlags[countryCode];
+      if (flagEl && flagColors) {
+        document.getElementById('flagStripe1').style.background = flagColors[0];
+        document.getElementById('flagStripe2').style.background = flagColors[1];
+        document.getElementById('flagStripe3').style.background = flagColors[2];
+        flagEl.classList.add('flag-active');
+      } else if (flagEl) {
+        flagEl.classList.remove('flag-active');
+      }
 
       // Countdown: pace mode progression
       const countdownEl = document.getElementById('gridCountdown');

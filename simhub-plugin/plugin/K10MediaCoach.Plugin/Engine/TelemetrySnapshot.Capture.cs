@@ -11,6 +11,10 @@ namespace K10MediaCoach.Plugin.Engine
     /// </summary>
     public partial class TelemetrySnapshot
     {
+        // ── ERS detection: track whether the car has ever shown ERS activity ────
+        private static string _ersDetectCarModel = "";
+        private static bool   _sessionHasErs     = false;
+
         public static TelemetrySnapshot Capture(PluginManager pm, ref GameData data)
         {
             var s = new TelemetrySnapshot();
@@ -99,6 +103,7 @@ namespace K10MediaCoach.Plugin.Engine
             // ── World velocity (for track map dead reckoning) ─────────────────
             s.VelocityX = GetRaw<float>(pm, "VelocityX");
             s.VelocityZ = GetRaw<float>(pm, "VelocityZ");
+            s.Yaw       = GetRaw<float>(pm, "Yaw");
 
             // ── iRacing-only ─────────────────────────────────────────────────
             s.SteeringWheelTorque = GetRaw<float>(pm, "SteeringWheelTorque");
@@ -107,6 +112,17 @@ namespace K10MediaCoach.Plugin.Engine
             s.DrsStatus           = GetRaw<int>(pm, "DrsStatus");
             s.ErsBattery          = GetRaw<float>(pm, "EnergyERSBattery");
             s.MgukPower           = GetRaw<float>(pm, "PowerMGUK");
+
+            // Track whether this car actually has an ERS system.
+            // Non-hybrid cars report 0.0 permanently; reset detection on car change.
+            if (s.CarModel != _ersDetectCarModel)
+            {
+                _ersDetectCarModel = s.CarModel;
+                _sessionHasErs = false;
+            }
+            if (s.ErsBattery > 0.02 || s.MgukPower > 0.0)
+                _sessionHasErs = true;
+            s.HasErs = _sessionHasErs;
             s.PlayerCarIdx        = GetRaw<int>(pm, "PlayerCarIdx");
             s.CarIdxLapDistPct    = GetRawArray<float>(pm, "CarIdxLapDistPct");
             s.CarIdxOnPitRoad     = GetRawArray<bool>(pm, "CarIdxOnPitRoad");

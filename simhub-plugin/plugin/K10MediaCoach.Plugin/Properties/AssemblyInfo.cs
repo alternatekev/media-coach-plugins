@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Windows;
 
 [assembly: AssemblyTitle("K10MediaCoach.Plugin")]
 [assembly: AssemblyDescription("Real-time commentary prompts for sim racing streams")]
@@ -10,4 +9,8 @@ using System.Windows;
 [assembly: ComVisible(false)]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]
+#if !CROSS_PLATFORM
+[assembly: System.Windows.ThemeInfo(
+    System.Windows.ResourceDictionaryLocation.None,
+    System.Windows.ResourceDictionaryLocation.SourceAssembly)]
+#endif

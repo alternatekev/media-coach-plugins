@@ -4,7 +4,6 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>K10MediaCoach.Plugin</AssemblyName>
     <RootNamespace>K10MediaCoach.Plugin</RootNamespace>
-    <UseWPF>true</UseWPF>
     <Nullable>disable</Nullable>
     <LangVersion>8.0</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -24,8 +23,50 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+  <!--
+    ═══════════════════════════════════════════════════════════════════════
+    WINDOWS BUILD: full WPF support, XAML compilation, settings panel.
+    Active when CrossPlatformBuild property is NOT set (default).
+    ═══════════════════════════════════════════════════════════════════════
+  -->
+  <PropertyGroup Condition="'$(CrossPlatformBuild)'!='true'">
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <!--
+    ═══════════════════════════════════════════════════════════════════════
+    CROSS-PLATFORM BUILD (macOS / Linux via Docker):
+    - Disables WPF/XAML compilation (not available on Linux)
+    - Excludes the settings panel (Control.xaml / Control.xaml.cs)
+    - Adds .NET Framework 4.8 reference assemblies from NuGet
+    - WPF types (ImageSource, Control) resolve from ref assemblies
+    - The resulting DLL works in SimHub — settings panel just returns null
+
+    Usage:  dotnet build /p:CrossPlatformBuild=true
+    ═══════════════════════════════════════════════════════════════════════
+  -->
+  <PropertyGroup Condition="'$(CrossPlatformBuild)'=='true'">
+    <UseWPF>false</UseWPF>
+    <DefineConstants>$(DefineConstants);CROSS_PLATFORM</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(CrossPlatformBuild)'=='true'">
+    <!-- Provides net48 targeting pack on Linux/macOS (includes WPF ref assemblies) -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48"
+                      Version="1.0.3" PrivateAssets="all" />
+    <!-- Explicit WPF assembly references (UseWPF=false doesn't auto-include these) -->
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xaml" />
+    <!-- Exclude XAML files — XAML compilation requires Windows Desktop SDK -->
+    <Compile Remove="Control.xaml.cs" />
+    <None Remove="Control.xaml" />
+    <Page Remove="Control.xaml" />
+  </ItemGroup>
+
   <!-- SimHub plugin DLLs — must NOT be copied to output (Private=False) -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(CrossPlatformBuild)'!='true'">
     <Reference Include="GameReaderCommon">
       <HintPath>$(SimHubPath)GameReaderCommon.dll</HintPath>
       <Private>False</Private>
@@ -49,10 +90,31 @@
   </ItemGroup>
 
   <!--
+    Cross-platform: SimHub-proprietary DLLs come from lib/simhub-refs/ (stubs or real).
+    Standard libraries come from NuGet instead of the SimHub install folder.
+  -->
+  <ItemGroup Condition="'$(CrossPlatformBuild)'=='true'">
+    <Reference Include="GameReaderCommon">
+      <HintPath>$(SimHubPath)GameReaderCommon.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SimHub.Plugins">
+      <HintPath>$(SimHubPath)SimHub.Plugins.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SimHub.Logging">
+      <HintPath>$(SimHubPath)SimHub.Logging.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <PackageReference Include="log4net" Version="2.0.15" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
     Post-build: copy the dataset folder alongside the DLL so the plugin
     can find commentary_topics.json automatically.
   -->
-  <Target Name="CopyDataset" AfterTargets="Build">
+  <Target Name="CopyDataset" AfterTargets="Build" Condition="'$(CrossPlatformBuild)'!='true'">
     <ItemGroup>
       <DatasetFiles Include="..\..\dataset\**\*" />
     </ItemGroup>
@@ -67,7 +129,7 @@
     If you clone this repo into the SimHub directory, no build step is needed for
     the dashboard — it is already in the right place.
   -->
-  <Target Name="CopyDashboard" AfterTargets="Build">
+  <Target Name="CopyDashboard" AfterTargets="Build" Condition="'$(CrossPlatformBuild)'!='true'">
     <ItemGroup>
       <DashFiles Include="..\..\DashTemplates\**\*" />
     </ItemGroup>
@@ -85,7 +147,7 @@
   <PropertyGroup>
     <RepoPluginDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepoPluginDir>
   </PropertyGroup>
-  <Target Name="ExportToRepo" AfterTargets="Build">
+  <Target Name="ExportToRepo" AfterTargets="Build" Condition="'$(CrossPlatformBuild)'!='true'">
     <!-- DLL -->
     <Copy SourceFiles="$(SimHubPath)K10MediaCoach.Plugin.dll"
           DestinationFolder="$(RepoPluginDir)"

@@ -447,7 +447,7 @@
           "platform": "web",
           "transcript_method": "manual",
           "content_style": "primary_voice_target",
-          "description": "Kevin's personal website. Referenced in CLAUDE.md and channel_notes.json as the primary voice-matching source. Content style should be the baseline against which all generated prompts are calibrated.",
+          "description": "Kevin's personal website. Referenced in PLUGIN_FEEDBACK.md and channel_notes.json as the primary voice-matching source. Content style should be the baseline against which all generated prompts are calibrated.",
           "category_relevance": {
             "racing_experience": 1.0,
             "car_response": 1.0,

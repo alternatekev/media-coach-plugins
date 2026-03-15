@@ -420,11 +420,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "Y:\\media-coach-simhub-plugin\\simhub-plugin\\plugin\\K10MediaCoach.Plugin\\K10MediaCoach.Plugin.csproj",
+      "projectUniqueName": "y:\\media-coach-simhub-plugin\\simhub-plugin\\plugin\\K10MediaCoach.Plugin\\K10MediaCoach.Plugin.csproj",
       "projectName": "K10MediaCoach.Plugin",
-      "projectPath": "Y:\\media-coach-simhub-plugin\\simhub-plugin\\plugin\\K10MediaCoach.Plugin\\K10MediaCoach.Plugin.csproj",
+      "projectPath": "y:\\media-coach-simhub-plugin\\simhub-plugin\\plugin\\K10MediaCoach.Plugin\\K10MediaCoach.Plugin.csproj",
       "packagesPath": "C:\\Users\\kevinconboy\\.nuget\\packages\\",
-      "outputPath": "Y:\\media-coach-simhub-plugin\\simhub-plugin\\plugin\\K10MediaCoach.Plugin\\obj\\",
+      "outputPath": "y:\\media-coach-simhub-plugin\\simhub-plugin\\plugin\\K10MediaCoach.Plugin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\kevinconboy\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -1,5 +1,25 @@
+# ── OS ──────────────────────────────────────────────────────────────
 .DS_Store
+Thumbs.db
+
+# ── Node / JS ───────────────────────────────────────────────────────
+node_modules/
 dist/
 /*/dist
-node_modules
+*.tgz
+
+# ── .NET ────────────────────────────────────────────────────────────
+**/bin/
+**/obj/
+build-output/
 *.exe
+
+# ── Logs ────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── SimHub reference DLLs (not redistributable — see lib/simhub-refs/README.md)
+lib/simhub-refs/*.dll
+
+# ── Test results ────────────────────────────────────────────────────
+**/test-results/

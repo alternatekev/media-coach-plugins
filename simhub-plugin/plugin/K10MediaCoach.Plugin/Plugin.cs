@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Media;
@@ -20,6 +22,12 @@ namespace K10MediaCoach.Plugin
 
         public ImageSource PictureIcon => null;
         public string LeftMenuTitle => "K10 Media Coach";
+
+#if CROSS_PLATFORM
+        // Cross-platform build: settings panel excluded (no XAML compiler on Linux/macOS).
+        // Return null — SimHub shows default settings when the plugin has no WPF panel.
+        public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager) => null;
+#endif
 
         // Engine
         private readonly CommentaryEngine  _engine   = new CommentaryEngine();
@@ -43,11 +51,16 @@ namespace K10MediaCoach.Plugin
         private HttpListener _httpListener;
         private Thread _httpThread;
 
+        // Leaderboard: compact JSON string of nearby drivers, updated each eval cycle
+        private volatile string _leaderboardJson = "[]";
+
         // ── IWPFSettingsV2 ────────────────────────────────────────────────────
 
+#if !CROSS_PLATFORM
         private SettingsControl _settingsControl;
         public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager)
             => _settingsControl = new SettingsControl(this);
+#endif
 
         // ── IDataPlugin ───────────────────────────────────────────────────────
 
@@ -175,6 +188,10 @@ namespace K10MediaCoach.Plugin
             this.AttachDelegate("Demo.CurrentLap", () => dt.CurrentLap);
             this.AttachDelegate("Demo.BestLapTime",() => dt.BestLapTime);
             this.AttachDelegate("Demo.CarModel",   () => dt.CarModel);
+            this.AttachDelegate("Demo.SessionTime",   () => dt.SessionTime);
+            this.AttachDelegate("Demo.LastLapTime",   () => dt.LastLapTime);
+            this.AttachDelegate("Demo.RemainingTime", () => dt.RemainingTime);
+            this.AttachDelegate("Demo.TotalLaps",     () => dt.TotalLaps);
             this.AttachDelegate("Demo.IRating",    () => dt.IRating);
             this.AttachDelegate("Demo.SafetyRating",() => dt.SafetyRating);
             this.AttachDelegate("Demo.GapAhead",   () => dt.GapAhead);
@@ -279,6 +296,7 @@ namespace K10MediaCoach.Plugin
                 // (recording needs high sample rate; interpolation is cheap)
                 _trackMap.Update(
                     _current.VelocityX, _current.VelocityZ,
+                    _current.Yaw,
                     _current.TrackPositionPct,
                     _current.CarIdxLapDistPct,
                     _current.CarIdxOnPitRoad,
@@ -297,6 +315,18 @@ namespace K10MediaCoach.Plugin
                 var dt = _engine.DemoTelemetry;
                 _trackMap.UpdateDemo(dt.TrackPosition, 19, dt.Elapsed); // 19 opponents = 20 car field
             }
+
+            // ── Leaderboard capture ───────────────────────────────────────
+            try
+            {
+                if (Settings.DemoMode)
+                    _leaderboardJson = BuildDemoLeaderboard(_engine.DemoTelemetry);
+                else if (_current.GameRunning && data.NewData != null)
+                    _leaderboardJson = BuildLeaderboard(data.NewData, _current.Position);
+                else
+                    _leaderboardJson = "[]";
+            }
+            catch { _leaderboardJson = "[]"; }
 
             bool wasVisible = _engine.IsVisible;
             _engine.Update(_current, _previous);
@@ -378,6 +408,111 @@ namespace K10MediaCoach.Plugin
             return _current.GameName ?? "";
         }
 
+        /// <summary>
+        /// Build leaderboard JSON from SimHub's Opponents list.
+        /// Returns a window of drivers centred on the player, compact JSON array.
+        /// Each entry: [pos, name, irating, bestLap, lastLap, gapToPlayer, inPit]
+        /// </summary>
+        private string BuildLeaderboard(object newData, int playerPos)
+        {
+            var ic = System.Globalization.CultureInfo.InvariantCulture;
+            try
+            {
+                var oppsProp = newData.GetType().GetProperty("Opponents",
+                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                var opps = oppsProp?.GetValue(newData) as System.Collections.IList;
+                if (opps == null || opps.Count == 0) return "[]";
+
+                // Collect all opponent data
+                var entries = new System.Collections.Generic.List<string>(opps.Count + 1);
+                foreach (var opp in opps)
+                {
+                    var t = opp.GetType();
+                    int pos = Convert.ToInt32(t.GetProperty("Position")?.GetValue(opp) ?? 0);
+                    string name = (t.GetProperty("Name")?.GetValue(opp) as string) ?? "";
+                    int irating = 0;
+                    var irProp = t.GetProperty("IRating") ?? t.GetProperty("Irating");
+                    if (irProp != null) { var v = irProp.GetValue(opp); if (v != null) irating = Convert.ToInt32(v); }
+                    double best = 0, last = 0;
+                    var bestProp = t.GetProperty("BestLapTime");
+                    if (bestProp != null) { var v = bestProp.GetValue(opp); if (v is TimeSpan ts && ts.TotalSeconds > 0) best = ts.TotalSeconds; }
+                    var lastProp = t.GetProperty("LastLapTime");
+                    if (lastProp != null) { var v = lastProp.GetValue(opp); if (v is TimeSpan ts2 && ts2.TotalSeconds > 0) last = ts2.TotalSeconds; }
+                    double gapToPlayer = 0;
+                    var gapProp = t.GetProperty("GapToPlayer");
+                    if (gapProp != null) { var v = gapProp.GetValue(opp); if (v != null) gapToPlayer = Convert.ToDouble(v); }
+                    bool inPit = false;
+                    var pitProp = t.GetProperty("IsInPit") ?? t.GetProperty("IsInPitLane");
+                    if (pitProp != null) { var v = pitProp.GetValue(opp); if (v is bool b) inPit = b; else if (v is int iv) inPit = iv != 0; }
+                    bool isPlayer = (pos == playerPos);
+
+                    if (pos <= 0) continue;
+
+                    // Compact: [pos,"name",irating,bestLap,lastLap,gap,inPit,isPlayer]
+                    entries.Add(string.Format(ic,
+                        "[{0},\"{1}\",{2},{3:F3},{4:F3},{5:F2},{6},{7}]",
+                        pos, Escape(name), irating, best, last, gapToPlayer, inPit ? 1 : 0, isPlayer ? 1 : 0));
+                }
+
+                // Sort by position
+                entries.Sort((a, b) =>
+                {
+                    // Extract position number from "[pos,..."
+                    int pa = int.Parse(a.Substring(1, a.IndexOf(',') - 1));
+                    int pb = int.Parse(b.Substring(1, b.IndexOf(',') - 1));
+                    return pa.CompareTo(pb);
+                });
+
+                // Window: 3 ahead of player, player, 3 behind
+                int playerIdx = entries.FindIndex(e =>
+                {
+                    int lastComma = e.LastIndexOf(',');
+                    return e[lastComma + 1] == '1';
+                });
+                if (playerIdx < 0) playerIdx = 0;
+                int start = Math.Max(0, playerIdx - 3);
+                int end = Math.Min(entries.Count, playerIdx + 4); // +4 = player + 3 behind
+                var window = entries.GetRange(start, end - start);
+
+                return "[" + string.Join(",", window) + "]";
+            }
+            catch { return "[]"; }
+        }
+
+        /// <summary>Build demo leaderboard with fake data around the player.</summary>
+        private string BuildDemoLeaderboard(DemoTelemetryProvider dt)
+        {
+            var ic = System.Globalization.CultureInfo.InvariantCulture;
+            int pp = dt.Position;
+            var names = new[] { "L. Hamilton", "M. Verstappen", "C. Leclerc", dt.DriverAhead, "YOU",
+                                dt.DriverBehind, "S. Vettel", "D. Ricciardo", "L. Norris", "C. Sainz" };
+            var iratings = new[] { 5200, 4800, 3900, dt.IRAhead, dt.IRating,
+                                   dt.IRBehind, 2400, 2200, 2100, 1900 };
+            double baseLap = dt.BestLapTime > 0 ? dt.BestLapTime : 92.4;
+            var rng = new Random(42); // deterministic seed
+
+            int windowStart = Math.Max(1, pp - 3);
+            var sb = new StringBuilder(512);
+            sb.Append("[");
+            for (int i = 0; i < 7; i++)
+            {
+                int pos = windowStart + i;
+                if (pos < 1 || pos > 20) continue;
+                int nameIdx = i < names.Length ? i : i % names.Length;
+                string name = (pos == pp) ? "YOU" : (nameIdx < names.Length ? names[nameIdx] : "Driver " + pos);
+                int ir = (nameIdx < iratings.Length) ? iratings[nameIdx] : 2000 + rng.Next(500);
+                double best = baseLap + (pos - pp) * 0.4 + rng.NextDouble() * 0.3;
+                double last = best + (rng.NextDouble() - 0.3) * 1.5;
+                double gap = (pos - pp) * 1.8 + rng.NextDouble() * 0.5;
+                bool isPlayer = (pos == pp);
+                if (sb.Length > 1) sb.Append(",");
+                sb.AppendFormat(ic, "[{0},\"{1}\",{2},{3:F3},{4:F3},{5:F2},{6},{7}]",
+                    pos, Escape(name), ir, best, last, gap, 0, isPlayer ? 1 : 0);
+            }
+            sb.Append("]");
+            return sb.ToString();
+        }
+
         private void StartHttpServer()
         {
             // Try binding in order of preference:
@@ -445,11 +580,14 @@ namespace K10MediaCoach.Plugin
                     var dt = _engine.DemoTelemetry;
                     bool demo = Settings.DemoMode;
 
-                    // Flag state
+                    // Flag state — demo flags take priority when in demo mode
                     string flagState = "none";
-                    if (s.GameRunning)
                     {
-                        int f = s.SessionFlags;
+                        int f = 0;
+                        if (demo && _engine.CurrentDemoFlags != 0)
+                            f = _engine.CurrentDemoFlags;
+                        else if (s.GameRunning)
+                            f = s.SessionFlags;
                         if      ((f & TelemetrySnapshot.FLAG_RED)       != 0) flagState = "red";
                         else if ((f & TelemetrySnapshot.FLAG_BLACK)     != 0) flagState = "black";
                         else if ((f & TelemetrySnapshot.FLAG_YELLOW)    != 0) flagState = "yellow";
@@ -513,6 +651,13 @@ namespace K10MediaCoach.Plugin
                     Jp(sb, "DataCorePlugin.GameData.Position", s.Position);
                     Jp(sb, "DataCorePlugin.GameData.CurrentLap", s.CurrentLap);
                     Jp(sb, "DataCorePlugin.GameData.BestLapTime", s.LapBestTime, ic);
+                    Jp(sb, "DataCorePlugin.GameData.LastLapTime", s.LapLastTime, ic);
+                    // Estimate session elapsed: current lap time + completed laps × average lap
+                    double avgLap = s.LapBestTime > 0 ? s.LapBestTime : (s.LapLastTime > 0 ? s.LapLastTime : 90);
+                    double sessionElapsed = s.LapCurrentTime + s.CompletedLaps * avgLap;
+                    Jp(sb, "DataCorePlugin.GameData.SessionTimeSpan", sessionElapsed, ic);
+                    Jp(sb, "DataCorePlugin.GameData.RemainingTime", s.SessionTimeRemain, ic);
+                    Jp(sb, "DataCorePlugin.GameData.TotalLaps", 0);  // populated from game data when available
                     Jp(sb, "DataCorePlugin.GameData.CarModel", Escape(s.CarModel ?? ""));
                     Jp(sb, "IRacingExtraProperties.iRacing_DriverInfo_IRating", 0);
                     Jp(sb, "IRacingExtraProperties.iRacing_DriverInfo_SafetyRating", 0.0, ic);
@@ -559,6 +704,10 @@ namespace K10MediaCoach.Plugin
                     Jp(sb, "K10MediaCoach.Plugin.Demo.CurrentLap", dt.CurrentLap);
                     Jp(sb, "K10MediaCoach.Plugin.Demo.BestLapTime", dt.BestLapTime, ic);
                     Jp(sb, "K10MediaCoach.Plugin.Demo.CarModel", Escape(dt.CarModel ?? ""));
+                    Jp(sb, "K10MediaCoach.Plugin.Demo.SessionTime", dt.SessionTime, ic);
+                    Jp(sb, "K10MediaCoach.Plugin.Demo.LastLapTime", dt.LastLapTime, ic);
+                    Jp(sb, "K10MediaCoach.Plugin.Demo.RemainingTime", dt.RemainingTime, ic);
+                    Jp(sb, "K10MediaCoach.Plugin.Demo.TotalLaps", dt.TotalLaps);
                     Jp(sb, "K10MediaCoach.Plugin.Demo.IRating", dt.IRating);
                     Jp(sb, "K10MediaCoach.Plugin.Demo.SafetyRating", dt.SafetyRating, ic);
                     Jp(sb, "K10MediaCoach.Plugin.Demo.GapAhead", dt.GapAhead, ic);
@@ -574,6 +723,10 @@ namespace K10MediaCoach.Plugin
                     Jp(sb, "K10MediaCoach.Plugin.TrackMap.PlayerX", _trackMap.PlayerX, ic);
                     Jp(sb, "K10MediaCoach.Plugin.TrackMap.PlayerY", _trackMap.PlayerY, ic);
                     Jp(sb, "K10MediaCoach.Plugin.TrackMap.Opponents", Escape(_trackMap.OpponentData ?? ""));
+
+                    // ── Leaderboard ──
+                    // Raw JSON array — NOT string-escaped, injected directly
+                    sb.AppendFormat("\"K10MediaCoach.Plugin.Leaderboard\":{0},\n", _leaderboardJson ?? "[]");
 
                     // ── Extra (homebridge / legacy) ──
                     Jp(sb, "currentFlagState", Escape(flagState));

@@ -76,6 +76,11 @@ namespace K10MediaCoach.Plugin.Engine
         };
         private int _demoCarIdx = 0;
 
+        public double LastLapTime    { get; private set; } = 92.590;
+        public double SessionTime    { get; private set; } = 0;
+        public double RemainingTime  { get; private set; } = 1820;
+        public int    TotalLaps      { get; private set; } = 25;
+
         public int    IRating        { get; private set; } = 2673;
         public double SafetyRating   { get; private set; } = 3.24;
 
@@ -92,6 +97,8 @@ namespace K10MediaCoach.Plugin.Engine
         public void Tick(double dt)
         {
             _elapsed += dt;
+            SessionTime += dt;
+            RemainingTime = Math.Max(0, RemainingTime - dt);
 
             // Advance track position (wraps at 1.0 = one lap)
             _trackPos += dt / _lapTime;
@@ -99,6 +106,7 @@ namespace K10MediaCoach.Plugin.Engine
             {
                 _trackPos -= 1.0;
                 CurrentLap++;
+                LastLapTime = _lapTime + (_rng.NextDouble() - 0.5) * 3.0;  // vary ~±1.5s
                 Fuel = Math.Max(0.5, Fuel - FuelPerLap);
 
                 // Cycle car model every 2 laps
@@ -223,6 +231,9 @@ namespace K10MediaCoach.Plugin.Engine
             CurrentLap = 1;
             Position   = 6;
             Fuel       = 38.0;
+            SessionTime   = 0;
+            RemainingTime = 1820;
+            LastLapTime   = 92.590;
             TyreWearFL = 0.82;
             TyreWearFR = 0.79;
             TyreWearRL = 0.86;

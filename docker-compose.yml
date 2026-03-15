@@ -1,0 +1,25 @@
+services:
+  build:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      # Mount output directory so built DLL appears on host
+      - ./build-output:/out
+    command: >
+      dotnet build
+        /src/simhub-plugin/plugin/K10MediaCoach.Plugin/K10MediaCoach.Plugin.csproj
+        /p:CrossPlatformBuild=true
+        /p:SIMHUB_PATH=/src/lib/simhub-refs/
+        /p:OutputPath=/out/
+        -c Release
+        -v normal
+
+  test:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: >
+      dotnet test
+        /src/simhub-plugin/tests/K10MediaCoach.Tests/K10MediaCoach.Tests.csproj
+        -v normal

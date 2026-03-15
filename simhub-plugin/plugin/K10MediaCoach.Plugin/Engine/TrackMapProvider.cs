@@ -34,9 +34,10 @@ namespace K10MediaCoach.Plugin.Engine
         private string _currentTrackId = "";
         private string _simhubDir = "";
 
-        // ── Dead reckoning from VelocityX/Z ───────────────────────────────
+        // ── Dead reckoning from car-local VelocityX/Z + heading ──────────
         private double _drX = 0, _drZ = 0;           // accumulated world position
         private DateTime _drLastTick = DateTime.MinValue;
+        private double _lastYaw = double.NaN;         // heading (radians) for local→world
 
         // ── Finalised outline (normalised to 0–100) ───────────────────────
         private TrackPoint[] _outline = new TrackPoint[0];
@@ -104,6 +105,7 @@ namespace K10MediaCoach.Plugin.Engine
             _demoMode = false;
             _drX = 0; _drZ = 0;
             _drLastTick = DateTime.MinValue;
+            _lastYaw = double.NaN;
 
             // Try to load from SimHub's map cache
             if (TryLoadFromSimHub(trackId))
@@ -145,6 +147,7 @@ namespace K10MediaCoach.Plugin.Engine
         /// </summary>
         public void Update(
             double velocityX, double velocityZ,
+            double yaw,
             double playerLapDistPct,
             float[] carIdxLapDistPct,
             bool[] carIdxOnPitRoad,
@@ -153,15 +156,33 @@ namespace K10MediaCoach.Plugin.Engine
         {
             if (_demoMode) return; // demo positions handled separately
 
-            // ── Dead reckoning: integrate velocity → world position ────────
+            // ── Dead reckoning: rotate car-local velocity by heading → world position ──
+            // iRacing VelocityX = lateral (car-local), VelocityZ = forward (car-local)
+            // Yaw = heading angle (radians, 0 = north, clockwise positive)
             DateTime now = DateTime.UtcNow;
             if (_drLastTick != DateTime.MinValue)
             {
                 double dt = (now - _drLastTick).TotalSeconds;
                 if (dt > 0 && dt < 1.0) // sanity: skip if paused or huge gap
                 {
-                    _drX += velocityX * dt;
-                    _drZ += velocityZ * dt;
+                    double heading = yaw;
+                    if (double.IsNaN(heading) || heading == 0)
+                    {
+                        // Fallback: if Yaw isn't available, integrate YawRate or use raw values
+                        // (produces a straight line — better than nothing)
+                        _drX += velocityX * dt;
+                        _drZ += velocityZ * dt;
+                    }
+                    else
+                    {
+                        // Convert car-local velocity to world-frame using heading
+                        double cosH = Math.Cos(heading);
+                        double sinH = Math.Sin(heading);
+                        // World X = forward * sin(heading) + lateral * cos(heading)
+                        // World Z = forward * cos(heading) - lateral * sin(heading)
+                        _drX += (velocityZ * sinH + velocityX * cosH) * dt;
+                        _drZ += (velocityZ * cosH - velocityX * sinH) * dt;
+                    }
                 }
             }
             _drLastTick = now;
@@ -276,6 +297,15 @@ namespace K10MediaCoach.Plugin.Engine
                 return;
             }
 
+            // Validate the recording isn't degenerate (straight line)
+            if (!ValidateTrackShape(_samples))
+            {
+                SimHub.Logging.Current.Warn("[K10MediaCoach] Track recording looks like a straight line (bad velocity data?), retrying next lap");
+                _recording = true;
+                _samples.Clear();
+                return;
+            }
+
             // Sort by LapDistPct to ensure monotonic order
             _samples.Sort((a, b) => a.LapDistPct.CompareTo(b.LapDistPct));
 
@@ -286,6 +316,38 @@ namespace K10MediaCoach.Plugin.Engine
             SaveToOwnCache(_currentTrackId);
 
             SimHub.Logging.Current.Info($"[K10MediaCoach] Track map recorded: {_outline.Length} points");
+        }
+
+        /// <summary>
+        /// Check if the recorded points form a real circuit (2D shape)
+        /// rather than a degenerate straight line.
+        /// Uses the ratio of bounding box dimensions — a real track has
+        /// both width and height, while a line is very narrow in one axis.
+        /// </summary>
+        private static bool ValidateTrackShape(List<TrackPoint> pts)
+        {
+            if (pts.Count < 20) return false;
+
+            double minX = double.MaxValue, maxX = double.MinValue;
+            double minZ = double.MaxValue, maxZ = double.MinValue;
+
+            foreach (var p in pts)
+            {
+                if (p.WorldX < minX) minX = p.WorldX;
+                if (p.WorldX > maxX) maxX = p.WorldX;
+                if (p.WorldZ < minZ) minZ = p.WorldZ;
+                if (p.WorldZ > maxZ) maxZ = p.WorldZ;
+            }
+
+            double rangeX = maxX - minX;
+            double rangeZ = maxZ - minZ;
+            double maxRange = Math.Max(rangeX, rangeZ);
+            double minRange = Math.Min(rangeX, rangeZ);
+
+            // If the narrower dimension is less than 5% of the wider, it's a line
+            if (maxRange < 0.01) return false; // all points at same location
+            double ratio = minRange / maxRange;
+            return ratio > 0.05;
         }
 
         // ── Normalisation ──────────────────────────────────────────────────

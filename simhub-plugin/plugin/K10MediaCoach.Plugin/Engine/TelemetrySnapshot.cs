@@ -65,10 +65,11 @@ namespace K10MediaCoach.Plugin.Engine
         public double SessionTimeRemain { get; set; }
 
         // ── World-space velocity (for track map dead reckoning) ──────────────
-        // Available: iRacing (VelocityX/Z), integrated each frame to build
-        // a track outline from scratch — no Lat/Lon needed.
+        // iRacing: VelocityX (lateral, car-local), VelocityZ (forward, car-local)
+        // Yaw = heading angle (radians) — needed to convert local → world frame.
         public double VelocityX { get; set; }
         public double VelocityZ { get; set; }
+        public double Yaw       { get; set; }
 
         // ── iRacing-only ─────────────────────────────────────────────────────
         public double SteeringWheelTorque { get; set; } // torque (Nm), not angle
@@ -77,6 +78,8 @@ namespace K10MediaCoach.Plugin.Engine
         public int    DrsStatus           { get; set; }
         public double ErsBattery          { get; set; }
         public double MgukPower           { get; set; }
+        /// <summary>True when the car has demonstrated ERS capability (battery seen > 0).</summary>
+        public bool   HasErs              { get; set; }
         public float[] CarIdxLapDistPct   { get; set; } = new float[0];
         public bool[]  CarIdxOnPitRoad    { get; set; } = new bool[0];
         public int     PlayerCarIdx       { get; set; }

@@ -109,6 +109,9 @@ namespace K10MediaCoach.Plugin.Engine
         /// </summary>
         public DemoTelemetryProvider DemoTelemetry { get; } = new DemoTelemetryProvider();
 
+        /// <summary>Session flags from the most recent demo sequence step (0 when no flag).</summary>
+        public int CurrentDemoFlags { get; private set; }
+
         // ── Settings (set by plugin from Settings object) ────────────────────
         public double DisplaySeconds      { get; set; } = 15.0;
         public HashSet<string> EnabledCategories { get; set; }
@@ -407,6 +410,12 @@ namespace K10MediaCoach.Plugin.Engine
 
             // Sync telemetry provider with this step's event-driven state
             DemoTelemetry.ApplyDemoStep(step.Snapshot);
+            // Persist flag state: only update if the new step has a flag, or clear
+            // when a non-flag step fires (flag lasts for the duration of its step)
+            if (step.Snapshot.SessionFlags != 0)
+                CurrentDemoFlags = step.Snapshot.SessionFlags;
+            else
+                CurrentDemoFlags = 0;
 
             ShowPrompt(topic, step.Snapshot);
         }

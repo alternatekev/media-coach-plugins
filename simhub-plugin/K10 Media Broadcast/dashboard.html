@@ -260,7 +260,7 @@
   .dashboard.layout-br .commentary-inner,
   .dashboard.layout-bl .commentary-inner,
   .dashboard.layout-bc .commentary-inner {
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 
   /* Vswap logo column — first-child now at bottom, last-child at top */
@@ -357,13 +357,7 @@
     color: var(--text-primary);
   }
   .commentary-meta {
-    font-size: 12px;
-    font-weight: var(--fw-semi);
-    color: var(--text-secondary);
-    margin-top: auto;
-    padding-top: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    display: none;
   }
 
   /* ── MAIN AREA ── */
@@ -550,12 +544,18 @@
   .tacho-seg.lit-redline { background: var(--red); box-shadow: 0 0 10px var(--red); animation: redline-pulse 0.3s ease-in-out infinite alternate; }
   @keyframes redline-pulse { 0%{opacity:.84} 100%{opacity:1} }
   .tacho-block.tacho-redline {
-    box-shadow: inset 0 0 24px hsla(0, 85%, 50%, 0.30), 0 0 15px hsla(0, 85%, 50%, 0.18);
+    box-shadow: inset 0 0 24px hsla(0, 85%, 50%, 0.30), 0 0 6px 1px hsla(0, 85%, 50%, 0.12);
     animation: tacho-redline-flash 0.25s ease-in-out infinite alternate;
   }
   @keyframes tacho-redline-flash {
-    0%   { border-color: hsla(0, 80%, 50%, 0.4); }
-    100% { border-color: hsla(0, 80%, 50%, 0.7); }
+    0%   {
+      border-color: hsla(0, 80%, 50%, 0.4);
+      box-shadow: inset 0 0 20px hsla(0, 85%, 50%, 0.22), 0 0 4px 0px hsla(0, 85%, 50%, 0.08);
+    }
+    100% {
+      border-color: hsla(0, 80%, 50%, 0.65);
+      box-shadow: inset 0 0 28px hsla(0, 85%, 50%, 0.35), 0 0 10px 2px hsla(0, 85%, 50%, 0.18);
+    }
   }
 
   /* WebGL FX overlay canvases */
@@ -770,6 +770,163 @@
     font-size: var(--fs-xs);
     color: var(--text-dim);
     font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Flag status overlay on gaps block ── */
+  .gaps-block.flag-active .gap-item {
+    transition: background 0.4s ease, border-color 0.4s ease;
+  }
+  .gap-normal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    width: 100%;
+    flex: 1;
+  }
+  .gaps-block { position: relative; }
+  .gaps-block.flag-active .gap-item { visibility: hidden; }
+  .gaps-block.flag-active .flag-overlay { display: flex; }
+  .flag-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    z-index: 3;
+    border-radius: inherit;
+  }
+  .flag-label {
+    font-size: 17px;
+    font-weight: var(--fw-black);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+  }
+  .flag-context {
+    font-size: var(--fs-xs);
+    opacity: 0.75;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .flag-gl {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  .gaps-block.flag-active .flag-gl { display: block; }
+
+  /* Flag color themes — redline-style inset glow with slow pulse on the block itself */
+  .gaps-block.flag-active {
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+  }
+
+  /* ── Yellow / Caution — WebGL flag background ── */
+  .gaps-block.flag-yellow {
+    animation: flag-glow-yellow 3.5s ease-in-out infinite alternate;
+    border: 1px dashed;
+    border-image: repeating-linear-gradient(90deg, hsl(48, 95%, 55%) 0 8px, hsl(0, 0%, 92%) 8px 16px) 1;
+  }
+  .gaps-block.flag-yellow .flag-label { color: hsl(48, 95%, 65%); }
+  .gaps-block.flag-yellow .flag-context { color: hsl(48, 80%, 70%); }
+  @keyframes flag-glow-yellow {
+    0%   { box-shadow: inset 0 0 18px hsla(48, 95%, 50%, 0.20), 0 0 10px hsla(48, 95%, 50%, 0.10); }
+    100% { box-shadow: inset 0 0 30px hsla(48, 95%, 50%, 0.40), 0 0 20px hsla(48, 95%, 50%, 0.22); }
+  }
+
+  /* ── Red Flag — WebGL flag background ── */
+  .gaps-block.flag-red {
+    animation: flag-glow-red 3.5s ease-in-out infinite alternate;
+    border: 1px dashed;
+    border-image: repeating-linear-gradient(90deg, hsl(0, 85%, 55%) 0 8px, hsl(0, 75%, 30%) 8px 16px) 1;
+  }
+  .gaps-block.flag-red .flag-label { color: hsl(0, 90%, 65%); }
+  .gaps-block.flag-red .flag-context { color: hsl(0, 70%, 75%); }
+  @keyframes flag-glow-red {
+    0%   { box-shadow: inset 0 0 18px hsla(0, 85%, 50%, 0.22), 0 0 10px hsla(0, 85%, 50%, 0.12); }
+    100% { box-shadow: inset 0 0 30px hsla(0, 85%, 50%, 0.45), 0 0 20px hsla(0, 85%, 50%, 0.25); }
+  }
+
+  /* ── Blue Flag — WebGL flag background ── */
+  .gaps-block.flag-blue {
+    animation: flag-glow-blue 3.5s ease-in-out infinite alternate;
+    border: 1px dashed;
+    border-image: repeating-linear-gradient(90deg, hsl(220, 80%, 60%) 0 8px, hsl(220, 70%, 30%) 8px 16px) 1;
+  }
+  .gaps-block.flag-blue .flag-label { color: hsl(220, 85%, 68%); }
+  .gaps-block.flag-blue .flag-context { color: hsl(220, 65%, 75%); }
+  @keyframes flag-glow-blue {
+    0%   { box-shadow: inset 0 0 18px hsla(220, 80%, 55%, 0.20), 0 0 10px hsla(220, 80%, 55%, 0.10); }
+    100% { box-shadow: inset 0 0 30px hsla(220, 80%, 55%, 0.40), 0 0 20px hsla(220, 80%, 55%, 0.22); }
+  }
+
+  /* ── Green Flag — WebGL flag background ── */
+  .gaps-block.flag-green {
+    animation: flag-glow-green 3.5s ease-in-out infinite alternate;
+  }
+  .gaps-block.flag-green .flag-label { color: hsl(130, 75%, 58%); }
+  .gaps-block.flag-green .flag-context { color: hsl(130, 55%, 70%); }
+  @keyframes flag-glow-green {
+    0%   { box-shadow: inset 0 0 18px hsla(130, 70%, 45%, 0.20), 0 0 10px hsla(130, 70%, 45%, 0.10); border-color: hsla(130, 70%, 45%, 0.25); }
+    100% { box-shadow: inset 0 0 30px hsla(130, 70%, 45%, 0.40), 0 0 20px hsla(130, 70%, 45%, 0.22); border-color: hsla(130, 70%, 45%, 0.50); }
+  }
+
+  /* ── White Flag — WebGL flag background ── */
+  .gaps-block.flag-white {
+    animation: flag-glow-white 3.5s ease-in-out infinite alternate;
+  }
+  .gaps-block.flag-white .flag-label { color: hsl(0, 0%, 92%); }
+  .gaps-block.flag-white .flag-context { color: hsl(0, 0%, 75%); }
+  @keyframes flag-glow-white {
+    0%   { box-shadow: inset 0 0 14px hsla(0, 0%, 90%, 0.15), 0 0 8px hsla(0, 0%, 90%, 0.08); border-color: hsla(0, 0%, 90%, 0.18); }
+    100% { box-shadow: inset 0 0 26px hsla(0, 0%, 90%, 0.30), 0 0 16px hsla(0, 0%, 90%, 0.16); border-color: hsla(0, 0%, 90%, 0.35); }
+  }
+
+  /* ── Debris — WebGL flag background ── */
+  .gaps-block.flag-debris {
+    animation: flag-glow-debris 3.5s ease-in-out infinite alternate;
+    border: 1px dashed;
+    border-image: repeating-linear-gradient(90deg, hsl(48, 90%, 55%) 0 8px, hsl(0, 80%, 50%) 8px 16px) 1;
+  }
+  .gaps-block.flag-debris .flag-label { color: hsl(45, 90%, 65%); }
+  .gaps-block.flag-debris .flag-context { color: hsl(30, 70%, 70%); }
+  @keyframes flag-glow-debris {
+    0%   { box-shadow: inset 0 0 18px hsla(35, 80%, 50%, 0.15), 0 0 10px hsla(0, 80%, 50%, 0.08); }
+    100% { box-shadow: inset 0 0 30px hsla(35, 80%, 50%, 0.30), 0 0 20px hsla(0, 80%, 50%, 0.15); }
+  }
+
+  /* ── Checkered — WebGL flag background ── */
+  .gaps-block.flag-checkered {
+    animation: flag-glow-checkered 3.5s ease-in-out infinite alternate;
+    border: 1px dashed;
+    border-image: repeating-linear-gradient(90deg, hsl(0, 0%, 95%) 0 8px, hsl(0, 0%, 20%) 8px 16px) 1;
+  }
+  .gaps-block.flag-checkered .flag-label { color: #fff; }
+  .gaps-block.flag-checkered .flag-context { color: hsl(0, 0%, 80%); }
+  @keyframes flag-glow-checkered {
+    0%   { box-shadow: inset 0 0 14px hsla(0, 0%, 100%, 0.12), 0 0 8px hsla(0, 0%, 100%, 0.06); }
+    100% { box-shadow: inset 0 0 26px hsla(0, 0%, 100%, 0.28), 0 0 16px hsla(0, 0%, 100%, 0.14); }
+  }
+
+  /* ── Black Flag — WebGL flag background ── */
+  .gaps-block.flag-black {
+    animation: flag-glow-black 3.5s ease-in-out infinite alternate;
+    border: 1px dashed;
+    border-image: repeating-linear-gradient(90deg, hsl(0, 0%, 12%) 0 8px, hsl(0, 75%, 40%) 8px 16px) 1;
+  }
+  .gaps-block.flag-black .flag-label { color: hsl(0, 80%, 58%); }
+  .gaps-block.flag-black .flag-context { color: hsl(0, 50%, 65%); }
+  @keyframes flag-glow-black {
+    0%   { box-shadow: inset 0 0 18px hsla(0, 80%, 40%, 0.15), 0 0 8px hsla(0, 80%, 40%, 0.08); }
+    100% { box-shadow: inset 0 0 28px hsla(0, 80%, 40%, 0.35), 0 0 16px hsla(0, 80%, 40%, 0.18); }
   }
 
   /* ═══════════════════════════════════════════════
@@ -988,6 +1145,23 @@
   /* Hidden controls (car doesn't have TC/ABS) */
   .ctrl-item.ctrl-hidden { display: none; }
 
+  /* "No Adjustments" fallback when all controls are hidden */
+  .ctrl-no-adj {
+    display: none;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.08em;
+    color: hsla(0, 0%, 100%, 0.25);
+    text-transform: uppercase;
+  }
+  .car-controls.no-adj .ctrl-no-adj {
+    display: flex;
+  }
+
   /* Layered pedals — all three histograms overlaid */
   .pedals-area {
     flex: 1;
@@ -1031,7 +1205,7 @@
     align-items: flex-end;
   }
   .pedal-viz-layer.throttle-layer { z-index: 1; }
-  .pedal-viz-layer.brake-layer { z-index: 2; }
+  .pedal-viz-layer.brake-layer { z-index: 2; flex-direction: row-reverse; }
   .pedal-viz-layer.clutch-layer { z-index: 3; }
   .pedal-hist-bar {
     flex: 1;
@@ -1147,6 +1321,110 @@
     height: 100%;
     border-radius: 2px;
     background: var(--green);
+  }
+
+  /* ═══════════════════════════════════════════════
+     LEADERBOARD PANEL
+     ═══════════════════════════════════════════════ */
+  .leaderboard-panel {
+    position: fixed;
+    z-index: 50;
+    width: 260px;
+    transition: opacity 0.4s ease;
+  }
+  .leaderboard-panel.section-hidden { display: none; }
+  /* Vertical opposite: if dash is top → leaderboard bottom; if dash is bottom → leaderboard top */
+  .leaderboard-panel.lb-bottom { bottom: 10px; }
+  .leaderboard-panel.lb-top { top: 10px; }
+  .leaderboard-panel.lb-right { right: 10px; }
+  .leaderboard-panel.lb-left { left: 10px; }
+  .leaderboard-panel.lb-center { left: 50%; transform: translateX(-50%); }
+
+  .lb-inner {
+    background: hsla(0, 0%, 8%, 0.82);
+    border: 1px solid hsla(0, 0%, 100%, 0.07);
+    border-radius: 8px;
+    padding: 6px 0;
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    overflow: hidden;
+  }
+  .lb-header {
+    font-size: 9px;
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: hsla(0, 0%, 100%, 0.35);
+    padding: 2px 10px 5px;
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.06);
+  }
+  .lb-row {
+    display: grid;
+    grid-template-columns: 22px 1fr 48px 52px;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.03);
+    transition: background 0.3s ease;
+    position: relative;
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-row.lb-player {
+    background: hsla(195, 80%, 50%, 0.10);
+    border-left: 2px solid var(--cyan);
+    padding-left: 8px;
+  }
+  .lb-row.lb-pit { opacity: 0.45; }
+  .lb-pos {
+    font-weight: var(--fw-black);
+    color: var(--text-dim);
+    text-align: center;
+    font-size: 12px;
+  }
+  .lb-row.lb-player .lb-pos { color: var(--cyan); }
+  .lb-name {
+    font-weight: var(--fw-semi);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lb-row.lb-player .lb-name { color: var(--text-primary); font-weight: var(--fw-bold); }
+  .lb-ir {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: right;
+  }
+  .lb-gap {
+    font-size: 10px;
+    text-align: right;
+    font-weight: var(--fw-semi);
+  }
+  .lb-gap.gap-ahead { color: var(--green); }
+  .lb-gap.gap-behind { color: var(--red); }
+  .lb-gap.gap-player { color: var(--cyan); }
+  /* WebGL player highlight canvas */
+  .lb-gl {
+    position: absolute;
+    left: 0; right: 0;
+    top: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+  }
+  .lb-inner { position: relative; }
+  /* Sparkline canvas */
+  .lb-spark {
+    position: absolute;
+    right: 10px;
+    bottom: 0;
+    width: 48px;
+    height: 16px;
+    opacity: 0.5;
   }
 
   /* ═══════════════════════════════════════════════
@@ -1353,6 +1631,36 @@
   }
   .settings-select:focus { outline: none; border-color: var(--cyan); }
   .settings-select option { background: #1a1a1a; color: white; }
+  .settings-range-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings-range {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 4px;
+    background: hsla(0,0%,100%,0.12);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  .settings-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+  }
+  .settings-range-val {
+    font-size: 11px;
+    color: hsla(0,0%,100%,0.6);
+    font-variant-numeric: tabular-nums;
+    min-width: 32px;
+    text-align: right;
+  }
   .settings-close {
     margin-top: 16px;
     width: 100%;
@@ -1427,6 +1735,7 @@
         <div class="ctrl-item" id="ctrlBB" style="--ctrl-pct:0%;"><div class="ctrl-label">BB</div><div class="ctrl-value">—</div></div>
         <div class="ctrl-item" id="ctrlTC" style="--ctrl-pct:0%;"><div class="ctrl-label">TC</div><div class="ctrl-value">—</div></div>
         <div class="ctrl-item" id="ctrlABS" style="--ctrl-pct:0%;"><div class="ctrl-label">ABS</div><div class="ctrl-value">—</div></div>
+        <div class="ctrl-no-adj" id="ctrlNoAdj">NO ADJUSTMENTS</div>
       </div>
       <div class="panel pedals-area" id="pedalsArea">
         <canvas class="gl-overlay" id="pedalsGlCanvas"></canvas>
@@ -1537,18 +1846,27 @@
         <div class="cycle-dots"><div class="cycle-dot active" id="dotRating"></div><div class="cycle-dot" id="dotPos"></div></div>
       </div>
 
-      <div class="panel gaps-block">
+      <div class="panel gaps-block" id="gapsBlock">
         <div class="gap-item">
-          <div class="panel-label">Ahead</div>
-          <div class="gap-time ahead">—</div>
-          <div class="gap-driver">—</div>
-          <div class="gap-ir"></div>
+          <div class="gap-normal">
+            <div class="panel-label">Ahead</div>
+            <div class="gap-time ahead">—</div>
+            <div class="gap-driver">—</div>
+            <div class="gap-ir"></div>
+          </div>
         </div>
         <div class="gap-item">
-          <div class="panel-label">Behind</div>
-          <div class="gap-time behind">—</div>
-          <div class="gap-driver">—</div>
-          <div class="gap-ir"></div>
+          <div class="gap-normal">
+            <div class="panel-label">Behind</div>
+            <div class="gap-time behind">—</div>
+            <div class="gap-driver">—</div>
+            <div class="gap-ir"></div>
+          </div>
+        </div>
+        <canvas class="flag-gl gl-overlay" id="flagGlCanvas"></canvas>
+        <div class="flag-overlay" id="flagOverlay">
+          <div class="flag-label" id="flagLabel1"></div>
+          <div class="flag-context" id="flagCtx1"></div>
         </div>
       </div>
 
@@ -1626,6 +1944,15 @@
   </div>
 </div>
 
+<!-- LEADERBOARD -->
+<div class="leaderboard-panel lb-bottom lb-right" id="leaderboardPanel">
+  <div class="lb-inner">
+    <canvas class="lb-gl gl-overlay" id="lbPlayerGlCanvas"></canvas>
+    <div class="lb-header">Relative</div>
+    <div id="lbRows"></div>
+  </div>
+</div>
+
 <!-- SETTINGS OVERLAY -->
 <div class="settings-overlay" id="settingsOverlay">
   <div class="settings-panel">
@@ -1641,6 +1968,7 @@
     <div class="settings-row"><span class="settings-label">Position &amp; Gaps</span><div class="settings-toggle on" data-section="pos-gaps-col" data-key="showPosition" onclick="toggleSetting(this)"></div></div>
     <div class="settings-row"><span class="settings-label">Tachometer</span><div class="settings-toggle on" data-section="tacho-block" data-key="showTacho" onclick="toggleSetting(this)"></div></div>
     <div class="settings-row"><span class="settings-label">Commentary</span><div class="settings-toggle on" data-section="commentary-col" data-key="showCommentary" onclick="toggleSetting(this)"></div></div>
+    <div class="settings-row"><span class="settings-label">Leaderboard</span><div class="settings-toggle on" data-section="leaderboardPanel" data-key="showLeaderboard" onclick="toggleSetting(this)"></div></div>
 
     <div class="settings-group-label">Effects</div>
     <div class="settings-row"><span class="settings-label">WebGL Effects</span><div class="settings-toggle on" data-key="showWebGL" onclick="toggleWebGL(this)"></div></div>
@@ -1671,6 +1999,29 @@
     <div class="settings-row">
       <span class="settings-label">Swap Vertical</span>
       <div class="settings-toggle" id="vswapToggle" data-key="verticalSwap" onclick="toggleVerticalSwap(this)"></div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Zoom</span>
+      <div class="settings-range-row">
+        <input class="settings-range" id="settingsZoom" type="range" min="100" max="200" step="5" value="100" oninput="updateZoom(this.value)"/>
+        <span class="settings-range-val" id="zoomVal">100%</span>
+      </div>
+    </div>
+
+    <div class="settings-group-label">Debug</div>
+    <div class="settings-row">
+      <span class="settings-label">Force Flag (Demo)</span>
+      <select class="settings-select" id="settingsForceFlag" onchange="updateForceFlag(this.value)">
+        <option value="">Auto</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="white">White</option>
+        <option value="debris">Debris</option>
+        <option value="checkered">Checkered</option>
+        <option value="black">Black</option>
+      </select>
     </div>
 
     <div class="settings-group-label">Window</div>
@@ -1896,7 +2247,10 @@
   // ═══ CYCLING PANELS (rating/position only — fuel/tyres no longer cycle) ═══
   let ratingActive = true;
 
+  let _hasRatingData = false; // set true when iRating or SR become nonzero
   function cycleRatingPos() {
+    // Don't cycle to rating page if no iRating/SR data is available
+    if (!_hasRatingData) return;
     const r = document.getElementById('ratingPage');
     const p = document.getElementById('positionPage');
     const d1 = document.getElementById('dotRating');
@@ -1970,6 +2324,9 @@
     if (bb) bb.classList.toggle('ctrl-hidden', !hasBB);
     if (tc) tc.classList.toggle('ctrl-hidden', !hasTC);
     if (abs) abs.classList.toggle('ctrl-hidden', !hasABS);
+    // Show "No Adjustments" when none are available
+    const panel = bb && bb.closest('.car-controls');
+    if (panel) panel.classList.toggle('no-adj', !hasBB && !hasTC && !hasABS);
   }
 
   // ═══ TYRE TEMPERATURE COLORING ═══
@@ -2230,7 +2587,11 @@
     'K10MediaCoach.Plugin.TrackMap.SvgPath',
     'K10MediaCoach.Plugin.TrackMap.PlayerX',
     'K10MediaCoach.Plugin.TrackMap.PlayerY',
-    'K10MediaCoach.Plugin.TrackMap.Opponents'
+    'K10MediaCoach.Plugin.TrackMap.Opponents',
+    // Leaderboard
+    'K10MediaCoach.Plugin.Leaderboard',
+    // Flag status
+    'currentFlagState'
   ];
 
   // ─── State ───
@@ -2251,6 +2612,8 @@
   let _lastDriverAhead = '';
   let _lastDriverBehind = '';
   let _lastPosition = 0;
+  let _lastFlagState = 'none';
+  let _greenFlagTimeout = null;
   let _commentaryWasVisible = false;
   let _tcSeen = false;
   let _absSeen = false;
@@ -2562,10 +2925,11 @@
     }
     const tcOk = _demo || (tc != null && +tc >= 0 && (_tcSeen || +tc > 0));
     const absOk = _demo || (abs != null && +abs >= 0 && (_absSeen || +abs > 0));
-    setCtrlVisibility(true, tcOk, absOk);
+    const bbOk = _demo || (bb > 0);
+    setCtrlVisibility(bbOk, tcOk, absOk);
 
     const bbEl = document.querySelector('#ctrlBB .ctrl-value');
-    if (bbEl) { bbEl.textContent = bb > 0 ? bb.toFixed(1) : '—'; document.getElementById('ctrlBB').style.setProperty('--ctrl-pct', (bb > 0 ? Math.min(100, ((bb-30)/40)*100) : 0) + '%'); }
+    if (bbEl && bbOk) { bbEl.textContent = bb > 0 ? bb.toFixed(1) : '—'; document.getElementById('ctrlBB').style.setProperty('--ctrl-pct', (bb > 0 ? Math.min(100, ((bb-30)/40)*100) : 0) + '%'); }
     if (tcOk) { const el = document.querySelector('#ctrlTC .ctrl-value'); if (el) { el.textContent = Math.round(+tc); document.getElementById('ctrlTC').style.setProperty('--ctrl-pct', Math.min(100, (+tc/12)*100) + '%'); } }
     if (absOk) { const el = document.querySelector('#ctrlABS .ctrl-value'); if (el) { el.textContent = Math.round(+abs); document.getElementById('ctrlABS').style.setProperty('--ctrl-pct', Math.min(100, (+abs/12)*100) + '%'); } }
 
@@ -2595,10 +2959,12 @@
     const timerEl = document.getElementById('raceTimerValue');
     const timerRow = document.querySelector('.timer-row');
     if (timerEl) {
-      if (sessionTime > 0) {
-        const h = Math.floor(sessionTime / 3600);
-        const m = Math.floor((sessionTime % 3600) / 60);
-        const s = Math.floor(sessionTime % 60);
+      // Show remaining time counting down
+      const displayTime = remTime > 0 ? remTime : sessionTime;
+      if (displayTime > 0) {
+        const h = Math.floor(displayTime / 3600);
+        const m = Math.floor((displayTime % 3600) / 60);
+        const s = Math.floor(displayTime % 60);
         timerEl.textContent = h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
       } else {
         timerEl.textContent = '0:00:00';
@@ -2639,6 +3005,7 @@
     // ─── iRating / Safety ───
     const ir = _demo ? (+v('K10MediaCoach.Plugin.Demo.IRating') || 0) : (+v('IRacingExtraProperties.iRacing_DriverInfo_IRating') || 0);
     const sr = _demo ? (+v('K10MediaCoach.Plugin.Demo.SafetyRating') || 0) : (+v('IRacingExtraProperties.iRacing_DriverInfo_SafetyRating') || 0);
+    _hasRatingData = (ir > 0 || sr > 0);
     const ratVals = document.querySelectorAll('.rating-value');
     if (ratVals.length >= 2) { ratVals[0].textContent = ir > 0 ? ir : '—'; ratVals[1].textContent = sr > 0 ? sr.toFixed(2) : '—'; }
     updateIRBar(ir);
@@ -2664,6 +3031,48 @@
     }
     _lastDriverAhead = dAhead; _lastDriverBehind = dBehind;
 
+    // ─── Flag Status → Gaps Block ───
+    const flagState = (_forceFlagState && _demo) ? _forceFlagState : (vs('currentFlagState') || 'none');
+    const gapsBlock = document.getElementById('gapsBlock');
+    if (gapsBlock) {
+      const flagLabels = { yellow: 'CAUTION', red: 'RED FLAG', blue: 'BLUE FLAG', white: 'LAST LAP', debris: 'DEBRIS', checkered: 'FINISH', black: 'BLACK FLAG', green: 'GREEN' };
+      const flagContexts = { yellow: 'Full course caution — hold position', red: 'Session stopped — return to pits', blue: 'Faster car approaching — yield', white: 'Last lap — push to the line', debris: 'Debris on track — stay alert', checkered: 'Checkered flag — race complete', black: 'Penalty — report to pit lane', green: 'Green flag — racing resumes' };
+
+      let showFlag = flagState;
+      // Green flag: show briefly (5s) when transitioning from caution, then clear
+      if (flagState === 'green' && _lastFlagState !== 'green' && _lastFlagState !== 'none') {
+        if (_greenFlagTimeout) clearTimeout(_greenFlagTimeout);
+        _greenFlagTimeout = setTimeout(() => {
+          const gb = document.getElementById('gapsBlock');
+          if (gb) gb.className = gb.className.replace(/\bflag-\S+/g, '').trim() + ' panel gaps-block';
+          if (window.setFlagGLColors) window.setFlagGLColors(null);
+          _greenFlagTimeout = null;
+        }, 5000);
+      } else if (flagState === 'green' && !_greenFlagTimeout) {
+        showFlag = 'none'; // green with no active timer = steady state, don't show
+      } else if (flagState === 'none') {
+        if (_greenFlagTimeout) { clearTimeout(_greenFlagTimeout); _greenFlagTimeout = null; }
+        showFlag = 'none';
+      }
+
+      // Remove all flag-* classes
+      gapsBlock.className = gapsBlock.className.replace(/\bflag-\S+/g, '').trim();
+      if (showFlag !== 'none') {
+        gapsBlock.classList.add('flag-active', 'flag-' + showFlag);
+        const lbl = flagLabels[showFlag] || showFlag.toUpperCase();
+        const ctx = flagContexts[showFlag] || '';
+        const fl1 = document.getElementById('flagLabel1');
+        const fc1 = document.getElementById('flagCtx1');
+        if (fl1) fl1.textContent = lbl;
+        if (fc1) fc1.textContent = ctx;
+        // Set WebGL flag icon colors
+        if (window.setFlagGLColors) window.setFlagGLColors(showFlag);
+      } else {
+        if (window.setFlagGLColors) window.setFlagGLColors(null);
+      }
+      _lastFlagState = flagState;
+    }
+
     // ─── Commentary ───
     const cmVis = +v('K10MediaCoach.Plugin.CommentaryVisible') || 0;
     if (cmVis && !_commentaryWasVisible) {
@@ -2684,6 +3093,9 @@
       updateTrackMap(mapPath, mapPX, mapPY, mapOpp);
     }
 
+    // ─── Leaderboard ───
+    updateLeaderboard(p);
+
     // ─── Cycling timer ───
     // Suppress cycling while timer row is visible — keep position page showing
     const _timerShowing = timerRow && timerRow.classList.contains('timer-visible');
@@ -2701,6 +3113,99 @@
   setInterval(pollUpdate, POLL_MS);
 
   // ═══════════════════════════════════════════════════════════════
+  //  LEADERBOARD RENDERER
+  // ═══════════════════════════════════════════════════════════════
+
+  // Sparkline history: keyed by driver name, stores last N lap times
+  const _sparkHistory = {};
+  const SPARK_MAX = 12;
+  let _lbLastJson = '';
+
+  function updateLeaderboard(p) {
+    const lbPanel = document.getElementById('leaderboardPanel');
+    if (!lbPanel || lbPanel.classList.contains('section-hidden')) return;
+    // Leaderboard comes as raw JSON array from the plugin
+    const raw = p['K10MediaCoach.Plugin.Leaderboard'];
+    if (!raw || !Array.isArray(raw) || raw.length === 0) return;
+
+    // Dedupe: skip render if data hasn't changed
+    const json = JSON.stringify(raw);
+    if (json === _lbLastJson) return;
+    _lbLastJson = json;
+
+    const container = document.getElementById('lbRows');
+    if (!container) return;
+
+    // Entry format: [pos, name, irating, bestLap, lastLap, gapToPlayer, inPit, isPlayer]
+    let html = '';
+    for (const entry of raw) {
+      const [pos, name, ir, best, last, gap, pit, isPlayer] = entry;
+      const classes = ['lb-row'];
+      if (isPlayer) classes.push('lb-player');
+      if (pit) classes.push('lb-pit');
+
+      // Gap display
+      let gapStr = '', gapClass = 'gap-player';
+      if (isPlayer) {
+        gapStr = '—';
+      } else if (gap < 0) {
+        gapStr = '-' + Math.abs(gap).toFixed(1) + 's';
+        gapClass = 'gap-ahead';
+      } else if (gap > 0) {
+        gapStr = '+' + gap.toFixed(1) + 's';
+        gapClass = 'gap-behind';
+      } else {
+        gapStr = '0.0s';
+      }
+
+      // iRating shorthand
+      const irStr = ir > 0 ? (ir >= 1000 ? (ir / 1000).toFixed(1) + 'k' : '' + ir) : '';
+
+      // Update sparkline history
+      if (last > 0) {
+        if (!_sparkHistory[name]) _sparkHistory[name] = [];
+        const h = _sparkHistory[name];
+        if (h.length === 0 || h[h.length - 1] !== last) {
+          h.push(last);
+          if (h.length > SPARK_MAX) h.shift();
+        }
+      }
+
+      // Build sparkline SVG inline (mini polyline)
+      let sparkSvg = '';
+      const hist = _sparkHistory[name];
+      if (hist && hist.length >= 2) {
+        const mn = Math.min(...hist), mx = Math.max(...hist);
+        const range = mx - mn || 1;
+        const w = 44, h2 = 14;
+        let pts = hist.map((v, i) => {
+          const x = (i / (hist.length - 1)) * w;
+          const y = h2 - ((v - mn) / range) * h2;
+          return x.toFixed(1) + ',' + y.toFixed(1);
+        }).join(' ');
+        const lastY = h2 - ((hist[hist.length - 1] - mn) / range) * h2;
+        const col = isPlayer ? 'var(--cyan)' : 'hsla(0,0%,100%,0.3)';
+        sparkSvg = '<svg class="lb-spark" viewBox="0 0 ' + w + ' ' + h2 + '" preserveAspectRatio="none"><polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="' + (w).toFixed(1) + '" cy="' + lastY.toFixed(1) + '" r="1.5" fill="' + col + '"/></svg>';
+      }
+
+      html += '<div class="' + classes.join(' ') + '">'
+        + '<div class="lb-pos">' + pos + '</div>'
+        + '<div class="lb-name">' + escHtml(isPlayer ? 'YOU' : name) + '</div>'
+        + '<div class="lb-ir">' + irStr + '</div>'
+        + '<div class="lb-gap ' + gapClass + '">' + gapStr + '</div>'
+        + sparkSvg
+        + '</div>';
+    }
+    container.innerHTML = html;
+    // Update WebGL highlight position after DOM update
+    requestAnimationFrame(function() {
+      if (window.updateLBPlayerPos) window.updateLBPlayerPos();
+    });
+  }
+
+  function escHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  // ═══════════════════════════════════════════════════════════════
   // SETTINGS SYSTEM
   // Persists to localStorage (browser) or Electron IPC (overlay app)
   // ═══════════════════════════════════════════════════════════════
@@ -2710,7 +3215,8 @@
     showMaps: true, showPosition: true, showTacho: true, showCommentary: true,
     showK10Logo: true, showCarLogo: true, simhubUrl: 'http://localhost:8889/k10mediacoach/',
     layoutPosition: 'top-right', layoutFlow: 'ltr', verticalSwap: false,
-    greenScreen: false, showWebGL: true
+    greenScreen: false, showWebGL: true,
+    zoom: 100, forceFlag: '', showLeaderboard: true
   };
 
   let _settings = Object.assign({}, _defaultSettings);
@@ -2722,6 +3228,9 @@
     if (el) return [el];
     return Array.from(document.querySelectorAll('.' + sectionKey));
   }
+
+  // Force flag state in demo mode (must be declared before applySettings)
+  let _forceFlagState = '';
 
   function applySettings() {
     const toggles = document.querySelectorAll('.settings-toggle[data-key]');
@@ -2759,6 +3268,19 @@
 
     // Layout
     applyLayout();
+
+    // Zoom
+    const zoomVal = _settings.zoom || 100;
+    const zoomSlider = document.getElementById('settingsZoom');
+    const zoomLabel = document.getElementById('zoomVal');
+    if (zoomSlider) zoomSlider.value = zoomVal;
+    if (zoomLabel) zoomLabel.textContent = zoomVal + '%';
+    applyZoom(zoomVal);
+
+    // Force flag
+    _forceFlagState = _settings.forceFlag || '';
+    const flagSelect = document.getElementById('settingsForceFlag');
+    if (flagSelect) flagSelect.value = _forceFlagState;
   }
 
   function _collapseParentColumns() {
@@ -2887,6 +3409,18 @@
 
     const vswapToggle = document.getElementById('vswapToggle');
     if (vswapToggle) vswapToggle.classList.toggle('on', vswap);
+
+    // Position leaderboard on vertically opposite side
+    const lb = document.getElementById('leaderboardPanel');
+    if (lb) {
+      lb.classList.remove('lb-top', 'lb-bottom', 'lb-left', 'lb-right', 'lb-center');
+      // Vertical opposite
+      lb.classList.add(pos.includes('bottom') ? 'lb-top' : 'lb-bottom');
+      // Horizontal: same side
+      if (pos.includes('right')) lb.classList.add('lb-right');
+      else if (pos.includes('left')) lb.classList.add('lb-left');
+      else lb.classList.add('lb-center');
+    }
   }
 
   function updateLayoutPosition(value) {
@@ -2905,6 +3439,27 @@
     _settings.verticalSwap = !_settings.verticalSwap;
     el.classList.toggle('on', _settings.verticalSwap);
     applyLayout();
+    saveSettings();
+  }
+
+  function updateZoom(val) {
+    val = Math.max(100, Math.min(200, +val));
+    _settings.zoom = val;
+    document.getElementById('zoomVal').textContent = val + '%';
+    applyZoom(val);
+    saveSettings();
+  }
+  function applyZoom(val) {
+    const scale = (val || 100) / 100;
+    document.documentElement.style.setProperty('--dash-zoom', scale);
+    document.getElementById('dashboard').style.zoom = scale;
+    const lb = document.getElementById('leaderboardPanel');
+    if (lb) lb.style.zoom = scale;
+  }
+
+  function updateForceFlag(val) {
+    _forceFlagState = val;
+    _settings.forceFlag = val;
     saveSettings();
   }
 
@@ -3016,7 +3571,7 @@
     }
 
     /* ════════════════════════════════════════════
-       TACHOMETER FX — bloom, heat distortion, sparks
+       TACHOMETER FX — bloom, heat distortion
        ════════════════════════════════════════════ */
     const tachoCtx = initGL('tachoGlCanvas');
     let _tachoRpm = 0;  // updated from main loop
@@ -3035,6 +3590,8 @@
         }`;
 
       // Tachometer fragment shader — bloom glow + heat distortion
+      // uDPR compensates for HiDPI/Retina displays where the same UV-space
+      // effect is spread over 2-4× more physical pixels, making glow appear dimmer.
       const tachoFS = `#version 300 es
         precision highp float;
         in vec2 vUV;
@@ -3043,6 +3600,7 @@
         uniform float uRpm;       // 0.0 - 1.0
         uniform float uTime;
         uniform vec2  uRes;
+        uniform float uDPR;       // devicePixelRatio (1.0 on 1× screens, 2.0 on Retina)
 
         // Color zones: green < 0.55, yellow < 0.73, red < 0.91, redline >= 0.91
         vec3 rpmColor(float r) {
@@ -3064,9 +3622,12 @@
 
         void main() {
           vec2 uv = vUV;
+          // Scale glow spread so it looks the same on 1× and 2× screens
+          float dprScale = max(uDPR, 1.0);
+          float dpr2 = dprScale * dprScale;  // quadratic — compensates for HiDPI area scaling
 
           // Heat distortion — only active at high RPM
-          float heatIntensity = smoothstep(0.75, 0.95, uRpm) * 0.6;
+          float heatIntensity = smoothstep(0.75, 0.95, uRpm) * 0.6 * dpr2;
           if (heatIntensity > 0.0) {
             float n1 = noise(uv * 8.0 + uTime * 3.0) * 2.0 - 1.0;
             float n2 = noise(uv * 6.0 - uTime * 2.5 + 50.0) * 2.0 - 1.0;
@@ -3081,7 +3642,8 @@
           // Horizontal fill: how far the RPM lights extend
           float fillX = uRpm;
           float xDist = max(0.0, uv.x - fillX);
-          float glowFalloff = exp(-xDist * 6.0) * inBar;
+          // Softer falloff on HiDPI so bloom covers equivalent visual area
+          float glowFalloff = exp(-xDist * (6.0 / dpr2)) * inBar;
 
           // Color based on the edge of the lit region
           vec3 col = rpmColor(uRpm);
@@ -3092,15 +3654,15 @@
             pulse = 0.85 + 0.15 * sin(uTime * 18.0);
           }
 
-          // Bloom: soft glow radiating from lit segments
-          float bloom = glowFalloff * uRpm * 1.2 * pulse;
+          // Bloom: soft glow radiating from lit segments — boosted on HiDPI
+          float bloom = glowFalloff * uRpm * 1.2 * dpr2 * pulse;
 
           // Upward glow bleed above the bars
-          float aboveBar = smoothstep(barTop, barTop + 0.3, uv.y);
-          float upGlow = aboveBar * exp(-abs(uv.x - fillX * 0.5) * 3.0) * uRpm * 0.35 * pulse;
+          float aboveBar = smoothstep(barTop, barTop + 0.3 * dpr2, uv.y);
+          float upGlow = aboveBar * exp(-abs(uv.x - fillX * 0.5) * (3.0 / dpr2)) * uRpm * 0.35 * dpr2 * pulse;
 
           // Edge highlight along the top of lit region
-          float edgeGlow = exp(-abs(uv.y - barTop) * 25.0) * smoothstep(0.0, fillX, uv.x) * uRpm * 0.5;
+          float edgeGlow = exp(-abs(uv.y - barTop) * (25.0 / dpr2)) * smoothstep(0.0, fillX, uv.x) * uRpm * 0.5 * dpr2;
 
           float alpha = bloom + upGlow + edgeGlow;
           vec3 final = col * alpha;
@@ -3112,9 +3674,9 @@
             float flash = pow(0.5 + 0.5 * sin(uTime * 22.0), 4.0);
             // Secondary faster flicker
             float flicker = 0.8 + 0.2 * sin(uTime * 55.0 + uv.x * 12.0);
-            // Vignette — stronger glow at edges
-            float vig = 1.0 - 0.3 * length((uv - 0.5) * vec2(0.8, 1.4));
-            float flashA = flash * flicker * redStr * vig * 0.5;
+            // Gentle vignette — even glow with soft falloff at edges
+            float vig = 1.0 - 0.2 * length((uv - 0.5) * vec2(0.8, 1.4));
+            float flashA = flash * flicker * redStr * vig * 0.5 * dpr2;
             vec3 flashCol = vec3(0.95, 0.08, 0.03);
             final += flashCol * flashA;
             alpha += flashA;
@@ -3124,7 +3686,8 @@
             alpha *= scan;
           }
 
-          alpha = clamp(alpha, 0.0, 0.85);
+          float maxAlpha = dprScale > 1.1 ? 0.95 : 0.85;
+          alpha = clamp(alpha, 0.0, maxAlpha);
           fragColor = vec4(final * alpha, alpha);
         }`;
 
@@ -3137,6 +3700,7 @@
         const uRpm = tGL.getUniformLocation(prog, 'uRpm');
         const uTime = tGL.getUniformLocation(prog, 'uTime');
         const uRes = tGL.getUniformLocation(prog, 'uRes');
+        const uDPR = tGL.getUniformLocation(prog, 'uDPR');
 
         // Fullscreen quad
         const buf = tGL.createBuffer();
@@ -3145,63 +3709,6 @@
 
         tGL.enable(tGL.BLEND);
         tGL.blendFunc(tGL.ONE, tGL.ONE_MINUS_SRC_ALPHA);
-
-        // ── Spark particles ──
-        const MAX_SPARKS = 60;
-        const sparks = [];
-        function spawnSpark(rpm) {
-          if (sparks.length >= MAX_SPARKS) return;
-          sparks.push({
-            x: rpm * (0.85 + Math.random() * 0.15),
-            y: 0.05 + Math.random() * 0.25,
-            vx: (Math.random() - 0.5) * 0.15,
-            vy: 0.3 + Math.random() * 0.6,
-            life: 1.0,
-            decay: 1.2 + Math.random() * 1.5,
-            size: 1.5 + Math.random() * 2.5,
-          });
-        }
-
-        // Spark vertex shader
-        const sparkVS = `#version 300 es
-          in vec2 aPos;
-          uniform vec2 uSparkPos;
-          uniform float uSparkSize;
-          uniform vec2 uRes;
-          void main() {
-            vec2 p = uSparkPos + aPos * uSparkSize / uRes;
-            gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
-          }`;
-        const sparkFS = `#version 300 es
-          precision highp float;
-          out vec4 fragColor;
-          uniform vec3 uSparkColor;
-          uniform float uSparkAlpha;
-          void main() {
-            float a = uSparkAlpha;
-            fragColor = vec4(uSparkColor * a, a);
-          }`;
-        const svs = createShader(tGL, tGL.VERTEX_SHADER, sparkVS);
-        const sfs = createShader(tGL, tGL.FRAGMENT_SHADER, sparkFS);
-        const sparkProg = createProgram(tGL, svs, sfs);
-
-        let sparkAttrs = null;
-        if (sparkProg) {
-          const saPos = tGL.getAttribLocation(sparkProg, 'aPos');
-          const sBuf = tGL.createBuffer();
-          tGL.bindBuffer(tGL.ARRAY_BUFFER, sBuf);
-          // Small diamond quad for each spark
-          tGL.bufferData(tGL.ARRAY_BUFFER, new Float32Array([
-            0,-1, 1,0, 0,1, -1,0
-          ]), tGL.STATIC_DRAW);
-          sparkAttrs = { prog: sparkProg, buf: sBuf, aPos: saPos,
-            uPos: tGL.getUniformLocation(sparkProg, 'uSparkPos'),
-            uSize: tGL.getUniformLocation(sparkProg, 'uSparkSize'),
-            uColor: tGL.getUniformLocation(sparkProg, 'uSparkColor'),
-            uAlpha: tGL.getUniformLocation(sparkProg, 'uSparkAlpha'),
-            uRes: tGL.getUniformLocation(sparkProg, 'uRes'),
-          };
-        }
 
         window._tachoFXFrame = function(dt) {
           resizeCanvas(tC, tGL);
@@ -3218,40 +3725,8 @@
           tGL.uniform1f(uRpm, _tachoRpm);
           tGL.uniform1f(uTime, _tachoTime);
           tGL.uniform2f(uRes, tC.width, tC.height);
+          tGL.uniform1f(uDPR, window.devicePixelRatio || 1.0);
           tGL.drawArrays(tGL.TRIANGLE_STRIP, 0, 4);
-
-          // ── Spark particles ──
-          if (_tachoRpm > 0.6 && sparkAttrs) {
-            // Spawn rate scales with RPM
-            const spawnRate = _tachoRpm >= 0.91 ? 4 : Math.floor((_tachoRpm - 0.6) * 8);
-            for (let s = 0; s < spawnRate; s++) spawnSpark(_tachoRpm);
-
-            tGL.useProgram(sparkAttrs.prog);
-            tGL.bindBuffer(tGL.ARRAY_BUFFER, sparkAttrs.buf);
-            tGL.enableVertexAttribArray(sparkAttrs.aPos);
-            tGL.vertexAttribPointer(sparkAttrs.aPos, 2, tGL.FLOAT, false, 0, 0);
-            tGL.uniform2f(sparkAttrs.uRes, tC.width, tC.height);
-
-            for (let i = sparks.length - 1; i >= 0; i--) {
-              const sp = sparks[i];
-              sp.x += sp.vx * dt;
-              sp.y += sp.vy * dt;
-              sp.life -= sp.decay * dt;
-              if (sp.life <= 0) { sparks.splice(i, 1); continue; }
-
-              // Color from RPM zone of origin
-              let r, g, b;
-              if (sp.x / _tachoRpm < 0.55) { r=0.18; g=0.82; b=0.34; }
-              else if (sp.x / _tachoRpm < 0.73) { r=0.95; g=0.75; b=0.15; }
-              else { r=0.92; g=0.22; b=0.2; }
-
-              tGL.uniform2f(sparkAttrs.uPos, sp.x, sp.y);
-              tGL.uniform1f(sparkAttrs.uSize, sp.size * sp.life);
-              tGL.uniform3f(sparkAttrs.uColor, r, g, b);
-              tGL.uniform1f(sparkAttrs.uAlpha, sp.life * 0.8);
-              tGL.drawArrays(tGL.TRIANGLE_FAN, 0, 4);
-            }
-          }
         };
       }
     }
@@ -3284,6 +3759,7 @@
         uniform float uClt;
         uniform float uTime;
         uniform vec2  uRes;
+        uniform float uDPR;       // devicePixelRatio compensation
 
         float pulse(float t, float speed, float base) {
           return base + (1.0 - base) * (0.5 + 0.5 * sin(t * speed));
@@ -3293,57 +3769,52 @@
           vec2 uv = vUV;
           vec3 col = vec3(0.0);
           float alpha = 0.0;
+          float dprScale = max(uDPR, 1.0);
+          float dpr2 = dprScale * dprScale;  // quadratic compensation for HiDPI area scaling
 
-          // Glow centers — pinned to the live (current pressure) bar at far right
-          float thrCenter = 0.97;
-          float brkCenter = 0.97;
-          float cltCenter = 0.97;
+          // Glow centers — pinned to the live (current pressure) bar
+          float thrCenter = 0.97;   // throttle: live bar on right
+          float brkCenter = 0.03;   // brake: live bar on left (reversed)
+          float cltCenter = 0.97;   // clutch: live bar on right
 
           // Each pedal projects a glow from the bottom upward proportional to input
           // Throttle glow
           if (uThr > 0.01) {
-            float dx = abs(uv.x - thrCenter) * 3.5;
+            float dx = abs(uv.x - thrCenter) * (3.5 / dpr2);
             float fillH = uThr * 0.8;
             float dy = max(0.0, uv.y - (1.0 - fillH));
-            float glow = exp(-dx * dx * 4.0) * exp(-dy * 0.8 / max(fillH, 0.01)) * uThr;
+            float glow = exp(-dx * dx * (4.0 / dpr2)) * exp(-dy * (0.8 / dpr2) / max(fillH, 0.01)) * uThr;
             float p = pulse(uTime, 6.0 + uThr * 4.0, 0.7);
-            col += vec3(0.18, 0.82, 0.34) * glow * 1.5 * p;
-            alpha += glow * 0.6 * p;
+            col += vec3(0.18, 0.82, 0.34) * glow * 0.3 * dpr2 * p;
+            alpha += glow * 0.12 * dpr2 * p;
           }
 
           // Brake glow
           if (uBrk > 0.01) {
-            float dx = abs(uv.x - brkCenter) * 3.5;
+            float dx = abs(uv.x - brkCenter) * (3.5 / dpr2);
             float fillH = uBrk * 0.8;
             float dy = max(0.0, uv.y - (1.0 - fillH));
-            float glow = exp(-dx * dx * 4.0) * exp(-dy * 0.8 / max(fillH, 0.01)) * uBrk;
+            float glow = exp(-dx * dx * (4.0 / dpr2)) * exp(-dy * (0.8 / dpr2) / max(fillH, 0.01)) * uBrk;
             float p = pulse(uTime, 5.0 + uBrk * 6.0, 0.65);
             // Brake gets extra intensity — full send
-            float intensity = uBrk >= 0.9 ? 2.2 : 1.5;
-            col += vec3(0.92, 0.22, 0.20) * glow * intensity * p;
-            alpha += glow * 0.7 * p;
+            float intensity = uBrk >= 0.9 ? 0.6 : 0.4;
+            col += vec3(0.92, 0.22, 0.20) * glow * intensity * dpr2 * p;
+            alpha += glow * 0.14 * dpr2 * p;
           }
 
           // Clutch glow
           if (uClt > 0.01) {
-            float dx = abs(uv.x - cltCenter) * 3.5;
+            float dx = abs(uv.x - cltCenter) * (3.5 / dpr2);
             float fillH = uClt * 0.8;
             float dy = max(0.0, uv.y - (1.0 - fillH));
-            float glow = exp(-dx * dx * 4.0) * exp(-dy * 0.8 / max(fillH, 0.01)) * uClt;
+            float glow = exp(-dx * dx * (4.0 / dpr2)) * exp(-dy * (0.8 / dpr2) / max(fillH, 0.01)) * uClt;
             float p = pulse(uTime, 5.5 + uClt * 3.0, 0.7);
-            col += vec3(0.25, 0.50, 0.92) * glow * 1.4 * p;
-            alpha += glow * 0.55 * p;
+            col += vec3(0.25, 0.50, 0.92) * glow * 0.28 * dpr2 * p;
+            alpha += glow * 0.11 * dpr2 * p;
           }
 
-          // Bottom edge energy line — lights up with combined pedal input
-          float combined = max(uThr, max(uBrk, uClt));
-          float edgeLine = exp(-uv.y * 18.0) * combined * 0.4;
-          float edgeWave = 0.5 + 0.5 * sin(uv.x * 25.0 + uTime * 8.0);
-          vec3 edgeCol = mix(vec3(0.18, 0.82, 0.34), vec3(0.92, 0.22, 0.20), uBrk / max(combined, 0.01));
-          col += edgeCol * edgeLine * edgeWave;
-          alpha += edgeLine * edgeWave * 0.3;
-
-          alpha = clamp(alpha, 0.0, 0.65);
+          float maxAlpha = dprScale > 1.1 ? 0.9 : 0.65;
+          alpha = clamp(alpha, 0.0, maxAlpha);
           fragColor = vec4(col * alpha, alpha);
         }`;
 
@@ -3358,6 +3829,7 @@
         const uClt  = pGL.getUniformLocation(prog, 'uClt');
         const uTime = pGL.getUniformLocation(prog, 'uTime');
         const uRes  = pGL.getUniformLocation(prog, 'uRes');
+        const uDPR  = pGL.getUniformLocation(prog, 'uDPR');
 
         const buf = pGL.createBuffer();
         pGL.bindBuffer(pGL.ARRAY_BUFFER, buf);
@@ -3383,11 +3855,300 @@
           pGL.uniform1f(uClt, _pedalValues.clt);
           pGL.uniform1f(uTime, _pedalTime);
           pGL.uniform2f(uRes, pC.width, pC.height);
+          pGL.uniform1f(uDPR, window.devicePixelRatio || 1.0);
 
           pGL.drawArrays(pGL.TRIANGLE_STRIP, 0, 4);
         };
       }
     }
+
+    /* ════════════════════════════════════════════
+       FLAG ICON FX — waving flag with cloth shading
+       ════════════════════════════════════════════ */
+    const flagCtx = initGL('flagGlCanvas');
+    let _flagTime = 0;
+    let _flagColors = { c1: [1,0.85,0.15], c2: [1,1,0.95], pattern: 0.0 };
+    let _flagVisible = false;
+
+    if (flagCtx) {
+      const { canvas: fC, gl: fGL } = flagCtx;
+
+      const quadVS = `#version 300 es
+        in vec2 aPos;
+        out vec2 vUV;
+        void main() {
+          vUV = aPos * 0.5 + 0.5;
+          gl_Position = vec4(aPos, 0.0, 1.0);
+        }`;
+
+      const flagFS = `#version 300 es
+        precision highp float;
+        in vec2 vUV;
+        out vec4 fragColor;
+
+        uniform float uTime;
+        uniform vec3  uColor1;
+        uniform vec3  uColor2;
+        uniform float uPattern;  // 0=solid, 1=horiz stripes, 2=checkered, 3=diagonal
+        uniform vec2  uRes;      // canvas pixel size for aspect correction
+
+        void main() {
+          vec2 uv = vUV;
+          float aspect = uRes.x / max(uRes.y, 1.0);
+
+          // Full-background waving cloth — fills entire box
+          float fx = uv.x;
+          float fy = uv.y;
+
+          // Wave displacement — increases from left to right (cloth physics)
+          float amp = fx * fx * 0.12;
+          float w1 = sin(fx * 12.0 - uTime * 5.0) * amp;
+          float w2 = sin(fx * 18.0 - uTime * 3.5 + 2.0) * amp * 0.35;
+          float wave = w1 + w2;
+
+          // Distort vertical coordinate for cloth wave
+          float fy2 = fy + wave * 0.6;
+
+          // ── Cloth shading — light on peaks, dark in valleys ──
+          float dWave = cos(fx * 12.0 - uTime * 5.0);
+          float shade = 0.80 + 0.20 * dWave * fx;
+
+          // ── Pattern coloring ──
+          vec3 col;
+          if (uPattern < 0.5) {
+            // Solid
+            col = uColor1;
+          } else if (uPattern < 1.5) {
+            // Horizontal stripes — doubled count
+            float bandCount = max(4.0, floor(aspect * 1.2));
+            float band = step(0.5, fract(fy2 * bandCount));
+            col = mix(uColor1, uColor2, band);
+          } else if (uPattern < 2.5) {
+            // Checkered — doubled cells
+            float cellsX = max(8.0, floor(aspect * 4.0));
+            float cellsY = 4.0;
+            float cx = step(0.5, fract(fx * cellsX + wave * 0.5));
+            float cy = step(0.5, fract(fy2 * cellsY));
+            col = mix(uColor1, uColor2, abs(cx - cy));
+          } else {
+            // Diagonal stripes — doubled, with wave distortion
+            float diag = step(0.5, fract((fx * aspect + fy2 * 3.0) * 1.6));
+            col = mix(uColor1, uColor2, diag);
+          }
+
+          col *= shade;
+
+          // Match old stripe opacity: ~0.14-0.18 alpha
+          float alpha = 0.16;
+
+          // Subtle brightness variation from the wave folds
+          alpha *= (0.85 + 0.30 * abs(dWave) * fx);
+
+          fragColor = vec4(col * alpha, alpha);
+        }`;
+
+      const vs = createShader(fGL, fGL.VERTEX_SHADER, quadVS);
+      const fs = createShader(fGL, fGL.FRAGMENT_SHADER, flagFS);
+      const prog = createProgram(fGL, vs, fs);
+
+      if (prog) {
+        const aPos    = fGL.getAttribLocation(prog, 'aPos');
+        const uTime   = fGL.getUniformLocation(prog, 'uTime');
+        const uColor1 = fGL.getUniformLocation(prog, 'uColor1');
+        const uColor2 = fGL.getUniformLocation(prog, 'uColor2');
+        const uPat    = fGL.getUniformLocation(prog, 'uPattern');
+        const uRes    = fGL.getUniformLocation(prog, 'uRes');
+
+        const buf = fGL.createBuffer();
+        fGL.bindBuffer(fGL.ARRAY_BUFFER, buf);
+        fGL.bufferData(fGL.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), fGL.STATIC_DRAW);
+
+        fGL.enable(fGL.BLEND);
+        fGL.blendFunc(fGL.ONE, fGL.ONE_MINUS_SRC_ALPHA);
+
+        window._flagFXFrame = function(dt) {
+          if (!_flagVisible) return;
+          resizeCanvas(fC, fGL);
+          _flagTime += dt;
+
+          fGL.clearColor(0, 0, 0, 0);
+          fGL.clear(fGL.COLOR_BUFFER_BIT);
+
+          fGL.useProgram(prog);
+          fGL.bindBuffer(fGL.ARRAY_BUFFER, buf);
+          fGL.enableVertexAttribArray(aPos);
+          fGL.vertexAttribPointer(aPos, 2, fGL.FLOAT, false, 0, 0);
+
+          fGL.uniform1f(uTime, _flagTime);
+          fGL.uniform3fv(uColor1, _flagColors.c1);
+          fGL.uniform3fv(uColor2, _flagColors.c2);
+          fGL.uniform1f(uPat, _flagColors.pattern);
+          fGL.uniform2f(uRes, fC.width, fC.height);
+
+          fGL.drawArrays(fGL.TRIANGLE_STRIP, 0, 4);
+        };
+      }
+    }
+
+    // Flag color definitions per flag type
+    window._FLAG_GL_COLORS = {
+      yellow:    { c1: [1.0, 0.85, 0.12], c2: [1.0, 1.0, 0.92],  pattern: 0.0 },
+      red:       { c1: [0.90, 0.14, 0.12], c2: [0.50, 0.06, 0.06], pattern: 0.0 },
+      blue:      { c1: [0.20, 0.45, 0.92], c2: [0.08, 0.20, 0.55], pattern: 3.0 },
+      green:     { c1: [0.20, 0.72, 0.28], c2: [0.10, 0.42, 0.16], pattern: 0.0 },
+      white:     { c1: [0.95, 0.95, 0.95], c2: [0.72, 0.72, 0.72], pattern: 0.0 },
+      debris:    { c1: [1.0, 0.85, 0.12], c2: [0.90, 0.18, 0.12], pattern: 3.0 },
+      checkered: { c1: [0.95, 0.95, 0.95], c2: [0.06, 0.06, 0.06], pattern: 2.0 },
+      black:     { c1: [0.06, 0.06, 0.06], c2: [0.80, 0.12, 0.08], pattern: 1.0 }
+    };
+
+    window.setFlagGLColors = function(flagType) {
+      const def = window._FLAG_GL_COLORS[flagType];
+      if (def) {
+        _flagColors.c1 = def.c1;
+        _flagColors.c2 = def.c2;
+        _flagColors.pattern = def.pattern;
+        _flagVisible = true;
+      } else {
+        _flagVisible = false;
+      }
+    };
+
+    /* ════════════════════════════════════════════
+       LEADERBOARD PLAYER HIGHLIGHT — shimmer/glow
+       ════════════════════════════════════════════ */
+    const lbCtx = initGL('lbPlayerGlCanvas');
+    let _lbTime = 0;
+    let _lbPlayerTop = 0;     // 0-1 normalized
+    let _lbPlayerBottom = 1;   // 0-1 normalized
+    let _lbHasPlayer = false;
+
+    if (lbCtx) {
+      const { canvas: lC, gl: lGL } = lbCtx;
+
+      const quadVS = `#version 300 es
+        in vec2 aPos;
+        out vec2 vUV;
+        void main() {
+          vUV = aPos * 0.5 + 0.5;
+          gl_Position = vec4(aPos, 0.0, 1.0);
+        }`;
+
+      const lbFS = `#version 300 es
+        precision highp float;
+        in vec2 vUV;
+        out vec4 fragColor;
+
+        uniform float uTime;
+        uniform float uPlayerTop;    // normalized y of player row top
+        uniform float uPlayerBot;    // normalized y of player row bottom
+        uniform vec2  uRes;
+
+        void main() {
+          vec2 uv = vUV;
+          // Flip Y: CSS has origin top-left, GL has bottom-left
+          float y = 1.0 - uv.y;
+
+          // Only render in the player row band
+          if (y < uPlayerTop || y > uPlayerBot) {
+            fragColor = vec4(0.0);
+            return;
+          }
+
+          // Local UV within the player row
+          float ly = (y - uPlayerTop) / max(uPlayerBot - uPlayerTop, 0.001);
+          float lx = uv.x;
+
+          vec3 cyan = vec3(0.0, 0.675, 0.757);
+
+          // ── Effect 1: Shimmer sweep ──
+          float sweepSpeed = 0.25;
+          float sweepX = fract(uTime * sweepSpeed);
+          // Main highlight beam
+          float beamW = 0.08;
+          float beam = exp(-pow((lx - sweepX) / beamW, 2.0)) * 0.55;
+          // Soft trailing glow
+          float trail = exp(-max(0.0, lx - sweepX + 0.1) * 4.0) * 0.08
+                      * step(sweepX - 0.3, lx);
+          float effect1 = beam + trail;
+
+          // ── Effect 2: Edge breathing glow ──
+          float edgeY = min(ly, 1.0 - ly);
+          float edgeGlow = exp(-edgeY * 10.0) * 0.35;
+          // Left edge accent (the cyan border side)
+          float leftGlow = exp(-lx * 6.0) * 0.45;
+          float pulse = 0.55 + 0.45 * sin(uTime * 1.8);
+          float effect2 = (edgeGlow + leftGlow) * pulse;
+
+          // ── Crossfade between effects (~8s per full cycle) ──
+          float blend = 0.5 + 0.5 * sin(uTime * 0.4);
+
+          float effect = mix(effect1, effect2, blend);
+
+          // Fade at top/bottom edges of row
+          float rowEdge = smoothstep(0.0, 0.15, ly) * smoothstep(1.0, 0.85, ly);
+          effect *= rowEdge;
+
+          float alpha = clamp(effect * 0.55, 0.0, 0.5);
+          fragColor = vec4(cyan * alpha, alpha);
+        }`;
+
+      const vs = createShader(lGL, lGL.VERTEX_SHADER, quadVS);
+      const fs = createShader(lGL, lGL.FRAGMENT_SHADER, lbFS);
+      const prog = createProgram(lGL, vs, fs);
+
+      if (prog) {
+        const aPos       = lGL.getAttribLocation(prog, 'aPos');
+        const uTime      = lGL.getUniformLocation(prog, 'uTime');
+        const uPlayerTop = lGL.getUniformLocation(prog, 'uPlayerTop');
+        const uPlayerBot = lGL.getUniformLocation(prog, 'uPlayerBot');
+        const uRes       = lGL.getUniformLocation(prog, 'uRes');
+
+        const buf = lGL.createBuffer();
+        lGL.bindBuffer(lGL.ARRAY_BUFFER, buf);
+        lGL.bufferData(lGL.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), lGL.STATIC_DRAW);
+
+        lGL.enable(lGL.BLEND);
+        lGL.blendFunc(lGL.ONE, lGL.ONE_MINUS_SRC_ALPHA);
+
+        window._lbFXFrame = function(dt) {
+          if (!_lbHasPlayer) return;
+          resizeCanvas(lC, lGL);
+          _lbTime += dt;
+
+          lGL.clearColor(0, 0, 0, 0);
+          lGL.clear(lGL.COLOR_BUFFER_BIT);
+
+          lGL.useProgram(prog);
+          lGL.bindBuffer(lGL.ARRAY_BUFFER, buf);
+          lGL.enableVertexAttribArray(aPos);
+          lGL.vertexAttribPointer(aPos, 2, lGL.FLOAT, false, 0, 0);
+
+          lGL.uniform1f(uTime, _lbTime);
+          lGL.uniform1f(uPlayerTop, _lbPlayerTop);
+          lGL.uniform1f(uPlayerBot, _lbPlayerBottom);
+          lGL.uniform2f(uRes, lC.width, lC.height);
+
+          lGL.drawArrays(lGL.TRIANGLE_STRIP, 0, 4);
+        };
+      }
+    }
+
+    // Update leaderboard player row position for WebGL highlight
+    window.updateLBPlayerPos = function() {
+      const inner = document.querySelector('.lb-inner');
+      const playerRow = document.querySelector('.lb-row.lb-player');
+      if (!inner || !playerRow) {
+        _lbHasPlayer = false;
+        return;
+      }
+      const ir = inner.getBoundingClientRect();
+      const pr = playerRow.getBoundingClientRect();
+      if (ir.height < 1) { _lbHasPlayer = false; return; }
+      _lbPlayerTop = (pr.top - ir.top) / ir.height;
+      _lbPlayerBottom = (pr.bottom - ir.top) / ir.height;
+      _lbHasPlayer = true;
+    };
 
     /* ── Master FX animation loop ── */
     let _lastFXTime = 0;
@@ -3401,6 +4162,8 @@
       }
       if (window._tachoFXFrame) window._tachoFXFrame(dt);
       if (window._pedalsFXFrame) window._pedalsFXFrame(dt);
+      if (window._flagFXFrame) window._flagFXFrame(dt);
+      if (window._lbFXFrame) window._lbFXFrame(dt);
       requestAnimationFrame(fxLoop);
     }
     requestAnimationFrame((now) => { _lastFXTime = now; requestAnimationFrame(fxLoop); });

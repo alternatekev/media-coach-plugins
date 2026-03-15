@@ -104,7 +104,13 @@ namespace K10MediaCoach.Plugin.Engine
             => t.Value.HasValue && GetValue(cur, t.DataPoint) > t.Value.Value;
 
         private static bool CompareLess(TriggerCondition t, TelemetrySnapshot cur)
-            => t.Value.HasValue && GetValue(cur, t.DataPoint) < t.Value.Value;
+        {
+            if (!t.Value.HasValue) return false;
+            // Guard: ERS data points require the car to actually have ERS.
+            // Non-hybrid cars report 0.0 which falsely satisfies "< threshold".
+            if (IsErsDataPoint(t.DataPoint) && !cur.HasErs) return false;
+            return GetValue(cur, t.DataPoint) < t.Value.Value;
+        }
 
         private static bool CompareEquals(TriggerCondition t, TelemetrySnapshot cur)
         {
@@ -262,6 +268,22 @@ namespace K10MediaCoach.Plugin.Engine
             if (gear == "N") return 0;
             int.TryParse(gear, out int g);
             return g;
+        }
+
+        /// <summary>
+        /// Returns true for data points that only exist on hybrid/ERS-equipped cars.
+        /// Used to suppress false triggers on non-hybrid cars where these read as 0.
+        /// </summary>
+        private static bool IsErsDataPoint(string dataPoint)
+        {
+            switch (dataPoint?.ToLower())
+            {
+                case "energyersbattery":
+                case "powermguk":
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }

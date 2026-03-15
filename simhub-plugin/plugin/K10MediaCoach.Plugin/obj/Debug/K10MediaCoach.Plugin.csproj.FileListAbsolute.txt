@@ -1,3 +1,5 @@
+C:\Program Files (x86)\SimHub\K10MediaCoach.Plugin.dll
+C:\Program Files (x86)\SimHub\K10MediaCoach.Plugin.pdb
 y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug\K10MediaCoach.Plugin.csproj.AssemblyReference.cache
 y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug\Control.baml
 y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug\Control.g.cs
@@ -6,7 +8,5 @@ y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug
 y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug\K10MediaCoach.Plugin.GeneratedMSBuildEditorConfig.editorconfig
 y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug\K10MediaCoach.Plugin.csproj.CoreCompileInputs.cache
 y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug\K10MediaCoach.Plugin.sourcelink.json
-C:\Program Files (x86)\SimHub\K10MediaCoach.Plugin.dll
-C:\Program Files (x86)\SimHub\K10MediaCoach.Plugin.pdb
 y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug\K10MediaCoach.Plugin.dll
 y:\media-coach-simhub-plugin\simhub-plugin\plugin\K10MediaCoach.Plugin\obj\Debug\K10MediaCoach.Plugin.pdb

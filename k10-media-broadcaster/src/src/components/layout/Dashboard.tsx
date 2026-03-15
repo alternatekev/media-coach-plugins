@@ -19,6 +19,7 @@
  * top/bottom of viewport.
  */
 import { useSettings } from '@hooks/useSettings'
+import { useTelemetry } from '@hooks/useTelemetry'
 import styles from '../../styles/dashboard.module.css'
 
 // HUD components
@@ -41,6 +42,7 @@ import SpotterPanel from '@components/panels/SpotterPanel'
 // Overlays
 import RaceControlBanner from '@components/overlays/RaceControlBanner'
 import PitLimiterBanner from '@components/overlays/PitLimiterBanner'
+import RaceEndScreen from '@components/overlays/RaceEndScreen'
 import { SettingsPanel } from '@components/settings/SettingsPanel'
 
 const LAYOUT_MAP: Record<string, string> = {
@@ -54,6 +56,29 @@ const LAYOUT_MAP: Record<string, string> = {
 
 export default function Dashboard() {
   const { settings } = useSettings()
+  const { telemetry } = useTelemetry()
+
+  const sessionNum = parseInt(telemetry.sessionState) || 0
+  const isIdle = !telemetry.gameRunning || sessionNum <= 1
+
+  // Idle state: show only K10 logo at 50% size and 50% opacity
+  if (isIdle) {
+    return (
+      <>
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%) scale(0.5)',
+          opacity: 0.5,
+          pointerEvents: 'none',
+        }}>
+          <LogoPanel idleMode />
+        </div>
+        <SettingsPanel />
+      </>
+    )
+  }
 
   const layoutClass = LAYOUT_MAP[settings.layoutPosition] || 'layout-tr'
   const flowClass = `flow-${settings.layoutFlow || 'rtl'}`
@@ -140,6 +165,7 @@ export default function Dashboard() {
       {/* ── Full-width Overlay Banners ── */}
       <RaceControlBanner />
       <PitLimiterBanner />
+      <RaceEndScreen />
       <SettingsPanel />
     </>
   )

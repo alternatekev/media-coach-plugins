@@ -6,6 +6,10 @@
   border: 1px solid var(--border-color, #333);
   background: var(--bg-panel, #0a0a0a);
   border-radius: 4px;
+  position: relative;
+  /* Throttle glow on right edge */
+  --thr-glow: 0;
+  box-shadow: inset -20px 0 30px -10px rgba(0, 255, 0, calc(var(--thr-glow) * 0.6));
 }
 
 .pedalLabelsRow {
@@ -49,20 +53,32 @@
 }
 
 .pedalVizStack {
-  display: flex;
-  gap: 2px;
-  height: 80px;
-  align-items: flex-end;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
 }
 
 .pedalVizLayerThrottle,
 .pedalVizLayerBrake,
 .pedalVizLayerClutch {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-direction: column;
   gap: 1px;
-  align-items: stretch;
+  align-items: flex-end;
+}
+
+.pedalVizLayerThrottle {
+  z-index: 1;
+}
+
+.pedalVizLayerBrake {
+  z-index: 2;
+  flex-direction: row-reverse;
+}
+
+.pedalVizLayerClutch {
+  z-index: 3;
 }
 
 .pedalVizLayerThrottle .pedalBar {
@@ -82,6 +98,7 @@
 
 .pedalBar {
   flex: 1;
-  border-radius: 2px 2px 0 0;
+  border-radius: 1px 1px 0 0;
   min-height: 1px;
+  transition: height 60ms linear;
 }

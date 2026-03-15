@@ -112,6 +112,9 @@ namespace K10MediaBroadcaster.Plugin.Engine
             s.DrsStatus           = GetRaw<int>(pm, "DrsStatus");
             s.ErsBattery          = GetRaw<float>(pm, "EnergyERSBattery");
             s.MgukPower           = GetRaw<float>(pm, "PowerMGUK");
+            s.PitLimiterOn        = GetRaw<bool>(pm, "dcPitSpeedLimiterToggle");
+            double pitLimitMs     = GetRaw<float>(pm, "PitSpeedLimit");
+            s.PitSpeedLimitKmh    = pitLimitMs > 0 ? pitLimitMs * 3.6 : 0;
 
             // Track whether this car actually has an ERS system.
             // Non-hybrid cars report 0.0 permanently; reset detection on car change.

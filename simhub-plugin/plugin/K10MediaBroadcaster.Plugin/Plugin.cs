@@ -689,6 +689,8 @@ namespace K10MediaBroadcaster.Plugin
                     Jp(sb, "K10MediaBroadcaster.Plugin.DS.CompletedLaps", s.CompletedLaps);
                     Jp(sb, "K10MediaBroadcaster.Plugin.DS.IsInPitLane", s.IsInPitLane ? 1 : 0);
                     Jp(sb, "K10MediaBroadcaster.Plugin.DS.SpeedKmh", s.SpeedKmh, ic);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.DS.PitLimiterOn", s.PitLimiterOn ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.DS.PitSpeedLimitKmh", s.PitSpeedLimitKmh, ic);
 
                     // ── Commentary ──
                     Jp(sb, "K10MediaBroadcaster.Plugin.CommentaryVisible", _engine.IsVisible ? 1 : 0);
@@ -752,6 +754,8 @@ namespace K10MediaBroadcaster.Plugin
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.DS.LapDelta", dt.LapDelta, ic);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.DS.IsInPitLane", dt.IsInPitLane ? 1 : 0);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.DS.SpeedKmh", dt.SpeedKmh, ic);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.Demo.DS.PitLimiterOn", dt.IsInPitLane ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.Demo.DS.PitSpeedLimitKmh", 72.0, ic);
 
                     // ── Grid / Formation state ──
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.SessionState", s.SessionState);

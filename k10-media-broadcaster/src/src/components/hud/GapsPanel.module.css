@@ -76,7 +76,7 @@
   gap: 8px;
   padding: 8px;
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(4px);
   z-index: 10;
 }

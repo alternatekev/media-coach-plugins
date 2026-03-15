@@ -64,6 +64,8 @@ export const mockTelemetry = {
   completedLaps: 11,
   isInPitLane: false,
   speedKmh: 180,
+  pitLimiterOn: false,
+  pitSpeedLimitKmh: 0,
   trackMapReady: false,
   trackMapSvg: '',
   playerMapX: 50,

@@ -23,6 +23,8 @@ namespace K10MediaBroadcaster.Plugin.Engine
         public int    Position          { get; set; }
         public bool   IsInPit           { get; set; }
         public bool   IsInPitLane       { get; set; }
+        public bool   PitLimiterOn      { get; set; }
+        public double PitSpeedLimitKmh  { get; set; }
         public string SessionTypeName   { get; set; }
         public string CarModel          { get; set; } = "";
         public double TyreWearFL        { get; set; }

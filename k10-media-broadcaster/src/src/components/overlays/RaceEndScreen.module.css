@@ -1,0 +1,302 @@
+/* Race End Screen — Full-viewport celebration overlay */
+
+.race-end-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-slow);
+}
+
+.race-end-screen.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Backdrop with blur */
+.backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: hsla(0, 0%, 0%, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+/* Content wrapper — centered, animates in */
+.content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  animation: raceEndIn 0.6s ease-out both;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ANIMATIONS
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes raceEndIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes positionReveal {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes goldPulse {
+  0%, 100% {
+    text-shadow: 0 0 40px hsla(45, 100%, 50%, 0.6);
+  }
+  50% {
+    text-shadow: 0 0 60px hsla(45, 100%, 50%, 1);
+  }
+}
+
+@keyframes confettiDrift {
+  to {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   POSITION NUMBER
+   ───────────────────────────────────────────────────────────── */
+
+.position-number {
+  font-family: var(--ff-mono);
+  font-size: 120px;
+  font-weight: var(--fw-black);
+  line-height: 1;
+  margin-bottom: 16px;
+  letter-spacing: -0.05em;
+  animation: positionReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Gold pulse for P1 */
+.tint-gold .position-number {
+  color: #ffb300;
+  animation: positionReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             goldPulse 2s ease-in-out 0.6s infinite;
+}
+
+/* Silver tint for P2 */
+.tint-silver .position-number {
+  color: #c0c0c0;
+  text-shadow: 0 0 40px hsla(0, 0%, 75%, 0.5);
+}
+
+/* Bronze tint for P3 */
+.tint-bronze .position-number {
+  color: #cd7f32;
+  text-shadow: 0 0 40px hsla(30, 80%, 50%, 0.5);
+}
+
+/* Green for strong finish */
+.tint-green .position-number {
+  color: var(--green);
+  text-shadow: 0 0 30px hsla(120, 60%, 50%, 0.4);
+}
+
+/* Purple for DNF */
+.tint-purple .position-number {
+  color: var(--purple);
+  text-shadow: 0 0 30px hsla(280, 80%, 70%, 0.3);
+}
+
+/* Neutral for midpack */
+.tint-neutral .position-number {
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TITLE & SUBTITLE
+   ───────────────────────────────────────────────────────────── */
+
+.title-block {
+  margin-bottom: 24px;
+}
+
+.title {
+  font-family: var(--ff);
+  font-size: 56px;
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-family: var(--ff);
+  font-size: 16px;
+  font-weight: var(--fw-regular);
+  color: var(--text-secondary);
+  margin: 8px 0 0 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CLEAN RACE BADGE
+   ───────────────────────────────────────────────────────────── */
+
+.clean-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  background: hsla(120, 60%, 50%, 0.15);
+  border: 1px solid var(--green);
+  border-radius: var(--corner-r);
+  color: var(--green);
+  font-family: var(--ff);
+  font-size: 12px;
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+  animation: raceEndIn 0.6s ease-out 0.2s both;
+}
+
+.clean-badge span {
+  margin-right: 6px;
+  font-weight: var(--fw-black);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   STATS GRID
+   ───────────────────────────────────────────────────────────── */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stat-item {
+  padding: 12px;
+  background: hsla(0, 0%, 100%, 0.05);
+  border: 1px solid hsla(0, 0%, 100%, 0.1);
+  border-radius: var(--corner-r-sm);
+}
+
+.stat-label {
+  font-family: var(--ff);
+  font-size: 10px;
+  font-weight: var(--fw-semi);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-family: var(--ff-mono);
+  font-size: 16px;
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CONFETTI PARTICLES (Podium only)
+   ───────────────────────────────────────────────────────────── */
+
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.confetti-particle {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 8px;
+  background: var(--amber);
+  opacity: 0.7;
+  border-radius: 50%;
+  animation-name: confettiDrift;
+  animation-duration: 3s;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+.confetti-particle:nth-child(even) {
+  background: var(--cyan);
+}
+
+.confetti-particle:nth-child(3n) {
+  background: var(--red);
+}
+
+.confetti-particle:nth-child(4n) {
+  background: var(--green);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   COLOR TINTS (affects overall tone)
+   ───────────────────────────────────────────────────────────── */
+
+.tint-gold .stats-grid .stat-item {
+  border-color: hsla(45, 100%, 50%, 0.2);
+  background: hsla(45, 100%, 50%, 0.08);
+}
+
+.tint-silver .stats-grid .stat-item {
+  border-color: hsla(0, 0%, 75%, 0.2);
+  background: hsla(0, 0%, 75%, 0.08);
+}
+
+.tint-bronze .stats-grid .stat-item {
+  border-color: hsla(30, 80%, 50%, 0.2);
+  background: hsla(30, 80%, 50%, 0.08);
+}
+
+.tint-green .stats-grid .stat-item {
+  border-color: hsla(120, 60%, 50%, 0.2);
+  background: hsla(120, 60%, 50%, 0.08);
+}
+
+.tint-purple .stats-grid .stat-item {
+  border-color: hsla(280, 80%, 70%, 0.2);
+  background: hsla(280, 80%, 70%, 0.08);
+}
+
+.tint-neutral .stats-grid .stat-item {
+  border-color: hsla(0, 0%, 100%, 0.15);
+  background: hsla(0, 0%, 100%, 0.05);
+}

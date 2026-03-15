@@ -27,7 +27,10 @@ export default function PedalsPanel() {
   }, [telemetry.throttleRaw, telemetry.brakeRaw, telemetry.clutchRaw]);
 
   return (
-    <div className={styles.panel}>
+    <div
+      className={styles.panel}
+      style={{ '--thr-glow': telemetry.throttleRaw } as React.CSSProperties}
+    >
       <div className={styles.pedalLabelsRow}>
         <div className={styles.pedalLabelGroup}>
           <div className={styles.pedalChannelLabelThrottle}>THR</div>

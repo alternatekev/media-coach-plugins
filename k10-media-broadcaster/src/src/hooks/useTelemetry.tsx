@@ -119,6 +119,8 @@ function parseTelemetry(raw: TelemetryProps): ParsedTelemetry {
     completedLaps: v('K10MediaBroadcaster.Plugin.DS.CompletedLaps', 'Demo.DS.CompletedLaps') || 0,
     isInPitLane: (v('K10MediaBroadcaster.Plugin.DS.IsInPitLane', 'Demo.DS.IsInPitLane') || 0) > 0,
     speedKmh: v('K10MediaBroadcaster.Plugin.DS.SpeedKmh', 'Demo.DS.SpeedKmh') || 0,
+    pitLimiterOn: (v('K10MediaBroadcaster.Plugin.DS.PitLimiterOn', 'Demo.DS.PitLimiterOn') || 0) > 0,
+    pitSpeedLimitKmh: v('K10MediaBroadcaster.Plugin.DS.PitSpeedLimitKmh', 'Demo.DS.PitSpeedLimitKmh') || 0,
 
     // Track Map
     trackMapReady: (raw['K10MediaBroadcaster.Plugin.TrackMap.Ready'] || 0) > 0,

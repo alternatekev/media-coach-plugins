@@ -80,7 +80,7 @@
 .irBarTrack {
   position: relative;
   height: 6px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   border-radius: 3px;
   overflow: hidden;
 }

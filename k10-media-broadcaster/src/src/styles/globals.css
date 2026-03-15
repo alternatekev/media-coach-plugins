@@ -43,7 +43,7 @@ body.opaque-mode {
   background: #00FF00;
 }
 body.opaque-mode .panel {
-  background: hsl(0, 0%, 8%) !important;
+  background: hsla(0, 0%, 8%, 0.80) !important;
 }
 body.opaque-mode .commentary-inner {
   background: hsla(var(--commentary-h, 0), 50%, 8%, 1) !important;

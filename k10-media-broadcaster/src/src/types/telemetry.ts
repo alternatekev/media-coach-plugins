@@ -129,6 +129,8 @@ export interface TelemetryProps {
   'K10MediaBroadcaster.Plugin.DS.CompletedLaps': number;
   'K10MediaBroadcaster.Plugin.DS.IsInPitLane': number;
   'K10MediaBroadcaster.Plugin.DS.SpeedKmh': number;
+  'K10MediaBroadcaster.Plugin.DS.PitLimiterOn': number;
+  'K10MediaBroadcaster.Plugin.DS.PitSpeedLimitKmh': number;
 
   // ═══ Demo Datastream ═══
   'K10MediaBroadcaster.Plugin.Demo.DS.LatG': number;
@@ -142,6 +144,8 @@ export interface TelemetryProps {
   'K10MediaBroadcaster.Plugin.Demo.DS.LapDelta': number;
   'K10MediaBroadcaster.Plugin.Demo.DS.IsInPitLane': number;
   'K10MediaBroadcaster.Plugin.Demo.DS.SpeedKmh': number;
+  'K10MediaBroadcaster.Plugin.Demo.DS.PitLimiterOn': number;
+  'K10MediaBroadcaster.Plugin.Demo.DS.PitSpeedLimitKmh': number;
 
   // ═══ Track Map ═══
   'K10MediaBroadcaster.Plugin.TrackMap.Ready': number;
@@ -268,6 +272,8 @@ export interface ParsedTelemetry {
   completedLaps: number;
   isInPitLane: boolean;
   speedKmh: number;
+  pitLimiterOn: boolean;
+  pitSpeedLimitKmh: number;
 
   // Track Map
   trackMapReady: boolean;

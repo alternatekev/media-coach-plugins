@@ -51,6 +51,13 @@ namespace K10MediaBroadcaster.Plugin
         private HttpListener _httpListener;
         private Thread _httpThread;
 
+        // Start lights state machine — synthesized from PaceMode/SessionState
+        private int _lightsPhase = 0;         // 0=off, 1-5=building reds, 6=all red, 7=green, 8=done
+        private int _lightsPrevPaceMode = 0;
+        private int _lightsPrevSessionState = 0;
+        private int _lightsHoldFrames = 0;    // countdown for timed phases
+        private int _lightsStepFrame = 0;     // countdown for building each red
+
         // Leaderboard: compact JSON string of nearby drivers, updated each eval cycle
         private volatile string _leaderboardJson = "[]";
 
@@ -331,6 +338,17 @@ namespace K10MediaBroadcaster.Plugin
             }
             catch { _leaderboardJson = "[]"; }
 
+            // Push live driver name from iRacing into commentary engine
+            if (!string.IsNullOrEmpty(_current.PlayerName))
+            {
+                var parts = _current.PlayerName.Trim().Split(new[] { ' ' }, 2);
+                _engine.DriverFirstName = parts[0];
+                _engine.DriverLastName  = parts.Length > 1 ? parts[1] : "";
+            }
+
+            // Synthesize start lights from PaceMode/SessionState
+            UpdateLightsPhase();
+
             bool wasVisible = _engine.IsVisible;
             _engine.Update(_current, _previous);
 
@@ -353,13 +371,82 @@ namespace K10MediaBroadcaster.Plugin
 
         // ── Internal helpers ──────────────────────────────────────────────────
 
+        /// <summary>
+        /// Synthesize F1-style start lights from iRacing PaceMode / SessionState.
+        /// Rolling start: PaceMode 2 (Approaching) → build reds, PaceMode 3 (CrossSF) → all red hold,
+        /// SessionState 3→4 transition → green. Called every eval cycle (~100ms).
+        /// </summary>
+        private void UpdateLightsPhase()
+        {
+            int ss = _current.SessionState;
+            int pm = _current.PaceMode;
+
+            // Green flag: session just went to Racing (4) from formation (3)
+            if (ss == 4 && _lightsPrevSessionState == 3 && _lightsPhase >= 1 && _lightsPhase <= 6)
+            {
+                _lightsPhase = 7; // GREEN!
+                _lightsHoldFrames = 15; // hold green ~1.5s
+            }
+            // Green hold → done
+            else if (_lightsPhase == 7)
+            {
+                _lightsHoldFrames--;
+                if (_lightsHoldFrames <= 0) _lightsPhase = 8;
+            }
+            // Done → fade out → reset
+            else if (_lightsPhase == 8)
+            {
+                _lightsHoldFrames--;
+                if (_lightsHoldFrames <= -10) _lightsPhase = 0;
+            }
+            // All red hold — waiting for green
+            else if (_lightsPhase == 6)
+            {
+                // Just hold until green flag (handled above)
+            }
+            // Building reds 1-5
+            else if (_lightsPhase >= 1 && _lightsPhase < 6)
+            {
+                _lightsStepFrame--;
+                if (_lightsStepFrame <= 0)
+                {
+                    _lightsPhase++;
+                    _lightsStepFrame = 8; // ~0.8s per light column
+                }
+            }
+            // Not active — detect start condition
+            else if (_lightsPhase == 0)
+            {
+                // PaceMode transitions to 2 (Approaching) or 3 (FieldCrossSF) during formation
+                if (ss == 3 && pm >= 2 && _lightsPrevPaceMode < 2)
+                {
+                    _lightsPhase = 1;
+                    _lightsStepFrame = 8;
+                }
+                // If we somehow get PaceMode 3 directly
+                else if (ss == 3 && pm == 3 && _lightsPrevPaceMode < 3)
+                {
+                    _lightsPhase = 6; // jump to all red
+                }
+            }
+
+            // If session goes back to non-formation unexpectedly, reset
+            if (ss <= 1 && _lightsPhase > 0 && _lightsPhase < 7)
+            {
+                _lightsPhase = 0;
+            }
+
+            _lightsPrevPaceMode = pm;
+            _lightsPrevSessionState = ss;
+        }
+
         public void ApplySettings()
         {
             _engine.DisplaySeconds    = Settings.PromptDisplaySeconds;
             _engine.EventOnlyMode     = Settings.EventOnlyMode;
             _engine.DemoMode          = Settings.DemoMode;
-            _engine.DriverFirstName   = Settings.DriverFirstName ?? "Hal";
-            _engine.DriverLastName    = Settings.DriverLastName ?? "Incandenze";
+            _engine.DriverFirstName   = Settings.DriverFirstName ?? "";
+            _engine.DriverLastName    = Settings.DriverLastName ?? "";
             _trackMap.SetDemoMode(Settings.DemoMode);
             _engine.EnabledCategories = Settings.EnabledCategories?.Count > 0
                 ? new System.Collections.Generic.HashSet<string>(Settings.EnabledCategories)
@@ -764,8 +851,8 @@ namespace K10MediaBroadcaster.Plugin
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.PaceMode", s.PaceMode);
                     // Start type: detect from session info (rolling for iRacing road by default)
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.StartType", Escape("rolling"));
-                    // Lights phase: 0=off for live (dashboard derives from state changes)
-                    Jp(sb, "K10MediaBroadcaster.Plugin.Grid.LightsPhase", 0);
+                    // Lights phase: synthesized from PaceMode/SessionState transitions
+                    Jp(sb, "K10MediaBroadcaster.Plugin.Grid.LightsPhase", _lightsPhase);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.TrackCountry", Escape(s.TrackCountry ?? ""));
 
                     // ── Demo Grid state ──

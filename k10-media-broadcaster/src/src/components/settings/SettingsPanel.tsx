@@ -14,10 +14,20 @@ export function SettingsPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('sections');
 
-  // Keyboard shortcut: Ctrl+Shift+S
+  // Listen for Electron IPC settings-mode event (main process catches the global hotkey)
+  useEffect(() => {
+    const k10 = (window as any).k10;
+    if (k10?.onSettingsMode) {
+      k10.onSettingsMode((active: boolean) => {
+        setIsOpen(active);
+      });
+    }
+  }, []);
+
+  // Fallback: keyboard shortcut Ctrl/Cmd+Shift+S (works when window is focused/interactive)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
         e.preventDefault();
         setIsOpen((prev) => !prev);
       }

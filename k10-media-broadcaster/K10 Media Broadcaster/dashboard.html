@@ -52,9 +52,9 @@
     --dash-h: 200px;
     --row-h: calc((var(--dash-h) - var(--gap)) / 2);
 
-    --bg: hsla(0, 0%, 8%, 1.0);
-    --bg-panel: hsla(0, 0%, 6%, 1.0);
-    --bg-logo: hsla(0, 0%, 12%, 1.0);
+    --bg: hsla(0, 0%, 8%, 0.90);
+    --bg-panel: hsla(0, 0%, 6%, 0.90);
+    --bg-logo: hsla(0, 0%, 12%, 0.90);
     --border: hsla(0, 0%, 100%, 0.14);
     --text-primary: hsla(0, 0%, 100%, 1.0);
     --text-secondary: hsla(0, 0%, 100%, 0.69);
@@ -1424,7 +1424,7 @@
   .leaderboard-panel.lb-center { left: 50%; transform: translateX(-50%); }
 
   .lb-inner {
-    background: hsla(0, 0%, 5%, 1.0);
+    background: hsla(0, 0%, 5%, 0.90);
     border: 1px solid hsla(0, 0%, 100%, 0.14);
     border-radius: 8px;
     padding: 6px 0;
@@ -1556,7 +1556,7 @@
     margin-top: 4px;
     border-radius: 6px;
     overflow: hidden;
-    background: hsla(0, 0%, 5%, 1.0);
+    background: hsla(0, 0%, 5%, 0.90);
     border: 1px solid hsla(0, 0%, 100%, 0.14);
     padding: 2px;
   }
@@ -1585,7 +1585,7 @@
   .datastream-panel.ds-center-left { left: 172px; }
 
   .ds-inner {
-    background: hsla(0, 0%, 5%, 1.0);
+    background: hsla(0, 0%, 5%, 0.90);
     border: 1px solid hsla(0, 0%, 100%, 0.14);
     border-radius: 8px;
     padding: 6px 10px 8px;
@@ -1699,7 +1699,7 @@
   .incidents-panel.inc-center-left { left: 378px; }
 
   .inc-inner {
-    background: hsla(0, 0%, 5%, 1.0);
+    background: hsla(0, 0%, 5%, 0.90);
     border: 1px solid hsla(0, 0%, 100%, 0.14);
     border-radius: 8px;
     padding: 4px 8px 6px;
@@ -1813,7 +1813,7 @@
     display: flex;
     align-items: center;
     gap: 18px;
-    background: hsla(0, 0%, 3%, 1.0);
+    background: hsla(0, 0%, 3%, 0.90);
     border: 2px solid hsla(48, 90%, 55%, 0.80);
     border-top: none;
     border-radius: 0 0 14px 14px;
@@ -1975,7 +1975,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: hsla(200, 60%, 8%, 1.0);
+    background: hsla(200, 60%, 8%, 0.90);
     border: 2px solid hsla(200, 80%, 60%, 0.60);
     border-radius: 10px;
     padding: 10px 28px;
@@ -2023,6 +2023,235 @@
   body:not(.pit-mode) .spotter-panel {
     transition: opacity 1.2s ease;
   }
+
+  /* ═══════════════════════════════════════════════
+     IDLE STATE — K10 logo only when not in-car
+     ═══════════════════════════════════════════════ */
+  .idle-logo {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 50;
+    width: 98px;
+    height: 98px;
+    background: var(--bg-logo);
+    border: 1px solid var(--border);
+    border-radius: var(--corner-r);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transform-origin: top right;
+    pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .idle-logo.idle-visible {
+    opacity: 0.5;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+  .idle-logo img {
+    width: 75%;
+    height: auto;
+  }
+  /* Hide dashboard in idle */
+  body.idle-state #dashboard,
+  body.idle-state .leaderboard-panel,
+  body.idle-state .datastream-panel,
+  body.idle-state .incidents-panel,
+  body.idle-state .spotter-panel,
+  body.idle-state .pit-banner,
+  body.idle-state .rc-banner,
+  body.idle-state .grid-module {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.6s ease;
+  }
+  /* Settings overlay must stay accessible in idle */
+  body.idle-state .settings-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ═══════════════════════════════════════════════
+     PIT LIMITER — WARNING FLASH (limiter OFF in pit)
+     ═══════════════════════════════════════════════ */
+  .pit-banner.pit-warning .pit-inner {
+    background: hsla(10, 80%, 12%, 1.0);
+    border-color: hsla(10, 90%, 55%, 0.80);
+    animation: pit-warn-flash 0.6s ease-in-out infinite alternate;
+  }
+  .pit-banner.pit-warning .pit-icon {
+    background: hsl(10, 90%, 55%);
+  }
+  .pit-banner.pit-warning .pit-label {
+    color: hsl(10, 90%, 70%);
+  }
+  @keyframes pit-warn-flash {
+    0%   { box-shadow: inset 0 0 14px hsla(10, 90%, 55%, 0.25), 0 0 10px hsla(10, 90%, 55%, 0.15); }
+    100% { box-shadow: inset 0 0 40px hsla(10, 90%, 55%, 0.55), 0 0 30px hsla(10, 90%, 55%, 0.40); }
+  }
+
+  /* ═══════════════════════════════════════════════
+     RACE END SCREEN — within HUD bounds
+     ═══════════════════════════════════════════════ */
+  .race-end-screen {
+    position: fixed;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease-out;
+  }
+  .race-end-screen.re-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .race-end-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: hsla(0, 0%, 4%, 0.92);
+    border-radius: var(--corner-r);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .race-end-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 28px 36px;
+    animation: re-slide-in 0.6s ease-out both;
+  }
+  @keyframes re-slide-in {
+    from { opacity: 0; transform: scale(0.9) translateY(-16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes re-pos-reveal {
+    from { opacity: 0; transform: scale(0); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes re-gold-pulse {
+    0%, 100% { text-shadow: 0 0 30px hsla(45, 100%, 50%, 0.5); }
+    50%      { text-shadow: 0 0 50px hsla(45, 100%, 50%, 0.9); }
+  }
+  @keyframes re-confetti {
+    to { transform: translateY(300px) rotate(360deg); opacity: 0; }
+  }
+
+  .re-position {
+    font-family: var(--ff-mono);
+    font-size: 72px;
+    font-weight: var(--fw-black);
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -0.05em;
+    animation: re-pos-reveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  /* Tint variants */
+  .re-tint-gold .re-position {
+    color: #ffb300;
+    animation: re-pos-reveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               re-gold-pulse 2s ease-in-out 0.6s infinite;
+  }
+  .re-tint-silver .re-position { color: #c0c0c0; text-shadow: 0 0 30px hsla(0, 0%, 75%, 0.4); }
+  .re-tint-bronze .re-position { color: #cd7f32; text-shadow: 0 0 30px hsla(30, 80%, 50%, 0.4); }
+  .re-tint-green  .re-position { color: var(--green); text-shadow: 0 0 24px hsla(120, 60%, 50%, 0.3); }
+  .re-tint-purple .re-position { color: var(--purple); text-shadow: 0 0 24px hsla(280, 80%, 70%, 0.3); }
+  .re-tint-neutral .re-position { color: var(--text-primary); opacity: 0.8; }
+
+  .re-title {
+    font-family: var(--ff);
+    font-size: 32px;
+    font-weight: var(--fw-black);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+  .re-subtitle {
+    font-size: 12px;
+    font-weight: var(--fw-regular);
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .re-clean-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    background: hsla(120, 60%, 50%, 0.12);
+    border: 1px solid var(--green);
+    border-radius: var(--corner-r-sm);
+    color: var(--green);
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 12px 0 8px 0;
+    animation: re-slide-in 0.6s ease-out 0.2s both;
+  }
+  .re-clean-badge span { margin-right: 4px; font-weight: var(--fw-black); }
+
+  .re-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .re-stat {
+    padding: 8px 6px;
+    background: hsla(0, 0%, 100%, 0.04);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+    border-radius: var(--corner-r-sm);
+  }
+  .re-stat-label {
+    font-size: 8px;
+    font-weight: var(--fw-semi);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .re-stat-val {
+    font-family: var(--ff-mono);
+    font-size: 13px;
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+  }
+  /* Tinted stat items */
+  .re-tint-gold .re-stat   { border-color: hsla(45, 100%, 50%, 0.18); background: hsla(45, 100%, 50%, 0.06); }
+  .re-tint-silver .re-stat { border-color: hsla(0, 0%, 75%, 0.18); background: hsla(0, 0%, 75%, 0.06); }
+  .re-tint-bronze .re-stat { border-color: hsla(30, 80%, 50%, 0.18); background: hsla(30, 80%, 50%, 0.06); }
+  .re-tint-green .re-stat  { border-color: hsla(120, 60%, 50%, 0.18); background: hsla(120, 60%, 50%, 0.06); }
+  .re-tint-purple .re-stat { border-color: hsla(280, 80%, 70%, 0.18); background: hsla(280, 80%, 70%, 0.06); }
+  .re-tint-neutral .re-stat { border-color: hsla(0, 0%, 100%, 0.12); background: hsla(0, 0%, 100%, 0.04); }
+
+  /* Confetti container within race-end bounds */
+  .re-confetti {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: var(--corner-r);
+  }
+  .re-confetti-dot {
+    position: absolute;
+    top: -6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: re-confetti 3s ease-in forwards;
+  }
+  .re-confetti-dot:nth-child(even) { background: var(--cyan); }
+  .re-confetti-dot:nth-child(odd)  { background: var(--amber); }
+  .re-confetti-dot:nth-child(3n)   { background: var(--red); }
+  .re-confetti-dot:nth-child(4n)   { background: var(--green); }
 
   /* ═══════════════════════════════════════════════
      SPOTTER MESSAGES
@@ -2093,7 +2322,7 @@
   }
   .grid-module.grid-fadeout {
     opacity: 0;
-    transition: opacity 1.5s ease;
+    transition: opacity 3s ease;
   }
 
   /* Pre-race info card */
@@ -2448,6 +2677,47 @@
     padding: 8px 12px;
   }
   .conn-banner .conn-skip:hover { color: #999; }
+
+  /* Settings-embedded connection warning banner */
+  .settings-conn-warn {
+    display: none;
+    background: hsla(10, 70%, 12%, 0.95);
+    border: 1px solid hsla(10, 80%, 50%, 0.45);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+  .settings-conn-warn.warn-visible { display: block; }
+  .settings-conn-warn .warn-icon {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #f44336;
+    margin-right: 8px;
+    animation: conn-pulse 2s infinite;
+    vertical-align: middle;
+  }
+  .settings-conn-warn .warn-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: hsl(10, 80%, 70%);
+    display: inline;
+    vertical-align: middle;
+  }
+  .settings-conn-warn .warn-detail {
+    font-size: 11px;
+    color: hsla(0, 0%, 100%, 0.55);
+    line-height: 1.5;
+    margin-top: 6px;
+  }
+  .settings-conn-warn .warn-url {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    color: hsla(0, 0%, 100%, 0.40);
+    margin-top: 4px;
+    word-break: break-all;
+  }
   .conn-banner .conn-dot {
     display: inline-block;
     width: 8px;
@@ -3030,12 +3300,38 @@
   </div>
 </div>
 
+<!-- COMPONENT: Idle State Logo (visible when driver is not in-car) -->
+<div class="idle-logo" id="idleLogo">
+  <img src="images/branding/logomark.png" alt="K10">
+</div>
+
 <!-- COMPONENT: Pit Limiter Banner -->
 <div class="pit-banner" id="pitBanner">
   <div class="pit-inner">
     <div class="pit-icon">P</div>
     <div class="pit-label">Pit Limiter</div>
     <div class="pit-speed" id="pitSpeed"></div>
+    <div class="pit-limit" id="pitLimit" style="font-size:11px;font-weight:600;color:hsla(0,0%,100%,0.45);margin-left:4px;"></div>
+  </div>
+</div>
+
+<!-- COMPONENT: Race End Screen (within HUD bounds) -->
+<div class="race-end-screen" id="raceEndScreen">
+  <div class="race-end-bg"></div>
+  <div class="re-confetti" id="reConfetti"></div>
+  <div class="race-end-content" id="raceEndContent">
+    <div class="re-position" id="rePosition">P1</div>
+    <div class="re-title-block">
+      <h1 class="re-title" id="reTitle">VICTORY!</h1>
+      <p class="re-subtitle" id="reSubtitle" style="display:none;"></p>
+    </div>
+    <div class="re-clean-badge" id="reCleanBadge" style="display:none;"><span>✓</span> CLEAN RACE</div>
+    <div class="re-stats">
+      <div class="re-stat"><div class="re-stat-label">POSITION</div><div class="re-stat-val" id="reStatPos">P1</div></div>
+      <div class="re-stat"><div class="re-stat-label">INCIDENTS</div><div class="re-stat-val" id="reStatInc">0</div></div>
+      <div class="re-stat"><div class="re-stat-label">BEST LAP</div><div class="re-stat-val" id="reStatLap">—</div></div>
+      <div class="re-stat"><div class="re-stat-label">iRATING</div><div class="re-stat-val" id="reStatIR">—</div></div>
+    </div>
   </div>
 </div>
 
@@ -3079,6 +3375,12 @@
   <div class="settings-panel">
     <div class="settings-title">K10 Media Broadcaster</div>
     <div class="settings-subtitle">Toggle HUD sections and configure the overlay</div>
+
+    <div class="settings-conn-warn" id="settingsConnWarn">
+      <div><span class="warn-icon"></span><span class="warn-title">Can't reach SimHub</span></div>
+      <div class="warn-detail">Make sure SimHub is running and the K10 Media Broadcaster plugin is installed. Check the connection URL in the System tab.</div>
+      <div class="warn-url" id="settingsConnWarnUrl"></div>
+    </div>
 
     <div class="settings-tabs">
       <div class="settings-tab active" data-tab="sections" onclick="switchSettingsTab(this)">Sections</div>
@@ -3136,6 +3438,14 @@
       </div>
 
       <div class="settings-group-label">Secondary Panels</div>
+      <div class="settings-row">
+        <span class="settings-label">Oppose Vertical</span>
+        <div class="settings-toggle on" id="secVOpposeToggle" data-key="secVOppose" onclick="toggleSecVOppose(this)"></div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Oppose Horizontal</span>
+        <div class="settings-toggle on" id="secHOpposeToggle" data-key="secHOppose" onclick="toggleSecHOppose(this)"></div>
+      </div>
       <div class="settings-row">
         <span class="settings-label">Layout</span>
         <select class="settings-select" id="settingsSecLayout" onchange="updateSecLayout(this.value)">
@@ -3948,6 +4258,8 @@
     'K10MediaBroadcaster.Plugin.DS.CompletedLaps',
     'K10MediaBroadcaster.Plugin.DS.IsInPitLane',
     'K10MediaBroadcaster.Plugin.DS.SpeedKmh',
+    'K10MediaBroadcaster.Plugin.DS.PitLimiterOn',
+    'K10MediaBroadcaster.Plugin.DS.PitSpeedLimitKmh',
     // Demo Datastream
     'K10MediaBroadcaster.Plugin.Demo.DS.LatG',
     'K10MediaBroadcaster.Plugin.Demo.DS.LongG',
@@ -3960,6 +4272,8 @@
     'K10MediaBroadcaster.Plugin.Demo.DS.LapDelta',
     'K10MediaBroadcaster.Plugin.Demo.DS.IsInPitLane',
     'K10MediaBroadcaster.Plugin.Demo.DS.SpeedKmh',
+    'K10MediaBroadcaster.Plugin.Demo.DS.PitLimiterOn',
+    'K10MediaBroadcaster.Plugin.Demo.DS.PitSpeedLimitKmh',
     // Track map
     'K10MediaBroadcaster.Plugin.TrackMap.Ready',
     'K10MediaBroadcaster.Plugin.TrackMap.SvgPath',
@@ -3993,6 +4307,10 @@
   // ─── State ───
   let _pollFrame = 0;
   let _cycleFrameCount = 0;
+  let _isIdle = true;           // start in idle until we see active session
+  let _raceEndVisible = false;  // race end screen visibility
+  let _raceEndTimer = null;     // auto-hide timer
+  let _prevCheckered = false;   // detect checkered flag transition
   let _driverDisplayName = 'YOU'; // fallback; updated from plugin settings
   const _cycleIntervalFrames = Math.round(10000 / POLL_MS); // 10s
   let _thrHist = new Array(20).fill(0);
@@ -4015,6 +4333,8 @@
   let _greenFlagTimeout = null;
   let _rcTimeout = null;           // race control banner auto-hide timer
   let _rcVisible = false;          // race control banner visibility state
+  let _flagHoldUntil = 0;          // timestamp: keep flag overlay visible until at least this time
+  let _flagHoldState = 'none';     // which flag we're holding
   let _commentaryWasVisible = false;
   let _tcSeen = false;
   let _absSeen = false;
@@ -4091,13 +4411,18 @@
     const titles = { connected: 'Connected to plugin server', disconnected: 'Cannot reach plugin server — is the K10 Media Broadcaster plugin loaded in SimHub?', connecting: 'Connecting to plugin server...' };
     el.title = titles[state] || '';
 
+    // Settings-embedded warning banner
+    const settingsWarn = document.getElementById('settingsConnWarn');
+    const settingsWarnUrl = document.getElementById('settingsConnWarnUrl');
+
     if (state === 'connected') {
       _hasEverConnected = true;
-      // Hide banner if visible
+      // Hide banners
       const banner = document.getElementById('connBanner');
       if (banner && banner.classList.contains('visible')) {
         banner.classList.remove('visible');
       }
+      if (settingsWarn) settingsWarn.classList.remove('warn-visible');
       // Stop logo demo cycle once connected
       if (_logoCycleTimer) { clearInterval(_logoCycleTimer); _logoCycleTimer = null; }
       // Auto-close settings if it was forced open by disconnection
@@ -4107,6 +4432,13 @@
         if (overlay.classList.contains('open')) {
           toggleSettings();
         }
+      }
+    }
+
+    if (state === 'disconnected' && _connFails >= 2) {
+      if (settingsWarn) {
+        settingsWarn.classList.add('warn-visible');
+        if (settingsWarnUrl) settingsWarnUrl.textContent = window._simhubUrlOverride || SIMHUB_URL;
       }
     }
 
@@ -4235,6 +4567,25 @@
     const d = (gameKey, demoKey) => _demo ? v('K10MediaBroadcaster.Plugin.' + demoKey) : v(gameKey);
     const ds = (gameKey, demoKey) => _demo ? vs('K10MediaBroadcaster.Plugin.' + demoKey) : vs(gameKey);
 
+    // ─── Idle State Detection ───
+    const gameRunning = +v('DataCorePlugin.GameRunning') || 0;
+    const sessionPre = _demo ? 'K10MediaBroadcaster.Plugin.Demo.Grid.' : 'K10MediaBroadcaster.Plugin.Grid.';
+    const sessNum = parseInt(vs(sessionPre + 'SessionState')) || 0;
+    const nowIdle = !_demo && (!gameRunning || sessNum <= 1);
+    const idleLogo = document.getElementById('idleLogo');
+    if (nowIdle !== _isIdle) {
+      _isIdle = nowIdle;
+      if (nowIdle) {
+        document.body.classList.add('idle-state');
+        if (idleLogo) idleLogo.classList.add('idle-visible');
+      } else {
+        document.body.classList.remove('idle-state');
+        if (idleLogo) idleLogo.classList.remove('idle-visible');
+      }
+    }
+    // Skip rest of update in idle (except settings remain responsive)
+    if (_isIdle) { _pollActive = false; return; }
+
     // ─── Gear / Speed / RPM ───
     const gear = ds('DataCorePlugin.GameData.Gear', 'Demo.Gear') || 'N';
     const rpm = +d('DataCorePlugin.GameData.Rpms', 'Demo.Rpm') || 0;
@@ -4319,20 +4670,21 @@
     const bb = _demo ? +v('K10MediaBroadcaster.Plugin.Demo.BrakeBias') : (+v('DataCorePlugin.GameRawData.Telemetry.dcBrakeBias') || 0);
     const tc = _demo ? +v('K10MediaBroadcaster.Plugin.Demo.TC') : p['DataCorePlugin.GameRawData.Telemetry.dcTractionControl'];
     const abs = _demo ? +v('K10MediaBroadcaster.Plugin.Demo.ABS') : p['DataCorePlugin.GameRawData.Telemetry.dcABS'];
-    if (_demo) { _tcSeen = true; _absSeen = true; }
-    else {
-      if (tc != null && +tc > 0) _tcSeen = true;
-      if (abs != null && +abs > 0) _absSeen = true;
-    }
-
     const carModel = ds('DataCorePlugin.GameData.CarModel', 'Demo.CarModel');
     if (carModel !== _lastCarModel) {
       _tcSeen = false; _absSeen = false;
       _lastCarModel = carModel;
       setCarLogo(detectMfr(carModel), carModel);
     }
-    const tcOk = _demo || (tc != null && +tc >= 0 && (_tcSeen || +tc > 0));
-    const absOk = _demo || (abs != null && +abs >= 0 && (_absSeen || +abs > 0));
+    if (_demo) { _tcSeen = true; _absSeen = true; }
+    else {
+      // Once we see any valid value (even 0), the car has this system
+      if (tc != null && +tc >= 0) _tcSeen = true;
+      if (abs != null && +abs >= 0) _absSeen = true;
+    }
+    // Show TC/ABS blocks if the car reports them at all; hide only if car lacks them
+    const tcOk = _demo || _tcSeen;
+    const absOk = _demo || _absSeen;
     const bbOk = _demo || (bb > 0);
     setCtrlVisibility(bbOk, tcOk, absOk);
 
@@ -4495,8 +4847,19 @@
       const flagLabels = { yellow: 'CAUTION', red: 'RED FLAG', blue: 'BLUE FLAG', white: 'LAST LAP', debris: 'DEBRIS', checkered: 'FINISH', black: 'BLACK FLAG', green: 'GREEN' };
       const flagContexts = { yellow: 'Full course caution — hold position', red: 'Session stopped — return to pits', blue: 'Faster car approaching — yield', white: 'Last lap — push to the line', debris: 'Debris on track — stay alert', checkered: 'Checkered flag — race complete', black: 'Penalty — report to pit lane', green: 'Green flag — racing resumes' };
 
+      // Minimum hold durations per flag type (ms) — prevents flicker from rapid state changes
+      const FLAG_HOLD_MS = { yellow: 8000, red: 10000, blue: 4000, white: 6000, debris: 5000, checkered: 10000, black: 8000, green: 5000 };
+
       let showFlag = flagState;
-      // Green flag: show briefly (5s) when transitioning from caution, then clear
+      const now = Date.now();
+
+      // When a new flag appears, set minimum hold time
+      if (flagState !== 'none' && flagState !== _flagHoldState) {
+        _flagHoldState = flagState;
+        _flagHoldUntil = now + (FLAG_HOLD_MS[flagState] || 5000);
+      }
+
+      // Green flag: show briefly when transitioning from caution, then clear
       if (flagState === 'green' && _lastFlagState !== 'green' && _lastFlagState !== 'none') {
         if (_greenFlagTimeout) clearTimeout(_greenFlagTimeout);
         _greenFlagTimeout = setTimeout(() => {
@@ -4504,12 +4867,19 @@
           if (gb) gb.className = gb.className.replace(/\bflag-\S+/g, '').trim() + ' panel gaps-block';
           if (window.setFlagGLColors) window.setFlagGLColors(null);
           _greenFlagTimeout = null;
-        }, 5000);
+          _flagHoldState = 'none';
+        }, FLAG_HOLD_MS.green);
       } else if (flagState === 'green' && !_greenFlagTimeout) {
         showFlag = 'none'; // green with no active timer = steady state, don't show
       } else if (flagState === 'none') {
-        if (_greenFlagTimeout) { clearTimeout(_greenFlagTimeout); _greenFlagTimeout = null; }
-        showFlag = 'none';
+        // Flag cleared — but hold the overlay if minimum duration hasn't elapsed
+        if (now < _flagHoldUntil && _flagHoldState !== 'none') {
+          showFlag = _flagHoldState; // keep showing previous flag
+        } else {
+          if (_greenFlagTimeout) { clearTimeout(_greenFlagTimeout); _greenFlagTimeout = null; }
+          showFlag = 'none';
+          _flagHoldState = 'none';
+        }
       }
 
       // Remove all flag-* classes
@@ -4534,7 +4904,9 @@
       if (flagState !== _lastFlagState) {
         if (RC_FLAGS[flagState]) {
           showRaceControl(flagState);
-        } else if (flagState === 'none' || !RC_FLAGS[flagState]) {
+        }
+        // Only hide RC banner when flag hold has also expired — don't yank it early
+        else if ((flagState === 'none' || !RC_FLAGS[flagState]) && now >= _flagHoldUntil) {
           hideRaceControl();
         }
       }
@@ -4591,6 +4963,17 @@
 
     // ─── Pit Limiter ───
     try { updatePitLimiter(p, _demo); } catch(e) { console.error('[K10] Pit limiter error:', e); }
+
+    // ─── Race End Screen ───
+    try {
+      const isCheckered = flagState === 'checkered';
+      if (isCheckered && !_prevCheckered) {
+        showRaceEnd(p, _demo);
+      } else if (!isCheckered && _prevCheckered && _raceEndVisible) {
+        hideRaceEnd();
+      }
+      _prevCheckered = isCheckered;
+    } catch(e) { console.error('[K10] Race end error:', e); }
 
     // ─── Grid / Formation ───
     try { updateGrid(p, _demo); } catch(e) { console.error('[K10] Grid error:', e); }
@@ -4958,7 +5341,8 @@
     layoutPosition: 'top-right', layoutFlow: 'ltr', verticalSwap: false,
     greenScreen: false, showWebGL: true,
     zoom: 165, forceFlag: '', showLeaderboard: true, showDatastream: true, showIncidents: true,
-    incPenalty: 17, incDQ: 25, secLayout: 'stack', secOffsetX: 0, secOffsetY: 0
+    incPenalty: 17, incDQ: 25, secLayout: 'stack', secOffsetX: 0, secOffsetY: 0,
+    secVOppose: true, secHOppose: true
   };
 
   let _settings = Object.assign({}, _defaultSettings);
@@ -5169,46 +5553,79 @@
     const vswapToggle = document.getElementById('vswapToggle');
     if (vswapToggle) vswapToggle.classList.toggle('on', vswap);
 
-    // Position leaderboard on horizontally opposite side, same vertical edge
+    // Secondary panels: oppose or same edge as dashboard (vertical + horizontal independently)
+    const secVOppose = _settings.secVOppose !== false; // default true
+    const secHOppose = _settings.secHOppose !== false; // default true
+    const dashIsBottom = pos.includes('bottom');
+    const dashIsRight = pos.includes('right');
+    const dashIsLeft = pos.includes('left');
+    const dashIsCenter = pos.includes('center');
+    const secVert = secVOppose ? (dashIsBottom ? 'top' : 'bottom') : (dashIsBottom ? 'bottom' : 'top');
+
+    // Horizontal: oppose flips side, same keeps it
+    let secHoriz;
+    if (dashIsCenter) secHoriz = 'center';
+    else if (secHOppose) secHoriz = dashIsRight ? 'left' : 'right';
+    else secHoriz = dashIsRight ? 'right' : 'left';
+
+    // DS/Inc horizontal class names differ for center layout
+    let dsHoriz = secHoriz, incHoriz = secHoriz;
+    if (dashIsCenter) { dsHoriz = 'center-left'; incHoriz = 'center-left'; }
+
+    // Sync toggle UIs
+    const secVToggle = document.getElementById('secVOpposeToggle');
+    if (secVToggle) secVToggle.classList.toggle('on', secVOppose);
+    const secHToggle = document.getElementById('secHOpposeToggle');
+    if (secHToggle) secHToggle.classList.toggle('on', secHOppose);
+
+    // When on the same side as the dashboard (not opposed), we need to push
+    // the secondary panels vertically past the dashboard so they don't overlap.
+    // dash-h (200) + timer row (~30px) + gap (10px) = ~240px clearance
+    const sameSideVOffset = (!secHOppose && !dashIsCenter) ? 250 : 0;
+
+    // Position leaderboard
     const lb = document.getElementById('leaderboardPanel');
     if (lb) {
       lb.classList.remove('lb-top', 'lb-bottom', 'lb-left', 'lb-right', 'lb-center');
-      // Same vertical edge as dashboard
-      lb.classList.add(pos.includes('bottom') ? 'lb-bottom' : 'lb-top');
-      // Horizontal opposite
-      if (pos.includes('right')) lb.classList.add('lb-left');
-      else if (pos.includes('left')) lb.classList.add('lb-right');
-      else lb.classList.add('lb-center');
+      lb.classList.add('lb-' + secVert);
+      lb.classList.add('lb-' + secHoriz);
+      // Apply same-side vertical offset
+      if (sameSideVOffset && secVert === 'top') lb.style.marginTop = sameSideVOffset + 'px';
+      else if (sameSideVOffset && secVert === 'bottom') lb.style.marginBottom = sameSideVOffset + 'px';
+      else { lb.style.marginTop = ''; lb.style.marginBottom = ''; }
     }
 
-    // Position datastream adjacent to leaderboard (same side)
+    // Position datastream adjacent to leaderboard
     const ds = document.getElementById('datastreamPanel');
     if (ds) {
       ds.classList.remove('ds-top', 'ds-bottom', 'ds-left', 'ds-right', 'ds-center-left', 'ds-center-right');
-      ds.classList.add(pos.includes('bottom') ? 'ds-bottom' : 'ds-top');
-      if (pos.includes('right')) ds.classList.add('ds-left');
-      else if (pos.includes('left')) ds.classList.add('ds-right');
-      else ds.classList.add('ds-center-left');
+      ds.classList.add('ds-' + secVert);
+      ds.classList.add('ds-' + dsHoriz);
+      if (sameSideVOffset && secVert === 'top') ds.style.marginTop = sameSideVOffset + 'px';
+      else if (sameSideVOffset && secVert === 'bottom') ds.style.marginBottom = sameSideVOffset + 'px';
+      else { ds.style.marginTop = ''; ds.style.marginBottom = ''; }
     }
 
-    // Position incidents module adjacent to datastream (same side)
+    // Position incidents module adjacent to datastream
     const inc = document.getElementById('incidentsPanel');
     if (inc) {
       inc.classList.remove('inc-top', 'inc-bottom', 'inc-left', 'inc-right', 'inc-center-left', 'inc-center-right');
-      inc.classList.add(pos.includes('bottom') ? 'inc-bottom' : 'inc-top');
-      if (pos.includes('right')) inc.classList.add('inc-left');
-      else if (pos.includes('left')) inc.classList.add('inc-right');
-      else inc.classList.add('inc-center-left');
+      inc.classList.add('inc-' + secVert);
+      inc.classList.add('inc-' + incHoriz);
+      if (sameSideVOffset && secVert === 'top') inc.style.marginTop = sameSideVOffset + 'px';
+      else if (sameSideVOffset && secVert === 'bottom') inc.style.marginBottom = sameSideVOffset + 'px';
+      else { inc.style.marginTop = ''; inc.style.marginBottom = ''; }
     }
 
-    // Position spotter module on the same side as leaderboard
+    // Position spotter module on same side as leaderboard
     const sp = document.getElementById('spotterPanel');
     if (sp) {
       sp.classList.remove('sp-top', 'sp-bottom', 'sp-left', 'sp-right');
-      sp.classList.add(pos.includes('bottom') ? 'sp-bottom' : 'sp-top');
-      if (pos.includes('right')) sp.classList.add('sp-left');
-      else if (pos.includes('left')) sp.classList.add('sp-right');
-      else sp.classList.add('sp-left');
+      sp.classList.add('sp-' + secVert);
+      sp.classList.add('sp-' + (dashIsCenter ? 'left' : secHoriz));
+      if (sameSideVOffset && secVert === 'top') sp.style.marginTop = sameSideVOffset + 'px';
+      else if (sameSideVOffset && secVert === 'bottom') sp.style.marginBottom = sameSideVOffset + 'px';
+      else { sp.style.marginTop = ''; sp.style.marginBottom = ''; }
     }
   }
 
@@ -5227,6 +5644,20 @@
   function toggleVerticalSwap(el) {
     _settings.verticalSwap = !_settings.verticalSwap;
     el.classList.toggle('on', _settings.verticalSwap);
+    applyLayout();
+    saveSettings();
+  }
+
+  function toggleSecVOppose(el) {
+    _settings.secVOppose = !_settings.secVOppose;
+    el.classList.toggle('on', _settings.secVOppose);
+    applyLayout();
+    saveSettings();
+  }
+
+  function toggleSecHOppose(el) {
+    _settings.secHOppose = !_settings.secHOppose;
+    el.classList.toggle('on', _settings.secHOppose);
     applyLayout();
     saveSettings();
   }
@@ -5625,23 +6056,165 @@
     const pre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
     const inPitLane = +(p[pre + 'IsInPitLane']) > 0;
     const speedKmh = +(p[pre + 'SpeedKmh']) || 0;
+    const pitLimiterOn = +(p[pre + 'PitLimiterOn']) > 0;
+    const pitLimitKmh = +(p[pre + 'PitSpeedLimitKmh']) || 0;
 
     const banner = document.getElementById('pitBanner');
     const speedEl = document.getElementById('pitSpeed');
+    const limitEl = document.getElementById('pitLimit');
+    const labelEl = banner ? banner.querySelector('.pit-label') : null;
     if (!banner) return;
 
     if (inPitLane) {
       banner.classList.add('pit-visible');
       document.body.classList.add('pit-mode');
+
+      // Show speed
       if (speedEl) {
         const mph = Math.round(speedKmh * 0.621371);
         speedEl.textContent = mph > 0 ? mph + ' mph' : '';
       }
+      // Show pit speed limit
+      if (limitEl) {
+        if (pitLimitKmh > 0) {
+          const limitMph = Math.round(pitLimitKmh * 0.621371);
+          limitEl.textContent = '/ ' + limitMph + ' limit';
+        } else {
+          limitEl.textContent = '';
+        }
+      }
+
+      // Warning flash when pit limiter is NOT enabled
+      if (!pitLimiterOn) {
+        banner.classList.add('pit-warning');
+        if (labelEl) labelEl.textContent = 'PIT LIMITER OFF';
+      } else {
+        banner.classList.remove('pit-warning');
+        if (labelEl) labelEl.textContent = 'Pit Limiter';
+      }
     } else {
-      banner.classList.remove('pit-visible');
+      banner.classList.remove('pit-visible', 'pit-warning');
       document.body.classList.remove('pit-mode');
+      if (labelEl) labelEl.textContent = 'Pit Limiter';
     }
     _wasInPit = inPitLane;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  RACE END SCREEN
+  // ═══════════════════════════════════════════════════════════════
+
+  function _fmtLapTime(seconds) {
+    if (!seconds || seconds <= 0 || !isFinite(seconds)) return '—';
+    const m = Math.floor(seconds / 60);
+    const s = seconds - m * 60;
+    return m + ':' + (s < 10 ? '0' : '') + s.toFixed(3);
+  }
+  function _fmtIR(ir) {
+    if (!ir || ir <= 0) return '—';
+    return ir >= 1000 ? (ir / 1000).toFixed(1) + 'k' : String(ir);
+  }
+
+  function showRaceEnd(p, isDemo) {
+    const screen = document.getElementById('raceEndScreen');
+    if (!screen || _raceEndVisible) return;
+
+    // Gather data
+    const pre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.' : '';
+    const pos = isDemo ? +(p['K10MediaBroadcaster.Plugin.Demo.Position']) || 0 : +(p['DataCorePlugin.GameData.Position']) || 0;
+    const dsPre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
+    const incidents = +(p[dsPre + 'IncidentCount']) || 0;
+    const completedLaps = +(p[dsPre + 'CompletedLaps']) || 0;
+    const totalLaps = isDemo ? +(p['K10MediaBroadcaster.Plugin.Demo.TotalLaps']) || 0 : +(p['DataCorePlugin.GameData.TotalLaps']) || 0;
+    const bestLap = isDemo ? +(p['K10MediaBroadcaster.Plugin.Demo.BestLapTime']) || 0 : +(p['DataCorePlugin.GameData.BestLapTime']) || 0;
+    const iRating = isDemo ? +(p['K10MediaBroadcaster.Plugin.Demo.IRating']) || 0 : +(p['IRacingExtraProperties.iRacing_DriverInfo_IRating']) || 0;
+
+    // DNF detection
+    const isDNF = pos === 0 || (completedLaps > 0 && totalLaps > 0 && completedLaps < Math.max(1, Math.floor(totalLaps * 0.5)));
+
+    // Finish type
+    let finishType;
+    if (isDNF) finishType = 'dnf';
+    else if (pos >= 1 && pos <= 3) finishType = 'podium';
+    else if (pos >= 4 && pos <= 10) finishType = 'strong';
+    else finishType = 'midpack';
+
+    // Title / subtitle / tint
+    let title, subtitle = null, tint;
+    if (isDNF) {
+      title = 'TOUGH BREAK'; subtitle = 'Every lap is a lesson. Regroup and go again.'; tint = 'purple';
+    } else if (finishType === 'podium') {
+      title = pos === 1 ? 'VICTORY!' : 'PODIUM FINISH!';
+      tint = pos === 1 ? 'gold' : pos === 2 ? 'silver' : 'bronze';
+    } else if (finishType === 'strong') {
+      title = 'STRONG FINISH'; tint = 'green';
+    } else {
+      title = 'RACE COMPLETE'; tint = 'neutral';
+    }
+
+    // Position the race end screen over the HUD bounds
+    const dash = document.getElementById('dashboard');
+    if (dash) {
+      const r = dash.getBoundingClientRect();
+      screen.style.top = Math.max(0, r.top - 12) + 'px';
+      screen.style.left = Math.max(0, r.left - 12) + 'px';
+      screen.style.width = (r.width + 24) + 'px';
+      screen.style.height = (r.height + 24) + 'px';
+    } else {
+      screen.style.top = '10px'; screen.style.right = '10px';
+      screen.style.width = '500px'; screen.style.height = '260px';
+    }
+
+    // Remove old tint classes
+    screen.className = 'race-end-screen re-visible re-tint-' + tint;
+
+    // Populate content
+    const posEl = document.getElementById('rePosition');
+    const titleEl = document.getElementById('reTitle');
+    const subEl = document.getElementById('reSubtitle');
+    const cleanEl = document.getElementById('reCleanBadge');
+    const statPos = document.getElementById('reStatPos');
+    const statInc = document.getElementById('reStatInc');
+    const statLap = document.getElementById('reStatLap');
+    const statIR = document.getElementById('reStatIR');
+
+    if (posEl) posEl.textContent = !isDNF && pos > 0 ? 'P' + pos : '—';
+    if (titleEl) titleEl.textContent = title;
+    if (subEl) { subEl.textContent = subtitle || ''; subEl.style.display = subtitle ? '' : 'none'; }
+    if (cleanEl) cleanEl.style.display = incidents <= 4 ? '' : 'none';
+    if (statPos) statPos.textContent = !isDNF && pos > 0 ? 'P' + pos : 'DNF';
+    if (statInc) statInc.textContent = incidents;
+    if (statLap) statLap.textContent = _fmtLapTime(bestLap);
+    if (statIR) statIR.textContent = _fmtIR(iRating);
+
+    // Confetti for podium
+    const confetti = document.getElementById('reConfetti');
+    if (confetti) {
+      confetti.innerHTML = '';
+      if (finishType === 'podium') {
+        for (let i = 0; i < 14; i++) {
+          const dot = document.createElement('div');
+          dot.className = 're-confetti-dot';
+          dot.style.left = (5 + i * 6.8) + '%';
+          dot.style.animationDelay = (i * 0.12) + 's';
+          dot.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+          confetti.appendChild(dot);
+        }
+      }
+    }
+
+    _raceEndVisible = true;
+
+    // Auto-hide after 30s
+    if (_raceEndTimer) clearTimeout(_raceEndTimer);
+    _raceEndTimer = setTimeout(hideRaceEnd, 30000);
+  }
+
+  function hideRaceEnd() {
+    const screen = document.getElementById('raceEndScreen');
+    if (screen) screen.classList.remove('re-visible');
+    _raceEndVisible = false;
+    if (_raceEndTimer) { clearTimeout(_raceEndTimer); _raceEndTimer = null; }
   }
 
   // ══════════════════════════════════════════════════════════════════
@@ -5672,8 +6245,9 @@
     if (!mod || !info || !lights) return;
 
     // SessionState 3 = ParadeLaps (formation), or lights sequence active
+    // Phase 8 = post-green holdover — keep module visible while it fades naturally
     const isFormation = sessionState === 3 || sessionState === 2 || sessionState === 1;
-    const isLightsActive = lightsPhase >= 1 && lightsPhase <= 7;
+    const isLightsActive = lightsPhase >= 1 && lightsPhase <= 8;
     const shouldShow = isFormation || isLightsActive;
 
     // Detect transition: was showing → no longer showing → start fadeout
@@ -5689,7 +6263,7 @@
         resetLightBulbs();
         const flagElReset = document.getElementById('gridFlag');
         if (flagElReset) flagElReset.classList.remove('flag-active');
-      }, 2000);
+      }, 4000);
       return;
     }
 

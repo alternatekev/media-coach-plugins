@@ -70,18 +70,19 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     return mergeSettings(stored);
   });
 
-  // On mount, attempt Electron IPC load
+  // On mount, attempt Electron IPC load (async)
   useEffect(() => {
     const electron = getElectronAPI();
-    if (electron?.loadSettings) {
-      try {
-        const electronSettings = electron.loadSettings();
-        if (electronSettings && isValidSettings(electronSettings)) {
-          setSettings(electronSettings);
-        }
-      } catch (error) {
-        console.warn('[K10 Media Broadcaster] Failed to load settings from Electron', error);
-      }
+    if (electron?.getSettings) {
+      electron.getSettings()
+        .then((electronSettings: any) => {
+          if (electronSettings && isValidSettings(electronSettings)) {
+            setSettings(mergeSettings(electronSettings));
+          }
+        })
+        .catch((error: any) => {
+          console.warn('[K10 Media Broadcaster] Failed to load settings from Electron', error);
+        });
     }
   }, []);
 
@@ -98,7 +99,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
         // Persist to Electron if available
         const electron = getElectronAPI();
-        if (electron?.saveSettings) {
+        if (electron?.saveSettings /* Electron IPC */) {
           try {
             electron.saveSettings(updated);
           } catch (error) {
@@ -118,7 +119,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
     // Persist to Electron if available
     const electron = getElectronAPI();
-    if (electron?.saveSettings) {
+    if (electron?.saveSettings /* Electron IPC */) {
       try {
         electron.saveSettings(DEFAULT_SETTINGS);
       } catch (error) {

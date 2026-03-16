@@ -19,7 +19,7 @@ export default function LogoPanel({ idleMode = false }: LogoPanelProps) {
   // Load manufacturer logo SVG on mount and when mfr changes
   useEffect(() => {
     if (!idleMode && mfr && mfr !== 'unknown') {
-      const svgPath = `/images/logos/${mfr}.svg`;
+      const svgPath = `./images/logos/${mfr}.svg`;
       fetch(svgPath)
         .then((res) => {
           if (res.ok) {
@@ -44,7 +44,7 @@ export default function LogoPanel({ idleMode = false }: LogoPanelProps) {
       <div className={styles.logoCol}>
         <div className={styles.logoSquare}>
           <img
-            src="/images/branding/logomark.png"
+            src="./images/branding/logomark.png"
             alt="K10 Media Broadcaster"
             className={styles.logoImg}
           />
@@ -57,7 +57,7 @@ export default function LogoPanel({ idleMode = false }: LogoPanelProps) {
     <div className={styles.logoCol}>
       <div className={styles.logoSquare}>
         <img
-          src="/images/branding/logomark.png"
+          src="./images/branding/logomark.png"
           alt="K10 Media Broadcaster"
           className={styles.logoImg}
         />

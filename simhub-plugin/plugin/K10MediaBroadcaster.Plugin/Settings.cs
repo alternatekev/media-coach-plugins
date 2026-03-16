@@ -36,15 +36,15 @@ namespace K10MediaBroadcaster.Plugin
         public bool DemoMode { get; set; } = false;
 
         /// <summary>
-        /// The driver's first name, used for 3rd-person commentary (e.g. "Kevin").
-        /// When both first and last name are set, the engine randomly picks one each time.
+        /// The driver's first name, used for 3rd-person commentary.
+        /// Auto-populated from iRacing when available; falls back to "the driver" if empty.
         /// </summary>
-        public string DriverFirstName { get; set; } = "Hal";
+        public string DriverFirstName { get; set; } = "";
 
         /// <summary>
-        /// The driver's last name, used for 3rd-person commentary (e.g. "Incandenze").
-        /// When both first and last name are set, the engine randomly picks one each time.
+        /// The driver's last name, used for 3rd-person commentary.
+        /// Auto-populated from iRacing when available; falls back to "the driver" if empty.
         /// </summary>
-        public string DriverLastName { get; set; } = "Incandenze";
+        public string DriverLastName { get; set; } = "";
     }
 }

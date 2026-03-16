@@ -138,7 +138,7 @@ export default function RaceEndScreen() {
               className={styles['confetti-particle']}
               style={{
                 left: `${Math.random() * 100}%`,
-                delay: `${i * 0.05}s`,
+                animationDelay: `${i * 0.05}s`,
               }}
             />
           ))}

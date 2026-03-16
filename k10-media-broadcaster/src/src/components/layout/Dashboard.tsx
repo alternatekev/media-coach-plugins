@@ -20,7 +20,7 @@
  */
 import { useSettings } from '@hooks/useSettings'
 import { useTelemetry } from '@hooks/useTelemetry'
-import styles from '../../styles/dashboard.module.css'
+import '../../styles/dashboard.css'
 
 // HUD components
 import { Tachometer } from '@components/hud/tachometer/Tachometer'
@@ -61,18 +61,28 @@ export default function Dashboard() {
   const sessionNum = parseInt(telemetry.sessionState) || 0
   const isIdle = !telemetry.gameRunning || sessionNum <= 1
 
-  // Idle state: show only K10 logo at 50% size and 50% opacity
+  // Zoom: CSS zoom applied to the root dashboard wrapper
+  const zoomScale = (settings.zoom || 165) / 100
+
+  // Idle state: show only K10 logo at 50% size/opacity, anchored to layout position
   if (isIdle) {
+    const pos = settings.layoutPosition || 'top-right'
+    const anchorStyle: Record<string, string> = {
+      position: 'fixed',
+      transform: 'scale(0.5)',
+      transformOrigin: pos.replace('-', ' '),
+      opacity: '0.5',
+      pointerEvents: 'none',
+    }
+    if (pos.startsWith('top')) anchorStyle.top = '10px'
+    else anchorStyle.bottom = '100px'
+    if (pos.endsWith('right')) anchorStyle.right = '10px'
+    else if (pos.endsWith('left')) anchorStyle.left = '10px'
+    else { anchorStyle.left = '50%'; anchorStyle.transform = 'translateX(-50%) scale(0.5)' }
+
     return (
       <>
-        <div style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%) scale(0.5)',
-          opacity: 0.5,
-          pointerEvents: 'none',
-        }}>
+        <div style={anchorStyle as any}>
           <LogoPanel idleMode />
         </div>
         <SettingsPanel />
@@ -85,18 +95,18 @@ export default function Dashboard() {
   const vswapClass = settings.verticalSwap ? 'vswap' : ''
 
   const dashClasses = [
-    styles.dashboard,
+    'dashboard',
     layoutClass,
     flowClass,
     vswapClass,
   ].filter(Boolean).join(' ')
 
   return (
-    <>
+    <div className="k10-zoom-root" style={{ zoom: zoomScale }}>
       {/* ── Main HUD Dashboard ── */}
       <div className={dashClasses} id="dashboard">
         {/* Main row: all HUD columns */}
-        <div className={styles['main-row']}>
+        <div className="main-row">
           <div className="main-area">
 
             {/* COL: Fuel (top) + Tyres (bottom) */}
@@ -150,7 +160,7 @@ export default function Dashboard() {
         </div>
 
         {/* Timer row — placeholder for RaceTimer component */}
-        <div className={styles['timer-row']} />
+        <div className="timer-row" />
 
         {/* Commentary column */}
         {settings.showCommentary && <CommentaryPanel />}
@@ -167,6 +177,6 @@ export default function Dashboard() {
       <PitLimiterBanner />
       <RaceEndScreen />
       <SettingsPanel />
-    </>
+    </div>
   )
 }

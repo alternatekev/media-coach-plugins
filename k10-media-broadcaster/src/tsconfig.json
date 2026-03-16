@@ -28,5 +28,6 @@
     "baseUrl": "."
   },
   "include": ["src", "vite-env.d.ts"],
+  "exclude": ["src/test", "src/demo-preview.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

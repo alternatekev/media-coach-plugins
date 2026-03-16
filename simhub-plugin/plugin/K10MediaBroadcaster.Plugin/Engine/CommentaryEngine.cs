@@ -118,11 +118,11 @@ namespace K10MediaBroadcaster.Plugin.Engine
         public bool EventOnlyMode { get; set; } = false;
         public bool DemoMode      { get; set; } = false;
 
-        /// <summary>Driver's first name (e.g. "Hal"). Set from Settings.</summary>
-        public string DriverFirstName { get; set; } = "Hal";
+        /// <summary>Driver's first name — auto-populated from iRacing, falls back to "the driver".</summary>
+        public string DriverFirstName { get; set; } = "";
 
-        /// <summary>Driver's last name (e.g. "Incandenze"). Set from Settings.</summary>
-        public string DriverLastName { get; set; } = "Incandenze";
+        /// <summary>Driver's last name — auto-populated from iRacing, falls back to "the driver".</summary>
+        public string DriverLastName { get; set; } = "";
 
         /// <summary>
         /// Optional hook — returns a cooldown multiplier for a given topic ID.

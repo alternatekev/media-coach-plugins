@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 import { createTelemetryClient, type TelemetryClient } from '../lib/telemetry-client';
+import { getDemoTelemetry } from '../lib/demo-sequence';
 import type {
   TelemetryProps,
   ParsedTelemetry,
@@ -193,13 +194,51 @@ export function TelemetryProvider({
     connectionStatus: 'disconnected',
   });
 
+  // Track demo mode state
+  const demoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const demoRafRef = useRef<number | null>(null);
+  const demoStartRef = useRef<number>(0);
+  const isInDemoRef = useRef(false);
+
+  // Stop demo sequence
+  const stopDemo = () => {
+    isInDemoRef.current = false;
+    if (demoTimerRef.current) {
+      clearTimeout(demoTimerRef.current);
+      demoTimerRef.current = null;
+    }
+    if (demoRafRef.current) {
+      cancelAnimationFrame(demoRafRef.current);
+      demoRafRef.current = null;
+    }
+  };
+
+  // Start demo sequence
+  const startDemo = () => {
+    if (isInDemoRef.current) return;
+    isInDemoRef.current = true;
+    demoStartRef.current = performance.now();
+    console.log('[K10] Demo mode — starting race sequence');
+
+    const tick = () => {
+      if (!isInDemoRef.current) return;
+      const elapsed = performance.now() - demoStartRef.current;
+      setTelemetry(getDemoTelemetry(elapsed));
+      demoRafRef.current = requestAnimationFrame(tick);
+    };
+    demoRafRef.current = requestAnimationFrame(tick);
+  };
+
   // Initialize client and polling on mount
   useEffect(() => {
     const client = createTelemetryClient(settings.simhubUrl, {
       pollMs: 33, // ~30fps
       timeoutMs: 2000,
       maxBackoffMs: 10000,
-      onStatusChange: setConnectionStatus,
+      onStatusChange: (status) => {
+        setConnectionStatus(status);
+        // Don't stop demo on connect — the poll callback checks plugin DemoMode
+      },
     });
 
     clientRef.current = client;
@@ -207,6 +246,16 @@ export function TelemetryProvider({
     // Start polling
     client
       .startPolling((rawData) => {
+        // If plugin reports DemoMode, use client-side demo sequence instead
+        const pluginDemoMode = +(rawData['K10MediaBroadcaster.Plugin.DemoMode'] || 0) > 0;
+        if (pluginDemoMode) {
+          if (!isInDemoRef.current) startDemo();
+          return; // Skip real data — demo sequence drives telemetry
+        }
+
+        // Real data arrived — ensure demo is off
+        if (isInDemoRef.current) stopDemo();
+
         const parsed = parseTelemetry(rawData);
         setTelemetry(parsed);
 
@@ -221,8 +270,17 @@ export function TelemetryProvider({
         stopPollingRef.current = stopFn;
       });
 
+    // After 5 seconds of no connection, start demo mode
+    demoTimerRef.current = setTimeout(() => {
+      const currentStats = client.getStats();
+      if (currentStats.connectedCount === 0) {
+        startDemo();
+      }
+    }, 5000);
+
     // Cleanup on unmount or settings change
     return () => {
+      stopDemo();
       if (stopPollingRef.current) {
         stopPollingRef.current();
       }

@@ -4,6 +4,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 import path from 'path'
 
 export default defineConfig({
+  base: './',
   plugins: [react(), viteSingleFile()],
   resolve: {
     alias: {
@@ -15,9 +16,10 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../build',
-    emptyOutDir: true,
+    outDir: path.resolve(__dirname, '../K10 Media Broadcaster'),
+    emptyOutDir: false,
     rollupOptions: {
+      input: path.resolve(__dirname, 'dashboard.html'),
       output: {
         entryFileNames: 'dashboard.js',
         assetFileNames: 'dashboard.[ext]',

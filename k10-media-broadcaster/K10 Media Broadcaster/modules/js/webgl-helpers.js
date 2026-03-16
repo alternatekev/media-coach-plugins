@@ -296,6 +296,10 @@
     dash.style.setProperty('--sentiment-l', '12%');
     dash.style.setProperty('--sentiment-alpha', '0.06');
 
+    // Activate data visualization for this topic
+    const resolvedTopic = topicId || _titleToTopicId[title] || '';
+    if (window.showCommentaryViz) window.showCommentaryViz(resolvedTopic, hue);
+
     // After layout settles, check if text overflows and set up slow scroll
     requestAnimationFrame(() => { requestAnimationFrame(() => {
       const scrollH = scrollEl.clientHeight;
@@ -315,6 +319,7 @@
   function hideCommentary() {
     col.classList.remove('visible');
     dash.style.setProperty('--sentiment-alpha', '0');
+    if (window.hideCommentaryViz) window.hideCommentaryViz();
   }
 
   // ═══ CYCLING PANELS (rating/position only — fuel/tyres no longer cycle) ═══

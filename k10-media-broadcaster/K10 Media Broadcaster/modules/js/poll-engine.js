@@ -487,6 +487,37 @@
     }
     _commentaryWasVisible = !!cmVis;
 
+    // ─── Commentary visualization data feed ───
+    if (cmVis && window.updateCommentaryVizData) {
+      const dsPre = _demo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
+      window.updateCommentaryVizData({
+        brake: brk,
+        throttle: thr,
+        rpmRatio: rpmRatio,
+        speed: speed,
+        brakeBias: bb,
+        tc: +(tc || 0),
+        abs: +(abs || 0),
+        fuelPct: fuelPct,
+        lapDelta: +(v(dsPre + 'LapDelta') || 0),
+        gapAhead: _demo ? +(v('K10MediaBroadcaster.Plugin.Demo.GapAhead') || 0) : +(v('IRacingExtraProperties.iRacing_Opponent_Ahead_Gap') || 0),
+        latG: +(v(dsPre + 'LatG') || 0),
+        longG: +(v(dsPre + 'LongG') || 0),
+        steerTorque: +(v(dsPre + 'SteerTorque') || 0),
+        position: pos,
+        incidents: +(v(dsPre + 'IncidentCount') || 0),
+        lap: lap,
+        sessionTime: vs('DataCorePlugin.GameData.RemainingTime') || '',
+        trackTemp: +(v(dsPre + 'TrackTemp') || 0),
+        tyreTemps: _demo
+          ? [+v('K10MediaBroadcaster.Plugin.Demo.TyreTempFL'), +v('K10MediaBroadcaster.Plugin.Demo.TyreTempFR'), +v('K10MediaBroadcaster.Plugin.Demo.TyreTempRL'), +v('K10MediaBroadcaster.Plugin.Demo.TyreTempRR')]
+          : [+v('DataCorePlugin.GameData.TyreTempFrontLeft'), +v('DataCorePlugin.GameData.TyreTempFrontRight'), +v('DataCorePlugin.GameData.TyreTempRearLeft'), +v('DataCorePlugin.GameData.TyreTempRearRight')],
+        tyreWears: _demo
+          ? [(+v('K10MediaBroadcaster.Plugin.Demo.TyreWearFL') || 1) * 100, (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearFR') || 1) * 100, (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearRL') || 1) * 100, (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearRR') || 1) * 100]
+          : [(p['DataCorePlugin.GameData.TyreWearFrontLeft'] != null ? +p['DataCorePlugin.GameData.TyreWearFrontLeft'] * 100 : 100), (p['DataCorePlugin.GameData.TyreWearFrontRight'] != null ? +p['DataCorePlugin.GameData.TyreWearFrontRight'] * 100 : 100), (p['DataCorePlugin.GameData.TyreWearRearLeft'] != null ? +p['DataCorePlugin.GameData.TyreWearRearLeft'] * 100 : 100), (p['DataCorePlugin.GameData.TyreWearRearRight'] != null ? +p['DataCorePlugin.GameData.TyreWearRearRight'] * 100 : 100)]
+      });
+    }
+
     // ─── Driver display name (for leaderboard) ───
     const dfn = vs('K10MediaBroadcaster.Plugin.DriverFirstName') || '';
     const dln = vs('K10MediaBroadcaster.Plugin.DriverLastName') || '';

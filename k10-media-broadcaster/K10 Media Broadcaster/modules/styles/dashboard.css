@@ -200,6 +200,80 @@
     display: none;
   }
 
+  /* ── Commentary Data Visualization ── */
+  .commentary-viz {
+    position: relative;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-top: 0;
+    transition: height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.35s ease 0.05s,
+                margin-top 0.4s ease;
+  }
+  .commentary-viz.viz-active {
+    height: 80px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+  .commentary-viz[data-viz-type="quad"].viz-active {
+    height: 72px;
+  }
+  .commentary-viz[data-viz-type="counter"].viz-active {
+    height: 40px;
+  }
+  .commentary-viz[data-viz-type="gforce"].viz-active {
+    height: 90px;
+  }
+  #commentaryVizCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .commentary-viz-value {
+    position: absolute;
+    bottom: 2px;
+    right: 0;
+    font-family: var(--ff-mono);
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+    opacity: 0.85;
+    text-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.6);
+    pointer-events: none;
+  }
+  .commentary-viz[data-viz-type="counter"] .commentary-viz-value {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    text-align: center;
+    font-size: 22px;
+    font-weight: var(--fw-black);
+    line-height: 1;
+    opacity: 1;
+    width: 100%;
+    padding-top: 4px;
+  }
+  .commentary-viz-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 7px;
+    font-weight: var(--fw-semi);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+  .commentary-viz[data-viz-type="counter"] .commentary-viz-label {
+    position: relative;
+    text-align: center;
+    width: 100%;
+  }
+
   /* ── MAIN AREA ── */
   .main-area {
     display: flex;

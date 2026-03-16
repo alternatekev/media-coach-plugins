@@ -795,6 +795,7 @@ namespace K10MediaBroadcaster.Plugin
                     // ── Game data (live telemetry from snapshot) ──
                     Jp(sb, "DataCorePlugin.GameRunning", s.GameRunning ? 1 : 0);
                     Jp(sb, "K10MediaBroadcaster.Plugin.GameId", Escape(s.GameName ?? ""));
+                    Jp(sb, "K10MediaBroadcaster.Plugin.SessionTypeName", Escape(s.SessionTypeName ?? ""));
                     Jp(sb, "DataCorePlugin.GameData.Gear", Escape(s.Gear ?? "N"));
                     Jp(sb, "DataCorePlugin.GameData.Rpms", s.Rpms, ic);
                     Jp(sb, "DataCorePlugin.GameData.CarSettings_MaxRPM", 8000.0, ic); // fallback; snapshot doesn't carry maxRPM
@@ -891,6 +892,7 @@ namespace K10MediaBroadcaster.Plugin
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.BrakeBias", dt.BrakeBias, ic);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.TC", dt.TC, ic);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.ABS", dt.ABS, ic);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.Demo.SessionTypeName", Escape(dt.SessionTypeName ?? ""));
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.Position", dt.Position);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.CurrentLap", dt.CurrentLap);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Demo.BestLapTime", dt.BestLapTime, ic);

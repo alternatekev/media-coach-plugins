@@ -63,6 +63,7 @@ const PROP_KEYS = [
   'K10MediaBroadcaster.Plugin.CommentaryCategory',
   'K10MediaBroadcaster.Plugin.CommentarySentimentColor',
   'K10MediaBroadcaster.Plugin.CommentarySeverity',
+  'K10MediaBroadcaster.Plugin.SessionTypeName',
   // Demo mode properties
   'K10MediaBroadcaster.Plugin.DemoMode',
   'K10MediaBroadcaster.Plugin.Demo.Gear',
@@ -87,6 +88,7 @@ const PROP_KEYS = [
   'K10MediaBroadcaster.Plugin.Demo.BrakeBias',
   'K10MediaBroadcaster.Plugin.Demo.TC',
   'K10MediaBroadcaster.Plugin.Demo.ABS',
+  'K10MediaBroadcaster.Plugin.Demo.SessionTypeName',
   'K10MediaBroadcaster.Plugin.Demo.Position',
   'K10MediaBroadcaster.Plugin.Demo.CurrentLap',
   'K10MediaBroadcaster.Plugin.Demo.BestLapTime',
@@ -191,6 +193,11 @@ let _lastCarModel = null;
 let _lastDriverAhead = '';
 let _lastDriverBehind = '';
 let _lastPosition = 0;
+let _gapsBestLap = 0;          // best lap time for gaps module (non-race)
+let _gapsLastLap = 0;          // last completed lap for gaps module
+let _gapsWorstLap = 0;         // worst valid lap time for gaps module
+let _gapsLapNum = 0;           // current lap number for gaps module
+let _gapsNonRaceMode = false;  // currently in non-race session
 let _startPosition = 0;
 let _prevBB = -1, _prevTC = -1, _prevABS = -1;
 let _clutchSeenActive = false;
@@ -326,3 +333,18 @@ let _discordUser = null;
 let _currentCarLogoIdx = 0;
 let _currentCarLogo = '';
 let _logoCycleTimer = null;  // Will be initialized when car-logos.js runs
+
+// ─── Utility: session type detection ───
+function _isNonRaceSession(sessionType) {
+  if (!sessionType) return false;
+  const s = sessionType.toLowerCase();
+  return s.includes('practice') || s.includes('qualify') || s.includes('test') || s.includes('warmup') || s.includes('warm up');
+}
+
+// ─── Utility: format lap time (seconds → m:ss.xxx) ───
+function _fmtLapTime(secs) {
+  if (secs <= 0) return '—';
+  const m = Math.floor(secs / 60);
+  const s = (secs % 60).toFixed(3);
+  return m + ':' + (s < 10 ? '0' : '') + s;
+}

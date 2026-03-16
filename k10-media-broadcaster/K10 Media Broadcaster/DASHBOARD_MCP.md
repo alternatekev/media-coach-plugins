@@ -2,15 +2,15 @@
 
 ## Quick Reference
 
-**Production dashboard**: `K10 Media Broadcaster/dashboard.html` (assembly file, ~440 lines)
+**Production dashboard**: `K10 Media Broadcaster/dashboard.html` (assembly file, ~530 lines)
 **CSS modules**: `modules/styles/*.css` (8 files)
-**JS modules**: `modules/js/*.js` (19 files)
+**JS modules**: `modules/js/*.js` (20 files, ~6600 lines total)
 **Tests**: `tests/*.spec.mjs` (Playwright)
 **Test helpers**: `tests/helpers.mjs`
 **Electron main**: `main.js` (IPC handlers, window management, Discord OAuth)
-**Electron preload**: `preload.js` (IPC bridge → `window.k10`)
+**Electron preload**: `preload.js` (IPC bridge -> `window.k10`)
 
-No bundler. All modules load via `<link>` and `<script src>` tags in dashboard.html. Everything runs in Electron's `file://` protocol with global scope.
+No bundler. All modules load via `<link>` and `<script src>` tags in dashboard.html. Everything runs in Electron's `file://` protocol with **global scope** (duplicate `let`/`const` declarations crash modules).
 
 ---
 
@@ -20,64 +20,67 @@ No bundler. All modules load via `<link>` and `<script src>` tags in dashboard.h
 
 ```
 K10 Media Broadcaster/
-├── dashboard.html          ← Assembly file: HTML structure + module includes
-├── main.js                 ← Electron main process
-├── preload.js              ← IPC bridge (window.k10)
-├── modules/
-│   ├── styles/
-│   │   ├── base.css        ← CSS variables, reset, fonts, shared utilities
-│   │   ├── dashboard.css   ← Main HUD layout (grid, panels, tachometer, pedals)
-│   │   ├── leaderboard.css ← Leaderboard panel positioning & styling
-│   │   ├── datastream.css  ← Telemetry datastream panel
-│   │   ├── effects.css     ← Animations, flag effects, flash transitions
-│   │   ├── settings.css    ← Settings overlay, toggles, layout controls
-│   │   ├── connections.css ← Discord/SimHub connection cards
-│   │   └── rally.css       ← Rally mode overrides (.game-rally, .rally-only, .circuit-only)
-│   └── js/
-│       ├── config.js       ← Constants, globals, SIMHUB_URL, PROP_KEYS, _settings, _mfrMap
-│       ├── keyboard.js     ← Keyboard shortcuts (Ctrl+Shift+S, etc.)
-│       ├── car-logos.js    ← SVG logo paths by manufacturer key
-│       ├── game-detect.js  ← Game ID detection, features map, conn status, fetchProps()
-│       ├── webgl-helpers.js← Shader compilation, buffer setup utilities
-│       ├── settings.js     ← Settings UI, toggles, layout, zoom, persistence
-│       ├── connections.js  ← Discord OAuth, SimHub cards, rally toggle sync, loadSettings/saveSettings
-│       ├── leaderboard.js  ← Leaderboard rendering & update logic
-│       ├── datastream.js   ← Telemetry stream panel rendering
-│       ├── race-control.js ← Race control messages, flag display
-│       ├── race-timeline.js← Race progress timeline bar
-│       ├── incidents.js    ← Incident counter & alerts
-│       ├── pit-limiter.js  ← Pit limiter overlay
-│       ├── race-end.js     ← Race end screen
-│       ├── formation.js    ← Grid/formation lap overlay
-│       ├── spotter.js      ← Proximity spotter panel
-│       ├── fps.js          ← Frame rate counter
-│       ├── webgl.js        ← WebGL shader programs (pedal glow, flag anim, tacho FX, lb effects)
-│       └── poll-engine.js  ← Main orchestrator: polling loop, game detection, applyGameMode()
-└── tests/
-    ├── helpers.mjs         ← MOCK_TELEMETRY, MOCK_DEMO, loadDashboard(), updateMockData()
-    ├── discord-oauth.spec.mjs ← PKCE OAuth unit + integration tests
-    └── dashboard.spec.mjs  ← Dashboard rendering tests (if exists)
++-- dashboard.html          <- Assembly file: HTML structure + module includes
++-- main.js                 <- Electron main process
++-- preload.js              <- IPC bridge (window.k10)
++-- modules/
+|   +-- styles/
+|   |   +-- base.css        <- CSS variables, reset, fonts, shared utilities
+|   |   +-- dashboard.css   <- Main HUD layout (grid, panels, tachometer, pedals)
+|   |   +-- leaderboard.css <- Leaderboard panel positioning & styling
+|   |   +-- datastream.css  <- Telemetry datastream panel
+|   |   +-- effects.css     <- Animations, flag effects, flash transitions, grid module, spotter, pit limiter
+|   |   +-- settings.css    <- Settings overlay, toggles, layout controls
+|   |   +-- connections.css <- Discord/SimHub connection cards
+|   |   +-- rally.css       <- Rally mode overrides (.game-rally, .rally-only, .circuit-only)
+|   +-- js/
+|       +-- config.js       <- (330 lines) Constants, globals, SIMHUB_URL, PROP_KEYS, _settings, _mfrMap, utility functions
+|       +-- keyboard.js     <- (10 lines) Keyboard shortcuts (Ctrl+Shift+S, etc.)
+|       +-- car-logos.js    <- (69 lines) SVG logo paths by manufacturer key
+|       +-- game-detect.js  <- (220 lines) Game ID detection, features map, conn status, fetchProps()
+|       +-- webgl-helpers.js<- (634 lines) Shader compilation, buffer setup utilities
+|       +-- settings.js     <- (114 lines) Settings UI, toggles, layout, zoom, persistence
+|       +-- connections.js  <- (555 lines) Discord OAuth, SimHub cards, rally toggle sync, loadSettings/saveSettings
+|       +-- leaderboard.js  <- (149 lines) Leaderboard rendering & update logic
+|       +-- datastream.js   <- (287 lines) Telemetry stream panel rendering
+|       +-- race-control.js <- (58 lines) Race control messages, flag display
+|       +-- race-timeline.js<- (173 lines) Race progress timeline bar
+|       +-- incidents.js    <- (73 lines) Incident counter & alerts
+|       +-- pit-limiter.js  <- (131 lines) Pit limiter overlay with bonkers spark effects
+|       +-- race-end.js     <- (120 lines) Race end screen
+|       +-- formation.js    <- (206 lines) Grid/formation lap overlay controller
+|       +-- spotter.js      <- (195 lines) Proximity spotter + in-car adjustment announcements
+|       +-- commentary-viz.js <- (844 lines) Commentary visualization engine (line, gauge, bar, delta, quad, counter, grid, incident renderers)
+|       +-- fps.js          <- (19 lines) Frame rate counter
+|       +-- webgl.js        <- (1739 lines) WebGL2 shader programs (pedal glow, flag anim, tacho FX, lb effects, spotter glow, bonkers fire, commentary trail, grid border)
+|       +-- poll-engine.js  <- (632 lines) Main orchestrator: polling loop, game detection, applyGameMode(), session-aware gaps
++-- tests/
+    +-- helpers.mjs         <- MOCK_TELEMETRY, MOCK_DEMO, loadDashboard(), updateMockData()
+    +-- discord-oauth.spec.mjs <- PKCE OAuth unit + integration tests
+    +-- dashboard.spec.mjs  <- Dashboard rendering tests (if exists)
 ```
 
 ### Load Order (Critical)
 
 JS modules must load in this exact order (dependency chain):
 
-1. `config.js` — defines all globals, constants, `_settings`, `_mfrMap`
-2. `keyboard.js` — keyboard event listeners
-3. `car-logos.js` — populates `_logoSVGs` map
-4. `game-detect.js` — `detectGameId()`, `isGameAllowed()`, `isRallyGame()`, `fetchProps()`, `_updateConnStatus()`
-5. `webgl-helpers.js` — shader utils (used by webgl.js)
-6. `settings.js` — `applySettings()`, `_defaultSettings`, layout functions, zoom
-7. `connections.js` — Discord/SimHub, `toggleRallyMode()`, `toggleLayoutRally()`, `loadSettings()`, `saveSettings()`, `initDiscordState()`
-8. `leaderboard.js` through `spotter.js` — panel renderers (independent)
-9. `fps.js` — performance counter
-10. `webgl.js` — shader programs
-11. `poll-engine.js` — starts polling loop, calls `applyGameMode()`, main `pollUpdate()`
+1. `config.js` -- defines all globals, constants, `_settings`, `_mfrMap`, `_isNonRaceSession()`, `_fmtLapTime()`
+2. `keyboard.js` -- keyboard event listeners
+3. `car-logos.js` -- populates `_logoSVGs` map
+4. `game-detect.js` -- `detectGameId()`, `isGameAllowed()`, `isRallyGame()`, `fetchProps()`, `_updateConnStatus()`
+5. `webgl-helpers.js` -- shader utils (used by webgl.js)
+6. `settings.js` -- `applySettings()`, `_defaultSettings`, layout functions, zoom
+7. `connections.js` -- Discord/SimHub, `toggleRallyMode()`, `toggleLayoutRally()`, `loadSettings()`, `saveSettings()`, `initDiscordState()`
+8. `leaderboard.js` through `spotter.js` -- panel renderers (independent)
+9. `commentary-viz.js` -- commentary visualization engine
+10. `fps.js` -- performance counter
+11. `webgl.js` -- shader programs (IIFE, registers `window.*` public APIs)
+12. `poll-engine.js` -- starts polling loop, calls `applyGameMode()`, main `pollUpdate()`
 
 ### Global State Variables (defined in config.js)
 
 ```javascript
+// Game state
 let _currentGameId = '';       // 'iracing', 'acc', 'acevo', 'acrally', 'lmu', 'raceroom', 'eawrc', 'forza'
 let _isIRacing = true;         // shorthand for _currentGameId === 'iracing'
 let _isRally = false;          // isRallyGame() || _rallyModeEnabled
@@ -87,128 +90,349 @@ let _settings = {};            // merged from _defaultSettings + saved
 let _connFails = 0;            // connection failure counter for backoff
 let _backoffUntil = 0;         // timestamp for exponential backoff
 let _pollFrame = 0;            // frame counter
+
+// Driver & car state
+let _driverDisplayName = 'YOU';
+let _lastCarModel = null;
+let _lastDriverAhead = '';
+let _lastDriverBehind = '';
+let _lastPosition = 0;
+let _startPosition = 0;
+let _prevBB = -1, _prevTC = -1, _prevABS = -1;
+let _clutchSeenActive = false;
+let _clutchHidden = false;
+
+// Gaps module (non-race session lap timing)
+let _gapsBestLap = 0;
+let _gapsLastLap = 0;
+let _gapsWorstLap = 0;
+let _gapsLapNum = 0;
+let _gapsNonRaceMode = false;
+
+// Telemetry history (pedal histograms)
+let _thrHist = new Array(20).fill(0);  // throttle 0-1
+let _brkHist = new Array(20).fill(0);  // brake 0-1
+let _cltHist = new Array(20).fill(0);  // clutch 0-1
+
+// Flag & race control
+let _lastFlagState = 'none';
+let _flagHoldState = '';
+let _flagHoldUntil = 0;
+```
+
+### Utility Functions (defined in config.js)
+
+```javascript
+// Check if session is practice/qualifying/test/warmup
+function _isNonRaceSession(sessionType) { ... }
+
+// Format seconds to m:ss.xxx
+function _fmtLapTime(secs) { ... }
+```
+
+---
+
+## Module Details
+
+### poll-engine.js (Main Orchestrator, ~632 lines)
+
+The polling loop that drives the entire HUD. Calls `fetchProps()` every `POLL_MS` (33ms) and updates all DOM elements.
+
+**Key sections** (in order within `pollUpdate()`):
+1. Game detection & idle state check
+2. Position, laps, fuel, tire data
+3. Pedal inputs (throttle/brake/clutch) with normalization: `while (val > 1.01) val /= 100`
+4. BB/TC/ABS in-car adjustments -- calls `window.announceAdjustment(type, value, direction)`
+5. iRating / Safety Rating display
+6. **Gaps section** -- session-aware:
+   - Non-race: shows Best Lap / Last Lap with delta
+   - Race: shows Ahead / Behind gaps with driver names
+7. Flag status -- applies flag classes to gaps block
+8. Race control messages
+9. Spotter update -- `updateSpotter(p, _demo)`
+10. Commentary visualization
+11. Pit limiter -- `updatePitLimiter(p, _demo)`
+
+**Pedal normalization pattern:**
+```javascript
+while (thr > 1.01) thr /= 100;  // handles iRacing 10000% range
+thr = Math.min(1, Math.max(0, thr));
+```
+
+### spotter.js (~195 lines)
+
+Proximity spotter panel + in-car adjustment announcements.
+
+**Race sessions:** Gap-based messages (car ahead, car behind, closing, alongside, position gained/lost)
+**All sessions:** Adjustment announcements via `window.announceAdjustment(type, value, direction)`
+
+**Key functions:**
+- `updateSpotter(p, isDemo)` -- called from poll-engine, race gap logic only
+- `window.announceAdjustment(type, value, direction)` -- BB/TC/ABS changes, shows "Adjustment" header
+- `_showSpotterMsg(msg, severity, headerOverride)` -- display helper, auto-fades after 5s
+- `_setSpotterHeader(text)` -- updates the `.sp-header` label text
+- `_setSpotterIcon(severity)` -- swaps SVG icon in `.sp-icon`
+
+**SVG icons:** `default`, `sp-warn`, `sp-danger`, `sp-clear`, `sp-bb`, `sp-tc`, `sp-abs`, `sp-lap`
+
+**Proximity thresholds (race only):**
+- <= 0.8s: "alongside" (danger)
+- <= 2.0s: "closing/behind" (warn) or "ahead" (clear)
+- <= 4.0s: "reeling in" / "gaining" (only if closing at > 0.03s/tick)
+
+### pit-limiter.js (~131 lines)
+
+Pit lane speed limiter overlay with three states:
+1. **NORMAL** -- limiter on, under limit (green "Pit Limiter" label)
+2. **WARNING** -- limiter off but under limit ("PIT LIMITER OFF")
+3. **BONKERS** -- speed > pit limit regardless of limiter state ("SPEEDING" + spark particles)
+
+**Key condition:** `const isSpeeding = pitLimitKmh > 0 && speedKmh > pitLimitKmh;`
+
+**Spark particle system:** `_startBonkersSparks(container)` / `_stopBonkersSparks(container)` -- spawns 3-5 sparks every 40ms with randomized direction, hue (red-yellow), and lifetime.
+
+### formation.js (~206 lines)
+
+Grid/formation lap overlay controller. Shows pre-race info (grid position, cars gridded, start type, country flag, countdown) and F1-style start lights.
+
+**Key elements:**
+- `#gridModule` -- main container (fixed center, z-index 200)
+- `#gridFlag` -- country flag banner (fixed at top of screen, separate from info card)
+- `#gridCountdown` -- countdown badge (READY/GRID/PACE/FORM) above info card
+- `#gridInfo` -- pre-race info card
+- `#startLights` -- F1-style start light housing
+
+**WebGL integration:** `window.setGridGL(true/false)` -- activates blue-cyan border glow shader
+
+### webgl.js (~1739 lines)
+
+All WebGL2 shader programs in a single IIFE. Each shader section follows the pattern:
+1. `initGL('canvasId')` -- create context
+2. Vertex + fragment shader source
+3. Compile, link, get uniform locations
+4. `window._*FXFrame(dt)` -- per-frame update function
+5. `window.set*` -- public API for activation
+
+**Shader programs (10 total):**
+1. **tachoFX** -- tachometer rev glow (canvas: `tachoGlCanvas`)
+2. **pedalsFX** -- pedal histogram edge glow (canvas: `pedalsGlCanvas`)
+   - Throttle: right edge, neon green `vec3(0.20, 1.0, 0.05)`, multipliers 0.9/0.4
+   - Brake: left edge, red `vec3(0.92, 0.22, 0.20)`, multipliers 0.35/0.12
+   - Clutch: right edge (shared), blue `vec3(0.25, 0.50, 0.92)`, multipliers 0.14/0.04
+3. **flagFX** -- flag overlay animation (canvas: `flagGlCanvas`)
+4. **lbFX** -- leaderboard effects (canvas: `lbGlCanvas`)
+5. **lbEvtFX** -- leaderboard event effects
+6. **k10LogoFX** -- K10 logo glow
+7. **spotterFX** -- spotter panel edge glow (canvas: `spotterGlCanvas`)
+   - Colors: warn=amber, danger=red, clear=green
+8. **bonkersFX** -- pit limiter fire effect (canvas: `bonkersGlCanvas`)
+9. **commTrailFX** -- commentary trailing glow
+10. **gridFX** -- grid module border glow (canvas: `gridGlCanvas`)
+    - Blue-cyan scanning beam, corner accents, noise shimmer
+
+**Master FX loop** (requestAnimationFrame):
+```javascript
+tachoFX -> pedalsFX -> flagFX -> lbFX -> lbEvtFX -> k10LogoFX -> spotterFX -> bonkersFX -> commTrailFX -> gridFX
+```
+
+### incidents.js (~73 lines)
+
+Incident counter module showing count, penalty threshold, and DQ threshold.
+
+**Key elements:** `#incCount`, `#incPen`, `#incDQ`
+**Values shown without 'x' suffix:** count as number, penalty/DQ as threshold remaining or "PENALTY"/"DQ"
+
+### commentary-viz.js (~844 lines)
+
+Commentary data visualization engine with multiple renderer types.
+
+**Renderer types:** `line`, `gauge`, `gforce`, `bar`, `delta`, `quad`, `counter`, `grid`, `incident`
+
+**Topic config mapping:** Maps commentary topic strings to visualization configs. Each entry specifies `{ type, label, src }` or just `{ type, label }`.
+
+### config.js (~330+ lines)
+
+Central configuration file. Defines:
+- `SIMHUB_URL` -- plugin HTTP endpoint (`http://localhost:8889/k10mediabroadcaster/`)
+- `POLL_MS` -- polling interval (33ms ~ 30fps)
+- `PROP_KEYS` -- array of telemetry property keys to request
+- `DEMO_PROP_KEYS` -- array of demo mode property keys
+- `_defaultSettings` -- default settings object
+- `_mfrMap` -- manufacturer name mapping for car logos
+- All global state variables
+- `_isNonRaceSession()` and `_fmtLapTime()` utility functions
+
+**Property key patterns:**
+- `DataCorePlugin.GameData.*` -- standard SimHub properties
+- `DataCorePlugin.GameRawData.Telemetry.*` -- raw game telemetry
+- `IRacingExtraProperties.iRacing_*` -- iRacing-specific
+- `K10MediaBroadcaster.Plugin.*` -- custom plugin properties
+- `K10MediaBroadcaster.Plugin.Demo.*` -- demo mode equivalents
+- `K10MediaBroadcaster.Plugin.DS.*` -- derived/computed values (speed, pit limiter, etc.)
+- `K10MediaBroadcaster.Plugin.Demo.DS.*` -- demo derived values
+- `K10MediaBroadcaster.Plugin.SessionTypeName` -- session type (Race/Practice/Qualifying/Test)
+
+---
+
+## Dashboard HTML Structure (key components)
+
+```html
+<body>
+  <!-- Main HUD grid: position | gaps+flags | tacho | pedals | fuel+tire -->
+
+  <!-- Gaps Block (ahead/behind OR best/last lap) -->
+  <div class="panel gaps-block" id="gapsBlock">
+    <div class="gap-item">
+      <div class="panel-label">Ahead</div>     <!-- or "Best Lap" in non-race -->
+      <div class="gap-time ahead">-</div>
+      <div class="gap-driver">-</div>
+      <div class="gap-ir"></div>
+    </div>
+    <div class="gap-item">
+      <div class="panel-label">Behind</div>    <!-- or "Last Lap" in non-race -->
+      <div class="gap-time behind">-</div>
+      <div class="gap-driver">-</div>
+      <div class="gap-ir"></div>
+    </div>
+    <canvas class="flag-gl gl-overlay" id="flagGlCanvas"></canvas>
+    <div class="flag-overlay" id="flagOverlay">...</div>
+  </div>
+
+  <!-- Spotter Panel -->
+  <div class="spotter-panel" id="spotterPanel">
+    <canvas class="sp-gl-canvas" id="spotterGlCanvas"></canvas>
+    <div class="sp-inner" id="spotterInner">
+      <svg class="sp-icon">...</svg>
+      <div class="sp-header">Spotter</div>          <!-- changes to "Adjustment" for BB/TC/ABS -->
+      <div class="sp-message" id="spotterMsg"></div>
+    </div>
+  </div>
+
+  <!-- Pit Limiter Banner -->
+  <div class="pit-banner" id="pitBanner">
+    <div class="pit-inner">
+      <span class="pit-label">Pit Limiter</span>
+      <span class="pit-speed" id="pitSpeed"></span>
+      <span class="pit-limit" id="pitLimit"></span>
+    </div>
+  </div>
+
+  <!-- Grid Module (formation lap / pre-race) -->
+  <div class="grid-module" id="gridModule">
+    <canvas class="grid-gl-canvas" id="gridGlCanvas"></canvas>
+    <div class="grid-flag" id="gridFlag">...</div>   <!-- Country flag at top of screen -->
+    <div class="grid-countdown" id="gridCountdown">-</div>
+    <div class="grid-info" id="gridInfo">
+      <div class="grid-title">Formation Lap</div>
+      <div class="grid-cars">...</div>
+      <div class="grid-strip" id="gridStrip"></div>
+      <div class="grid-start-type" id="gridStartType">Rolling Start</div>
+    </div>
+    <div class="start-lights" id="startLights">...</div>
+  </div>
+
+  <!-- Settings Overlay -->
+  <div class="settings-overlay" id="settingsOverlay">...</div>
+</body>
 ```
 
 ---
 
 ## Patterns & Conventions
 
-### Adding a New Settings Toggle
+### Session-Aware Behavior
 
-1. Add default value to `_defaultSettings` in `settings.js`
-2. Add HTML toggle in the appropriate settings section of `dashboard.html`:
-   ```html
-   <label class="settings-toggle" data-key="myKey" data-section="mySectionClass"><span>Label</span></label>
-   ```
-3. The `applySettings()` function auto-syncs toggles with `data-key` to `_settings[key]`
-4. Section visibility: `data-section` maps to a CSS class or ID that gets `.section-hidden` toggled
+The dashboard adapts based on `SessionTypeName`:
+- **Race sessions:** Gaps block shows Ahead/Behind with driver names and iRating. Spotter shows proximity warnings.
+- **Non-race sessions** (practice/qualifying/test/warmup): Gaps block shows Best Lap / Last Lap with delta from best. Spotter only shows adjustment callouts.
 
-### Adding a Discord-Gated Feature
+Detection: `_isNonRaceSession(sessionType)` in config.js checks for practice/qualify/test/warmup keywords.
 
-1. Add the toggle with class `disabled` and an `id`:
-   ```html
-   <label class="settings-toggle disabled" id="myToggle" onclick="toggleMyFeature(this)">
-     <span>Feature</span>
-     <span class="toggle-hint" id="myToggleHint">Connect Discord to enable</span>
-   </label>
-   ```
-2. In `connections.js`, add an update function called from `updateDiscordConnectionCard()`:
-   ```javascript
-   function updateMyToggle() {
-     const el = document.getElementById('myToggle');
-     if (_discordUser) { el.classList.remove('disabled'); }
-     else { el.classList.add('disabled'); }
-   }
-   ```
-3. In the click handler, check `if (el.classList.contains('disabled')) return;`
+### In-Car Adjustment Flow
 
-### Adding a New Game
+```
+poll-engine.js detects BB/TC/ABS change
+  -> flashCtrlBar('ctrlBB')  (visual flash on control bar)
+  -> window.announceAdjustment('bb', value, direction)
+    -> spotter.js _showSpotterMsg(label, 'sp-clear', 'Adjustment')
+    -> _setSpotterIcon('sp-bb')
+    -> header changes to "Adjustment", auto-reverts to "Spotter" after 5s
+```
 
-1. **C# plugin** (`TelemetrySnapshot.Capture.cs`): Add to `GameId` enum, add case to `DetectGame()`, add game-specific property routing in `GetGameBrakeBias()`, `GetGameTC()`, `GetGameABS()`, `GetGameSessionFlags()`, etc.
-2. **JS game-detect** (`game-detect.js`): Add to `GAME_FEATURES` map, add string match to `detectGameId()`
-3. **JS config** (`config.js`): Add manufacturer entries to `_mfrMap` if new brands are needed
+### Pedal Normalization
+
+iRacing can send values up to 10000%. All pedal inputs are normalized:
+```javascript
+while (thr > 1.01) thr /= 100;
+thr = Math.min(1, Math.max(0, thr));
+```
+
+### WebGL Public APIs
+
+```javascript
+window.setTachoGL(rpm, maxRpm)     // tachometer glow
+window.setPedalsGL(thr, brk, clt)  // pedal edge glow
+window.setFlagGLColors(colors)     // flag animation colors
+window.setSpotterGlow(type)        // 'warn'|'danger'|'clear'|'off'
+window.setBonkersGL(active)        // pit limiter fire effect
+window.setGridGL(active)           // grid border glow
+```
+
+### Demo Mode
+
+When `K10MediaBroadcaster.Plugin.DemoMode` is 1, the dashboard reads from `K10MediaBroadcaster.Plugin.Demo.*` keys. The demo prefix pattern:
+- Live: `K10MediaBroadcaster.Plugin.DS.SpeedKmh`
+- Demo: `K10MediaBroadcaster.Plugin.Demo.DS.SpeedKmh`
 
 ### SimHub Telemetry Flow
 
 ```
-SimHub → Plugin.cs (C#) → TelemetrySnapshot → HTTP JSON at :8889/k10mediabroadcaster/
-  → fetchProps() (JS) → pollUpdate() → update DOM elements
+SimHub -> Plugin.cs (C#) -> TelemetrySnapshot -> HTTP JSON at :8889/k10mediabroadcaster/
+  -> fetchProps() (JS) -> pollUpdate() -> update DOM elements
 ```
 
-Property keys follow the pattern:
-- `DataCorePlugin.GameData.*` — standard SimHub properties
-- `DataCorePlugin.GameRawData.Telemetry.*` — raw game telemetry
-- `IRacingExtraProperties.iRacing_*` — iRacing-specific
-- `K10MediaBroadcaster.Plugin.*` — custom plugin properties (commentary, demo mode, game ID)
+### Adding a New Settings Toggle
 
-### Demo Mode
-
-When `K10MediaBroadcaster.Plugin.DemoMode` is 1, the dashboard reads from `K10MediaBroadcaster.Plugin.Demo.*` keys instead of standard telemetry keys. This allows testing without a running game.
+1. Add default value to `_defaultSettings` in `settings.js`
+2. Add HTML toggle with `data-key` and `data-section` attributes
+3. `applySettings()` auto-syncs toggles
 
 ### CSS Game Mode Classes
 
 Applied to `<body>` by `applyGameMode()`:
-- `game-iracing` — iRacing detected
-- `game-rally` — rally game or rally mode enabled
-- `game-acc` — ACC detected
-- `game-lmu` — LMU detected
-
-Element visibility classes:
-- `.ir-only` — shown only when game has iRating
-- `.incident-only` — shown only when game has incidents
-- `.rally-only` — shown only in rally mode
-- `.circuit-only` — hidden in rally mode
-
-### WebGL Shaders
-
-Four shader programs in `webgl.js`:
-1. **Pedal glow** — bloom effect on pedal histograms
-2. **Flag animation** — waving flag effect on flag overlay canvas
-3. **Tachometer FX** — rev-matching glow on tacho segments
-4. **Leaderboard effects** — position change highlight effects
-
-All use `gl-overlay` class canvases positioned absolutely over their parent elements.
-
-### Electron IPC Bridge (`window.k10`)
-
-```javascript
-window.k10 = {
-  getSettings: () => Promise<object>,
-  saveSettings: (settings) => Promise<void>,
-  onSettingsMode: (callback) => void,        // Ctrl+Shift+S events
-  requestInteractive: () => Promise<void>,   // make window focusable
-  releaseInteractive: () => Promise<void>,   // restore click-through
-  getGreenScreenMode: () => Promise<boolean>,
-  restartApp: () => Promise<void>,
-  openExternal: (url) => Promise<void>,      // open in default browser
-  discordConnect: () => Promise<{success, user, error}>,
-  discordDisconnect: () => Promise<void>,
-  getDiscordUser: () => Promise<object|null>,
-};
-```
+- `game-iracing`, `game-rally`, `game-acc`, `game-lmu`
+- `.ir-only`, `.incident-only`, `.rally-only`, `.circuit-only`
 
 ---
 
-## Testing
+## C# Plugin Architecture
 
-### Test Setup (Playwright)
+### Key Files
 
-Tests use `tests/helpers.mjs` which provides:
-- `MOCK_TELEMETRY` — realistic mid-race iRacing data
-- `MOCK_DEMO` — demo mode data with `K10MediaBroadcaster.Plugin.Demo.*` keys
-- `loadDashboard(page, overrideData)` — loads dashboard.html with fetch intercepted
-- `updateMockData(page, data)` — re-routes fetch mid-test
-
-### Running Tests
-
-```bash
-npx playwright test                           # all tests
-npx playwright test tests/discord-oauth.spec.mjs  # specific test file
+```
+simhub-plugin/plugin/K10MediaBroadcaster.Plugin/
++-- Plugin.cs                    <- Main plugin, HTTP server, JSON output
++-- Engine/
+|   +-- TelemetrySnapshot.cs     <- Data model for all telemetry values
+|   +-- DemoTelemetryProvider.cs  <- Demo mode data generator
+|   +-- DemoSequence.cs           <- Demo sequence definitions
 ```
 
-### Test Convention
+### Plugin.cs JSON Output
 
-Tests use `@playwright/test` with `test.describe()` blocks. Mock data is served via `page.route()` intercepting requests matching `/k10mediabroadcaster/`.
+The plugin serves a flat JSON map. Key output sections:
+- Standard telemetry (position, laps, fuel, tires, etc.)
+- `K10MediaBroadcaster.Plugin.SessionTypeName` -- session type string
+- `K10MediaBroadcaster.Plugin.DS.*` -- derived values (speed, pit limiter, etc.)
+- `K10MediaBroadcaster.Plugin.Demo.*` -- demo mode equivalents
+- `K10MediaBroadcaster.Plugin.Grid.*` -- grid/formation data
+
+### DemoTelemetryProvider.cs
+
+Generates demo telemetry data. Properties include:
+- `SessionTypeName` (default: "Race")
+- Standard telemetry fields (position, gaps, laps, fuel, etc.)
+- `BestLapTime`, `LastLapTime`, `CurrentLap`
 
 ---
 
@@ -218,14 +442,15 @@ Tests use `@playwright/test` with `test.describe()` blocks. Mock data is served 
 Edit `_layoutPositionMap` in `settings.js` and the `<select id="layoutPosition">` in `dashboard.html`.
 
 ### Adjusting polling rate
-Change `POLL_MS` in `config.js` (default: 33ms ≈ 30fps).
+Change `POLL_MS` in `config.js` (default: 33ms = 30fps).
 
 ### Adding a new secondary panel
-1. Add HTML in dashboard.html inside `#secondaryPanels`
+1. Add HTML in dashboard.html
 2. Add toggle in settings section with `data-key` and `data-section`
-3. Add positioning logic in `applyLayout()` in `settings.js`
-4. Create renderer module in `modules/js/`
-5. Add `<script src>` tag before `poll-engine.js`
+3. Create renderer module in `modules/js/`
+4. Add `<script src>` tag before `poll-engine.js`
 
-### Modifying the settings panel
-The settings overlay is in dashboard.html lines 286-396. Sections use `<div class="settings-section">` with `<h3>` headers. Toggles are `<label class="settings-toggle" data-key="..." data-section="...">`.
+### Adding a new WebGL shader
+1. Add shader section in `webgl.js` (before master FX loop)
+2. Follow pattern: `initGL('canvasId')` -> shader source -> compile -> `window._*FXFrame(dt)` -> `window.set*`
+3. Add to master FX loop: `if (window._*FXFrame) window._*FXFrame(dt);`

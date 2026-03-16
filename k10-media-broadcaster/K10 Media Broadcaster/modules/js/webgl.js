@@ -253,22 +253,22 @@
           float bottomEdge = exp(-uv.y * (14.0 / dpr2));
           float topEdge    = exp(-(1.0 - uv.y) * (20.0 / dpr2));
 
-          // Throttle — right edge glow (primary) + subtle bottom accent
+          // Throttle — right edge + bottom glow (neon green, mirrors brake on left)
           if (uThr > 0.01) {
-            float p = pulse(uTime, 4.0 + uThr * 2.0, 0.92);
-            float edge = rightEdge + bottomEdge * 0.2;
+            float p = pulse(uTime, 4.0 + uThr * 2.0, 0.88);
+            float edge = rightEdge + bottomEdge * 0.6 + topEdge * 0.2;
             float glow = edge * uThr * p;
-            col += vec3(0.18, 0.82, 0.34) * glow * 0.20 * dpr2;
-            alpha += glow * 0.07 * dpr2;
+            col += vec3(0.20, 1.0, 0.05) * glow * 0.9 * dpr2;
+            alpha += glow * 0.4 * dpr2;
           }
 
-          // Brake — left edge glow (primary) + subtle bottom accent
+          // Brake — left edge glow (red)
           if (uBrk > 0.01) {
-            float p = pulse(uTime, 3.5 + uBrk * 2.5, 0.92);
-            float edge = leftEdge + bottomEdge * 0.2;
+            float p = pulse(uTime, 3.5 + uBrk * 2.5, 0.88);
+            float edge = leftEdge + bottomEdge * 0.25 + topEdge * 0.15;
             float glow = edge * uBrk * p;
-            col += vec3(0.92, 0.22, 0.20) * glow * 0.20 * dpr2;
-            alpha += glow * 0.07 * dpr2;
+            col += vec3(0.92, 0.22, 0.20) * glow * 0.35 * dpr2;
+            alpha += glow * 0.12 * dpr2;
           }
 
           // Clutch — right edge glow (shares side with throttle)
@@ -280,7 +280,7 @@
             alpha += glow * 0.05 * dpr2;
           }
 
-          float maxAlpha = dprScale > 1.1 ? 0.4 : 0.3;
+          float maxAlpha = dprScale > 1.1 ? 0.75 : 0.65;
           alpha = clamp(alpha, 0.0, maxAlpha);
           fragColor = vec4(col * alpha, alpha);
         }`;

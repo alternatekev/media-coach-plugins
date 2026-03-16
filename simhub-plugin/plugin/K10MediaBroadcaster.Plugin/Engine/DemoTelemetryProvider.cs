@@ -81,6 +81,8 @@ namespace K10MediaBroadcaster.Plugin.Engine
         public double RemainingTime  { get; private set; } = 1820;
         public int    TotalLaps      { get; private set; } = 25;
 
+        public string SessionTypeName { get; private set; } = "Race";
+
         public int    IRating        { get; private set; } = 2673;
         public double SafetyRating   { get; private set; } = 3.24;
 

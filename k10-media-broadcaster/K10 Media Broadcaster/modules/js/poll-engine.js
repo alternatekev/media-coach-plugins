@@ -116,7 +116,13 @@
     let thr = +d('DataCorePlugin.GameData.Throttle', 'Demo.Throttle') || 0;
     let brk = +d('DataCorePlugin.GameData.Brake', 'Demo.Brake') || 0;
     let clt = +d('DataCorePlugin.GameData.Clutch', 'Demo.Clutch') || 0;
-    if (thr > 1) thr /= 100; if (brk > 1) brk /= 100; if (clt > 1) clt /= 100;
+    // Normalize to 0-1: some games send 0-100, iRacing can send 0-10000+
+    while (thr > 1.01) thr /= 100;
+    while (brk > 1.01) brk /= 100;
+    while (clt > 1.01) clt /= 100;
+    thr = Math.min(1, Math.max(0, thr));
+    brk = Math.min(1, Math.max(0, brk));
+    clt = Math.min(1, Math.max(0, clt));
 
     // Auto-hide clutch for cars with autoclutch/DCT/no manual clutch pedal
     if (clt > 0.03) _clutchSeenActive = true;
@@ -245,10 +251,19 @@
       }
     }
 
-    // Flash control bars on value change
-    if (_prevBB >= 0 && bb > 0 && Math.abs(bb - _prevBB) > 0.05) flashCtrlBar('ctrlBB');
-    if (_prevTC >= 0 && +tc !== _prevTC) flashCtrlBar('ctrlTC');
-    if (_prevABS >= 0 && +abs !== _prevABS) flashCtrlBar('ctrlABS');
+    // Flash control bars on value change + announce via spotter
+    if (_prevBB >= 0 && bb > 0 && Math.abs(bb - _prevBB) > 0.05) {
+      flashCtrlBar('ctrlBB');
+      if (window.announceAdjustment) window.announceAdjustment('bb', bb, bb > _prevBB ? 1 : -1);
+    }
+    if (_prevTC >= 0 && +tc !== _prevTC) {
+      flashCtrlBar('ctrlTC');
+      if (window.announceAdjustment) window.announceAdjustment('tc', +tc, +tc > _prevTC ? 1 : -1);
+    }
+    if (_prevABS >= 0 && +abs !== _prevABS) {
+      flashCtrlBar('ctrlABS');
+      if (window.announceAdjustment) window.announceAdjustment('abs', +abs, +abs > _prevABS ? 1 : -1);
+    }
     if (bb > 0) _prevBB = bb;
     if (tcOk) _prevTC = +tc;
     if (absOk) _prevABS = +abs;
@@ -374,25 +389,80 @@
     updateIRBar(ir);
     updateSRPie(sr);
 
-    // ─── Gaps ───
-    const gAhead  = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.GapAhead') || 0)  : (+v('IRacingExtraProperties.iRacing_Opponent_Ahead_Gap') || 0);
-    const gBehind = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.GapBehind') || 0) : (+v('IRacingExtraProperties.iRacing_Opponent_Behind_Gap') || 0);
-    const dAhead  = _demo ? vs('K10MediaBroadcaster.Plugin.Demo.DriverAhead')  : vs('IRacingExtraProperties.iRacing_Opponent_Ahead_Name');
-    const dBehind = _demo ? vs('K10MediaBroadcaster.Plugin.Demo.DriverBehind') : vs('IRacingExtraProperties.iRacing_Opponent_Behind_Name');
-    const irA     = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.IRAhead') || 0)   : (+v('IRacingExtraProperties.iRacing_Opponent_Ahead_IRating') || 0);
-    const irB     = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.IRBehind') || 0)  : (+v('IRacingExtraProperties.iRacing_Opponent_Behind_IRating') || 0);
+    // ─── Gaps / Lap Timing ───
+    const sessionType = _demo
+      ? (p['K10MediaBroadcaster.Plugin.Demo.SessionTypeName'] || '')
+      : (p['K10MediaBroadcaster.Plugin.SessionTypeName'] || '');
+    const nonRace = _isNonRaceSession(sessionType);
+
+    const gapLabels = document.querySelectorAll('.panel-label');
     const gapTimes = document.querySelectorAll('.gap-time');
     const gapDrivers = document.querySelectorAll('.gap-driver');
     const gapIRs = document.querySelectorAll('.gap-ir');
     const gapItems = document.querySelectorAll('.gap-item');
-    if (gapTimes.length >= 2) { gapTimes[0].textContent = gAhead ? fmtGap(-Math.abs(gAhead)) : '—'; gapTimes[1].textContent = gBehind ? fmtGap(Math.abs(gBehind)) : '—'; }
-    if (gapDrivers.length >= 2) { gapDrivers[0].textContent = dAhead || '—'; gapDrivers[1].textContent = dBehind || '—'; }
-    if (gapIRs.length >= 2) { gapIRs[0].textContent = irA > 0 ? irA + ' iR' : ''; gapIRs[1].textContent = irB > 0 ? irB + ' iR' : ''; }
-    if (gapItems.length >= 2) {
-      if (dAhead !== _lastDriverAhead && _lastDriverAhead) flashElement(gapItems[0], 'ahead-changed');
-      if (dBehind !== _lastDriverBehind && _lastDriverBehind) flashElement(gapItems[1], 'behind-changed');
+
+    if (nonRace) {
+      // ── Non-race: show best lap / last lap ──
+      const bestLap = _demo
+        ? (+(p['K10MediaBroadcaster.Plugin.Demo.BestLapTime']) || 0)
+        : (+(p['DataCorePlugin.GameData.BestLapTime']) || 0);
+      const lastLap = _demo
+        ? (+(p['K10MediaBroadcaster.Plugin.Demo.LastLapTime']) || 0)
+        : (+(p['DataCorePlugin.GameData.LastLapTime']) || 0);
+      const curLap = _demo
+        ? (+(p['K10MediaBroadcaster.Plugin.Demo.CurrentLap']) || 0)
+        : (+(p['DataCorePlugin.GameData.CurrentLap']) || 0);
+
+      // Track worst lap
+      if (lastLap > 0 && lastLap !== _gapsLastLap) {
+        _gapsLastLap = lastLap;
+        if (lastLap > _gapsWorstLap) _gapsWorstLap = lastLap;
+      }
+      _gapsBestLap = bestLap;
+      _gapsLapNum = curLap;
+
+      // Update labels
+      if (gapLabels.length >= 2) { gapLabels[0].textContent = 'Best Lap'; gapLabels[1].textContent = 'Last Lap'; }
+      if (gapTimes.length >= 2) {
+        gapTimes[0].textContent = bestLap > 0 ? _fmtLapTime(bestLap) : '—';
+        gapTimes[1].textContent = lastLap > 0 ? _fmtLapTime(lastLap) : '—';
+      }
+      // Show delta from best instead of driver name
+      if (gapDrivers.length >= 2) {
+        gapDrivers[0].textContent = curLap > 0 ? 'Lap ' + curLap : '';
+        if (lastLap > 0 && bestLap > 0) {
+          const delta = lastLap - bestLap;
+          gapDrivers[1].textContent = delta <= 0.001 ? 'Personal Best' : '+' + delta.toFixed(3);
+        } else {
+          gapDrivers[1].textContent = '';
+        }
+      }
+      if (gapIRs.length >= 2) { gapIRs[0].textContent = ''; gapIRs[1].textContent = ''; }
+      _gapsNonRaceMode = true;
+    } else {
+      // ── Race: show ahead / behind gaps ──
+      if (_gapsNonRaceMode) {
+        // Restore labels when switching back to race
+        if (gapLabels.length >= 2) { gapLabels[0].textContent = 'Ahead'; gapLabels[1].textContent = 'Behind'; }
+        _gapsNonRaceMode = false;
+        _gapsWorstLap = 0;
+        _gapsLastLap = 0;
+      }
+      const gAhead  = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.GapAhead') || 0)  : (+v('IRacingExtraProperties.iRacing_Opponent_Ahead_Gap') || 0);
+      const gBehind = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.GapBehind') || 0) : (+v('IRacingExtraProperties.iRacing_Opponent_Behind_Gap') || 0);
+      const dAhead  = _demo ? vs('K10MediaBroadcaster.Plugin.Demo.DriverAhead')  : vs('IRacingExtraProperties.iRacing_Opponent_Ahead_Name');
+      const dBehind = _demo ? vs('K10MediaBroadcaster.Plugin.Demo.DriverBehind') : vs('IRacingExtraProperties.iRacing_Opponent_Behind_Name');
+      const irA     = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.IRAhead') || 0)   : (+v('IRacingExtraProperties.iRacing_Opponent_Ahead_IRating') || 0);
+      const irB     = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.IRBehind') || 0)  : (+v('IRacingExtraProperties.iRacing_Opponent_Behind_IRating') || 0);
+      if (gapTimes.length >= 2) { gapTimes[0].textContent = gAhead ? fmtGap(-Math.abs(gAhead)) : '—'; gapTimes[1].textContent = gBehind ? fmtGap(Math.abs(gBehind)) : '—'; }
+      if (gapDrivers.length >= 2) { gapDrivers[0].textContent = dAhead || '—'; gapDrivers[1].textContent = dBehind || '—'; }
+      if (gapIRs.length >= 2) { gapIRs[0].textContent = irA > 0 ? irA + ' iR' : ''; gapIRs[1].textContent = irB > 0 ? irB + ' iR' : ''; }
+      if (gapItems.length >= 2) {
+        if (dAhead !== _lastDriverAhead && _lastDriverAhead) flashElement(gapItems[0], 'ahead-changed');
+        if (dBehind !== _lastDriverBehind && _lastDriverBehind) flashElement(gapItems[1], 'behind-changed');
+      }
+      _lastDriverAhead = dAhead; _lastDriverBehind = dBehind;
     }
-    _lastDriverAhead = dAhead; _lastDriverBehind = dBehind;
 
     // ─── Flag Status → Gaps Block ───
     const flagState = (_forceFlagState && _demo) ? _forceFlagState : (vs('currentFlagState') || 'none');

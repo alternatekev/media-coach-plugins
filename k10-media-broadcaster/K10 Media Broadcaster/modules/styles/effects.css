@@ -732,7 +732,16 @@
     border-radius: 14px;
     padding: 28px 48px;
     min-width: 340px;
-    transition: opacity 0.6s ease, transform 0.5s ease;
+    transition: opacity 0.6s ease, transform 0.5s ease, background 1.0s ease;
+  }
+  /* When flag is active, let it show through as the card background */
+  .grid-info:has(.grid-flag.flag-active) {
+    background: transparent;
+  }
+  /* All direct text children sit above the flag + its darkening overlay */
+  .grid-info > *:not(.grid-flag) {
+    position: relative;
+    z-index: 2;
   }
   .grid-info.info-hidden {
     opacity: 0;
@@ -910,20 +919,16 @@
     100% { transform: translateX(-50%) scale(1.12); }
   }
 
-  /* ── Country flag banner — fixed at top of screen ────────── */
+  /* ── Country flag — fills grid-info card as background ────────── */
   .grid-flag {
-    position: fixed;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 160px;
-    height: 48px;
-    z-index: 201;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
     overflow: hidden;
-    border-radius: 8px;
+    border-radius: 14px;
+    background: hsl(0, 0%, 0%);
     opacity: 0;
     transition: opacity 1.2s ease;
-    box-shadow: 0 2px 12px hsla(0, 0%, 0%, 0.5);
   }
   .grid-flag.flag-active {
     opacity: 1;
@@ -932,11 +937,11 @@
     position: absolute;
     left: -20%;
     width: 140%;
-    height: 33.34%;
+    height: 34%;
   }
   .grid-flag-stripe:nth-child(1) { top: 0; }
-  .grid-flag-stripe:nth-child(2) { top: 33.33%; }
-  .grid-flag-stripe:nth-child(3) { top: 66.66%; }
+  .grid-flag-stripe:nth-child(2) { top: 33%; }
+  .grid-flag-stripe:nth-child(3) { top: 66%; }
 
   /* Slow majestic wave — wider period, gentler amplitude than warning flags */
   .grid-flag-stripe {
@@ -956,12 +961,12 @@
     75%  { transform: skewY(-1.5deg) scaleX(1.02); }
     100% { transform: skewY(0deg) scaleX(1); }
   }
-  /* Overlay darkening so colors aren't blown out */
+  /* Overlay darkening so text stays readable over bright flag colors */
   .grid-flag::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: hsla(0, 0%, 0%, 0.35);
+    background: hsla(0, 0%, 0%, 0.55);
     z-index: 1;
   }
 

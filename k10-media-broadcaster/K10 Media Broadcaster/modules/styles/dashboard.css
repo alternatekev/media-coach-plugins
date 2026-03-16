@@ -213,18 +213,25 @@
                 margin-top 0.4s ease;
   }
   .commentary-viz.viz-active {
-    height: 80px;
+    height: 86px;
     opacity: 1;
     margin-top: 10px;
+    overflow: visible;
   }
   .commentary-viz[data-viz-type="quad"].viz-active {
-    height: 72px;
+    height: 78px;
   }
   .commentary-viz[data-viz-type="counter"].viz-active {
-    height: 40px;
+    height: 46px;
   }
   .commentary-viz[data-viz-type="gforce"].viz-active {
-    height: 90px;
+    height: 96px;
+  }
+  .commentary-viz[data-viz-type="bar"].viz-active {
+    height: 52px;
+  }
+  .commentary-viz[data-viz-type="delta"].viz-active {
+    height: 52px;
   }
   #commentaryVizCanvas {
     position: absolute;
@@ -235,7 +242,7 @@
   }
   .commentary-viz-value {
     position: absolute;
-    bottom: 2px;
+    bottom: 4px;
     right: 0;
     font-family: var(--ff-mono);
     font-size: 11px;

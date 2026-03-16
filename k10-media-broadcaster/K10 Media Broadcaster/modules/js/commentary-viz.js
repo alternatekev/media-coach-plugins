@@ -469,8 +469,26 @@
   }
 
   // ════════════════════════════════════════════
-  //  QUAD — four-corner display (tyres)
+  //  QUAD — four-corner display (tyres) with heatmap
   // ════════════════════════════════════════════
+
+  // Tyre temp color bands — matches getTyreTempClass() in webgl-helpers.js
+  // Thresholds are °F (iRacing native). Returns { hue, sat, label }.
+  function _tyreTempColor(tempF) {
+    if (tempF <= 0)   return { hue: 0,   sat: 0,  label: '' };       // no data
+    if (tempF < 150)  return { hue: 200, sat: 70, label: 'cold' };   // blue  < 66°C
+    if (tempF < 230)  return { hue: 123, sat: 45, label: 'optimal' };// green 66-110°C
+    if (tempF < 270)  return { hue: 45,  sat: 90, label: 'hot' };    // amber 110-132°C
+    return              { hue: 0,   sat: 70, label: 'danger' };       // red   > 132°C
+  }
+
+  // Tyre wear color (percentage 0-100)
+  function _tyreWearColor(pct) {
+    if (pct > 50)  return { hue: 123, sat: 45 };  // green
+    if (pct > 25)  return { hue: 45,  sat: 90 };  // amber
+    return           { hue: 0,   sat: 70 };        // red
+  }
+
   function _renderQuad(cfg) {
     const vals = _getVizValue(cfg.src);
     const arr = Array.isArray(vals) ? vals : [0, 0, 0, 0];
@@ -483,51 +501,68 @@
     const cellW = (w - gap) / 2;
     const cellH = (h - gap) / 2;
     const positions = [
-      [0, 0],                  // FL
-      [cellW + gap, 0],        // FR
-      [0, cellH + gap],        // RL
+      [0, 0],                    // FL
+      [cellW + gap, 0],          // FR
+      [0, cellH + gap],          // RL
       [cellW + gap, cellH + gap] // RR
     ];
     const labels = ['FL', 'FR', 'RL', 'RR'];
+    const isTemp = cfg.src === 'tyreTemp';
 
     for (let i = 0; i < 4; i++) {
       const [x, y] = positions[i];
       const val = arr[i] || 0;
+      const col = isTemp ? _tyreTempColor(val) : _tyreWearColor(val);
+      const hue = col.hue;
+      const sat = col.sat;
 
-      // Heat color: blue(cold) → green(ok) → yellow → red(hot)
-      let hue;
-      if (cfg.src === 'tyreTemp') {
-        // Temp range ~50-130°C
-        const norm = Math.max(0, Math.min(1, (val - 50) / 80));
-        hue = (1 - norm) * 200; // 200 (blue) → 0 (red)
+      // ── Heatmap fill: radial gradient from center of cell ──
+      const cx = x + cellW / 2;
+      const cy = y + cellH / 2;
+      const rMax = Math.max(cellW, cellH) * 0.8;
+
+      // Intensity scales with how extreme the value is
+      let intensity;
+      if (isTemp) {
+        // Hotter = brighter fill; cold = very faint
+        intensity = val <= 0 ? 0 : Math.max(0.12, Math.min(0.55, (val - 100) / 300));
       } else {
-        // Wear: 100% = good → 0% = bad
-        hue = Math.max(0, Math.min(120, val * 1.2));
+        // Lower wear = brighter fill (more alarming)
+        intensity = Math.max(0.12, 0.55 - (val / 100) * 0.4);
       }
 
-      // Cell background
+      // Cell base
       _roundRect(ctx, x, y, cellW, cellH, 4 * dpr);
-      ctx.fillStyle = `hsla(${hue}, 50%, 20%, 0.5)`;
+      ctx.fillStyle = `hsla(${hue}, ${sat}%, 12%, 0.6)`;
       ctx.fill();
 
-      // Border
+      // Heatmap radial glow
+      const radGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rMax);
+      radGrad.addColorStop(0, `hsla(${hue}, ${sat}%, 45%, ${intensity})`);
+      radGrad.addColorStop(0.6, `hsla(${hue}, ${sat}%, 30%, ${intensity * 0.4})`);
+      radGrad.addColorStop(1, `hsla(${hue}, ${sat}%, 20%, 0)`);
       _roundRect(ctx, x, y, cellW, cellH, 4 * dpr);
-      ctx.strokeStyle = `hsla(${hue}, 55%, 45%, 0.5)`;
+      ctx.fillStyle = radGrad;
+      ctx.fill();
+
+      // Border — brighter at higher intensity
+      _roundRect(ctx, x, y, cellW, cellH, 4 * dpr);
+      ctx.strokeStyle = `hsla(${hue}, ${sat}%, 50%, ${0.3 + intensity * 0.5})`;
       ctx.lineWidth = 1;
       ctx.stroke();
 
       // Value text
-      ctx.fillStyle = `hsla(${hue}, 55%, 70%, 0.9)`;
+      ctx.fillStyle = `hsla(${hue}, ${sat}%, 70%, 0.95)`;
       ctx.font = `bold ${11 * dpr}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      const dispVal = cfg.src === 'tyreTemp' ? Math.round(val) + '°' : Math.round(val) + '%';
-      ctx.fillText(dispVal, x + cellW / 2, y + cellH / 2 - 2 * dpr);
+      const dispVal = isTemp ? Math.round(val) + '°' : Math.round(val) + '%';
+      ctx.fillText(dispVal, cx, cy - 2 * dpr);
 
       // Corner label
-      ctx.fillStyle = `hsla(${hue}, 40%, 60%, 0.5)`;
+      ctx.fillStyle = `hsla(${hue}, ${Math.round(sat * 0.7)}%, 60%, 0.5)`;
       ctx.font = `${7 * dpr}px system-ui, sans-serif`;
-      ctx.fillText(labels[i], x + cellW / 2, y + cellH / 2 + 10 * dpr);
+      ctx.fillText(labels[i], cx, cy + 10 * dpr);
     }
 
     if (_vizValueEl) _vizValueEl.textContent = '';

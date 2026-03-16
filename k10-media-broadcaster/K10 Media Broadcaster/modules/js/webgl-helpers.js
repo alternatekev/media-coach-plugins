@@ -272,7 +272,24 @@
     return _commentaryIcons['_default'];
   }
 
-  function showCommentary(hue, title, text, meta, topicId) {
+  // Overheating topics → force orange (hue 30) or red (hue 0) based on severity
+  const _heatTopics = { hot_tyres: true, track_temp_hot: true };
+  // Wear / degradation topics → force orange hue
+  const _wearTopics = { tyre_wear_high: true, long_stint: true };
+  // Best / achievement topics → force green color scheme
+  const _bestTopics = { personal_best: true, position_gained: true };
+
+  function showCommentary(hue, title, text, meta, topicId, severity) {
+    // Resolve topic early so we can override hue for heat, wear & best topics
+    const resolvedTopic = topicId || _titleToTopicId[title] || '';
+    if (_heatTopics[resolvedTopic]) {
+      hue = (severity >= 3) ? 0 : 30;   // high severity → red, else orange
+    } else if (_wearTopics[resolvedTopic]) {
+      hue = 30;                           // orange for wear/degradation
+    } else if (_bestTopics[resolvedTopic]) {
+      hue = 145;                          // green for achievements
+    }
+
     col.style.setProperty('--commentary-h', hue);
     inner.style.background = `hsla(${hue}, 50%, 13%, 0.96)`;
     inner.style.borderColor = `hsla(${hue}, 50%, 27%, 0.50)`;
@@ -296,8 +313,7 @@
     dash.style.setProperty('--sentiment-l', '12%');
     dash.style.setProperty('--sentiment-alpha', '0.06');
 
-    // Activate data visualization for this topic
-    const resolvedTopic = topicId || _titleToTopicId[title] || '';
+    // Activate data visualization for this topic (hue already overridden for heat)
     if (window.showCommentaryViz) window.showCommentaryViz(resolvedTopic, hue);
 
     // After layout settles, check if text overflows and set up slow scroll

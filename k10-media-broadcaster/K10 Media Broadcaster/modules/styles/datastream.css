@@ -241,6 +241,55 @@
   .inc-thresh-val.thresh-crit { color: hsl(0, 75%, 55%); }
   .inc-thresh-val.thresh-hit  { color: hsl(0, 80%, 50%); font-weight: var(--fw-black); }
 
+  /* Incident progress bar — accrued vs penalty vs DQ */
+  .inc-progress {
+    margin-top: 4px;
+    padding: 0 1px;
+  }
+  .inc-bar-track {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background: hsla(0, 0%, 100%, 0.08);
+    border-radius: 3px;
+    overflow: visible;
+  }
+  .inc-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 3px;
+    min-width: 0;
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                background 0.4s ease;
+    background: hsl(145, 65%, 45%);
+  }
+  /* Fill color follows incident level */
+  .incidents-panel.inc-level-0 .inc-bar-fill { background: hsl(145, 65%, 45%); }
+  .incidents-panel.inc-level-1 .inc-bar-fill { background: hsl(90, 60%, 45%); }
+  .incidents-panel.inc-level-2 .inc-bar-fill { background: hsl(48, 75%, 50%); }
+  .incidents-panel.inc-level-3 .inc-bar-fill { background: hsl(30, 75%, 48%); }
+  .incidents-panel.inc-level-4 .inc-bar-fill { background: hsl(8, 70%, 48%); }
+  .incidents-panel.inc-level-5 .inc-bar-fill { background: hsl(0, 75%, 45%); }
+
+  .inc-bar-marker {
+    position: absolute;
+    top: -2px;
+    width: 2px;
+    height: 10px;
+    border-radius: 1px;
+    transition: left 0.3s ease;
+  }
+  .inc-marker-pen {
+    background: hsl(48, 80%, 55%);
+    opacity: 0.7;
+  }
+  .inc-marker-dq {
+    background: hsl(0, 75%, 55%);
+    opacity: 0.7;
+  }
+
   /* Flash on increment */
   @keyframes inc-flash {
     0%   { filter: brightness(1.6); transform: scale(1.06); }

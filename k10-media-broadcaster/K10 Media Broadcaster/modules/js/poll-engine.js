@@ -481,7 +481,8 @@
     const cmVis = +v('K10MediaBroadcaster.Plugin.CommentaryVisible') || 0;
     if (cmVis && !_commentaryWasVisible) {
       const hue = colorToHue(vs('K10MediaBroadcaster.Plugin.CommentarySentimentColor'));
-      showCommentary(hue, vs('K10MediaBroadcaster.Plugin.CommentaryTopicTitle'), vs('K10MediaBroadcaster.Plugin.CommentaryText'), vs('K10MediaBroadcaster.Plugin.CommentaryCategory'), vs('K10MediaBroadcaster.Plugin.CommentaryTopicId'));
+      const severity = +v('K10MediaBroadcaster.Plugin.CommentarySeverity') || 0;
+      showCommentary(hue, vs('K10MediaBroadcaster.Plugin.CommentaryTopicTitle'), vs('K10MediaBroadcaster.Plugin.CommentaryText'), vs('K10MediaBroadcaster.Plugin.CommentaryCategory'), vs('K10MediaBroadcaster.Plugin.CommentaryTopicId'), severity);
     } else if (!cmVis && _commentaryWasVisible) {
       hideCommentary();
     }

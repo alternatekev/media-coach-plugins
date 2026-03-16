@@ -49,6 +49,25 @@
       dqEl.textContent = toDQ > 0 ? toDQ + 'x' : 'DQ';
       dqEl.className = 'inc-thresh-val' + (toDQ === 0 ? ' thresh-hit' : toDQ <= 3 ? ' thresh-crit' : toDQ <= 6 ? ' thresh-near' : '');
     }
+
+    // ── Progress bar: accrued fill + penalty / DQ markers ──
+    const barFill = document.getElementById('incBarFill');
+    const markerPen = document.getElementById('incMarkerPen');
+    const markerDQ = document.getElementById('incMarkerDQ');
+    if (barFill && markerPen && markerDQ) {
+      // Bar represents 0 → dqLimit, fill shows accrued
+      const fillPct = Math.min(100, (incidentCount / dqLimit) * 100);
+      barFill.style.width = fillPct + '%';
+
+      // Penalty marker position along the bar
+      const penPct = Math.min(100, (penLimit / dqLimit) * 100);
+      markerPen.style.left = penPct + '%';
+      // DQ marker is always at the end
+      markerDQ.style.left = '100%';
+
+      // Hide penalty marker if already past it
+      markerPen.style.opacity = incidentCount >= penLimit ? '0.3' : '0.7';
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════

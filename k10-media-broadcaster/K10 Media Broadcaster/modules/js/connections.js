@@ -5,7 +5,7 @@
   // ═══════════════════════════════════════════════════════════════
 
   const DISCORD_GUILD_INVITE = 'https://discord.gg/k10mediabroadcaster';
-  let _discordUser = null;
+  // _discordUser declared in config.js
   let _discordConnecting = false;
 
   function updateConnectionsTab() {
@@ -366,15 +366,20 @@
       else { inc.style.marginTop = ''; inc.style.marginBottom = ''; }
     }
 
-    // Position spotter module on same side as leaderboard
+    // Position spotter on the opposite vertical edge from leaderboard
+    // so it sits between the dashboard and the leaderboard:
+    //   • Dashboard top → LB bottom → spotter top (above LB)
+    //   • Dashboard bottom → LB top → spotter bottom (below LB)
     const sp = document.getElementById('spotterPanel');
     if (sp) {
       sp.classList.remove('sp-top', 'sp-bottom', 'sp-left', 'sp-right');
-      sp.classList.add('sp-' + secVert);
+      // Same horizontal side as leaderboard
       sp.classList.add('sp-' + (dashIsCenter ? 'left' : secHoriz));
-      if (sameSideVOffset && secVert === 'top') sp.style.marginTop = sameSideVOffset + 'px';
-      else if (sameSideVOffset && secVert === 'bottom') sp.style.marginBottom = sameSideVOffset + 'px';
-      else { sp.style.marginTop = ''; sp.style.marginBottom = ''; }
+      // Opposite vertical edge from leaderboard
+      const spVert = secVert === 'bottom' ? 'top' : 'bottom';
+      sp.classList.add('sp-' + spVert);
+      sp.style.marginTop = '';
+      sp.style.marginBottom = '';
     }
   }
 
@@ -474,6 +479,8 @@
     if (inc) inc.style.zoom = scale;
     const rc = document.getElementById('rcBanner');
     if (rc) rc.style.zoom = scale;
+    const sp = document.getElementById('spotterPanel');
+    if (sp) sp.style.zoom = scale;
   }
 
   function updateForceFlag(val) {

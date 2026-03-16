@@ -1,24 +1,5 @@
 // Settings system
-
-  // ═══════════════════════════════════════════════════════════════
-  // SETTINGS SYSTEM
-  // Persists to localStorage (browser) or Electron IPC (overlay app)
-  // ═══════════════════════════════════════════════════════════════
-
-  const _defaultSettings = {
-    showFuel: true, showTyres: true, showControls: true, showPedals: true,
-    showMaps: true, showPosition: true, showTacho: true, showCommentary: true,
-    showK10Logo: true, showCarLogo: true, simhubUrl: 'http://localhost:8889/k10mediabroadcaster/',
-    layoutPosition: 'top-right', layoutFlow: 'ltr', verticalSwap: false,
-    greenScreen: false, showWebGL: true,
-    zoom: 165, forceFlag: '', showLeaderboard: true, showDatastream: true, showIncidents: true, showSpotter: true,
-    incPenalty: 17, incDQ: 25, secLayout: 'stack', secOffsetX: 0, secOffsetY: 0,
-    secVOppose: true, secHOppose: true,
-    discordUser: null,
-    rallyMode: false
-  };
-
-  let _settings = Object.assign({}, _defaultSettings);
+  // _defaultSettings, _settings, _forceFlagState declared in config.js
 
   // Section class/id → element finder
   function _findSectionEls(sectionKey) {
@@ -27,9 +8,6 @@
     if (el) return [el];
     return Array.from(document.querySelectorAll('.' + sectionKey));
   }
-
-  // Force flag state in demo mode (must be declared before applySettings)
-  let _forceFlagState = '';
 
   function applySettings() {
     const toggles = document.querySelectorAll('.settings-toggle[data-key]');

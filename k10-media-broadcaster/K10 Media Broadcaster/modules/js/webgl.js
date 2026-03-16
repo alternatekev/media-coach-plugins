@@ -1069,6 +1069,180 @@
       _lbEvtActive = true;
     };
 
+    /* ════════════════════════════════════════════
+       SPOTTER GLOW — edge glow that fades in/out with messages
+       Color varies by severity: warn=amber, danger=red, clear=green
+       ════════════════════════════════════════════ */
+    const spotCtx = initGL('spotterGlCanvas');
+    let _spotTime = 0;
+    // 0=idle(off), 1=warn(amber), 2=danger(red), 3=clear(green)
+    let _spotMode = 0;
+    let _spotIntensity = 0;  // smoothly animated 0→1
+
+    if (spotCtx) {
+      const { canvas: sC, gl: sGL } = spotCtx;
+
+      const quadVS = `#version 300 es
+        in vec2 aPos;
+        out vec2 vUV;
+        void main() {
+          vUV = aPos * 0.5 + 0.5;
+          gl_Position = vec4(aPos, 0.0, 1.0);
+        }`;
+
+      const spotFS = `#version 300 es
+        precision highp float;
+        in vec2 vUV;
+        out vec4 fragColor;
+
+        uniform float uTime;
+        uniform float uIntensity;  // 0-1 animated fade
+        uniform float uMode;       // 1=warn, 2=danger, 3=clear
+        uniform vec2  uRes;
+
+        float hash(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+        }
+        float noise(vec2 p) {
+          vec2 i = floor(p), f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          return mix(mix(hash(i), hash(i + vec2(1,0)), f.x),
+                     mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), f.x), f.y);
+        }
+
+        void main() {
+          if (uIntensity < 0.005) { fragColor = vec4(0.0); return; }
+
+          vec2 uv = vUV;
+
+          // Color by mode
+          vec3 col;
+          float pulseSpeed;
+          if (uMode < 1.5) {
+            // Warn — warm amber
+            col = vec3(0.95, 0.70, 0.15);
+            pulseSpeed = 2.5;
+          } else if (uMode < 2.5) {
+            // Danger — urgent red
+            col = vec3(0.92, 0.18, 0.12);
+            pulseSpeed = 4.0;
+          } else {
+            // Clear — cool green
+            col = vec3(0.15, 0.82, 0.40);
+            pulseSpeed = 1.8;
+          }
+
+          // Edge distance — glow hugs all edges
+          float edgeX = min(uv.x, 1.0 - uv.x);
+          float edgeY = min(uv.y, 1.0 - uv.y);
+          float edgeDist = min(edgeX, edgeY);
+
+          // Primary edge glow — exponential falloff from borders
+          float edgeGlow = exp(-edgeDist * 12.0);
+
+          // Corner hotspots — brighter where two edges meet
+          float cornerDist = length(vec2(edgeX, edgeY));
+          float cornerGlow = exp(-cornerDist * 8.0) * 0.4;
+
+          // Animated pulse — breathing intensity
+          float pulse = 0.65 + 0.35 * sin(uTime * pulseSpeed);
+
+          // Danger mode: add a faster flicker overlay
+          float flicker = 1.0;
+          if (uMode > 1.5 && uMode < 2.5) {
+            flicker = 0.85 + 0.15 * sin(uTime * 11.0 + uv.x * 5.0);
+          }
+
+          // Noise-based shimmer along the edges
+          float shimmer = noise(uv * 6.0 + uTime * 1.5) * 0.3 + 0.7;
+
+          // Compose
+          float glow = (edgeGlow + cornerGlow) * pulse * flicker * shimmer;
+          glow *= uIntensity;
+
+          // Sweep highlight — slow beam traveling around the perimeter
+          float sweep = fract(uTime * 0.3);
+          // Parametric edge position: top→right→bottom→left mapped to 0→1
+          float perim;
+          if (uv.y < 0.05) perim = uv.x * 0.25;                          // top edge
+          else if (uv.x > 0.95) perim = 0.25 + uv.y * 0.25;             // right edge
+          else if (uv.y > 0.95) perim = 0.5 + (1.0 - uv.x) * 0.25;     // bottom edge
+          else if (uv.x < 0.05) perim = 0.75 + (1.0 - uv.y) * 0.25;    // left edge
+          else perim = -1.0;
+
+          if (perim >= 0.0) {
+            float beamDist = min(abs(perim - sweep), min(abs(perim - sweep + 1.0), abs(perim - sweep - 1.0)));
+            float beam = exp(-beamDist * beamDist * 800.0) * 0.5 * uIntensity;
+            glow += beam;
+          }
+
+          float alpha = clamp(glow * 0.6, 0.0, 0.65);
+          fragColor = vec4(col * alpha, alpha);
+        }`;
+
+      const vs = createShader(sGL, sGL.VERTEX_SHADER, quadVS);
+      const fs = createShader(sGL, sGL.FRAGMENT_SHADER, spotFS);
+      const prog = createProgram(sGL, vs, fs);
+
+      if (prog) {
+        const aPos       = sGL.getAttribLocation(prog, 'aPos');
+        const uTime      = sGL.getUniformLocation(prog, 'uTime');
+        const uIntensity = sGL.getUniformLocation(prog, 'uIntensity');
+        const uMode      = sGL.getUniformLocation(prog, 'uMode');
+        const uRes       = sGL.getUniformLocation(prog, 'uRes');
+
+        const buf = sGL.createBuffer();
+        sGL.bindBuffer(sGL.ARRAY_BUFFER, buf);
+        sGL.bufferData(sGL.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), sGL.STATIC_DRAW);
+
+        sGL.enable(sGL.BLEND);
+        sGL.blendFunc(sGL.ONE, sGL.ONE_MINUS_SRC_ALPHA);
+
+        window._spotterFXFrame = function(dt) {
+          // Smooth intensity towards target
+          const target = _spotMode > 0 ? 1.0 : 0.0;
+          const speed = target > 0.5 ? 6.0 : 3.0; // fast in, slower out
+          _spotIntensity += (target - _spotIntensity) * Math.min(1.0, dt * speed);
+
+          if (_spotIntensity < 0.005) {
+            // Clear canvas when fully faded
+            sGL.clearColor(0, 0, 0, 0);
+            sGL.clear(sGL.COLOR_BUFFER_BIT);
+            return;
+          }
+
+          resizeCanvas(sC, sGL);
+          _spotTime += dt;
+
+          sGL.clearColor(0, 0, 0, 0);
+          sGL.clear(sGL.COLOR_BUFFER_BIT);
+
+          sGL.useProgram(prog);
+          sGL.bindBuffer(sGL.ARRAY_BUFFER, buf);
+          sGL.enableVertexAttribArray(aPos);
+          sGL.vertexAttribPointer(aPos, 2, sGL.FLOAT, false, 0, 0);
+
+          sGL.uniform1f(uTime, _spotTime);
+          sGL.uniform1f(uIntensity, _spotIntensity);
+          sGL.uniform1f(uMode, _spotMode);
+          sGL.uniform2f(uRes, sC.width, sC.height);
+
+          sGL.drawArrays(sGL.TRIANGLE_STRIP, 0, 4);
+        };
+      }
+    }
+
+    // Public API: set spotter glow mode
+    // 'warn' | 'danger' | 'clear' | 'off'
+    window.setSpotterGlow = function(type) {
+      switch (type) {
+        case 'warn':   _spotMode = 1; break;
+        case 'danger': _spotMode = 2; break;
+        case 'clear':  _spotMode = 3; break;
+        default:       _spotMode = 0; break;
+      }
+    };
+
     /* ── Master FX animation loop ── */
     let _lastFXTime = 0;
     function fxLoop(now) {
@@ -1085,6 +1259,7 @@
       if (window._lbFXFrame) window._lbFXFrame(dt);
       if (window._lbEvtFXFrame) window._lbEvtFXFrame(dt);
       if (window._k10LogoFXFrame) window._k10LogoFXFrame(dt);
+      if (window._spotterFXFrame) window._spotterFXFrame(dt);
       requestAnimationFrame(fxLoop);
     }
     requestAnimationFrame((now) => { _lastFXTime = now; requestAnimationFrame(fxLoop); });

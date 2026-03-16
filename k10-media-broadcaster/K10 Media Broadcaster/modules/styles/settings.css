@@ -1,3 +1,4 @@
+  /* ═══════════════════════════════════════════════
      SECONDARY BLOCK LAYOUT VARIATIONS
      ═══════════════════════════════════════════════ */
   /* Stack: vertical column (default) */
@@ -19,6 +20,7 @@
 
   /* Compact: narrower panels, tighter spacing */
   body.sec-compact .leaderboard-panel { width: 260px; }
+  body.sec-compact .spotter-panel { max-width: 180px; }
   body.sec-compact .datastream-panel { width: 160px; }
   body.sec-compact .lb-row { font-size: 10px; padding: 2px 8px; }
   body.sec-compact .lb-row { grid-template-columns: 20px 1fr 48px 38px 46px; }
@@ -271,6 +273,12 @@
     font-style: italic;
     margin-top: 2px;
   }
+  .settings-hint {
+    font-size: 10px;
+    color: hsla(0,0%,100%,0.35);
+    font-style: italic;
+    padding: 0 0 6px;
+  }
 
   .settings-input {
     background: hsla(0,0%,100%,0.08);
@@ -397,3 +405,4 @@
   .section-hidden { display: none !important; }
 
   /* ═══════════════════════════════════════════════
+     ═══════════════════════════════════════════════ */

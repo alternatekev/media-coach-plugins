@@ -10,6 +10,21 @@
   let _spotterLastPosA = 0;        // previous position of car ahead
   let _spotterLastPosB = 0;        // previous position of car behind
 
+  // SVG icons per severity (viewBox 0 0 24 24, stroke-based)
+  const _spotterIcons = {
+    default: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+    'sp-warn': '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/>',
+    'sp-danger': '<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/>',
+    'sp-clear': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>'
+  };
+
+  function _setSpotterIcon(severity) {
+    const iconEl = document.querySelector('#spotterInner .sp-icon');
+    if (!iconEl) return;
+    const path = _spotterIcons[severity] || _spotterIcons.default;
+    iconEl.innerHTML = path;
+  }
+
   function updateSpotter(p, isDemo) {
     const inner = document.getElementById('spotterInner');
     const msgEl = document.getElementById('spotterMsg');
@@ -97,9 +112,17 @@
       _spotterLastMsg = msg;
       msgEl.textContent = msg;
       inner.className = 'sp-inner sp-active ' + severity;
+      _setSpotterIcon(severity);
+      // Activate WebGL glow matching severity
+      if (window.setSpotterGlow) {
+        const glowMap = { 'sp-warn': 'warn', 'sp-danger': 'danger', 'sp-clear': 'clear' };
+        window.setSpotterGlow(glowMap[severity] || 'warn');
+      }
       if (_spotterTimeout) clearTimeout(_spotterTimeout);
       _spotterTimeout = setTimeout(() => {
         inner.classList.remove('sp-active');
+        _setSpotterIcon('default');
+        if (window.setSpotterGlow) window.setSpotterGlow('off');
         _spotterLastMsg = '';
         _spotterTimeout = null;
       }, 5000);  // 5s display for readability during racing

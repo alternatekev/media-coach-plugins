@@ -146,10 +146,10 @@
     transition: background 0.8s ease, border-color 0.8s ease;
   }
   .commentary-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: var(--fw-black);
-    line-height: 1.1;
-    margin-bottom: 8px;
+    line-height: 1.0;
+    margin-bottom: 6px;
     padding-right: 38px;  /* room for icon */
   }
   .commentary-icon {
@@ -181,9 +181,9 @@
   }
   .commentary-text {
     font-family: 'Barlow Semi Condensed', var(--ff);
-    font-size: 19px;
+    font-size: 15px;
     font-weight: var(--fw-medium);
-    line-height: 1.4;
+    line-height: 1.2;
     color: var(--text-primary);
   }
   .commentary-text.scrolling {
@@ -946,3 +946,4 @@
   }
 
   /* ═══════════════════════════════════════════════
+     ═══════════════════════════════════════════════ */

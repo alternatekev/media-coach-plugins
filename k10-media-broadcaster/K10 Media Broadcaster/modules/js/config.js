@@ -282,7 +282,7 @@ const _mfrMap = {
   'mercedes':'mercedes', 'amg gt':'mercedes', 'hypercar':'mercedes',
   'lamborghini':'lamborghini', 'huracán':'lamborghini', 'huracan':'lamborghini', 'urus':'lamborghini',
   'chevrolet':'chevrolet', 'corvette':'chevrolet', 'chevy':'chevrolet', 'c8':'chevrolet',
-  'ford':'ford', 'mustang':'ford', 'gt':'ford', 'mk iv':'ford',
+  'ford':'ford', 'mustang':'ford', 'ford gt':'ford', 'mk iv':'ford',
   'toyota':'toyota', 'gr86':'toyota', 'gr corolla':'toyota',
   'hyundai':'hyundai', 'elantra':'hyundai', 'ioniq':'hyundai',
   'cadillac':'cadillac', 'v-series':'cadillac',
@@ -291,6 +291,14 @@ const _mfrMap = {
   'honda':'honda', 'civic':'honda', 'nsx':'honda',
   'generic':'generic', 'none':'none'
 };
+
+/** Match a car model string to a manufacturer key in _mfrMap */
+function detectMfr(model) {
+  if (!model) return 'none';
+  const l = ('' + model).toLowerCase();
+  for (const k in _mfrMap) { if (l.indexOf(k) !== -1) return _mfrMap[k]; }
+  return 'generic';
+}
 
 // ═══════════════════════════════════════════════════════════════
 // SETTINGS SYSTEM

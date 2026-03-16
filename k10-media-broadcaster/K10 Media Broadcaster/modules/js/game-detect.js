@@ -62,10 +62,9 @@
   }
 
   // ─── Connection status indicator & setup banner ───
-  let _hasEverConnected = false;
+  // _hasEverConnected, _settingsForcedByDisconnect declared in config.js
   let _connBannerDismissed = false;
   let _connBannerShown = false;
-  let _settingsForcedByDisconnect = false;
 
   function _updateConnStatus(state) {
     const el = document.getElementById('connStatus');
@@ -197,3 +196,25 @@
   // ── Apply game mode styling ──
   function applyGameMode() {
     const feat = getGameFeatures();
+    const dashboard = document.getElementById('dashboard');
+
+    // Toggle iRacing-specific UI elements
+    const irElements = document.querySelectorAll('.ir-only');
+    irElements.forEach(el => el.style.display = feat.hasIRating ? '' : 'none');
+
+    // Toggle incident counter
+    const incElements = document.querySelectorAll('.incident-only');
+    incElements.forEach(el => el.style.display = feat.hasIncidents ? '' : 'none');
+
+    // Rally mode: hide circuit-specific elements, show rally elements
+    const rallyEls = document.querySelectorAll('.rally-only');
+    const circuitEls = document.querySelectorAll('.circuit-only');
+    rallyEls.forEach(el => el.style.display = _isRally ? '' : 'none');
+    circuitEls.forEach(el => el.style.display = _isRally ? 'none' : '');
+
+    // Update body class for CSS-level game adaptation
+    document.body.classList.toggle('game-iracing', _isIRacing);
+    document.body.classList.toggle('game-rally', _isRally);
+    document.body.classList.toggle('game-acc', _currentGameId === 'acc');
+    document.body.classList.toggle('game-lmu', _currentGameId === 'lmu');
+  }

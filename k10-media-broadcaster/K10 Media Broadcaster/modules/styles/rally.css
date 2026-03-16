@@ -7,5 +7,3 @@
 
   /* Rally leaderboard: show split times instead of gaps */
   body.game-rally .lb-ir { display: none; } /* hide iRating column */
-
-</style>

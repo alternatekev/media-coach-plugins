@@ -67,6 +67,17 @@ namespace K10MediaBroadcaster.Plugin
         // Leaderboard: compact JSON string of nearby drivers, updated each eval cycle
         private volatile string _leaderboardJson = "[]";
 
+        // ── Track map queries (for settings UI) ─────────────────────────────
+
+        /// <summary>Track IDs bundled with the plugin (compiled into git).</summary>
+        public List<string> GetBundledTrackIds() => _trackMap.GetBundledTrackIds();
+
+        /// <summary>Track IDs recorded locally but not yet in the bundled set.</summary>
+        public List<string> GetLocalOnlyTrackIds() => _trackMap.GetLocalOnlyTrackIds();
+
+        /// <summary>Copy local-only track maps to a destination folder. Returns count copied.</summary>
+        public int ExportLocalMapsTo(string destinationDir) => _trackMap.ExportLocalMapsTo(destinationDir);
+
         // ── IWPFSettingsV2 ────────────────────────────────────────────────────
 
 #if !CROSS_PLATFORM
@@ -498,11 +509,21 @@ namespace K10MediaBroadcaster.Plugin
             // Not active — detect start condition
             else if (_lightsPhase == 0)
             {
-                // PaceMode transitions to 2 (Approaching) or 3 (FieldCrossSF) during formation
-                if (ss == 3 && pm >= 2 && _lightsPrevPaceMode < 2)
+                // PaceMode transitions to 2+ during formation (SS 3)
+                bool pmTransition = ss == 3 && pm >= 2 && _lightsPrevPaceMode < 2;
+                // SessionState transitions to 3 while PaceMode already >= 2
+                // (rolling starts: PM can already be 2 when SS goes to 3)
+                bool ssTransition = ss == 3 && _lightsPrevSessionState != 3 && pm >= 2;
+
+                if (pmTransition || ssTransition)
                 {
-                    _lightsPhase = 1;
-                    _lightsStepFrame = 8;
+                    if (pm == 3)
+                        _lightsPhase = 6; // jump to all red
+                    else
+                    {
+                        _lightsPhase = 1;
+                        _lightsStepFrame = 8;
+                    }
                 }
                 // If we somehow get PaceMode 3 directly
                 else if (ss == 3 && pm == 3 && _lightsPrevPaceMode < 3)
@@ -758,6 +779,19 @@ namespace K10MediaBroadcaster.Plugin
                         ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                         ctx.Response.StatusCode = 200;
                         ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (rawUrl.Contains("action=listtracks"))
+                    {
+                        var ids = _trackMap.GetBundledTrackIds();
+                        string json = "[" + string.Join(",", ids.ConvertAll(id => "\"" + id.Replace("\"", "\\\"") + "\"")) + "]";
+                        byte[] listBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(listBytes, 0, listBytes.Length);
                         ctx.Response.OutputStream.Close();
                         continue;
                     }
@@ -1113,7 +1147,7 @@ namespace K10MediaBroadcaster.Plugin
         private string ResolveDatasetFile(string filename)
         {
             string dllDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? "";
-            string candidate = Path.Combine(dllDir, "dataset", filename);
+            string candidate = Path.Combine(dllDir, "k10-media-broadcaster-data", filename);
             if (File.Exists(candidate)) return candidate;
 
             string pluginsData = Path.Combine(
@@ -1121,7 +1155,7 @@ namespace K10MediaBroadcaster.Plugin
                 "SimHub", "PluginsData", "K10MediaBroadcaster", filename);
             if (File.Exists(pluginsData)) return pluginsData;
 
-            SimHub.Logging.Current.Warn($"[K10MediaBroadcaster] {filename} not found in dataset folder");
+            SimHub.Logging.Current.Warn($"[K10MediaBroadcaster] {filename} not found in k10-media-broadcaster-data folder");
             return "";
         }
     }

@@ -243,14 +243,14 @@
     100% { box-shadow: inset 0 0 28px hsla(200, 80%, 60%, 0.35), 0 0 20px hsla(200, 80%, 60%, 0.22); }
   }
 
-  /* Fade other modules when in pit lane */
+  /* Keep all modules at full opacity in pit lane */
   body.pit-mode .panel,
   body.pit-mode .leaderboard-panel,
   body.pit-mode .datastream-panel,
   body.pit-mode .incidents-panel,
   body.pit-mode .spotter-panel {
     transition: opacity 1.2s ease;
-    opacity: 0.25;
+    opacity: 1;
   }
   body:not(.pit-mode) .panel,
   body:not(.pit-mode) .leaderboard-panel,
@@ -684,6 +684,10 @@
     opacity: 1;
     transform: translateY(0);
   }
+  /* Progressive fade — older messages in stack are dimmer */
+  .sp-inner.sp-active:nth-child(2) { opacity: 0.55; }
+  .sp-inner.sp-active:nth-child(3) { opacity: 0.30; }
+  .sp-inner.sp-active:nth-child(n+4) { opacity: 0.15; }
   /* Fade out older messages in the stack — collapse height to avoid growing the glow canvas */
   .sp-inner.sp-fading {
     opacity: 0;

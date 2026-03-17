@@ -60,6 +60,7 @@
     const sessionPre = _demo ? 'K10MediaBroadcaster.Plugin.Demo.Grid.' : 'K10MediaBroadcaster.Plugin.Grid.';
     const dsPre = _demo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
     const sessNum = parseInt(vs(sessionPre + 'SessionState')) || 0;
+    const _inPitLane = +(p[dsPre + 'IsInPitLane']) > 0;
 
     // Detect game and apply feature gating
     const rawGameId = v('K10MediaBroadcaster.Plugin.GameId') || '';
@@ -214,6 +215,7 @@
     if (carModel !== _lastCarModel) {
       _tcSeen = false; _absSeen = false;
       _lastCarModel = carModel;
+      _carAdj = getCarAdjustability(carModel);
       setCarLogo(detectMfr(carModel), carModel);
     }
     if (_demo) { _tcSeen = true; _absSeen = true; }
@@ -222,10 +224,11 @@
       if (tc != null && +tc >= 0) _tcSeen = true;
       if (abs != null && +abs >= 0) _absSeen = true;
     }
-    // Show TC/ABS blocks if the car reports them at all; hide only if car lacks them
-    const tcOk = _demo || _tcSeen;
-    const absOk = _demo || _absSeen;
-    const bbOk = _demo || (bb > 0);
+    // If car is in the no-adjust list, hide the module entirely for absent systems
+    // Otherwise: show if we've seen the value (even 0 → "FIXED")
+    const tcOk = _demo || (_carAdj && _carAdj.noTC ? false : _tcSeen);
+    const absOk = _demo || (_carAdj && _carAdj.noABS ? false : _absSeen);
+    const bbOk = _demo || (_carAdj && _carAdj.noBB ? false : (bb > 0));
     setCtrlVisibility(bbOk, tcOk, absOk);
 
     const bbEl = document.querySelector('#ctrlBB .ctrl-value');
@@ -343,20 +346,29 @@
     const remLaps = +d('DataCorePlugin.GameData.RemainingLaps', 'Demo.RemainingLaps') || 0;
     const timerEl = document.getElementById('raceTimerValue');
     const timerRow = document.querySelector('.timer-row');
+    // Determine if this is a lap-limited race (not timed)
+    const isLapRace = totalLaps > 0 && totalLaps <= 9999 && !(+(p[dsPre + 'IsTimedRace']) > 0);
     if (timerEl) {
-      // Prefer server-formatted remaining time, fallback to client math
-      const serverFmt = p[dsPre + 'RemainingTimeFormatted'] || '';
-      if (serverFmt) {
-        timerEl.textContent = serverFmt;
+      if (isLapRace && remLaps >= 0) {
+        // Lap-limited race: show remaining laps instead of time
+        if (remLaps === 1) timerEl.textContent = 'Final Lap';
+        else if (remLaps === 0) timerEl.textContent = 'Finish';
+        else timerEl.textContent = remLaps + (remLaps === 1 ? ' Lap' : ' Laps');
       } else {
-        const displayTime = remTime > 0 ? remTime : sessionTime;
-        if (displayTime > 0) {
-          const h = Math.floor(displayTime / 3600);
-          const m = Math.floor((displayTime % 3600) / 60);
-          const s = Math.floor(displayTime % 60);
-          timerEl.textContent = h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        // Timed race: show remaining time
+        const serverFmt = p[dsPre + 'RemainingTimeFormatted'] || '';
+        if (serverFmt) {
+          timerEl.textContent = serverFmt;
         } else {
-          timerEl.textContent = '0:00:00';
+          const displayTime = remTime > 0 ? remTime : sessionTime;
+          if (displayTime > 0) {
+            const h = Math.floor(displayTime / 3600);
+            const m = Math.floor((displayTime % 3600) / 60);
+            const s = Math.floor(displayTime % 60);
+            timerEl.textContent = h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+          } else {
+            timerEl.textContent = '0:00:00';
+          }
         }
       }
     }
@@ -379,11 +391,10 @@
     _prevLap = lap;
 
     // End-of-race: pin timer visible for final 3 laps or final 5 minutes
-    const isTimedRace = +(p[dsPre + 'IsTimedRace']) > 0 || totalLaps <= 0 || totalLaps > 9999;
     const serverEndOfRace = +(p[dsPre + 'IsEndOfRace']) > 0;  // checkered flag
-    const isEndOfRace = serverEndOfRace || (isTimedRace
-      ? (remTime > 0 && remTime <= 300)   // final 5 minutes for timed races
-      : (remLaps > 0 && remLaps <= 3));   // final 3 laps for lap races
+    const isEndOfRace = serverEndOfRace || (isLapRace
+      ? (remLaps > 0 && remLaps <= 3)     // final 3 laps for lap races
+      : (remTime > 0 && remTime <= 300)); // final 5 minutes for timed races
     if (isEndOfRace && timerRow) {
       _timerPinned = true;
       showPositionPage();
@@ -565,9 +576,15 @@
     // ─── Commentary ───
     const cmVis = +v('K10MediaBroadcaster.Plugin.CommentaryVisible') || 0;
     if (cmVis && !_commentaryWasVisible) {
-      const hue = colorToHue(vs('K10MediaBroadcaster.Plugin.CommentarySentimentColor'));
-      const severity = +v('K10MediaBroadcaster.Plugin.CommentarySeverity') || 0;
-      showCommentary(hue, vs('K10MediaBroadcaster.Plugin.CommentaryTopicTitle'), vs('K10MediaBroadcaster.Plugin.CommentaryText'), vs('K10MediaBroadcaster.Plugin.CommentaryCategory'), vs('K10MediaBroadcaster.Plugin.CommentaryTopicId'), severity);
+      const cmTopicId = vs('K10MediaBroadcaster.Plugin.CommentaryTopicId');
+      // In pit lane: only allow pit-related commentary through
+      const pitAllowedTopics = ['pit_entry', 'low_fuel', 'tyre_wear_high'];
+      const suppressInPit = _inPitLane && !pitAllowedTopics.includes(cmTopicId);
+      if (!suppressInPit) {
+        const hue = colorToHue(vs('K10MediaBroadcaster.Plugin.CommentarySentimentColor'));
+        const severity = +v('K10MediaBroadcaster.Plugin.CommentarySeverity') || 0;
+        showCommentary(hue, vs('K10MediaBroadcaster.Plugin.CommentaryTopicTitle'), vs('K10MediaBroadcaster.Plugin.CommentaryText'), vs('K10MediaBroadcaster.Plugin.CommentaryCategory'), cmTopicId, severity);
+      }
     } else if (!cmVis && _commentaryWasVisible) {
       hideCommentary();
     }
@@ -649,8 +666,8 @@
     // ─── Grid / Formation ───
     try { updateGrid(p, _demo); } catch(e) { console.error('[K10] Grid error:', e); }
 
-    // ─── Spotter ───
-    try { updateSpotter(p, _demo); } catch(e) { console.error('[K10] Spotter error:', e); }
+    // ─── Spotter (disabled in pit lane — no close racing alerts) ───
+    try { if (!_inPitLane) updateSpotter(p, _demo); } catch(e) { console.error('[K10] Spotter error:', e); }
 
     // ─── Race Timeline ───
     try {

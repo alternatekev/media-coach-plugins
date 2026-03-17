@@ -3,7 +3,7 @@
   // ═══ CAR MANUFACTURER LOGOS (loaded from images/logos/) ═══
   const CAR_LOGO_KEYS = ['bmw','mclaren','mazda','nissan','dallara','ferrari','porsche','audi',
     'mercedes','lamborghini','chevrolet','ford','toyota','hyundai','cadillac','astonmartin',
-    'lotus','honda','honda_white','generic','none'];
+    'lotus','honda','honda_white','ligier','generic','none'];
   const carLogos = {};
   async function loadCarLogos() {
     const results = await Promise.allSettled(
@@ -15,7 +15,7 @@
   }
 
 
-  const carLogoOrder = ['bmw', 'mclaren', 'mazda', 'nissan', 'dallara', 'ferrari', 'porsche', 'audi', 'mercedes', 'lamborghini', 'chevrolet', 'ford', 'toyota', 'hyundai', 'cadillac', 'astonmartin', 'lotus', 'honda'];
+  const carLogoOrder = ['bmw', 'mclaren', 'mazda', 'nissan', 'dallara', 'ferrari', 'porsche', 'audi', 'mercedes', 'lamborghini', 'chevrolet', 'ford', 'toyota', 'hyundai', 'cadillac', 'astonmartin', 'lotus', 'honda', 'ligier'];
   let currentCarLogoIdx = 0;
   // _currentCarLogo declared in config.js
 
@@ -40,7 +40,7 @@
   const _brandStrips = [
     'aston martin', 'astonmartin', 'lamborghini', 'mercedes-benz', 'mercedes',
     'chevrolet', 'mclaren', 'ferrari', 'porsche', 'hyundai', 'cadillac',
-    'dallara', 'nissan', 'toyota', 'mazda', 'honda', 'lotus', 'ford',
+    'dallara', 'nissan', 'toyota', 'mazda', 'honda', 'lotus', 'ligier', 'ford',
     'audi', 'bmw'
   ];
   function stripBrand(model) {

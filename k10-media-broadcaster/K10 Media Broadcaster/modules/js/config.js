@@ -286,6 +286,7 @@ let _timerPinned = false;
 let _commentaryWasVisible = false;
 let _tcSeen = false;
 let _absSeen = false;
+let _carAdj = null;  // result from getCarAdjustability() for current car
 
 // Grid / Formation
 let _gridActive = false;
@@ -306,7 +307,7 @@ const _demoModels = {
   mercedes:'AMG GT3', lamborghini:'Huracán GT3', chevrolet:'Corvette Z06',
   ford:'Mustang GT3', toyota:'GR86', hyundai:'Elantra N TC',
   cadillac:'V-Series.R', astonmartin:'Vantage GT3', lotus:'Emira GT4',
-  honda:'Civic Type R'
+  honda:'Civic Type R', ligier:'JS P320'
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -332,7 +333,8 @@ const _mfrBrandColors = {
   hyundai:     'hsla(216, 85%, 45%, 0.85)',
   cadillac:    'hsla(0, 0%, 50%, 0.80)',
   astonmartin: 'hsla(155, 70%, 38%, 0.85)',
-  lotus:       'hsla(57, 100%, 50%, 0.85)'
+  lotus:       'hsla(57, 100%, 50%, 0.85)',
+  ligier:      'hsla(204, 78%, 40%, 0.85)'
 };
 
 const _mfrMap = {
@@ -354,6 +356,7 @@ const _mfrMap = {
   'aston martin':'astonmartin', 'vantage':'astonmartin', 'dbs':'astonmartin',
   'lotus':'lotus', 'emira':'lotus', 'evija':'lotus',
   'honda':'honda', 'civic':'honda', 'nsx':'honda',
+  'ligier':'ligier', 'js p3':'ligier', 'js p320':'ligier',
   'generic':'generic', 'none':'none'
 };
 
@@ -363,6 +366,74 @@ function detectMfr(model) {
   const l = ('' + model).toLowerCase();
   for (const k in _mfrMap) { if (l.indexOf(k) !== -1) return _mfrMap[k]; }
   return 'generic';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CAR ADJUSTABILITY — cars that truly lack BB/ABS/TC systems
+// These cars physically don't have the system, so we HIDE the module.
+// Cars not listed here that report 0 are assumed FIXED (setup-locked).
+// Each entry: substring match → { noBB, noABS, noTC }
+// ═══════════════════════════════════════════════════════════════
+const _carNoAdjust = [
+  // Formula / Open-wheel (no ABS, no TC in almost all)
+  { match: 'formula vee',      noBB: false, noABS: true, noTC: true },
+  { match: 'skip barber',      noBB: false, noABS: true, noTC: true },
+  { match: 'usf 2000',         noBB: false, noABS: true, noTC: true },
+  { match: 'usf2000',          noBB: false, noABS: true, noTC: true },
+  { match: 'indy pro 2000',    noBB: false, noABS: true, noTC: true },
+  { match: 'formula 4',        noBB: false, noABS: true, noTC: true },
+  { match: 'fia f4',           noBB: false, noABS: true, noTC: true },
+  { match: 'ir-04',            noBB: false, noABS: true, noTC: true },
+  { match: 'dallara f3',       noBB: false, noABS: true, noTC: true },
+  { match: 'lotus 49',         noBB: true,  noABS: true, noTC: true },
+  { match: 'lotus 79',         noBB: false, noABS: true, noTC: true },
+  { match: 'mp4-30',           noBB: false, noABS: true, noTC: true },
+  { match: 'w12',              noBB: false, noABS: true, noTC: true },
+  { match: 'w13',              noBB: false, noABS: true, noTC: true },
+  // LMP / Prototype (no ABS typically)
+  { match: 'js p320',          noBB: false, noABS: true, noTC: false },
+  { match: 'ligier js',        noBB: false, noABS: true, noTC: false },
+  // Porsche Cup (no ABS, no TC on 992.1)
+  { match: '992 cup',          noBB: false, noABS: true, noTC: true },
+  { match: 'gt3 cup',          noBB: false, noABS: true, noTC: true },
+  // V8 Supercars (no ABS, no TC)
+  { match: 'supercars',        noBB: false, noABS: true, noTC: true },
+  { match: 'supercar',         noBB: false, noABS: true, noTC: true },
+  { match: 'ford falcon',      noBB: false, noABS: true, noTC: true },
+  { match: 'holden commodore',  noBB: false, noABS: true, noTC: true },
+  { match: 'gen3 camaro',      noBB: false, noABS: true, noTC: true },
+  { match: 'gen3 mustang',     noBB: false, noABS: true, noTC: true },
+  // Vintage / spec
+  { match: 'spec racer',       noBB: false, noABS: true, noTC: true },
+  { match: 'legends',          noBB: true,  noABS: true, noTC: true },
+  { match: '34 ford',          noBB: true,  noABS: true, noTC: true },
+  // Production-based (no ABS, no TC in iRacing implementation)
+  { match: 'mx-5 cup',         noBB: false, noABS: true, noTC: true },
+  { match: 'mx-5 roadster',    noBB: false, noABS: true, noTC: true },
+  { match: 'gr86',             noBB: false, noABS: true, noTC: true },
+  { match: 'solstice',         noBB: false, noABS: true, noTC: true },
+  // NASCAR / Oval (no ABS, no TC)
+  { match: 'nascar',           noBB: false, noABS: true, noTC: true },
+  { match: 'gen 6',            noBB: false, noABS: true, noTC: true },
+  { match: 'next gen',         noBB: false, noABS: true, noTC: true },
+  { match: 'trucks',           noBB: false, noABS: true, noTC: true },
+  { match: 'street stock',     noBB: true,  noABS: true, noTC: true },
+  { match: 'late model',       noBB: false, noABS: true, noTC: true },
+  { match: 'modified',         noBB: false, noABS: true, noTC: true },
+  { match: 'silver crown',     noBB: false, noABS: true, noTC: true },
+  { match: 'sprint car',       noBB: false, noABS: true, noTC: true },
+  { match: 'midget',           noBB: false, noABS: true, noTC: true },
+  { match: 'dirt',             noBB: false, noABS: true, noTC: true },
+];
+
+/** Check car model string against no-adjust list. Returns {noBB, noABS, noTC} or null. */
+function getCarAdjustability(model) {
+  if (!model) return null;
+  const l = ('' + model).toLowerCase();
+  for (const entry of _carNoAdjust) {
+    if (l.indexOf(entry.match) !== -1) return entry;
+  }
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════════════

@@ -57,6 +57,9 @@ namespace K10MediaBroadcaster.Plugin.Engine
         // Min distance² between samples (world units) to avoid over-sampling
         private const double MinSampleDistSq = 4.0; // ~2m apart
 
+        // Car reset detection — if player teleports to pit during recording, restart
+        private bool _wasOnTrack = false;  // was the player on track (not in pit) last frame?
+
         // ── Public read-only state ─────────────────────────────────────────
 
         /// <summary>True when we have a valid track outline (recorded or loaded).</summary>
@@ -108,6 +111,13 @@ namespace K10MediaBroadcaster.Plugin.Engine
             _drX = 0; _drZ = 0;
             _drLastTick = DateTime.MinValue;
             _lastYaw = double.NaN;
+
+            // Try to load from bundled dataset (checked into git)
+            if (TryLoadFromBundledMaps(trackId))
+            {
+                SimHub.Logging.Current.Info($"[K10MediaBroadcaster] Loaded track map for '{trackId}' from bundled dataset");
+                return;
+            }
 
             // Try to load from SimHub's map cache
             if (TryLoadFromSimHub(trackId))
@@ -184,6 +194,24 @@ namespace K10MediaBroadcaster.Plugin.Engine
                 }
             }
             _drLastTick = now;
+
+            // ── Car reset / tow detection ─────────────────────────────────
+            // If player was on track and suddenly teleports to pit lane with no velocity,
+            // they've reset their car. Clear recording and start fresh.
+            if (_recording && _wasOnTrack && playerInPitLane && _samples.Count > 5)
+            {
+                bool noVelocity = Math.Abs(velocityX) < 0.5 && Math.Abs(velocityZ) < 0.5;
+                if (noVelocity)
+                {
+                    SimHub.Logging.Current.Info("[K10MediaBroadcaster] Car reset detected during map recording — restarting");
+                    _samples.Clear();
+                    _lastSampleDist = -1;
+                    _drX = 0; _drZ = 0;
+                    _drLastTick = DateTime.MinValue;
+                    _lastYaw = double.NaN;
+                }
+            }
+            _wasOnTrack = !playerInPitLane;
 
             // ── Recording phase ────────────────────────────────────────────
             // Skip samples while player is in pit lane — prevents pit road spurs
@@ -287,6 +315,7 @@ namespace K10MediaBroadcaster.Plugin.Engine
             _opponents.Clear();
             _oppSmoothed.Clear();
             OpponentData = "";
+            _wasOnTrack = false;
 
             // Delete cached file so the bad data doesn't reload
             try
@@ -403,8 +432,9 @@ namespace K10MediaBroadcaster.Plugin.Engine
             // Normalise to 0–100 SVG viewBox with 5% padding
             NormaliseAndBuild(_samples);
 
-            // Save to our cache
+            // Save to our cache + bundled dataset for git
             SaveToOwnCache(_currentTrackId);
+            SaveToBundledMaps(_currentTrackId);
 
             SimHub.Logging.Current.Info($"[K10MediaBroadcaster] Track map recorded: {_outline.Length} points");
         }
@@ -595,6 +625,200 @@ namespace K10MediaBroadcaster.Plugin.Engine
             OpponentData = sb.ToString();
         }
 
+        // ── File I/O: Bundled track maps (k10-media-broadcaster-data/trackmaps/, git-committed) ─
+
+        /// <summary>
+        /// Resolve the k10-media-broadcaster-data/trackmaps/ directory relative to the plugin DLL location.
+        /// This folder is copied alongside the DLL by the post-build target.
+        /// </summary>
+        private string GetBundledMapsDir()
+        {
+            if (string.IsNullOrEmpty(_simhubDir)) return "";
+            return Path.Combine(_simhubDir, "k10-media-broadcaster-data", "trackmaps");
+        }
+
+        private string GetBundledMapPath(string trackId)
+        {
+            string safe = trackId;
+            foreach (char c in Path.GetInvalidFileNameChars())
+                safe = safe.Replace(c, '_');
+            return Path.Combine(GetBundledMapsDir(), safe + ".csv");
+        }
+
+        /// <summary>
+        /// Try to load a track map from the bundled dataset folder.
+        /// Uses the same CSV format as the K10 cache (WorldX,WorldZ,LapDistPct).
+        /// </summary>
+        private bool TryLoadFromBundledMaps(string trackId)
+        {
+            string dir = GetBundledMapsDir();
+            if (!Directory.Exists(dir)) return false;
+
+            // Exact match first
+            string path = GetBundledMapPath(trackId);
+            if (File.Exists(path))
+                return TryLoadCsvMap(path);
+
+            // Fuzzy match: look for files containing the track ID
+            string tidLower = (trackId ?? "").ToLowerInvariant().Replace(" ", "");
+            if (string.IsNullOrEmpty(tidLower)) return false;
+
+            foreach (string file in Directory.GetFiles(dir, "*.csv"))
+            {
+                string name = Path.GetFileNameWithoutExtension(file).ToLowerInvariant().Replace(" ", "");
+                if (name.Contains(tidLower) || tidLower.Contains(name))
+                {
+                    if (TryLoadCsvMap(file))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Load a CSV track map file (WorldX,WorldZ,LapDistPct per line).
+        /// Shared between bundled maps and K10 cache loading.
+        /// </summary>
+        private bool TryLoadCsvMap(string filePath)
+        {
+            try
+            {
+                var points = new List<TrackPoint>();
+                foreach (string line in File.ReadAllLines(filePath))
+                {
+                    string[] parts = line.Split(',');
+                    if (parts.Length < 3) continue;
+                    if (!double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out double wx)) continue;
+                    if (!double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double wz)) continue;
+                    if (!double.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double dist)) continue;
+                    points.Add(new TrackPoint { WorldX = wx, WorldZ = wz, LapDistPct = dist });
+                }
+                if (points.Count < 10) return false;
+                points.Sort((a, b) => a.LapDistPct.CompareTo(b.LapDistPct));
+                NormaliseAndBuild(points);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Save a recorded track map to the bundled dataset folder so it can be committed to git.
+        /// This writes alongside the DLL into SimHub's k10-media-broadcaster-data/trackmaps/ folder.
+        /// The post-build ExportToRepo target copies it back to the repo on next build,
+        /// or it can be manually copied.
+        /// </summary>
+        private void SaveToBundledMaps(string trackId)
+        {
+            try
+            {
+                string dir = GetBundledMapsDir();
+                if (string.IsNullOrEmpty(dir)) return;
+                Directory.CreateDirectory(dir);
+                string path = GetBundledMapPath(trackId);
+
+                var sb = new StringBuilder(_samples.Count * 40);
+                foreach (var s in _samples)
+                {
+                    sb.Append(s.WorldX.ToString("F4", CultureInfo.InvariantCulture));
+                    sb.Append(',');
+                    sb.Append(s.WorldZ.ToString("F4", CultureInfo.InvariantCulture));
+                    sb.Append(',');
+                    sb.AppendLine(s.LapDistPct.ToString("F6", CultureInfo.InvariantCulture));
+                }
+
+                File.WriteAllText(path, sb.ToString());
+                SimHub.Logging.Current.Info($"[K10MediaBroadcaster] Track map saved to bundled dataset: {path}");
+            }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[K10MediaBroadcaster] Failed to save to bundled maps: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of all track IDs that have bundled maps (for diagnostics / UI).
+        /// </summary>
+        public List<string> GetBundledTrackIds()
+        {
+            var ids = new List<string>();
+            string dir = GetBundledMapsDir();
+            if (!Directory.Exists(dir)) return ids;
+
+            foreach (string file in Directory.GetFiles(dir, "*.csv"))
+                ids.Add(Path.GetFileNameWithoutExtension(file));
+
+            ids.Sort(StringComparer.OrdinalIgnoreCase);
+            return ids;
+        }
+
+        /// <summary>
+        /// Returns track IDs that exist in the local K10 cache but NOT in the bundled dataset.
+        /// These are tracks recorded locally that haven't been compiled into the plugin yet.
+        /// </summary>
+        public List<string> GetLocalOnlyTrackIds()
+        {
+            var localOnly = new List<string>();
+            string cacheDir = GetOwnCacheDir();
+            if (!Directory.Exists(cacheDir)) return localOnly;
+
+            var bundled = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string bundledDir = GetBundledMapsDir();
+            if (Directory.Exists(bundledDir))
+            {
+                foreach (string file in Directory.GetFiles(bundledDir, "*.csv"))
+                    bundled.Add(Path.GetFileNameWithoutExtension(file));
+            }
+
+            foreach (string file in Directory.GetFiles(cacheDir, "*.csv"))
+            {
+                string name = Path.GetFileNameWithoutExtension(file);
+                if (!bundled.Contains(name))
+                    localOnly.Add(name);
+            }
+
+            localOnly.Sort(StringComparer.OrdinalIgnoreCase);
+            return localOnly;
+        }
+
+        /// <summary>
+        /// Copies all local-only track maps (not already bundled) to the specified directory.
+        /// Returns the number of files copied.
+        /// </summary>
+        public int ExportLocalMapsTo(string destinationDir)
+        {
+            if (string.IsNullOrEmpty(destinationDir)) return 0;
+
+            string cacheDir = GetOwnCacheDir();
+            if (!Directory.Exists(cacheDir)) return 0;
+
+            var bundled = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string bundledDir = GetBundledMapsDir();
+            if (Directory.Exists(bundledDir))
+            {
+                foreach (string file in Directory.GetFiles(bundledDir, "*.csv"))
+                    bundled.Add(Path.GetFileNameWithoutExtension(file));
+            }
+
+            Directory.CreateDirectory(destinationDir);
+            int count = 0;
+
+            foreach (string file in Directory.GetFiles(cacheDir, "*.csv"))
+            {
+                string name = Path.GetFileNameWithoutExtension(file);
+                if (bundled.Contains(name)) continue;
+
+                string dest = Path.Combine(destinationDir, Path.GetFileName(file));
+                File.Copy(file, dest, true);
+                count++;
+            }
+
+            return count;
+        }
+
         // ── File I/O: SimHub map cache ─────────────────────────────────────
 
         private bool TryLoadFromSimHub(string trackId)
@@ -733,30 +957,7 @@ namespace K10MediaBroadcaster.Plugin.Engine
         {
             string path = GetOwnCachePath(trackId);
             if (!File.Exists(path)) return false;
-
-            try
-            {
-                var points = new List<TrackPoint>();
-                foreach (string line in File.ReadAllLines(path))
-                {
-                    string[] parts = line.Split(',');
-                    if (parts.Length < 3) continue;
-                    if (!double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out double wx)) continue;
-                    if (!double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double wz)) continue;
-                    if (!double.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double dist)) continue;
-                    points.Add(new TrackPoint { WorldX = wx, WorldZ = wz, LapDistPct = dist });
-                }
-
-                if (points.Count < 10) return false;
-
-                points.Sort((a, b) => a.LapDistPct.CompareTo(b.LapDistPct));
-                NormaliseAndBuild(points);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return TryLoadCsvMap(path);
         }
 
         private void SaveToOwnCache(string trackId)

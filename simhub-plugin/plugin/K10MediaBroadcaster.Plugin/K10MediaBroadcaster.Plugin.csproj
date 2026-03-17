@@ -57,15 +57,15 @@
   </ItemGroup>
 
   <!--
-    Post-build: copy the dataset folder alongside the DLL so the plugin
-    can find commentary_topics.json automatically.
+    Post-build: copy the k10-media-broadcaster-data folder alongside the DLL
+    so the plugin can find commentary_topics.json automatically.
   -->
   <Target Name="CopyDataset" AfterTargets="Build">
     <ItemGroup>
-      <DatasetFiles Include="..\..\dataset\**\*" />
+      <DatasetFiles Include="..\..\k10-media-broadcaster-data\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(DatasetFiles)"
-          DestinationFolder="$(SimHubPath)dataset\%(RecursiveDir)"
+          DestinationFolder="$(SimHubPath)k10-media-broadcaster-data\%(RecursiveDir)"
           SkipUnchangedFiles="true" />
   </Target>
 
@@ -88,8 +88,15 @@
           DestinationFolder="$(RepoPluginDir)"
           Condition="Exists('$(SimHubPath)K10MediaBroadcaster.Plugin.pdb')"
           SkipUnchangedFiles="true" />
+    <!-- Sync recorded track maps back to repo for git commit -->
+    <ItemGroup>
+      <RecordedMaps Include="$(SimHubPath)k10-media-broadcaster-data\trackmaps\*.csv" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RecordedMaps)"
+          DestinationFolder="$(RepoPluginDir)k10-media-broadcaster-data\trackmaps\"
+          SkipUnchangedFiles="true" />
     <Message Importance="high"
-             Text="Exported DLL+PDB+Dashboard to $(RepoPluginDir)" />
+             Text="Exported DLL+PDB+TrackMaps to $(RepoPluginDir)" />
   </Target>
 
   <!-- Debug: launch SimHub when pressing F5 -->

@@ -13,7 +13,7 @@ namespace K10MediaBroadcaster.Plugin
         /// </summary>
         public List<string> EnabledCategories { get; set; } = new List<string>();
 
-        /// <summary>Path to commentary_topics.json. Defaults to dataset subfolder next to DLL.</summary>
+        /// <summary>Path to commentary_topics.json. Defaults to k10-media-broadcaster-data subfolder next to DLL.</summary>
         public string TopicsFilePath { get; set; } = "";
 
         /// <summary>Whether to show the topic title above the prompt text.</summary>

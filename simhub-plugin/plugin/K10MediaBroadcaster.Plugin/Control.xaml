@@ -77,7 +77,7 @@
                     Background="#333" Foreground="White" BorderBrush="#555"
                     Padding="4" Click="BrowseTopics_Click"/>
         </Grid>
-        <TextBlock Text="Leave empty to auto-detect dataset/commentary_topics.json"
+        <TextBlock Text="Leave empty to auto-detect k10-media-broadcaster-data/commentary_topics.json"
                    FontSize="11" Foreground="#666" Margin="0,0,0,20"/>
 
         <!-- Demo Mode -->

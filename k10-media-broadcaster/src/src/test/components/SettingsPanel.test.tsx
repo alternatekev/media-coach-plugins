@@ -103,12 +103,14 @@ describe('SettingsPanel Component', () => {
       fireEvent.keyDown(window, { ctrlKey: true, shiftKey: true, key: 'S' });
     });
 
-    it('renders three tabs: Sections, Layout, System', () => {
+    it('renders five tabs: Sections, Layout, Connections, Keys, System', () => {
       const tabs = screen.getAllByRole('tab');
-      expect(tabs).toHaveLength(3);
+      expect(tabs).toHaveLength(5);
       expect(tabs[0]).toHaveTextContent('Sections');
       expect(tabs[1]).toHaveTextContent('Layout');
-      expect(tabs[2]).toHaveTextContent('System');
+      expect(tabs[2]).toHaveTextContent('Connections');
+      expect(tabs[3]).toHaveTextContent('Keys');
+      expect(tabs[4]).toHaveTextContent('System');
     });
 
     it('shows Sections tab content by default when opened', () => {
@@ -561,6 +563,25 @@ describe('SettingsPanel Component', () => {
       expect(values).toContain('black');
       expect(values).toContain('chequered');
       expect(values).toContain('orange');
+    });
+  });
+
+  describe('Incidents Settings', () => {
+    beforeEach(() => {
+      render(<SettingsPanelWithProvider />);
+      fireEvent.keyDown(window, { ctrlKey: true, shiftKey: true, key: 'S' });
+      const systemTab = screen.getByRole('tab', { name: /system/i });
+      fireEvent.click(systemTab);
+    });
+
+    it('updates incidents DQ limit', () => {
+      const dqLimitSlider = screen.getByLabelText(/incidents dq limit/i) as HTMLInputElement;
+      expect(dqLimitSlider).toBeInTheDocument();
+      expect(dqLimitSlider.type).toBe('range');
+      expect(dqLimitSlider.value).toBe('25'); // Default from mockSettings
+
+      fireEvent.change(dqLimitSlider, { target: { value: '30' } });
+      expect(dqLimitSlider.value).toBe('30');
     });
   });
 

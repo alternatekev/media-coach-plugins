@@ -574,6 +574,23 @@ export function SettingsPanel() {
               aria-label="Toggle Green Screen"
             />
           </div>
+
+          <div className={styles.groupLabel}>Incidents Settings</div>
+          <div className={styles.row}>
+            <span className={styles.label}>Penalty Limit</span>
+            <div className={styles.rangeRow}>
+              <input
+                type="range"
+                className={styles.range}
+                min="1"
+                max="50"
+                value={settings.incidentDQLimit}
+                onChange={(e) => handleRangeChange('incidentDQLimit', parseInt(e.target.value, 10))}
+                aria-label="Incidents DQ Limit"
+              />
+              <span className={styles.rangeVal}>{settings.incidentDQLimit}</span>
+            </div>
+          </div>
         </div>
 
         <button className={styles.closeBtn} onClick={handleClose} aria-label="Close Settings">

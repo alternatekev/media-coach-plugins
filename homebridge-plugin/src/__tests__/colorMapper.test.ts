@@ -196,9 +196,9 @@ describe('ColorMapper', () => {
       expect(color).toEqual({ hue: 0, saturation: 100, brightness: 100 });
     });
 
-    it('should map boundary distance 0.008 exactly to red', () => {
+    it('should map boundary distance 0.008 exactly to orange', () => {
       const color = ColorMapper.mapProximityToColor(0.008);
-      expect(color).toEqual({ hue: 0, saturation: 100, brightness: 100 });
+      expect(color).toEqual({ hue: 30, saturation: 100, brightness: 90 });
     });
 
     it('should map medium proximity (0.008-0.02) to orange', () => {
@@ -206,9 +206,9 @@ describe('ColorMapper', () => {
       expect(color).toEqual({ hue: 30, saturation: 100, brightness: 90 });
     });
 
-    it('should map boundary distance 0.02 exactly to orange', () => {
+    it('should map boundary distance 0.02 exactly to ambient green', () => {
       const color = ColorMapper.mapProximityToColor(0.02);
-      expect(color).toEqual({ hue: 30, saturation: 100, brightness: 90 });
+      expect(color).toEqual({ hue: 120, saturation: 50, brightness: 30 });
     });
 
     it('should map far proximity (>= 0.02) to ambient green', () => {

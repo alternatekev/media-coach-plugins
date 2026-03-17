@@ -22,6 +22,17 @@ export default function IncidentsPanel({ posClasses, panelStyle }: IncidentsPane
     setPrevIncidents(telemetry.incidentCount);
   }, [telemetry.incidentCount, prevIncidents]);
 
+  // Calculate incident severity level (0-5) for color theming
+  const incidentLevel = useMemo(() => {
+    const count = telemetry.incidentCount;
+    if (count === 0) return 0;
+    if (count <= 2) return 1;
+    if (count <= 4) return 2;
+    if (count <= 6) return 3;
+    if (count <= 9) return 4;
+    return 5;
+  }, [telemetry.incidentCount]);
+
   // Calculate fill width
   const fillWidth = useMemo(() => {
     const dqLimit = settings.incidentDQLimit || 20;
@@ -36,7 +47,7 @@ export default function IncidentsPanel({ posClasses, panelStyle }: IncidentsPane
   }, [settings.incidentDQLimit, settings.incidentPenaltyLimit]);
 
   return (
-    <div className={`incidents-panel ${posClasses || 'inc-bottom inc-left'}`} id="incidentsPanel" style={panelStyle}>
+    <div className={`incidents-panel inc-level-${incidentLevel} ${posClasses || 'inc-bottom inc-left'}`} id="incidentsPanel" style={panelStyle}>
       <canvas className="inc-gl-canvas" id="incGlCanvas"></canvas>
       <div className="inc-inner">
         <div className="inc-label">Incidents</div>
@@ -52,14 +63,27 @@ export default function IncidentsPanel({ posClasses, panelStyle }: IncidentsPane
           </div>
         </div>
         <div className="inc-thresholds">
-          <div className="inc-thresh-row">
-            <span>Penalty in</span>
-            <span className="inc-thresh-val">{telemetry.gameRunning ? Math.max(0, (settings.incidentPenaltyLimit || 10) - telemetry.incidentCount) : '—'}</span>
-          </div>
-          <div className="inc-thresh-row">
-            <span>DQ in</span>
-            <span className="inc-thresh-val">{telemetry.gameRunning ? Math.max(0, (settings.incidentDQLimit || 20) - telemetry.incidentCount) : '—'}</span>
-          </div>
+          {(() => {
+            const penaltyRemaining = telemetry.gameRunning
+              ? Math.max(0, (settings.incidentPenaltyLimit || 10) - telemetry.incidentCount)
+              : null;
+            const dqRemaining = telemetry.gameRunning
+              ? Math.max(0, (settings.incidentDQLimit || 20) - telemetry.incidentCount)
+              : null;
+
+            return (
+              <>
+                <div className="inc-thresh-row">
+                  <span>{penaltyRemaining === 0 ? 'PENALTY' : 'Penalty in'}</span>
+                  <span className="inc-thresh-val">{penaltyRemaining === null ? '—' : penaltyRemaining === 0 ? '' : penaltyRemaining}</span>
+                </div>
+                <div className="inc-thresh-row">
+                  <span>{dqRemaining === 0 ? 'DQ' : 'DQ in'}</span>
+                  <span className="inc-thresh-val">{dqRemaining === null ? '—' : dqRemaining === 0 ? '' : dqRemaining}</span>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

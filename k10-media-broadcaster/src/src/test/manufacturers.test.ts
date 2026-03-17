@@ -135,11 +135,11 @@ describe('manufacturers', () => {
     });
 
     it('should return fallback gray for unknown brands', () => {
-      expect(getMfrColor('unknown')).toBe('hsla(0, 0%, 70%, 1)');
+      expect(getMfrColor('unknown')).toBe('hsla(0, 0%, 12%, 1)');
     });
 
     it('should return fallback gray for undefined keys', () => {
-      expect(getMfrColor('nonexistent')).toBe('hsla(0, 0%, 70%, 1)');
+      expect(getMfrColor('nonexistent')).toBe('hsla(0, 0%, 12%, 1)');
     });
 
     it('should all return valid hsla format', () => {

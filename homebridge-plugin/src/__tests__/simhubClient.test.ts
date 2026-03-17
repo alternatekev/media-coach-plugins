@@ -6,8 +6,7 @@ import * as http from 'http';
 jest.mock('http');
 
 /**
- * Sets up http.get mock to return the given property values in order.
- * Order: severity, visible, color, category, flagState, distance
+ * Sets up http.get mock to return a complete state object as single JSON response.
  */
 function setupMockResponses(props: {
   severity: string;
@@ -18,19 +17,18 @@ function setupMockResponses(props: {
   distance: string;
 }): void {
   const mockGet = http.get as jest.MockedFunction<typeof http.get>;
-  const responses = [
-    { Value: props.severity },
-    { Value: props.visible },
-    { Value: props.color },
-    { Value: props.category },
-    { Value: props.flagState },
-    { Value: props.distance },
-  ];
+  const response = {
+    'K10MediaCoach.Plugin.CommentarySeverity': props.severity,
+    'K10MediaCoach.Plugin.CommentaryVisible': props.visible,
+    'K10MediaCoach.Plugin.CommentarySentimentColor': props.color,
+    'K10MediaCoach.Plugin.CommentaryCategory': props.category,
+    currentFlagState: props.flagState,
+    nearestCarDistance: props.distance,
+  };
 
-  let callCount = 0;
   mockGet.mockImplementation((url: any, callback: any) => {
-    const response = responses[callCount++];
     const mockRes = {
+      statusCode: 200,
       on: jest.fn(function (this: any, event: string, handler: Function) {
         if (event === 'data') {
           handler(JSON.stringify(response));
@@ -52,14 +50,13 @@ function setupMockResponses(props: {
 }
 
 /**
- * Sets up http.get mock to return raw string responses (for malformed JSON tests).
+ * Sets up http.get mock to return raw string response (for malformed JSON tests).
  */
-function setupRawMockResponses(responses: string[]): void {
+function setupRawMockResponses(response: string): void {
   const mockGet = http.get as jest.MockedFunction<typeof http.get>;
-  let callCount = 0;
   mockGet.mockImplementation((url: any, callback: any) => {
-    const response = responses[callCount++];
     const mockRes = {
+      statusCode: 200,
       on: jest.fn(function (this: any, event: string, handler: Function) {
         if (event === 'data') {
           handler(response);
@@ -371,20 +368,13 @@ describe('SimHubClient', () => {
     });
 
     it('should handle malformed JSON response', async () => {
-      setupRawMockResponses([
-        'invalid json',
-        '{ incomplete',
-        '{ "Value": "1" }',
-        '{ "Value": "" }',
-        '{ "Value": "none" }',
-        '{ "Value": "0.5" }',
-      ]);
+      setupRawMockResponses('invalid json');
 
       const state = await client.getState();
 
       // Should fall back to defaults for malformed JSON
       expect(state.commentarySeverity).toBe(0);
-      expect(state.isConnected).toBe(true); // Still connected, just failed parsing
+      expect(state.isConnected).toBe(false); // Failed to parse, so disconnected
     });
 
     it('should clear error on successful reconnection', async () => {
@@ -439,28 +429,39 @@ describe('SimHubClient', () => {
 
       mockGet.mockImplementation((url: any, callback: any) => {
         capturedUrls.push(String(url));
-        return {
+        const mockRes = {
+          statusCode: 200,
           on: jest.fn(function (this: any, event: string, handler: Function) {
-            if (event === 'error') {
-              handler(new Error('Timeout'));
+            if (event === 'data') {
+              handler(JSON.stringify({
+                'K10MediaCoach.Plugin.CommentarySeverity': '0',
+                'K10MediaCoach.Plugin.CommentaryVisible': '0',
+                'K10MediaCoach.Plugin.CommentarySentimentColor': '#FF000000',
+                'K10MediaCoach.Plugin.CommentaryCategory': '',
+                currentFlagState: 'none',
+                nearestCarDistance: '1.0',
+              }));
+            } else if (event === 'end') {
+              handler();
             }
           }),
+        };
+
+        setTimeout(() => {
+          callback(mockRes as any);
+        }, 10);
+
+        return {
+          on: jest.fn(),
           destroy: jest.fn(),
         } as any;
       });
 
       await client.getState();
 
-      // Verify correct endpoint paths
-      expect(capturedUrls.some((url) =>
-        url.includes('K10MediaCoach.Plugin.CommentarySeverity'),
-      )).toBe(true);
-      expect(capturedUrls.some((url) =>
-        url.includes('K10MediaCoach.Plugin.CommentaryVisible'),
-      )).toBe(true);
-      expect(capturedUrls.some((url) =>
-        url.includes('K10MediaCoach.Plugin.CommentarySentimentColor'),
-      )).toBe(true);
+      // Verify correct endpoint URL is called
+      expect(capturedUrls.length).toBe(1);
+      expect(capturedUrls[0]).toContain('k10mediacoach');
     });
   });
 

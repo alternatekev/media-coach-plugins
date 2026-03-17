@@ -2,15 +2,21 @@
 
 ## Quick Reference
 
-**Production dashboard**: `K10 Media Broadcaster/dashboard.html` (assembly file, ~530 lines)
-**CSS modules**: `modules/styles/*.css` (8 files)
-**JS modules**: `modules/js/*.js` (20 files, ~6600 lines total)
+**Three dashboard variants** (cycle with `Ctrl+Shift+T`):
+- `dashboard.html` — original, no bundler, global-scope JS
+- `dashboard-react.html` — React 19 + TypeScript, built via `cd src && npm run build`
+- `dashboard-build.html` — TypeScript ES modules, built via `cd src-vanilla && npm run build`
+
+**CSS modules**: `modules/styles/*.css` (8 files, shared by all three)
+**JS modules**: `modules/js/*.js` (20 files, ~6600 lines total — source of truth for original)
+**TypeScript source**: `src-vanilla/src/modules/*.ts` (20 files — source of truth for build)
+**React source**: `src/src/` (React components — source of truth for react)
 **Tests**: `tests/*.spec.mjs` (Playwright)
 **Test helpers**: `tests/helpers.mjs`
-**Electron main**: `main.js` (IPC handlers, window management, Discord OAuth)
+**Electron main**: `main.js` (IPC handlers, window management, Discord OAuth, three-mode switching)
 **Electron preload**: `preload.js` (IPC bridge -> `window.k10`)
 
-No bundler. All modules load via `<link>` and `<script src>` tags in dashboard.html. Everything runs in Electron's `file://` protocol with **global scope** (duplicate `let`/`const` declarations crash modules).
+The `original` dashboard has no bundler — all modules load via `<link>` and `<script src>` tags with **global scope** (duplicate `let`/`const` declarations crash modules). The `react` and `build` dashboards are Vite builds that use `vite-plugin-singlefile` to produce a single self-contained HTML file.
 
 ---
 
@@ -54,6 +60,20 @@ K10 Media Broadcaster/
 |       +-- fps.js          <- (19 lines) Frame rate counter
 |       +-- webgl.js        <- (1739 lines) WebGL2 shader programs (pedal glow, flag anim, tacho FX, lb effects, spotter glow, bonkers fire, commentary trail, grid border)
 |       +-- poll-engine.js  <- (632 lines) Main orchestrator: polling loop, game detection, applyGameMode(), session-aware gaps
++-- scripts/
+|   +-- mac/
+|   |   +-- K10 Media Broadcaster.command  <- macOS launcher (double-click to run)
+|   |   +-- install.command                <- Install deps + build both dashboards
+|   |   +-- launch.sh                      <- Silent launcher (no terminal window)
+|   |   +-- rebuild-react.command          <- Rebuild React dashboard only
+|   |   +-- rebuild-vanilla.command        <- Rebuild vanilla TS dashboard only
+|   |   +-- rebuild-all.command            <- Rebuild both dashboards
+|   +-- windows/
+|       +-- start.bat                      <- Windows launcher
+|       +-- install.bat                    <- Install deps + build both dashboards
+|       +-- rebuild-react.bat              <- Rebuild React dashboard only
+|       +-- rebuild-vanilla.bat            <- Rebuild vanilla TS dashboard only
+|       +-- rebuild-all.bat                <- Rebuild both dashboards
 +-- tests/
     +-- helpers.mjs         <- MOCK_TELEMETRY, MOCK_DEMO, loadDashboard(), updateMockData()
     +-- discord-oauth.spec.mjs <- PKCE OAuth unit + integration tests
@@ -614,3 +634,114 @@ These features exist in the vanilla dashboard but are **not** implemented in the
 - **Pit limiter overlay** — `pit-limiter.js` bonkers spark particles not yet ported
 - **Settings overlay** — React uses external layout config, not the in-HUD settings panel
 - **Connection cards** — Discord OAuth and SimHub connection UI live in the Electron shell, not the React HUD
+
+---
+
+## Vanilla Build (`dashboard-build.html`)
+
+The vanilla build is a **TypeScript / Vite re-implementation of `dashboard.html`** that is functionally and visually identical to the original but uses modern JavaScript tooling.  It has the same HTML structure, the same DOM element IDs, and the same CSS class names — but the JS is organized as ES modules with TypeScript types and built with Vite + `vite-plugin-singlefile`.
+
+### File Layout
+
+```
+src-vanilla/                            <- Vanilla TS/Vite source root
++-- dashboard-build.html               <- Vite entry point (identical HTML structure to dashboard.html)
++-- vite.config.ts                     <- vite-plugin-singlefile, electron-compat, dev server on :5174
++-- tsconfig.json                      <- TypeScript config
++-- package.json                       <- devDependencies: vite, typescript, vite-plugin-singlefile
++-- src/
+    +-- main.ts                        <- Entry point: imports all modules in load order, calls initPollEngine()
+    +-- state.ts                       <- Shared mutable DashboardState object (replaces all `let _xxx` globals)
+    +-- constants.ts                   <- All constants: SIMHUB_URL, POLL_MS, DEFAULT_SETTINGS, PROP_KEYS, etc.
+    +-- types.ts                       <- TypeScript interfaces: Settings, CarAdjustability, etc.
+    +-- modules/
+        +-- config.ts                  <- detectMfr(), getCarAdjustability(), isNonRaceSession(), fmtLapTime()
+        +-- keyboard.ts                <- initKeyboard() — Ctrl+Shift+S etc.
+        +-- car-logos.ts               <- loadCarLogos(), cycleCarLogo(), setCarLogo()
+        +-- game-detect.ts             <- detectGameId(), isRallyGame(), applyGameMode(), fmtGap(), fetchProps()
+        +-- webgl-helpers.ts           <- updateTacho(), renderHist(), renderPedalTrace(), updateTrackMap(), etc.
+        +-- settings.ts                <- applySettings(), loadSettings(), saveSettings(), applyLayout(), initSettingsListeners()
+        +-- connections.ts             <- connectDiscord(), disconnectDiscord(), initDiscordState(), toggleRallyMode()
+        +-- leaderboard.ts             <- updateLeaderboard()
+        +-- datastream.ts              <- updateDatastream() — G-force diamond, yaw trail
+        +-- race-control.ts            <- showRaceControl(), hideRaceControl()
+        +-- race-timeline.ts           <- updateRaceTimeline(), renderTimeline(), resetTimeline()
+        +-- incidents.ts               <- updateIncidents()
+        +-- pit-limiter.ts             <- updatePitLimiter(), _startBonkersSparks(), _stopBonkersSparks()
+        +-- race-end.ts                <- showRaceEnd(), hideRaceEnd()
+        +-- formation.ts               <- loadCountryFlags(), updateGrid()
+        +-- spotter.ts                 <- updateSpotter()
+        +-- fps.ts                     <- setApiFps(), updateFps()
+        +-- webgl.ts                   <- WebGL FX engine (verbatim from webgl.js with @ts-nocheck; registered on window)
+        +-- commentary-viz.ts          <- Commentary visualizations (verbatim from commentary-viz.js with @ts-nocheck)
+        +-- poll-engine.ts             <- initPollEngine() — startup + setInterval polling loop
+```
+
+**Build command:** `cd src-vanilla && npm run build`
+**Output:** `K10 Media Broadcaster/dashboard-build.html` (~252KB, single inlined file)
+**Dev server:** `cd src-vanilla && npm run dev` (Vite HMR on http://localhost:5174)
+
+### Key Architectural Differences from `dashboard.html`
+
+**Global state:** All `let _xxx` globals from `config.js` are replaced by a single exported `state` object in `state.ts`. Every module imports and mutates `state` directly.
+
+**Cross-module calls:** Functions called from HTML `onclick` handlers are registered on `window` at module init time via `(window as any).fnName = fn`. Cross-module function calls use `(window as any).fn?.()` optional chaining to avoid circular imports.
+
+**webgl.ts and commentary-viz.ts:** These two files are verbatim copies of their `.js` originals with a `// @ts-nocheck` header and a thin TypeScript wrapper. They expose the same `window.*` public APIs.
+
+**Load order:** Preserved from the original — `main.ts` imports all 20 modules in the same dependency order as the `<script>` tags in `dashboard.html`.
+
+### Module ↔ JS Correspondence
+
+| TypeScript module (`src-vanilla/src/modules/`) | Vanilla JS (`modules/js/`) |
+|---|---|
+| `config.ts` | `config.js` (constants + utility fns only; globals moved to state.ts) |
+| `keyboard.ts` | `keyboard.js` |
+| `car-logos.ts` | `car-logos.js` |
+| `game-detect.ts` | `game-detect.js` |
+| `webgl-helpers.ts` | `webgl-helpers.js` |
+| `settings.ts` | `settings.js` + `connections.js` (settings functions) |
+| `connections.ts` | `connections.js` (Discord/SimHub connection UI) |
+| `leaderboard.ts` | `leaderboard.js` |
+| `datastream.ts` | `datastream.js` |
+| `race-control.ts` | `race-control.js` |
+| `race-timeline.ts` | `race-timeline.js` |
+| `incidents.ts` | `incidents.js` |
+| `pit-limiter.ts` | `pit-limiter.js` |
+| `race-end.ts` | `race-end.js` |
+| `formation.ts` | `formation.js` |
+| `spotter.ts` | `spotter.js` |
+| `fps.ts` | `fps.js` |
+| `webgl.ts` | `webgl.js` (verbatim + @ts-nocheck) |
+| `commentary-viz.ts` | `commentary-viz.js` (verbatim + @ts-nocheck) |
+| `poll-engine.ts` | `poll-engine.js` |
+
+---
+
+## Three-Dashboard System
+
+The Electron app supports three dashboard variants, switchable with `Ctrl+Shift+T` (cycles in order):
+
+| Mode | File | Description |
+|---|---|---|
+| `original` | `dashboard.html` | Untouched vanilla JS/CSS, no bundler |
+| `react` | `dashboard-react.html` | React 19 + TypeScript, built by Vite (src/) |
+| `build` | `dashboard-build.html` | TypeScript ES modules, built by Vite (src-vanilla/) |
+
+The active mode is stored in `overlay-settings.json` as `dashboardMode: 'original' | 'react' | 'build'`. Legacy `useReactDashboard: true` is automatically migrated to `dashboardMode: 'react'` on first launch.
+
+### Build Commands (from `K10 Media Broadcaster/` directory)
+
+```bash
+npm run rebuild-react     # rebuild dashboard-react.html only (src/)
+npm run rebuild-vanilla   # rebuild dashboard-build.html only (src-vanilla/)
+npm run rebuild-all       # rebuild both (react then vanilla)
+npm run build             # rebuild-all + electron-builder (cross-platform)
+npm run build:mac         # rebuild-all + electron-builder --mac
+npm run build:win         # rebuild-all + electron-builder --win
+```
+
+### Electron Asset Server
+
+- `dashboard.html` and `dashboard-build.html` are loaded via `file://` (all assets inlined or relative)
+- `dashboard-react.html` is served via a local HTTP server (random port on 127.0.0.1) to avoid `file://` module loading restrictions

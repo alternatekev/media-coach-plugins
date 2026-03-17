@@ -536,7 +536,7 @@ export function SettingsPanel() {
           </div>
           <div className={styles.keyRow}>
             <span><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></span>
-            <span className={styles.keyDesc}>Toggle React / Original Dashboard</span>
+            <span className={styles.keyDesc}>Cycle Dashboard (Original / React / Build)</span>
           </div>
         </div>
 

@@ -58,6 +58,9 @@ export const MOCK_TELEMETRY = {
   'K10MediaBroadcaster.Plugin.CommentarySentimentColor': '',
   'K10MediaBroadcaster.Plugin.CommentarySeverity': 0,
   'K10MediaBroadcaster.Plugin.TrackMap.Ready': 0,
+  'K10MediaBroadcaster.Plugin.Grid.SessionState': 4,
+  'K10MediaBroadcaster.Plugin.GameId': 'iracing',
+  'K10MediaBroadcaster.Plugin.SessionTypeName': 'Race',
 };
 
 /** Demo mode telemetry — uses Demo.* keys instead */
@@ -98,6 +101,7 @@ export const MOCK_DEMO = {
   'K10MediaBroadcaster.Plugin.Demo.DriverBehind': 'A. Johnson',
   'K10MediaBroadcaster.Plugin.Demo.IRAhead': 3500,
   'K10MediaBroadcaster.Plugin.Demo.IRBehind': 2100,
+  'K10MediaBroadcaster.Plugin.Demo.Grid.SessionState': 4,
 };
 
 /**

@@ -27,6 +27,11 @@ npm install
 npm start
 ```
 
+**Platform launchers** (double-click to run — auto-install dependencies and build dashboards):
+
+- **macOS:** `scripts/mac/K10 Media Broadcaster.command`
+- **Windows:** `scripts/windows/start.bat`
+
 The overlay appears in the top-right corner of your primary display. If you see a crash on ARM hardware, use the safe mode launcher:
 
 ```bash
@@ -39,7 +44,10 @@ npm run start:safe
 |----------|--------|
 | `Ctrl+Shift+S` | Toggle settings/move mode — drag the overlay to reposition, resize from edges |
 | `Ctrl+Shift+H` | Hide or show the overlay |
+| `Ctrl+Shift+G` | Toggle green-screen mode (restarts) |
+| `Ctrl+Shift+T` | Cycle dashboard (Original / React / Build) |
 | `Ctrl+Shift+R` | Reset overlay position and size to defaults |
+| `Ctrl+Shift+D` | Restart demo sequence |
 | `Ctrl+Shift+Q` | Quit the overlay |
 
 ## Dashboard Panels
@@ -138,9 +146,12 @@ An expandable panel that slides in from the left when the commentary engine fire
 |------|---------|
 | `main.js` | Electron main process — window creation, transparency, hotkeys, IPC, crash recovery |
 | `preload.js` | Context bridge — exposes settings IPC to the renderer securely |
-| `dashboard.html` | Complete dashboard — CSS, HTML layout, and all JavaScript in a single file |
-| `logomark.png` | K10 logomark image |
-| `package.json` | Node.js manifest with `start`, `dev`, and `start:safe` scripts |
+| `dashboard.html` | Original dashboard — CSS, HTML layout, and all JavaScript in a single file |
+| `dashboard-react.html` | React 19 + TypeScript dashboard (built from `src/`) |
+| `dashboard-build.html` | TypeScript ES modules dashboard (built from `src-vanilla/`) |
+| `scripts/mac/` | macOS launcher scripts (install, start, rebuild) |
+| `scripts/windows/` | Windows launcher scripts (install, start, rebuild) |
+| `package.json` | Node.js manifest with `start`, `dev`, `rebuild-*`, and `build` scripts |
 
 ## Configuration
 

@@ -10,10 +10,12 @@
     "dev": "electron . --dev",
     "start:safe": "cross-env K10_FORCE_SOFTWARE=1 electron .",
     "rebuild-react": "cd ../src && npm install && npx vite build",
-    "build": "npm run rebuild-react && npm install electron-builder --save-dev && electron-builder",
-    "build:mac": "npm run rebuild-react && npm install electron-builder --save-dev && electron-builder --mac",
-    "build:win": "npm run rebuild-react && npm install electron-builder --save-dev && electron-builder --win",
-    "dist": "npm run rebuild-react && npm install electron-builder --save-dev && electron-builder --mac --win"
+    "rebuild-vanilla": "cd ../src-vanilla && npm install && npm run build",
+    "rebuild-all": "npm run rebuild-react && npm run rebuild-vanilla",
+    "build": "npm run rebuild-all && npm install electron-builder --save-dev && electron-builder",
+    "build:mac": "npm run rebuild-all && npm install electron-builder --save-dev && electron-builder --mac",
+    "build:win": "npm run rebuild-all && npm install electron-builder --save-dev && electron-builder --win",
+    "dist": "npm run rebuild-all && npm install electron-builder --save-dev && electron-builder --mac --win"
   },
   "build": {
     "appId": "org.k10mediabroadcaster.broadcaster",
@@ -23,8 +25,10 @@
       "preload.js",
       "dashboard.html",
       "dashboard-react.html",
+      "dashboard-build.html",
       "modules/**/*",
-      "images/**/*"
+      "images/**/*",
+      "scripts/**/*"
     ],
     "icon": "images/branding/icon.png",
     "mac": {

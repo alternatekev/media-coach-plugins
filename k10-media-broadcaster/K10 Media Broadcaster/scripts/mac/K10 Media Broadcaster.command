@@ -3,7 +3,10 @@
 #  K10 Media Broadcaster — Overlay Launcher (macOS)
 # ═══════════════════════════════════════════════
 
-cd "$(dirname "$0")"
+# Navigate to app root (K10 Media Broadcaster/)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+APP_DIR="$SCRIPT_DIR/../.."
+cd "$APP_DIR"
 
 echo "═══════════════════════════════════════════════"
 echo " K10 Media Broadcaster — Starting Overlay"
@@ -13,7 +16,7 @@ echo "Hotkeys:"
 echo "  Cmd+Shift+S   Toggle settings mode (clickable)"
 echo "  Cmd+Shift+H   Toggle overlay visibility"
 echo "  Cmd+Shift+G   Toggle green-screen mode (restarts)"
-echo "  Cmd+Shift+T   Toggle React/original dashboard (restarts)"
+echo "  Cmd+Shift+T   Cycle dashboard (Original / React / Build)"
 echo "  Cmd+Shift+R   Reset window position/size"
 echo "  Cmd+Shift+D   Restart demo sequence"
 echo "  Cmd+Shift+Q   Quit overlay"
@@ -34,7 +37,7 @@ fi
 if [ ! -d "node_modules" ] || [ ! -x "node_modules/.bin/electron" ]; then
     echo "Installing dependencies..."
     echo ""
-    bash "$(dirname "$0")/install.command"
+    bash "$SCRIPT_DIR/install.command"
     if [ $? -ne 0 ]; then
         read -p "Press Enter to close..."
         exit 1
@@ -44,13 +47,24 @@ if [ ! -d "node_modules" ] || [ ! -x "node_modules/.bin/electron" ]; then
     echo ""
 fi
 
-# Rebuild React dashboard if source is newer than built output
-SRC_DIR="$(dirname "$0")/../src"
+# Rebuild React dashboard if source is available but output is missing
+SRC_DIR="$APP_DIR/../src"
 if [ -f "$SRC_DIR/package.json" ]; then
     if [ ! -f "dashboard-react.html" ]; then
         echo "React dashboard not built. Building..."
         pushd "$SRC_DIR" >/dev/null
         npx vite build
+        popd >/dev/null
+    fi
+fi
+
+# Rebuild vanilla TS dashboard if source is available but output is missing
+SRC_VANILLA_DIR="$APP_DIR/../src-vanilla"
+if [ -f "$SRC_VANILLA_DIR/package.json" ]; then
+    if [ ! -f "dashboard-build.html" ]; then
+        echo "Vanilla TS dashboard not built. Building..."
+        pushd "$SRC_VANILLA_DIR" >/dev/null
+        npm run build
         popd >/dev/null
     fi
 fi

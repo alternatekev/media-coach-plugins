@@ -3,7 +3,10 @@
 #  K10 Media Broadcaster — Rebuild React Dashboard
 # ═══════════════════════════════════════════════
 
-cd "$(dirname "$0")"
+# Navigate to app root (K10 Media Broadcaster/)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+APP_DIR="$SCRIPT_DIR/../.."
+cd "$APP_DIR"
 
 echo "═══════════════════════════════════════════════"
 echo " K10 Media Broadcaster — Rebuild React Dashboard"
@@ -21,7 +24,7 @@ if ! command -v npm &>/dev/null; then
     exit 1
 fi
 
-SRC_DIR="$(dirname "$0")/../src"
+SRC_DIR="$APP_DIR/../src"
 if [ ! -f "$SRC_DIR/package.json" ]; then
     echo "ERROR: React source directory not found at ../src"
     read -p "Press Enter to close..."
@@ -48,7 +51,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cd "$(dirname "$0")"
+cd "$APP_DIR"
 
 echo ""
 echo "[3/3] Verifying build output..."

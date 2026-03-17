@@ -1,7 +1,11 @@
 #!/bin/bash
 # K10 Media Broadcaster — Silent Launcher
 # Runs the Electron overlay without keeping a terminal window open.
-cd "$(dirname "$0")"
+
+# Navigate to app root (K10 Media Broadcaster/)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+APP_DIR="$SCRIPT_DIR/../.."
+cd "$APP_DIR"
 
 # Auto-install if needed
 if [ ! -d "node_modules" ] || [ ! -x "node_modules/.bin/electron" ]; then
@@ -10,13 +14,23 @@ if [ ! -d "node_modules" ] || [ ! -x "node_modules/.bin/electron" ]; then
 fi
 
 # Rebuild React dashboard if missing
-SRC_DIR="$(dirname "$0")/../src"
+SRC_DIR="$APP_DIR/../src"
 if [ -f "$SRC_DIR/package.json" ] && [ ! -f "dashboard-react.html" ]; then
     echo "Building React dashboard..."
     if [ ! -d "$SRC_DIR/node_modules" ]; then
         (cd "$SRC_DIR" && npm install 2>&1 | tail -3)
     fi
     (cd "$SRC_DIR" && npx vite build 2>&1 | tail -5)
+fi
+
+# Rebuild vanilla TS dashboard if missing
+SRC_VANILLA_DIR="$APP_DIR/../src-vanilla"
+if [ -f "$SRC_VANILLA_DIR/package.json" ] && [ ! -f "dashboard-build.html" ]; then
+    echo "Building vanilla TS dashboard..."
+    if [ ! -d "$SRC_VANILLA_DIR/node_modules" ]; then
+        (cd "$SRC_VANILLA_DIR" && npm install 2>&1 | tail -3)
+    fi
+    (cd "$SRC_VANILLA_DIR" && npm run build 2>&1 | tail -5)
 fi
 
 chmod +x node_modules/.bin/* 2>/dev/null

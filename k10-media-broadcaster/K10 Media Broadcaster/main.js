@@ -11,6 +11,7 @@ const os     = require('os');
 const http   = require('http');
 const https  = require('https');
 const crypto = require('crypto');
+const remoteServer = require('./remote-server');
 
 // ── Crash log ───────────────────────────────────────────────
 // Write a log file next to the app so crash info is visible
@@ -321,6 +322,27 @@ async function createOverlay() {
   });
 }
 
+// ── Remote Dashboard Server ──────────────────────────────────
+// Auto-start the LAN server if enabled in settings
+async function maybeStartRemoteServer() {
+  const settings = loadSettingsSync();
+  if (settings.remoteServer !== true) return;
+  try {
+    const simhubUrl = settings.simhubUrl
+      ? settings.simhubUrl.replace(/\/k10mediabroadcaster\/?$/, '')
+      : 'http://localhost:8889';
+    const info = await remoteServer.start({
+      port: settings.remoteServerPort || remoteServer.DEFAULT_PORT,
+      appDir: __dirname,
+      simhubUrl: simhubUrl,
+      log: logToFile,
+    });
+    logToFile(`[K10] Remote dashboard: ${info.url} (iPad/tablet access)`);
+  } catch (err) {
+    logToFile(`[K10] Remote server failed to start: ${err.message}`);
+  }
+}
+
 // ── Settings mode ────────────────────────────────────────────
 function enterSettingsMode() {
   if (!overlayWindow) return;
@@ -356,6 +378,7 @@ app.whenReady().then(() => {
   try {
     createOverlay();
     logToFile('[K10] Overlay window created OK');
+    maybeStartRemoteServer();
   } catch (err) {
     logToFile(`[K10] FATAL: createOverlay() threw: ${err.stack || err.message}`);
     app.quit();
@@ -776,4 +799,38 @@ ipcMain.handle('get-discord-user', async () => {
     avatar: user.avatar,
     connectedAt: user.connectedAt,
   };
+});
+
+// ── IPC: Remote Dashboard Server ──
+ipcMain.handle('get-remote-server-info', async () => {
+  return remoteServer.getInfo();
+});
+
+ipcMain.handle('start-remote-server', async (event, opts = {}) => {
+  try {
+    const settings = loadSettingsSync();
+    const simhubUrl = (settings.simhubUrl || 'http://localhost:8889/k10mediabroadcaster/')
+      .replace(/\/k10mediabroadcaster\/?$/, '');
+    const info = await remoteServer.start({
+      port: opts.port || settings.remoteServerPort || remoteServer.DEFAULT_PORT,
+      appDir: __dirname,
+      simhubUrl: simhubUrl,
+      log: logToFile,
+    });
+    // Persist the enabled state
+    settings.remoteServer = true;
+    if (opts.port) settings.remoteServerPort = opts.port;
+    saveSettingsSync(settings);
+    return { success: true, ...info };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('stop-remote-server', async () => {
+  await remoteServer.stop();
+  const settings = loadSettingsSync();
+  settings.remoteServer = false;
+  saveSettingsSync(settings);
+  return { success: true };
 });

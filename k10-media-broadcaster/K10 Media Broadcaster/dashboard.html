@@ -724,6 +724,52 @@
         </div>
       </div>
 
+      <!-- Remote Dashboard Card (iPad/Tablet access) -->
+      <div class="conn-card" id="remoteDashboardCard">
+        <div class="conn-card-header">
+          <div class="conn-card-icon" style="background:rgba(108,92,231,0.15)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#6c5ce7"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
+          </div>
+          <div>
+            <div class="conn-card-title">Remote Dashboard</div>
+            <div class="conn-card-subtitle">View on iPad, tablet, or second screen</div>
+          </div>
+        </div>
+
+        <!-- Off state -->
+        <div id="remoteServerOff">
+          <div class="conn-card-status">
+            <div class="conn-dot red"></div>
+            <div class="conn-status-text">Server off</div>
+          </div>
+          <div class="conn-card-detail">
+            Start a LAN web server so you can open the dashboard in Safari on your iPad or any browser on your network.
+          </div>
+          <div class="conn-card-actions">
+            <button class="conn-btn discord-btn" style="background:#6c5ce7" onclick="toggleRemoteServer(true)">
+              Start Server
+            </button>
+          </div>
+        </div>
+
+        <!-- On state -->
+        <div id="remoteServerOn" style="display:none;">
+          <div class="conn-card-status">
+            <div class="conn-dot green"></div>
+            <div class="conn-status-text"><strong>Running</strong></div>
+          </div>
+          <div class="conn-card-detail" style="font-family:'JetBrains Mono',monospace;color:#6c5ce7;font-size:13px;">
+            <span id="remoteServerUrl"></span>
+          </div>
+          <div class="conn-card-detail" style="font-size:11px;color:#888;margin-top:4px;">
+            Open this URL on your iPad or tablet to view the dashboard.
+          </div>
+          <div class="conn-card-actions">
+            <button class="conn-btn disconnect-btn" onclick="toggleRemoteServer(false)">Stop Server</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Rally Mode (synced with Layout tab toggle) -->
       <div class="settings-row" style="margin-top:12px;">
         <span class="settings-label">Rally Mode</span>

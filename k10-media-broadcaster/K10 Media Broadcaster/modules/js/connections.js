@@ -179,6 +179,53 @@
     }
   }
 
+  // ── Remote Dashboard Server (iPad/tablet) ──
+  async function toggleRemoteServer(enable) {
+    if (!window.k10) return;
+
+    if (enable) {
+      const result = await window.k10.startRemoteServer();
+      if (result && result.success) {
+        updateRemoteServerCard(result);
+      } else {
+        console.error('[K10] Remote server start failed:', result?.error);
+      }
+    } else {
+      await window.k10.stopRemoteServer();
+      updateRemoteServerCard({ running: false });
+    }
+  }
+
+  function updateRemoteServerCard(info) {
+    const offEl = document.getElementById('remoteServerOff');
+    const onEl = document.getElementById('remoteServerOn');
+    const urlEl = document.getElementById('remoteServerUrl');
+    if (!offEl || !onEl) return;
+
+    if (info && info.running !== false && info.url) {
+      offEl.style.display = 'none';
+      onEl.style.display = '';
+      if (urlEl) urlEl.textContent = info.url;
+    } else {
+      offEl.style.display = '';
+      onEl.style.display = 'none';
+    }
+  }
+
+  async function initRemoteServerState() {
+    // Hide the card entirely when viewing from a remote device
+    if (window._k10RemoteMode) {
+      const card = document.getElementById('remoteDashboardCard');
+      if (card) card.style.display = 'none';
+      return;
+    }
+    if (!window.k10 || !window.k10.getRemoteServerInfo) return;
+    try {
+      const info = await window.k10.getRemoteServerInfo();
+      updateRemoteServerCard(info);
+    } catch (e) { /* ok */ }
+  }
+
   // Load Discord user on startup
   async function initDiscordState() {
     // Try loading from Electron's persisted file first
@@ -567,5 +614,6 @@
   // Load settings on startup
   loadSettings();
   initDiscordState();
+  initRemoteServerState();
 
   // ═══════════════════════════════════════════════════════════════

@@ -33,4 +33,8 @@ contextBridge.exposeInMainWorld('k10', {
   discordConnect: () => ipcRenderer.invoke('discord-connect'),
   discordDisconnect: () => ipcRenderer.invoke('discord-disconnect'),
   getDiscordUser: () => ipcRenderer.invoke('get-discord-user'),
+  // Remote dashboard server (iPad/tablet access)
+  getRemoteServerInfo: () => ipcRenderer.invoke('get-remote-server-info'),
+  startRemoteServer: (opts) => ipcRenderer.invoke('start-remote-server', opts),
+  stopRemoteServer: () => ipcRenderer.invoke('stop-remote-server'),
 });

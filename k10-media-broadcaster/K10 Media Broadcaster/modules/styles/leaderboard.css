@@ -3,7 +3,7 @@
      ═══════════════════════════════════════════════ */
   .controls-pedals-block {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: var(--gap);
     flex-shrink: 0;
     width: 170px;

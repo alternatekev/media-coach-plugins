@@ -246,9 +246,9 @@ async function pollUpdate() {
     if (tc != null && +tc >= 0) state.tcSeen = true
     if (abs != null && +abs >= 0) state.absSeen = true
   }
-  const tcOk = !!(!!_demo || (state.carAdj && state.carAdj.noTC ? false : state.tcSeen))
-  const absOk = !!(!!_demo || (state.carAdj && state.carAdj.noABS ? false : state.absSeen))
-  const bbOk = !!(!!_demo || (state.carAdj && state.carAdj.noBB ? false : (bb > 0)))
+  const tcOk = _demo || (state.carAdj && state.carAdj.noTC ? false : state.tcSeen)
+  const absOk = _demo || (state.carAdj && state.carAdj.noABS ? false : state.absSeen)
+  const bbOk = _demo || (state.carAdj && state.carAdj.noBB ? false : (bb > 0))
   setCtrlVisibility(bbOk, tcOk, absOk)
 
   const bbEl = document.querySelector('#ctrlBB .ctrl-value')

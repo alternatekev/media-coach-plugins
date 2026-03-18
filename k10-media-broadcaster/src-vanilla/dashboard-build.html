@@ -290,8 +290,11 @@
   </div>
 </div>
 
+<!-- SECONDARY PANELS CONTAINER — flex reflow when panels hidden -->
+<div class="sec-container sec-bottom sec-right" id="secContainer">
+
 <!-- COMPONENT: Leaderboard Panel -->
-<div class="leaderboard-panel lb-bottom lb-right" id="leaderboardPanel">
+<div class="leaderboard-panel" id="leaderboardPanel">
   <div class="lb-inner">
     <canvas class="lb-gl gl-overlay" id="lbPlayerGlCanvas"></canvas>
     <canvas class="lb-gl gl-overlay" id="lbEventGlCanvas"></canvas>
@@ -304,7 +307,7 @@
 </div>
 
 <!-- COMPONENT: Datastream Panel (advanced telemetry) -->
-<div class="datastream-panel ds-bottom ds-right" id="datastreamPanel">
+<div class="datastream-panel" id="datastreamPanel">
   <div class="ds-inner">
     <div class="ds-header">Datastream</div>
     <div class="ds-gforce">
@@ -352,7 +355,7 @@
 </div>
 
 <!-- COMPONENT: Incidents Panel -->
-<div class="incidents-panel inc-bottom inc-right" id="incidentsPanel">
+<div class="incidents-panel" id="incidentsPanel">
   <canvas class="inc-gl-canvas" id="incGlCanvas"></canvas>
   <div class="inc-inner">
     <div class="inc-label">Incidents</div>
@@ -372,6 +375,8 @@
     </div>
   </div>
 </div>
+
+</div><!-- /sec-container -->
 
 <!-- COMPONENT: Race Control Banner -->
 <div class="rc-banner" id="rcBanner">
@@ -558,14 +563,14 @@
       <div class="settings-row">
         <span class="settings-label">Offset X</span>
         <div class="settings-range-row">
-          <input class="settings-range" id="settingsSecOffsetX" type="range" min="-200" max="200" step="5" value="0" oninput="updateSecOffset('x', this.value)"/>
+          <input class="settings-range" id="settingsSecOffsetX" type="range" min="-800" max="800" step="10" value="0" oninput="updateSecOffset('x', this.value)"/>
           <span class="settings-range-val" id="secOffsetXVal">0px</span>
         </div>
       </div>
       <div class="settings-row">
         <span class="settings-label">Offset Y</span>
         <div class="settings-range-row">
-          <input class="settings-range" id="settingsSecOffsetY" type="range" min="-200" max="200" step="5" value="0" oninput="updateSecOffset('y', this.value)"/>
+          <input class="settings-range" id="settingsSecOffsetY" type="range" min="-800" max="800" step="10" value="0" oninput="updateSecOffset('y', this.value)"/>
           <span class="settings-range-val" id="secOffsetYVal">0px</span>
         </div>
       </div>

@@ -21,8 +21,8 @@ let _rtFinished = false
 let _rtLastIncident = 0
 let _rtWasInPit = false
 
-function rtColor(sample: RtSample): string {
-  if (sample.checkered) return ''
+function rtColor(sample: RtSample): string | null {
+  if (sample.checkered) return null
   if (sample.p1) {
     const heat = Math.min(Math.abs(sample.delta), 5)
     const alpha = 0.26 + heat * 0.11

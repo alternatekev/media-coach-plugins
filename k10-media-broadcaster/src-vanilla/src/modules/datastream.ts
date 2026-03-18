@@ -1,14 +1,17 @@
 /**
  * datastream.ts — Datastream visualization (G-force, yaw trail, incidents)
  * Renders real-time vehicle dynamics data.
+ * Converted from datastream.js
  */
 
-import { state } from '../state'
+// Datastream renderer
 
-// ========== G-FORCE RENDERING ==========
-const _dsCanvas = document.getElementById('dsGforceCanvas') as HTMLCanvasElement
+// ═══════════════════════════════════════════════════════════════
+//  DATASTREAM RENDERER
+// ═══════════════════════════════════════════════════════════════
+
+const _dsCanvas = document.getElementById('dsGforceCanvas') as HTMLCanvasElement | null
 const _dsCtx = _dsCanvas ? _dsCanvas.getContext('2d') : null
-
 let _dsPeakG = 0
 const _dsTrailLen = 40
 const _dsTrailLat = new Float32Array(_dsTrailLen)
@@ -17,183 +20,276 @@ let _dsTrailIdx = 0
 let _dsTrailCount = 0
 let _dsAbsFlash = 0
 
-// ========== YAW TRAIL ==========
+// Yaw trail — ring buffer of recent yaw rate samples for waveform display
 const _yawTrailLen = 80
 const _yawTrail = new Float32Array(_yawTrailLen)
 let _yawTrailIdx = 0
 let _yawTrailCount = 0
-
-const _yawTrailCanvas = document.getElementById('dsYawTrail') as HTMLCanvasElement
+const _yawTrailCanvas = document.getElementById('dsYawTrail') as HTMLCanvasElement | null
 const _yawTrailCtx = _yawTrailCanvas ? _yawTrailCanvas.getContext('2d') : null
 
+function renderYawTrail(yawRate: number) {
+  // Store sample
+  _yawTrail[_yawTrailIdx] = yawRate
+  _yawTrailIdx = (_yawTrailIdx + 1) % _yawTrailLen
+  _yawTrailCount++
+
+  if (!_yawTrailCtx) return
+  const c = _yawTrailCanvas
+  if (!c) return
+  const w = c.width, h = c.height
+  const ctx = _yawTrailCtx
+  ctx.clearRect(0, 0, w, h)
+
+  const count = Math.min(_yawTrailCount, _yawTrailLen)
+  if (count < 2) return
+
+  const maxYaw = 1.5 // max expected yaw rate
+  const mid = h / 2
+
+  // Draw filled waveform — left=oldest, right=newest
+  ctx.beginPath()
+  ctx.moveTo(0, mid)
+  for (let i = 0; i < count; i++) {
+    const idx = (_yawTrailIdx - count + i + _yawTrailLen) % _yawTrailLen
+    const x = (i / (count - 1)) * w
+    const val = _yawTrail[idx]
+    const y = mid - (val / maxYaw) * (mid - 2)
+    if (i === 0) ctx.lineTo(x, y)
+    else ctx.lineTo(x, y)
+  }
+  // Close to baseline on right, sweep back along baseline
+  ctx.lineTo(w, mid)
+  ctx.closePath()
+
+  // Gradient fill: newest edge is bright, oldest fades out
+  const grad = ctx.createLinearGradient(0, 0, w, 0)
+  const absYaw = Math.abs(yawRate)
+  const hue = Math.max(0, 210 - absYaw * 120)
+  grad.addColorStop(0, `hsla(${hue}, 60%, 50%, 0.02)`)
+  grad.addColorStop(0.7, `hsla(${hue}, 65%, 50%, 0.15)`)
+  grad.addColorStop(1, `hsla(${hue}, 70%, 55%, 0.35)`)
+  ctx.fillStyle = grad
+  ctx.fill()
+
+  // Stroke the waveform line
+  ctx.beginPath()
+  for (let i = 0; i < count; i++) {
+    const idx = (_yawTrailIdx - count + i + _yawTrailLen) % _yawTrailLen
+    const x = (i / (count - 1)) * w
+    const val = _yawTrail[idx]
+    const y = mid - (val / maxYaw) * (mid - 2)
+    if (i === 0) ctx.moveTo(x, y)
+    else ctx.lineTo(x, y)
+  }
+  const strokeGrad = ctx.createLinearGradient(0, 0, w, 0)
+  strokeGrad.addColorStop(0, `hsla(${hue}, 60%, 55%, 0.05)`)
+  strokeGrad.addColorStop(0.8, `hsla(${hue}, 70%, 55%, 0.3)`)
+  strokeGrad.addColorStop(1, `hsla(${hue}, 75%, 60%, 0.6)`)
+  ctx.strokeStyle = strokeGrad
+  ctx.lineWidth = 1.2
+  ctx.stroke()
+
+  // Center line (zero yaw reference)
+  ctx.beginPath()
+  ctx.moveTo(0, mid)
+  ctx.lineTo(w, mid)
+  ctx.strokeStyle = 'hsla(0, 0%, 100%, 0.06)'
+  ctx.lineWidth = 0.5
+  ctx.stroke()
+}
 let _dsTcFlash = 0
 let _dsPrevTrackTemp = 0
 let _dsPrevIncidents = -1
-let _dsPrevDeltaSign = 0
-
-function renderYawTrail(yawRate: number) {
-  if (!_yawTrailCtx || !_yawTrailCanvas) return
-
-  _yawTrail[_yawTrailIdx] = Math.max(-1, Math.min(1, yawRate / 180))
-  _yawTrailIdx = (_yawTrailIdx + 1) % _yawTrailLen
-  _yawTrailCount = Math.min(_yawTrailCount + 1, _yawTrailLen)
-
-  const w = _yawTrailCanvas.width
-  const h = _yawTrailCanvas.height
-  const mid = h / 2
-
-  _yawTrailCtx.fillStyle = 'rgba(10, 10, 20, 0.9)'
-  _yawTrailCtx.fillRect(0, 0, w, h)
-
-  // Draw center line
-  _yawTrailCtx.strokeStyle = 'rgba(80, 80, 100, 0.4)'
-  _yawTrailCtx.lineWidth = 1
-  _yawTrailCtx.beginPath()
-  _yawTrailCtx.moveTo(0, mid)
-  _yawTrailCtx.lineTo(w, mid)
-  _yawTrailCtx.stroke()
-
-  // Draw yaw trail
-  _yawTrailCtx.strokeStyle = '#ff8822'
-  _yawTrailCtx.lineWidth = 2
-  _yawTrailCtx.beginPath()
-
-  for (let i = 0; i < _yawTrailCount; i++) {
-    const idx = (_yawTrailIdx - _yawTrailCount + i + _yawTrailLen) % _yawTrailLen
-    const x = (i / _yawTrailLen) * w
-    const y = mid - _yawTrail[idx] * mid
-    if (i === 0) _yawTrailCtx.moveTo(x, y)
-    else _yawTrailCtx.lineTo(x, y)
-  }
-
-  _yawTrailCtx.stroke()
-}
+let _dsPrevDeltaSign = 0  // -1, 0, 1
 
 function dsFlash(id: string) {
   const el = document.getElementById(id)
   if (!el) return
-  el.classList.add('flash')
-  setTimeout(() => {
-    el.classList.remove('flash')
-  }, 200)
+  el.classList.remove('ds-flash')
+  void el.offsetWidth
+  el.classList.add('ds-flash')
 }
 
 function drawGforceDiamond(latG: number, longG: number) {
-  if (!_dsCtx || !_dsCanvas) return
+  if (!_dsCtx) return
+  const c = _dsCanvas
+  if (!c) return
+  const dpr = window.devicePixelRatio || 1
+  const cssW = 64, cssH = 64
+  c.width = cssW * dpr
+  c.height = cssH * dpr
+  const ctx = _dsCtx
+  ctx.scale(dpr, dpr)
+  ctx.clearRect(0, 0, cssW, cssH)
 
-  const w = _dsCanvas.width
-  const h = _dsCanvas.height
-  const centerX = w / 2
-  const centerY = h / 2
-  const scale = Math.min(w, h) / 3
+  const cx = cssW / 2, cy = cssH / 2
+  const maxG = 3.0  // full scale
+  const r = 28       // diamond radius in px
 
-  _dsCtx.fillStyle = 'rgba(10, 10, 20, 0.8)'
-  _dsCtx.fillRect(0, 0, w, h)
+  // Diamond outline (rotated square)
+  ctx.strokeStyle = 'hsla(0,0%,100%,0.08)'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(cx, cy - r)
+  ctx.lineTo(cx + r, cy)
+  ctx.lineTo(cx, cy + r)
+  ctx.lineTo(cx - r, cy)
+  ctx.closePath()
+  ctx.stroke()
 
-  // Draw grid
-  _dsCtx.strokeStyle = 'rgba(80, 80, 100, 0.3)'
-  _dsCtx.lineWidth = 1
-  for (let i = 1; i < 3; i++) {
-    const offset = (scale / 3) * i
-    _dsCtx.strokeRect(centerX - offset, centerY - offset, offset * 2, offset * 2)
+  // Inner grid lines (crosshair)
+  ctx.strokeStyle = 'hsla(0,0%,100%,0.04)'
+  ctx.beginPath()
+  ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy)
+  ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r)
+  ctx.stroke()
+
+  // Half-diamond
+  ctx.strokeStyle = 'hsla(0,0%,100%,0.03)'
+  ctx.beginPath()
+  ctx.moveTo(cx, cy - r/2)
+  ctx.lineTo(cx + r/2, cy)
+  ctx.lineTo(cx, cy + r/2)
+  ctx.lineTo(cx - r/2, cy)
+  ctx.closePath()
+  ctx.stroke()
+
+  // G-force trail
+  if (_dsTrailCount > 1) {
+    ctx.beginPath()
+    ctx.strokeStyle = 'hsla(210,60%,55%,0.15)'
+    ctx.lineWidth = 1
+    for (let i = 0; i < Math.min(_dsTrailCount, _dsTrailLen); i++) {
+      const idx = (_dsTrailIdx - 1 - i + _dsTrailLen) % _dsTrailLen
+      const px = cx + (_dsTrailLat[idx] / maxG) * r
+      const py = cy - (_dsTrailLong[idx] / maxG) * r
+      if (i === 0) ctx.moveTo(px, py)
+      else ctx.lineTo(px, py)
+    }
+    ctx.stroke()
   }
 
-  // Draw G vector
-  const x = centerX + latG * scale
-  const y = centerY + longG * scale
-  const peakG = Math.sqrt(latG * latG + longG * longG)
-
-  if (peakG > _dsPeakG) {
-    _dsPeakG = peakG
-  } else {
-    _dsPeakG *= 0.98 // Decay peak
-  }
-
-  // Draw current position
-  _dsCtx.fillStyle = peakG > 1.2 ? '#ff4444' : peakG > 0.8 ? '#ffaa44' : '#44aa44'
-  _dsCtx.beginPath()
-  _dsCtx.arc(x, y, 4, 0, Math.PI * 2)
-  _dsCtx.fill()
-
-  // Draw peak marker
-  _dsCtx.fillStyle = 'rgba(200, 100, 100, 0.5)'
-  const peakX = centerX + Math.sign(latG) * Math.min(Math.abs(latG), _dsPeakG) * scale
-  const peakY = centerY + Math.sign(longG) * Math.min(Math.abs(longG), _dsPeakG) * scale
-  _dsCtx.beginPath()
-  _dsCtx.arc(peakX, peakY, 3, 0, Math.PI * 2)
-  _dsCtx.fill()
-
-  // Draw labels
-  _dsCtx.fillStyle = '#aaa'
-  _dsCtx.font = '12px monospace'
-  _dsCtx.fillText('LAT', 10, 20)
-  _dsCtx.fillText('LONG', w - 50, h - 5)
-  _dsCtx.fillText(`Peak: ${_dsPeakG.toFixed(2)}G`, 10, h - 5)
-}
-
-export function updateDatastream(p: Record<string, any>, isDemo: boolean) {
-  const pre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.' : 'K10MediaBroadcaster.Plugin.'
-
-  // G-force rendering
-  const latG = +(p[pre + 'LateralG'] || 0)
-  const longG = +(p[pre + 'LongitudinalG'] || 0)
-
+  // Store trail
   _dsTrailLat[_dsTrailIdx] = latG
   _dsTrailLong[_dsTrailIdx] = longG
   _dsTrailIdx = (_dsTrailIdx + 1) % _dsTrailLen
-  _dsTrailCount = Math.min(_dsTrailCount + 1, _dsTrailLen)
+  _dsTrailCount++
 
+  // Current G dot
+  const dotX = cx + (latG / maxG) * r
+  const dotY = cy - (longG / maxG) * r
+  const totalG = Math.sqrt(latG * latG + longG * longG)
+
+  // Dot color: blue at low G, shifts toward red/orange at high G
+  const hue = Math.max(0, 210 - totalG * 50)
+  const lum = 55 + totalG * 5
+  ctx.fillStyle = `hsl(${hue},70%,${lum}%)`
+  ctx.beginPath()
+  ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2)
+  ctx.fill()
+
+  // Glow
+  ctx.fillStyle = `hsla(${hue},70%,${lum}%,0.25)`
+  ctx.beginPath()
+  ctx.arc(dotX, dotY, 5, 0, Math.PI * 2)
+  ctx.fill()
+}
+
+export function updateDatastream(p: Record<string, any>, isDemo: boolean) {
+  const pre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.'
+  const vd = (key: string) => +(p[pre + key] || 0)
+
+  const latG = vd('LatG')
+  const longG = vd('LongG')
+  const yawRate = vd('YawRate')
+  const steerTorque = vd('SteerTorque')
+  const trackTemp = vd('TrackTemp')
+  const incidentCount = vd('IncidentCount')
+  const absActive = vd('AbsActive') > 0
+  const tcActive = vd('TcActive') > 0
+  const lapDelta = vd('LapDelta')
+
+  // G-force diamond
   drawGforceDiamond(latG, longG)
 
-  // Yaw trail rendering
-  const yawRate = +(p[pre + 'YawRate'] || 0)
+  // Lat/Long G values
+  const latEl = document.getElementById('dsLatG')
+  const longEl = document.getElementById('dsLongG')
+  if (latEl) latEl.textContent = Math.abs(latG).toFixed(2) + 'g'
+  if (longEl) longEl.textContent = Math.abs(longG).toFixed(2) + 'g'
+
+  // Peak G tracking
+  const totalG = Math.sqrt(latG * latG + longG * longG)
+  const wasNewPeak = totalG > _dsPeakG && _dsPeakG > 0
+  if (totalG > _dsPeakG) _dsPeakG = totalG
+  const peakEl = document.getElementById('dsPeakG')
+  if (peakEl) { peakEl.textContent = _dsPeakG.toFixed(2) + 'g'; if (wasNewPeak) dsFlash('dsPeakG'); }
+
+  // Yaw rate
+  const yawEl = document.getElementById('dsYawRate')
+  if (yawEl) yawEl.textContent = Math.abs(yawRate).toFixed(2) + ' r/s'
+
+  // Yaw bar (centered, extends left for negative, right for positive)
+  const yawFill = document.getElementById('dsYawFill')
+  if (yawFill) {
+    const maxYaw = 1.5
+    const pct = Math.min(Math.abs(yawRate) / maxYaw, 1.0) * 50
+    if (yawRate >= 0) {
+      yawFill.style.left = '50%'
+      yawFill.style.width = pct + '%'
+    } else {
+      yawFill.style.left = (50 - pct) + '%'
+      yawFill.style.width = pct + '%'
+    }
+    // Color: blue for small, red for high yaw
+    const yawHue = Math.max(0, 210 - Math.abs(yawRate) * 120)
+    yawFill.style.background = `hsla(${yawHue},70%,55%,0.7)`
+  }
+
+  // Yaw trail waveform
   renderYawTrail(yawRate)
 
-  // ABS/TC flash
-  const absActive = +(p[pre + 'ABSActive'] || 0)
-  const tcActive = +(p[pre + 'TCActive'] || 0)
+  // Steering torque
+  const ffbEl = document.getElementById('dsSteerTorque')
+  if (ffbEl) ffbEl.textContent = steerTorque.toFixed(1) + ' Nm'
 
-  if (absActive && _dsAbsFlash <= 0) {
-    dsFlash('dsAbsIndicator')
-    _dsAbsFlash = 0.3
+  // Lap delta
+  const deltaEl = document.getElementById('dsDelta')
+  if (deltaEl) {
+    const sign = lapDelta >= 0 ? '+' : ''
+    deltaEl.textContent = sign + lapDelta.toFixed(3)
+    deltaEl.classList.remove('ds-positive', 'ds-negative', 'ds-neutral')
+    if (lapDelta > 0.05) deltaEl.classList.add('ds-positive')
+    else if (lapDelta < -0.05) deltaEl.classList.add('ds-negative')
+    else deltaEl.classList.add('ds-neutral')
+    // Flash on sign change
+    const curSign = lapDelta > 0.05 ? 1 : lapDelta < -0.05 ? -1 : 0
+    if (_dsPrevDeltaSign !== 0 && curSign !== 0 && curSign !== _dsPrevDeltaSign) dsFlash('dsDelta')
+    if (curSign !== 0) _dsPrevDeltaSign = curSign
   }
-  _dsAbsFlash = Math.max(0, _dsAbsFlash - 0.016)
-
-  if (tcActive && _dsTcFlash <= 0) {
-    dsFlash('dsTcIndicator')
-    _dsTcFlash = 0.3
-  }
-  _dsTcFlash = Math.max(0, _dsTcFlash - 0.016)
 
   // Track temp
-  const trackTemp = +(p[pre + 'TrackTemp'] || 0)
-  if (Math.abs(trackTemp - _dsPrevTrackTemp) > 1) {
-    const tempEl = document.getElementById('dsTrackTemp')
-    if (tempEl) {
-      tempEl.textContent = Math.round(trackTemp) + '°'
-    }
+  const tempEl = document.getElementById('dsTrackTemp')
+  if (tempEl) {
+    tempEl.textContent = trackTemp > 0 ? trackTemp.toFixed(1) + '°C' : '—°C'
+    if (_dsPrevTrackTemp > 0 && Math.abs(trackTemp - _dsPrevTrackTemp) > 0.3) dsFlash('dsTrackTemp')
     _dsPrevTrackTemp = trackTemp
   }
 
-  // Incidents
-  const incidents = +(p[pre + 'Incidents'] || 0)
-  if (incidents !== _dsPrevIncidents) {
-    const incEl = document.getElementById('dsIncidents')
-    if (incEl) {
-      incEl.textContent = String(incidents)
-    }
-    _dsPrevIncidents = incidents
+  // ABS/TC activity → glow on adjustments module bars
+  if (absActive) _dsAbsFlash = 8
+  if (tcActive) _dsTcFlash = 8
+  const absCtrl = document.getElementById('ctrlABS')
+  const tcCtrl = document.getElementById('ctrlTC')
+  if (absCtrl) {
+    absCtrl.classList.toggle('ctrl-active', _dsAbsFlash > 0)
+    if (_dsAbsFlash > 0) _dsAbsFlash--
   }
-
-  // Delta sign flash
-  const delta = +(p[pre + 'DeltaToLeader'] || 0)
-  const deltaSign = Math.sign(delta)
-  if (deltaSign !== _dsPrevDeltaSign && deltaSign !== 0) {
-    const deltaEl = document.getElementById('dsDelta')
-    if (deltaEl) {
-      deltaEl.classList.toggle('delta-gaining', deltaSign > 0)
-      deltaEl.classList.toggle('delta-losing', deltaSign < 0)
-    }
-    _dsPrevDeltaSign = deltaSign
+  if (tcCtrl) {
+    tcCtrl.classList.toggle('ctrl-active', _dsTcFlash > 0)
+    if (_dsTcFlash > 0) _dsTcFlash--
   }
 }
+
+// ═══════════════════════════════════════════════════════════════

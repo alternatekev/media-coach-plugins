@@ -37,9 +37,9 @@ export function isRallyGame(): boolean {
 }
 
 export function fmtLap(t: number): string {
-  if (!t || t <= 0) return '—:——.———'
+  if (!t || t <= 0) return '—:——.——'
   const m = Math.floor(t / 60), s = t - m * 60
-  return m + ':' + (s < 10 ? '0' : '') + s.toFixed(3)
+  return m + ':' + (s < 10 ? '0' : '') + s.toFixed(2)
 }
 
 export function fmtGap(g: number): string {

@@ -178,34 +178,15 @@ export function applyLayout(): void {
 
   const sameSideVOffset = (!secHOppose && !dashIsCenter) ? 250 : 0
 
-  const lb = document.getElementById('leaderboardPanel')
-  if (lb) {
-    lb.classList.remove('lb-top', 'lb-bottom', 'lb-left', 'lb-right', 'lb-center')
-    lb.classList.add('lb-' + secVert)
-    lb.classList.add('lb-' + secHoriz)
-    if (sameSideVOffset && secVert === 'top') lb.style.marginTop = sameSideVOffset + 'px'
-    else if (sameSideVOffset && secVert === 'bottom') lb.style.marginBottom = sameSideVOffset + 'px'
-    else { lb.style.marginTop = ''; lb.style.marginBottom = '' }
-  }
-
-  const ds = document.getElementById('datastreamPanel')
-  if (ds) {
-    ds.classList.remove('ds-top', 'ds-bottom', 'ds-left', 'ds-right', 'ds-center-left', 'ds-center-right')
-    ds.classList.add('ds-' + secVert)
-    ds.classList.add('ds-' + dsHoriz)
-    if (sameSideVOffset && secVert === 'top') ds.style.marginTop = sameSideVOffset + 'px'
-    else if (sameSideVOffset && secVert === 'bottom') ds.style.marginBottom = sameSideVOffset + 'px'
-    else { ds.style.marginTop = ''; ds.style.marginBottom = '' }
-  }
-
-  const inc = document.getElementById('incidentsPanel')
-  if (inc) {
-    inc.classList.remove('inc-top', 'inc-bottom', 'inc-left', 'inc-right', 'inc-center-left', 'inc-center-right')
-    inc.classList.add('inc-' + secVert)
-    inc.classList.add('inc-' + incHoriz)
-    if (sameSideVOffset && secVert === 'top') inc.style.marginTop = sameSideVOffset + 'px'
-    else if (sameSideVOffset && secVert === 'bottom') inc.style.marginBottom = sameSideVOffset + 'px'
-    else { inc.style.marginTop = ''; inc.style.marginBottom = '' }
+  // Position the secondary panels flex container
+  const secC = document.getElementById('secContainer')
+  if (secC) {
+    secC.classList.remove('sec-top', 'sec-bottom', 'sec-left', 'sec-right', 'sec-center')
+    secC.classList.add('sec-' + secVert)
+    secC.classList.add('sec-' + secHoriz)
+    if (sameSideVOffset && secVert === 'top') secC.style.marginTop = sameSideVOffset + 'px'
+    else if (sameSideVOffset && secVert === 'bottom') secC.style.marginBottom = sameSideVOffset + 'px'
+    else { secC.style.marginTop = ''; secC.style.marginBottom = '' }
   }
 
   const sp = document.getElementById('spotterPanel')
@@ -249,7 +230,7 @@ export function updateSecLayout(value: string): void {
 }
 
 export function updateSecOffset(axis: string, val: string | number): void {
-  const v = Math.max(-200, Math.min(200, +val))
+  const v = Math.max(-800, Math.min(800, +val))
   if (axis === 'x') {
     state.settings.secOffsetX = v
     const el = document.getElementById('secOffsetXVal')
@@ -271,8 +252,9 @@ export function applySecLayout(): void {
 export function applySecOffset(): void {
   const ox = (state.settings.secOffsetX || 0) + 'px'
   const oy = (state.settings.secOffsetY || 0) + 'px'
-  const panels = document.querySelectorAll('.leaderboard-panel, .datastream-panel, .incidents-panel, .spotter-panel')
-  panels.forEach((p: Element) => {
+  // Apply offset to the container and spotter (which is outside the container)
+  const targets = document.querySelectorAll('.sec-container, .spotter-panel')
+  targets.forEach((p: Element) => {
     (p as HTMLElement).style.setProperty('--sec-offset-x', ox)
     ;(p as HTMLElement).style.setProperty('--sec-offset-y', oy)
   })
@@ -304,7 +286,7 @@ export function applyZoom(val: number, skipSettings = false): void {
   document.documentElement.style.setProperty('--dash-zoom', String(scale))
   const dash = document.getElementById('dashboard') as HTMLElement | null
   if (dash) dash.style.zoom = String(scale)
-  ;(['leaderboardPanel','datastreamPanel','incidentsPanel','rcBanner','spotterPanel'] as const).forEach(id => {
+  ;(['secContainer','rcBanner','spotterPanel'] as const).forEach(id => {
     const el = document.getElementById(id) as HTMLElement | null
     if (el) el.style.zoom = String(scale)
   })

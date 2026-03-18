@@ -23,7 +23,7 @@ const MIME = {
 };
 
 const DASHBOARD_MAP = {
-  build: 'dashboard-build.html',
+  build: 'dashboard-react.html',
 };
 
 // ── State ────────────────────────────────────────────────────
@@ -116,7 +116,11 @@ window._k10IsIOS = /iPad|iPhone/.test(navigator.userAgent) || (navigator.maxTouc
 </script>
 <link rel="stylesheet" href="/modules/styles/drive-mode.css">
 <script src="/modules/js/drive-mode.js"></script>
-<script>document.addEventListener('DOMContentLoaded', function() { if (window.initDriveMode) window.initDriveMode(); });</script>
+<script>
+function _k10StartDriveMode() { if (window.initDriveMode) window.initDriveMode(); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', _k10StartDriveMode); }
+else { _k10StartDriveMode(); }
+</script>
 <style>
 /* ── iPad Touch Menu ── */
 #k10-remote-menu-fab {

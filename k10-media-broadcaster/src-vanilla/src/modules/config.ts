@@ -33,10 +33,10 @@ export function isNonRaceSession(sessionType: string | null | undefined): boolea
   return s.includes('practice') || s.includes('qualify') || s.includes('test') || s.includes('warmup') || s.includes('warm up')
 }
 
-/** Format lap time (seconds → m:ss.xxx) */
+/** Format lap time (seconds → m:ss.mm) */
 export function fmtLapTime(secs: number): string {
   if (secs <= 0) return '—'
   const m = Math.floor(secs / 60)
-  const s = (secs % 60).toFixed(3)
+  const s = (secs % 60).toFixed(2)
   return m + ':' + (+s < 10 ? '0' : '') + s
 }

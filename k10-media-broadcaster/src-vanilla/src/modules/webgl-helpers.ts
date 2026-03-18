@@ -502,8 +502,8 @@ export function updateTrackMap(svgPath: string, playerX: number, playerY: number
   const zoomG = document.getElementById('zoomMapOpponents')
   if (!fullG || !zoomG) return
 
-  // Parse "x,y,pit;x,y,pit;..." format
-  const parts = opponentStr ? opponentStr.split(';') : []
+  // Parse "x,y,pit;x,y,pit;..." format — filter empty entries from trailing semicolons
+  const parts = opponentStr ? opponentStr.split(';').filter(s => s.length > 0) : []
   const count = Math.min(parts.length, _MAP_MAX_OPPONENTS)
 
   // Ensure we have enough circle elements (create/remove as needed)

@@ -712,8 +712,8 @@ import { state } from '../state'
 
   function _renderIncident(cfg) {
     const count = Math.round(_getVizValue('incidents')) || 0;
-    const penLimit = (state.settings.incPenalty) || 17;
-    const dqLimit  = (state.settings.incDQ) || 25;
+    const penLimit = (typeof state !== 'undefined' && state.settings && state.settings.incPenalty) || 17;
+    const dqLimit  = (typeof state !== 'undefined' && state.settings && state.settings.incDQ) || 25;
     const toPen = Math.max(0, penLimit - count);
     const toDQ  = Math.max(0, dqLimit - count);
 

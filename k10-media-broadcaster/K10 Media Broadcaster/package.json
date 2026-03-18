@@ -25,6 +25,7 @@
       "preload.js",
       "remote-server.js",
       "dashboard-build.html",
+      "dashboard-react.html",
       "modules/**/*",
       "images/**/*"
     ],

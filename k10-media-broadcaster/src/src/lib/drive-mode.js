@@ -247,14 +247,9 @@
   /**
    * Initialize Drive Mode: Create DOM, set up overlays, activate
    */
-  var _dmInitialized = false;
-
   window.initDriveMode = function() {
-    // Only initialize once
-    if (_dmInitialized) return;
-    // Activate if remote mode flag is set (no UA detection — iPad build always activates)
-    if (!window._k10RemoteMode) return;
-    _dmInitialized = true;
+    // Check iOS Safari remote mode
+    if (!_isIosSafari()) return;
 
     // Create main layout container
     const driveMode = document.createElement('div');
@@ -349,7 +344,7 @@
     tachoRing.className = 'dm-tacho-ring';
     const tachoSvg = document.createElementNS(SVG_NS, 'svg');
     tachoSvg.id = 'dmTachoSvg';
-    tachoSvg.setAttribute('class', 'dm-tacho-svg');
+    tachoSvg.className = 'dm-tacho-svg';
     tachoSvg.setAttribute('viewBox', '0 0 200 200');
 
     // Create 11 SVG arc segments

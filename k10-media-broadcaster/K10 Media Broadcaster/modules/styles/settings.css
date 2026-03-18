@@ -1,10 +1,52 @@
   /* ═══════════════════════════════════════════════
+     SECONDARY PANELS FLEX CONTAINER
+     Wraps leaderboard, datastream, incidents in a flex row.
+     Hidden panels collapse, remaining panels reflow.
+     ═══════════════════════════════════════════════ */
+  .sec-container {
+    position: fixed;
+    z-index: 50;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    pointer-events: none;
+  }
+  .sec-container > * { pointer-events: auto; }
+
+  /* Container positioning classes (set by applyLayout) */
+  .sec-container.sec-bottom { bottom: 28px; }
+  .sec-container.sec-top { top: 10px; }
+  .sec-container.sec-right { right: 10px; flex-direction: row-reverse; }
+  .sec-container.sec-left { left: 10px; flex-direction: row; }
+  .sec-container.sec-center { left: 50%; transform: translateX(-50%); }
+
+  /* User-adjustable offset via settings */
+  [data-sec-offset] .sec-container {
+    transform: translate(var(--sec-offset-x, 0px), var(--sec-offset-y, 0px));
+  }
+
+  /* Panels inside container: relative positioning, no fixed offsets */
+  .sec-container .leaderboard-panel,
+  .sec-container .datastream-panel,
+  .sec-container .incidents-panel {
+    position: relative;
+    top: auto; bottom: auto; left: auto; right: auto;
+    margin: 0;
+  }
+
+  /* Override the offset transforms when inside container */
+  .sec-container .leaderboard-panel,
+  .sec-container .datastream-panel,
+  .sec-container .incidents-panel {
+    transform: translate(var(--sec-offset-x, 0px), var(--sec-offset-y, 0px));
+  }
+
+  /* ═══════════════════════════════════════════════
      SECONDARY BLOCK LAYOUT VARIATIONS
      ═══════════════════════════════════════════════ */
   /* Stack: vertical column (default) */
-  body.sec-stack .leaderboard-panel,
-  body.sec-stack .datastream-panel,
-  body.sec-stack .incidents-panel { /* default behavior, no override needed */ }
+  body.sec-stack .sec-container { flex-direction: column; align-items: flex-end; }
+  body.sec-stack .sec-container.sec-left { align-items: flex-start; }
 
   /* Row: horizontal row along edge */
   body.sec-row .leaderboard-panel.lb-left,

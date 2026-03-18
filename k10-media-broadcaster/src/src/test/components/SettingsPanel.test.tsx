@@ -172,11 +172,8 @@ describe('SettingsPanel Component', () => {
     });
 
     it('renders all section toggles in Sections tab', () => {
+      // Sections tab toggles (Effects moved to System tab)
       const expectedToggles = [
-        'Fuel',
-        'Tyres',
-        'Controls',
-        'Pedals',
         'Tachometer',
         'Position & Gaps',
         'Track Maps',
@@ -192,8 +189,6 @@ describe('SettingsPanel Component', () => {
         'K10 Logo',
         'Car Manufacturer',
         'Game Logo',
-        'WebGL Effects',
-        'Pit Limiter Animation',
       ];
 
       expectedToggles.forEach((label) => {

@@ -201,12 +201,21 @@
     background: hsla(0,0%,6%,0.95);
     border-left: 1px solid hsla(0,0%,100%,0.08);
     padding: 20px 22px;
-    width: 340px;
+    width: 600px;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     color: white;
     -webkit-overflow-scrolling: touch;
+  }
+  /* Two-column grid for section toggles */
+  .settings-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+  }
+  .settings-two-col .settings-group-label {
+    grid-column: 1 / -1;
   }
   .settings-title {
     font-size: 16px;

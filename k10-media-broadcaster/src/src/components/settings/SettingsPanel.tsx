@@ -278,6 +278,7 @@ export function SettingsPanel() {
           className={`${styles.tabContent} ${activeTab === 'sections' ? styles.tabContentActive : ''}`}
           role="tabpanel"
         >
+          <div className={styles.twoCol}>
           {/* Core */}
           <div className={styles.groupLabel}>Core</div>
           {[
@@ -356,24 +357,7 @@ export function SettingsPanel() {
               />
             </div>
           ))}
-
-          {/* Effects */}
-          <div className={styles.groupLabel}>Effects</div>
-          {[
-            { key: 'showWebGL' as const, label: 'WebGL Effects' },
-            { key: 'showBonkers' as const, label: 'Pit Limiter Animation' },
-          ].map(({ key, label }) => (
-            <div key={key} className={styles.row}>
-              <span className={styles.label}>{label}</span>
-              <button
-                className={`${styles.toggle} ${settings[key] ? styles.toggleOn : ''}`}
-                onClick={() => handleToggle(key)}
-                role="switch"
-                aria-checked={settings[key] as boolean}
-                aria-label={`Toggle ${label}`}
-              />
-            </div>
-          ))}
+          </div>
         </div>
 
         {/* Layout Tab */}
@@ -721,6 +705,23 @@ export function SettingsPanel() {
           className={`${styles.tabContent} ${activeTab === 'system' ? styles.tabContentActive : ''}`}
           role="tabpanel"
         >
+          <div className={styles.groupLabel}>Effects</div>
+          {[
+            { key: 'showWebGL' as const, label: 'WebGL Effects' },
+            { key: 'showBonkers' as const, label: 'Pit Limiter Animation' },
+          ].map(({ key, label }) => (
+            <div key={key} className={styles.row}>
+              <span className={styles.label}>{label}</span>
+              <button
+                className={`${styles.toggle} ${settings[key] ? styles.toggleOn : ''}`}
+                onClick={() => handleToggle(key)}
+                role="switch"
+                aria-checked={settings[key] as boolean}
+                aria-label={`Toggle ${label}`}
+              />
+            </div>
+          ))}
+
           <div className={styles.groupLabel}>Testing</div>
           <div className={styles.row}>
             <span className={styles.label}>Force Flag</span>

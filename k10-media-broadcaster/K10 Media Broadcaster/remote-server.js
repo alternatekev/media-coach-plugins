@@ -23,9 +23,7 @@ const MIME = {
 };
 
 const DASHBOARD_MAP = {
-  original: 'dashboard.html',
-  react:    'dashboard-react.html',
-  build:    'dashboard-build.html',
+  build: 'dashboard-build.html',
 };
 
 // ── State ────────────────────────────────────────────────────
@@ -95,64 +93,10 @@ function serveFile(filePath, res) {
   });
 }
 
-// ── Landing page (shows links to all dashboards) ─────────────
+// ── Landing page → redirect straight to dashboard ────────────
 function serveLandingPage(req, res) {
-  const lanIp = getLanAddress();
-  const baseUrl = `http://${lanIp}:${_port}`;
-
-  // Check which dashboards exist
-  const dashboards = Object.entries(DASHBOARD_MAP)
-    .filter(([, file]) => fs.existsSync(path.join(_appDir, file)))
-    .map(([key, file]) => ({ key, file, url: `${baseUrl}/${key}/` }));
-
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>K10 Pro Driver</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #0a0a14; color: #e0e0e0; font-family: system-ui, -apple-system, sans-serif;
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; min-height: 100dvh; padding: 24px;
-    }
-    .container { max-width: 480px; width: 100%; text-align: center; }
-    h1 { font-size: 1.4rem; color: #fff; margin-bottom: 8px; }
-    .subtitle { font-size: 0.85rem; color: #888; margin-bottom: 32px; }
-    .card {
-      display: block; background: #16162a; border: 1px solid #2a2a4a;
-      border-radius: 12px; padding: 20px; margin-bottom: 12px;
-      text-decoration: none; color: inherit; transition: all 0.2s;
-    }
-    .card:hover, .card:active { background: #1e1e3a; border-color: #6c5ce7; }
-    .card-title { font-size: 1.1rem; color: #fff; margin-bottom: 4px; }
-    .card-desc { font-size: 0.8rem; color: #888; }
-    .ip-info {
-      margin-top: 24px; padding: 16px; background: #12121f; border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #6c5ce7;
-    }
-    .logo { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.8; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <img src="/images/branding/logomark.png" class="logo" alt="K10">
-    <h1>K10 Pro Driver</h1>
-    <p class="subtitle">Choose your dashboard</p>
-    ${dashboards.map(d => `
-    <a href="/${d.key}/" class="card">
-      <div class="card-title">${d.key.charAt(0).toUpperCase() + d.key.slice(1)} Dashboard</div>
-      <div class="card-desc">${d.file}</div>
-    </a>`).join('')}
-    <div class="ip-info">${baseUrl}</div>
-  </div>
-</body>
-</html>`;
-
-  res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' });
-  res.end(html);
+  res.writeHead(302, { 'Location': '/build/' });
+  res.end();
 }
 
 // ── Inject remote-mode overrides + iPad touch menu ───────────

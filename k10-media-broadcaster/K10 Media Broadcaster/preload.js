@@ -17,9 +17,8 @@ contextBridge.exposeInMainWorld('k10', {
   // Green screen mode
   getGreenScreenMode: () => ipcRenderer.invoke('get-green-screen-mode'),
   restartApp: () => ipcRenderer.invoke('restart-app'),
-  // Dashboard mode (original vs React)
+  // Dashboard mode (legacy, returns 'build')
   getDashboardMode: () => ipcRenderer.invoke('get-dashboard-mode'),
-  toggleDashboardMode: () => ipcRenderer.invoke('toggle-dashboard-mode'),
   // Open URL in user's default browser
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   // Global hotkey listeners (forwarded from main process)

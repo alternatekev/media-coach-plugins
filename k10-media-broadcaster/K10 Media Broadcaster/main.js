@@ -78,80 +78,17 @@ function saveBounds(bounds) {
   } catch (e) { /* non-critical */ }
 }
 
-// ── Local asset server for React dashboard ──────────────────
-// Serves the app directory over HTTP so the React build can use
-// type="module", fetch(), Google Fonts, etc. without file:// issues.
-let _assetServer = null;
-let _assetServerPort = 0;
-
-function startAssetServer() {
-  return new Promise((resolve, reject) => {
-    if (_assetServer) { resolve(_assetServerPort); return; }
-
-    const MIME = {
-      '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript',
-      '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.svg': 'image/svg+xml',
-      '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2',
-      '.woff': 'font/woff', '.ttf': 'font/ttf',
-    };
-
-    _assetServer = http.createServer((req, res) => {
-      const urlPath = decodeURIComponent(req.url.split('?')[0]);
-      const safePath = path.normalize(urlPath).replace(/^(\.\.[/\\])+/, '');
-      const filePath = path.join(__dirname, safePath);
-
-      // Security: don't serve files outside __dirname
-      if (!filePath.startsWith(__dirname)) {
-        res.writeHead(403); res.end(); return;
-      }
-
-      fs.readFile(filePath, (err, data) => {
-        if (err) {
-          res.writeHead(404); res.end('Not found'); return;
-        }
-        const ext = path.extname(filePath).toLowerCase();
-        res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
-        res.end(data);
-      });
-    });
-
-    // Listen on a random available port on loopback
-    _assetServer.listen(0, '127.0.0.1', () => {
-      _assetServerPort = _assetServer.address().port;
-      logToFile(`[K10] Asset server listening on http://127.0.0.1:${_assetServerPort}`);
-      resolve(_assetServerPort);
-    });
-
-    _assetServer.on('error', (err) => {
-      logToFile(`[K10] Asset server error: ${err.message}`);
-      reject(err);
-    });
-  });
-}
+// (Local asset server removed — no longer needed. Dashboard is a single inlined HTML file.)
 
 // ── State ────────────────────────────────────────────────────
 let overlayWindow = null;
 let settingsMode = false;
 let greenScreenMode = false;
-// dashboardMode: 'original' | 'react' | 'build'
-let dashboardMode = 'original';
-
-const DASHBOARD_FILES = {
-  original: 'dashboard.html',
-  react:    'dashboard-react.html',
-  build:    'dashboard-build.html',
-};
+// Single dashboard: vanilla TypeScript build (Vite-bundled, single-file HTML)
+const DASHBOARD_FILE = 'dashboard-build.html';
 
 function getDashboardFile() {
-  return DASHBOARD_FILES[dashboardMode] || 'dashboard.html';
-}
-
-/** Cycle: original → react → build → original */
-function cycleDashboardMode(current) {
-  const order = ['original', 'react', 'build'];
-  const idx = order.indexOf(current);
-  return order[(idx + 1) % order.length];
+  return DASHBOARD_FILE;
 }
 
 async function createOverlay() {
@@ -162,55 +99,16 @@ async function createOverlay() {
   const settings = loadSettingsSync();
   greenScreenMode = settings.greenScreen === true;
 
-  // Load dashboard mode: new 'dashboardMode' key, with fallback from legacy 'useReactDashboard'
-  if (settings.dashboardMode && DASHBOARD_FILES[settings.dashboardMode]) {
-    dashboardMode = settings.dashboardMode;
-  } else if (settings.useReactDashboard === true) {
-    dashboardMode = 'react';  // migrate legacy setting
-  } else {
-    dashboardMode = 'original';
-  }
-
-  // Verify dashboard file exists, fall back to original if not
-  const dashFile = getDashboardFile();
-  const dashPath = path.join(__dirname, dashFile);
-  if (!fs.existsSync(dashPath)) {
-    logToFile(`[K10] WARNING: ${dashFile} not found, falling back to dashboard.html`);
-    dashboardMode = 'original';
-  }
-
-  logToFile(`[K10] Dashboard: ${getDashboardFile()} (mode: ${dashboardMode})`);
-
-  // Start asset server for React dashboard (serves via HTTP, avoids file:// issues)
-  // build and original modes use file:// directly (everything is inlined)
-  let assetPort = 0;
-  if (dashboardMode === 'react') {
-    try {
-      assetPort = await startAssetServer();
-    } catch (err) {
-      logToFile(`[K10] Asset server failed, falling back to file:// — ${err.message}`);
-    }
-  }
+  logToFile(`[K10] Dashboard: ${getDashboardFile()}`);
 
   const mode = greenScreenMode ? 'green-screen' : 'transparent';
   logToFile(`[K10] Window mode: ${mode}`);
   logToFile(`[K10] Primary display: ${screenW}x${screenH} at (${primaryDisplay.bounds.x}, ${primaryDisplay.bounds.y})`);
 
-  /**
-   * Load the dashboard into the window.
-   * React dashboard: via local HTTP server (avoids file:// CORS / module issues).
-   * Original dashboard: via file:// (no modules, no cross-origin fetches needed).
-   */
+  /** Load the dashboard into the overlay window via file:// (all assets inlined). */
   function loadDashboard() {
-    if (dashboardMode === 'react' && assetPort > 0) {
-      const url = `http://127.0.0.1:${assetPort}/${getDashboardFile()}`;
-      logToFile(`[K10] Loading React dashboard via ${url}`);
-      overlayWindow.loadURL(url);
-    } else {
-      // original and build modes: file:// is fine (all assets inlined)
-      logToFile(`[K10] Loading ${dashboardMode} dashboard via file://`);
-      overlayWindow.loadFile(path.join(__dirname, getDashboardFile()));
-    }
+    logToFile('[K10] Loading dashboard via file://');
+    overlayWindow.loadFile(path.join(__dirname, getDashboardFile()));
   }
 
   if (greenScreenMode) {
@@ -374,7 +272,7 @@ logToFile('[K10] App starting...');
 
 app.whenReady().then(() => {
   logToFile(`[K10] Platform: ${os.platform()} ${os.arch()} | Electron ${process.versions.electron}`);
-  logToFile('[K10] Hotkeys: Ctrl+Shift+S/H/G/T/R/D/Q (T cycles: original→react→build)');
+  logToFile('[K10] Hotkeys: Ctrl+Shift+S/H/G/R/D/M/Q');
   try {
     createOverlay();
     logToFile('[K10] Overlay window created OK');
@@ -422,19 +320,6 @@ app.whenReady().then(() => {
     saveSettingsSync(settings);
     const mode = settings.greenScreen ? 'green-screen' : 'transparent';
     console.log(`[K10] Toggling to ${mode} mode — restarting...`);
-    app.relaunch();
-    app.exit(0);
-  });
-
-  globalShortcut.register('CommandOrControl+Shift+T', () => {
-    // Cycle dashboard: original → react → build → original
-    const settings = loadSettingsSync();
-    const current = settings.dashboardMode || (settings.useReactDashboard ? 'react' : 'original');
-    const next = cycleDashboardMode(current);
-    settings.dashboardMode = next;
-    delete settings.useReactDashboard;  // remove legacy key
-    saveSettingsSync(settings);
-    console.log(`[K10] Switching dashboard: ${current} → ${next} — restarting...`);
     app.relaunch();
     app.exit(0);
   });
@@ -497,32 +382,9 @@ ipcMain.handle('get-green-screen-mode', async () => {
   return greenScreenMode;
 });
 
-// ── IPC: Dashboard mode query ──
+// ── IPC: Dashboard mode query (legacy, returns 'build') ──
 ipcMain.handle('get-dashboard-mode', async () => {
-  return dashboardMode;  // 'original' | 'react' | 'build'
-});
-
-ipcMain.handle('cycle-dashboard-mode', async () => {
-  const settings = loadSettingsSync();
-  const current = settings.dashboardMode || dashboardMode;
-  const next = cycleDashboardMode(current);
-  settings.dashboardMode = next;
-  delete settings.useReactDashboard;
-  saveSettingsSync(settings);
-  app.relaunch();
-  app.exit(0);
-});
-
-// Legacy alias kept for compatibility
-ipcMain.handle('toggle-dashboard-mode', async () => {
-  const settings = loadSettingsSync();
-  const current = settings.dashboardMode || dashboardMode;
-  const next = cycleDashboardMode(current);
-  settings.dashboardMode = next;
-  delete settings.useReactDashboard;
-  saveSettingsSync(settings);
-  app.relaunch();
-  app.exit(0);
+  return 'build';
 });
 
 // ── IPC: Restart app (used after toggling green screen mode) ──

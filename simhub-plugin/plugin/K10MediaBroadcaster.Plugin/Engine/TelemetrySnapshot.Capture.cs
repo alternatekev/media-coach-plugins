@@ -305,6 +305,9 @@ namespace K10MediaBroadcaster.Plugin.Engine
             if (_irEstimator == null) _irEstimator = new IRatingEstimator();
             _irEstimator.TryReadSessionInfo();
 
+            // Standing start detection (from iRacing WeekendOptions YAML)
+            s.IsStandingStart = _irEstimator.IsStandingStart;
+
             s.IRating = _irEstimator.PlayerIRating;
             if (s.IRating == 0)
                 s.IRating = GetPluginProp<int>(pm, "IRacingExtraProperties.iRacing_DriverInfo_IRating");

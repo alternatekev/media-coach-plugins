@@ -132,6 +132,8 @@ namespace K10MediaBroadcaster.Plugin.Engine
         public int    TotalCars         { get; set; }
         /// <summary>iRacing PaceMode: 0=NotPacing, 1=Pacing, 2=Approaching, 3=FieldCrossSF.</summary>
         public int    PaceMode          { get; set; }
+        /// <summary>True if the session uses a standing start (from iRacing WeekendOptions).</summary>
+        public bool   IsStandingStart   { get; set; }
         /// <summary>ISO country code of the track location (e.g. "DE", "US", "GB").</summary>
         public string TrackCountry { get; set; } = "";
 

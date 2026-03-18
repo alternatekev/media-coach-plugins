@@ -16,39 +16,87 @@ export async function loadCountryFlags() {
   }
 }
 
+let _gridStripLastHtml = ''
+
 function _renderGridStrip(total: number, gridded: number, playerPos: number) {
-  const strip = document.getElementById('gridStrip')
-  if (!strip) return
+  const container = document.getElementById('gridStrip')
+  if (!container) return
+  if (total <= 0) {
+    container.innerHTML = ''
+    _gridStripLastHtml = ''
+    return
+  }
 
-  strip.innerHTML = ''
-  const itemW = 100 / Math.max(total, 1)
-  const playerRelX = playerPos * itemW + itemW / 2
-
-  for (let i = 0; i < Math.max(total, 1); i++) {
-    const item = document.createElement('div')
-    item.className = 'grid-item'
-    item.style.width = itemW + '%'
-    if (i < gridded) item.classList.add('gridded')
-    if (i === playerPos - 1) item.classList.add('player')
-    strip.appendChild(item)
+  // Build dots — only rebuild DOM when content changes
+  let html = ''
+  for (let i = 1; i <= total; i++) {
+    const isPlayer = i === playerPos
+    const isGridded = i <= gridded
+    let cls = 'grid-dot'
+    if (isPlayer) cls += ' player'
+    else if (isGridded) cls += ' gridded'
+    html += '<div class="' + cls + '"></div>'
+  }
+  if (html !== _gridStripLastHtml) {
+    container.innerHTML = html
+    _gridStripLastHtml = html
   }
 }
 
 function updateStartLights(phase: number) {
-  const lights = document.getElementById('startLights')
-  if (!lights) return
+  // phase: 1-5 = red lights building (one column per phase)
+  //         6  = all red (hold)
+  //         7  = green (GO!)
+  const cols = [
+    ['light1t', 'light1b'],
+    ['light2t', 'light2b'],
+    ['light3t', 'light3b'],
+    ['light4t', 'light4b'],
+    ['light5t', 'light5b']
+  ]
 
-  for (let i = 1; i <= 5; i++) {
-    const bulb = document.getElementById(`lightBulb${i}`)
-    if (bulb) bulb.classList.toggle('on', i <= phase)
+  if (phase >= 1 && phase <= 5) {
+    // Light columns 1..phase are red
+    for (let i = 0; i < 5; i++) {
+      const cls = i < phase ? 'lit-red' : ''
+      cols[i].forEach(id => {
+        const el = document.getElementById(id)
+        if (el) {
+          el.className = 'light-bulb' + (cls ? ' ' + cls : '')
+        }
+      })
+    }
+    document.getElementById('lightsGo')?.classList.remove('go-visible')
+  } else if (phase === 6) {
+    // All red
+    cols.forEach(col =>
+      col.forEach(id => {
+        const el = document.getElementById(id)
+        if (el) el.className = 'light-bulb lit-red'
+      })
+    )
+    document.getElementById('lightsGo')?.classList.remove('go-visible')
+  } else if (phase === 7) {
+    // All green — GO!
+    cols.forEach(col =>
+      col.forEach(id => {
+        const el = document.getElementById(id)
+        if (el) el.className = 'light-bulb lit-green'
+      })
+    )
+    document.getElementById('lightsGo')?.classList.add('go-visible')
   }
 }
 
 function resetLightBulbs() {
   for (let i = 1; i <= 5; i++) {
-    const bulb = document.getElementById(`lightBulb${i}`)
-    if (bulb) bulb.classList.remove('on')
+    ['t', 'b'].forEach(s => {
+      const el = document.getElementById('light' + i + s)
+      if (el) el.className = 'light-bulb'
+    })
   }
+  const go = document.getElementById('lightsGo')
+  if (go) go.classList.remove('go-visible')
 }
 
 export function updateGrid(p: Record<string, any>, isDemo: boolean) {

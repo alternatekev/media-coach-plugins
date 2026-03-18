@@ -94,77 +94,86 @@ setupHist('brakeHist', 'brake')
 setupHist('clutchHist', 'clutch')
 
 export function renderHist(id: string, data: number[]) {
-  const container = document.getElementById(id)
-  if (!container) return
+  const bars = document.getElementById(id)
+  if (!bars) return
 
-  const bars = container.querySelectorAll('.pedal-hist-bar')
-  const max = Math.max(...Array.from(data))
-
-  for (let i = 0; i < HIST_BARS && i < bars.length; i++) {
-    const bar = bars[i] as HTMLElement
-    const height = max > 0 ? (data[i] / max) * 100 : 0
-    bar.style.height = height + '%'
+  for (let i = 0; i < data.length && i < bars.children.length; i++) {
+    (bars.children[i] as HTMLElement).style.height = Math.max(1, data[i] * 100) + '%'
   }
 }
 
 // ========== PEDAL TRACE ==========
-export function renderPedalTrace(
-  canvasId: string,
-  thr: number[],
-  brk: number[],
-  clt: number[]
-) {
-  const canvas = document.getElementById(canvasId) as HTMLCanvasElement
-  if (!canvas) return
+const _pedalTraceLen = 120
+const _ptThr = new Float32Array(_pedalTraceLen)
+const _ptBrk = new Float32Array(_pedalTraceLen)
+const _ptClt = new Float32Array(_pedalTraceLen)
+let _ptIdx = 0
+let _ptCount = 0
+const _ptCanvas = document.getElementById('pedalTraceCanvas') as HTMLCanvasElement | null
+const _ptCtx = _ptCanvas ? _ptCanvas.getContext('2d') : null
 
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
+export function renderPedalTrace(thr: number, brk: number, clt: number) {
+  _ptThr[_ptIdx] = thr
+  _ptBrk[_ptIdx] = brk
+  _ptClt[_ptIdx] = clt
+  _ptIdx = (_ptIdx + 1) % _pedalTraceLen
+  _ptCount++
 
-  const w = canvas.width
-  const h = canvas.height
-  const len = Math.min(thr.length, brk.length, clt.length)
-
-  ctx.fillStyle = 'rgba(10, 10, 20, 0.8)'
-  ctx.fillRect(0, 0, w, h)
-
-  // Draw grid
-  ctx.strokeStyle = 'rgba(100, 100, 120, 0.3)'
-  ctx.lineWidth = 1
-  for (let i = 0; i <= 4; i++) {
-    const y = (h / 4) * i
-    ctx.beginPath()
-    ctx.moveTo(0, y)
-    ctx.lineTo(w, y)
-    ctx.stroke()
+  if (!_ptCtx) return
+  const c = _ptCanvas!
+  // Match canvas resolution to display size
+  const rect = c.getBoundingClientRect()
+  if (c.width !== Math.round(rect.width) || c.height !== Math.round(rect.height)) {
+    c.width = Math.round(rect.width)
+    c.height = Math.round(rect.height)
   }
+  const w = c.width, h = c.height
+  const ctx = _ptCtx
+  ctx.clearRect(0, 0, w, h)
 
-  // Draw traces
-  const colors = ['#22dd88', '#dd2222', '#2288ff']
-  const traces = [thr, brk, clt]
-  const names = ['throttle', 'brake', 'clutch']
+  const count = Math.min(_ptCount, _pedalTraceLen)
+  if (count < 3) return
 
-  traces.forEach((data, idx) => {
-    ctx.strokeStyle = colors[idx]
-    ctx.lineWidth = 2
+  // Draw each pedal trace as a smooth line with gradient fade
+  const traces = [
+    { buf: _ptThr, color: [76, 175, 80],  label: 'thr' },   // green
+    { buf: _ptBrk, color: [244, 67, 54],   label: 'brk' },   // red
+    { buf: _ptClt, color: [66, 165, 245],   label: 'clt' },   // blue
+  ]
+
+  for (const tr of traces) {
     ctx.beginPath()
-
-    for (let i = 0; i < len; i++) {
-      const x = (i / len) * w
-      const y = h - data[i] * h
+    for (let i = 0; i < count; i++) {
+      const idx = (_ptIdx - count + i + _pedalTraceLen) % _pedalTraceLen
+      const x = (i / (count - 1)) * w
+      const y = h - tr.buf[idx] * (h - 2) - 1
       if (i === 0) ctx.moveTo(x, y)
       else ctx.lineTo(x, y)
     }
-
+    // Gradient stroke: fades in from left (oldest) to right (newest)
+    const grad = ctx.createLinearGradient(0, 0, w, 0)
+    const [r, g, b] = tr.color
+    grad.addColorStop(0, `rgba(${r},${g},${b},0.0)`)
+    grad.addColorStop(0.3, `rgba(${r},${g},${b},0.08)`)
+    grad.addColorStop(0.7, `rgba(${r},${g},${b},0.2)`)
+    grad.addColorStop(1, `rgba(${r},${g},${b},0.45)`)
+    ctx.strokeStyle = grad
+    ctx.lineWidth = 1.5
+    ctx.lineJoin = 'round'
     ctx.stroke()
-  })
 
-  // Draw labels
-  ctx.fillStyle = '#aaa'
-  ctx.font = '11px monospace'
-  names.forEach((name, idx) => {
-    ctx.fillStyle = colors[idx]
-    ctx.fillText(name, 5, 15 + idx * 12)
-  })
+    // Subtle glow at the leading edge (newest sample)
+    const lastIdx = (_ptIdx - 1 + _pedalTraceLen) % _pedalTraceLen
+    const lastVal = tr.buf[lastIdx]
+    if (lastVal > 0.02) {
+      const lx = w - 1
+      const ly = h - lastVal * (h - 2) - 1
+      ctx.beginPath()
+      ctx.arc(lx, ly, 2.5, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(${r},${g},${b},0.6)`
+      ctx.fill()
+    }
+  }
 }
 
 // ========== COMMENTARY / OVERLAY ==========
@@ -350,6 +359,10 @@ export function updateTyreCell(index: number, tempF: number, wearPct: number) {
   if (index < wearFills.length) {
     const fill = wearFills[index] as HTMLElement
     fill.style.width = Math.max(0, Math.min(100, wearPct)) + '%'
+    // Color wear bar: green > 50%, amber > 25%, red below
+    if (wearPct > 50) fill.style.background = 'var(--green)'
+    else if (wearPct > 25) fill.style.background = 'var(--amber)'
+    else fill.style.background = 'var(--red)'
   }
 }
 
@@ -382,59 +395,141 @@ let _mapHasInit = false
 const _SVG_NS = 'http://www.w3.org/2000/svg'
 const _MAP_MAX_OPPONENTS = 63
 
+function _ensureOpponentDots(parent: Element, count: number, radius: number) {
+  while (parent.children.length < count) {
+    const c = document.createElementNS(_SVG_NS, 'circle')
+    c.classList.add('map-opponent')
+    c.setAttribute('r', String(radius))
+    parent.appendChild(c)
+  }
+  while (parent.children.length > count) {
+    parent.removeChild(parent.lastChild!)
+  }
+}
+
+function _isClose(px: number, py: number, ox: number, oy: number): boolean {
+  const dx = px - ox, dy = py - oy
+  return (dx * dx + dy * dy) < 64 // ~8 SVG units
+}
+
 export function resetTrackMap() {
-  const mapTrack = document.getElementById('fullMapTrack')
-  const mapPlayer = document.getElementById('fullMapPlayer')
-  const mapOpponents = document.getElementById('fullMapOpponents')
-  if (mapTrack) (mapTrack as any).setAttribute('d', '')
-  if (mapPlayer) (mapPlayer as any).style.display = 'none'
-  if (mapOpponents) mapOpponents.innerHTML = ''
+  fetch((window as any)._simhubUrlOverride || SIMHUB_URL + '?action=resetmap').catch(() => {})
   _mapLastPath = ''
   _mapHasInit = false
+  const fullTrack = document.getElementById('fullMapTrack')
+  const zoomTrack = document.getElementById('zoomMapTrack')
+  if (fullTrack) fullTrack.setAttribute('d', '')
+  if (zoomTrack) zoomTrack.setAttribute('d', '')
+  // Clear opponent dots
+  const fg = document.getElementById('fullMapOpponents')
+  const zg = document.getElementById('zoomMapOpponents')
+  if (fg) fg.innerHTML = ''
+  if (zg) zg.innerHTML = ''
 }
 
 export function updateTrackMap(svgPath: string, playerX: number, playerY: number, opponentStr?: string) {
-  const mapTrack = document.getElementById('fullMapTrack') as unknown as SVGPathElement
-  const mapPlayer = document.getElementById('fullMapPlayer') as unknown as SVGCircleElement
-  const mapOpponents = document.getElementById('fullMapOpponents')
-
-  if (!mapTrack) return
-
-  // Update path
+  // Update track outline (only when path changes — new track or first load)
   if (svgPath && svgPath !== _mapLastPath) {
-    mapTrack.setAttribute('d', svgPath)
     _mapLastPath = svgPath
-  }
+    _mapHasInit = false // reset smoothing on track change
+    const fullTrack = document.getElementById('fullMapTrack')
+    const zoomTrack = document.getElementById('zoomMapTrack')
+    if (fullTrack) fullTrack.setAttribute('d', svgPath)
+    if (zoomTrack) zoomTrack.setAttribute('d', svgPath)
 
-  // Update player position
-  if (mapPlayer) {
-    mapPlayer.setAttribute('cx', playerX.toFixed(1))
-    mapPlayer.setAttribute('cy', playerY.toFixed(1))
-    mapPlayer.style.display = ''
-  }
-
-  // Update opponents
-  if (mapOpponents && opponentStr) {
-    const entries = opponentStr.split(';').filter(Boolean)
-
-    // Ensure enough circles exist
-    while (mapOpponents.children.length < entries.length) {
-      const c = document.createElementNS(_SVG_NS, 'circle')
-      c.setAttribute('r', '2.5')
-      c.setAttribute('fill', 'rgba(200,200,200,0.6)')
-      mapOpponents.appendChild(c)
+    // Position start/finish marker at the first point of the path (LapDistPct=0)
+    const sfMatch = svgPath.match(/^M\s*([\d.]+)[,\s]+([\d.]+)/)
+    if (sfMatch) {
+      const sfX = +sfMatch[1], sfY = +sfMatch[2]
+      const fullSF = document.getElementById('fullMapSF')
+      const zoomSF = document.getElementById('zoomMapSF')
+      if (fullSF) {
+        fullSF.setAttribute('transform', 'translate(' + sfX.toFixed(1) + ',' + sfY.toFixed(1) + ')')
+        fullSF.style.display = ''
+      }
+      if (zoomSF) {
+        zoomSF.setAttribute('transform', 'translate(' + sfX.toFixed(1) + ',' + sfY.toFixed(1) + ')')
+        zoomSF.style.display = ''
+      }
     }
+  }
 
-    entries.forEach((entry, i) => {
-      const parts = entry.split(',')
-      const x = parseFloat(parts[0])
-      const y = parseFloat(parts[1])
-      const inPit = parseInt(parts[2]) === 1
-      const circle = mapOpponents.children[i] as SVGCircleElement
-      circle.setAttribute('cx', x.toFixed(1))
-      circle.setAttribute('cy', y.toFixed(1))
-      circle.style.display = inPit ? 'none' : ''
-    })
+  // Sanity: clamp coordinates to 0–100 SVG range
+  playerX = Math.max(0, Math.min(100, playerX))
+  playerY = Math.max(0, Math.min(100, playerY))
+
+  // Smoothing: reject large jumps, low-pass filter coordinates
+  if (!_mapHasInit) {
+    _mapSmoothedX = playerX
+    _mapSmoothedY = playerY
+    _mapHasInit = true
+  } else {
+    const dx = playerX - _mapSmoothedX
+    const dy = playerY - _mapSmoothedY
+    const jump = Math.sqrt(dx * dx + dy * dy)
+    // If jump is huge (>20 SVG units), blend slowly (glitch recovery)
+    const alpha = jump > 20 ? 0.08 : 0.45
+    _mapSmoothedX += dx * alpha
+    _mapSmoothedY += dy * alpha
+  }
+
+  const sx = _mapSmoothedX
+  const sy = _mapSmoothedY
+
+  // Update player dot
+  const fullPlayer = document.getElementById('fullMapPlayer')
+  const zoomPlayer = document.getElementById('zoomMapPlayer')
+  if (fullPlayer) {
+    fullPlayer.setAttribute('cx', sx.toFixed(1))
+    fullPlayer.setAttribute('cy', sy.toFixed(1))
+  }
+  if (zoomPlayer) {
+    zoomPlayer.setAttribute('cx', sx.toFixed(1))
+    zoomPlayer.setAttribute('cy', sy.toFixed(1))
+  }
+
+  // Update zoom map viewBox to track the player (±15 unit window) — use smoothed position
+  const zoomSvg = document.getElementById('zoomMapSvg')
+  if (zoomSvg) {
+    const zr = 15 // zoom radius
+    const vx = Math.max(0, Math.min(100 - zr * 2, sx - zr))
+    const vy = Math.max(0, Math.min(100 - zr * 2, sy - zr))
+    zoomSvg.setAttribute('viewBox', vx.toFixed(1) + ' ' + vy.toFixed(1) + ' ' + (zr * 2) + ' ' + (zr * 2))
+  }
+
+  // Parse and render opponents
+  const fullG = document.getElementById('fullMapOpponents')
+  const zoomG = document.getElementById('zoomMapOpponents')
+  if (!fullG || !zoomG) return
+
+  // Parse "x,y,pit;x,y,pit;..." format
+  const parts = opponentStr ? opponentStr.split(';') : []
+  const count = Math.min(parts.length, _MAP_MAX_OPPONENTS)
+
+  // Ensure we have enough circle elements (create/remove as needed)
+  _ensureOpponentDots(fullG, count, 2.5)
+  _ensureOpponentDots(zoomG, count, 1.5)
+
+  // Update positions
+  const fullDots = fullG.children
+  const zoomDots = zoomG.children
+  for (let i = 0; i < count; i++) {
+    const seg = parts[i].split(',')
+    if (seg.length < 2) continue
+    // Clamp opponent coords to 0–100
+    const ox = Math.max(0, Math.min(100, +seg[0]))
+    const oy = Math.max(0, Math.min(100, +seg[1]))
+    const inPit = seg[2] === '1'
+
+    (fullDots[i] as SVGCircleElement).setAttribute('cx', String(ox))
+    ;(fullDots[i] as SVGCircleElement).setAttribute('cy', String(oy))
+    ;(fullDots[i] as HTMLElement).style.display = inPit ? 'none' : ''
+    ;(fullDots[i] as HTMLElement).classList.toggle('close', _isClose(sx, sy, ox, oy))
+
+    ;(zoomDots[i] as SVGCircleElement).setAttribute('cx', String(ox))
+    ;(zoomDots[i] as SVGCircleElement).setAttribute('cy', String(oy))
+    ;(zoomDots[i] as HTMLElement).style.display = inPit ? 'none' : ''
+    ;(zoomDots[i] as HTMLElement).classList.toggle('close', _isClose(sx, sy, ox, oy))
   }
 }
 

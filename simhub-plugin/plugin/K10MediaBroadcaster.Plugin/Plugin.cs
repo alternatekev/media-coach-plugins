@@ -1063,8 +1063,8 @@ namespace K10MediaBroadcaster.Plugin
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.GriddedCars", s.GriddedCars);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.TotalCars", s.TotalCars);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.PaceMode", s.PaceMode);
-                    // Start type: detect from session info (rolling for iRacing road by default)
-                    Jp(sb, "K10MediaBroadcaster.Plugin.Grid.StartType", Escape("rolling"));
+                    // Start type: read from iRacing WeekendOptions via shared memory
+                    Jp(sb, "K10MediaBroadcaster.Plugin.Grid.StartType", Escape(s.IsStandingStart ? "standing" : "rolling"));
                     // Lights phase: synthesized from PaceMode/SessionState transitions
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.LightsPhase", _lightsPhase);
                     Jp(sb, "K10MediaBroadcaster.Plugin.Grid.TrackCountry", Escape(s.TrackCountry ?? ""));

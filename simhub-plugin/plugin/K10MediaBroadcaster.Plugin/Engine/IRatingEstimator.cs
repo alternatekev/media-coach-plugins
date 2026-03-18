@@ -44,12 +44,14 @@ namespace K10MediaBroadcaster.Plugin.Engine
         private int _playerCarIdx = -1;
         private int _playerIRating = 0;
         private double _playerSafetyRating = 0;
+        private bool _isStandingStart = false;
 
         // Last computed estimate
         public int EstimatedDelta { get; private set; }
         public int PlayerIRating => _playerIRating;
         public double PlayerSafetyRating => _playerSafetyRating;
         public int FieldSize => _driverIRatings.Count;
+        public bool IsStandingStart => _isStandingStart;
 
         /// <summary>
         /// Try to read iRacing session YAML from shared memory.
@@ -87,6 +89,7 @@ namespace K10MediaBroadcaster.Plugin.Engine
                     _lastSessionInfoUpdate = sessionInfoUpdate;
 
                     ParseDriverInfo(_sessionYaml);
+                    ParseWeekendOptions(_sessionYaml);
                     return true;
                 }
             }
@@ -264,6 +267,19 @@ namespace K10MediaBroadcaster.Plugin.Engine
 
             // Clamp to realistic bounds
             return Math.Max(-300, Math.Min(300, delta));
+        }
+
+        /// <summary>
+        /// Parse WeekendOptions from session YAML to detect standing starts.
+        /// iRacing YAML contains: WeekendOptions:\n  StandingStart: 1\n
+        /// </summary>
+        private void ParseWeekendOptions(string yaml)
+        {
+            var val = FindYamlValue(yaml, "StandingStart:");
+            if (val != null)
+            {
+                _isStandingStart = val.Trim() == "1";
+            }
         }
 
         /// <summary>

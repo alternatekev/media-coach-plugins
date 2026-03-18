@@ -147,7 +147,7 @@ async function createOverlay() {
 
     // Green screen windows are always interactive (no click-through)
     loadDashboard();
-    overlayWindow.setAlwaysOnTop(true, 'floating');
+    overlayWindow.setAlwaysOnTop(true, 'screen-saver');
 
     // Inject opaque-mode class after page loads
     overlayWindow.webContents.on('did-finish-load', () => {
@@ -182,10 +182,22 @@ async function createOverlay() {
 
     overlayWindow.setIgnoreMouseEvents(true, { forward: true });
     loadDashboard();
-    overlayWindow.setAlwaysOnTop(true, 'floating');
+    overlayWindow.setAlwaysOnTop(true, 'screen-saver');
   }
 
   overlayWindow.on('closed', () => { overlayWindow = null; });
+
+  // ── Windows: periodically re-assert always-on-top ──────────
+  // DirectX fullscreen exclusive mode can steal z-order even from
+  // screen-saver level windows. Re-assert every 5 seconds.
+  if (process.platform === 'win32') {
+    setInterval(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed() && !settingsMode) {
+        overlayWindow.setAlwaysOnTop(false);
+        overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+      }
+    }, 5000);
+  }
 
   // ── Crash recovery ──────────────────────────────────────────
   overlayWindow.webContents.on('render-process-gone', (_event, details) => {
@@ -596,7 +608,7 @@ ipcMain.handle('discord-connect', async () => {
 
     // Restore z-level
     if (overlayWindow && !overlayWindow.isDestroyed()) {
-      overlayWindow.setAlwaysOnTop(true, 'floating');
+      overlayWindow.setAlwaysOnTop(true, 'screen-saver');
     }
 
     if (result.error) {
@@ -638,7 +650,7 @@ ipcMain.handle('discord-connect', async () => {
     console.error('[K10] Discord connect error:', err);
     // Restore z-level if it was lowered
     if (overlayWindow && !overlayWindow.isDestroyed() && !overlayWindow.isAlwaysOnTop()) {
-      overlayWindow.setAlwaysOnTop(true, 'floating');
+      overlayWindow.setAlwaysOnTop(true, 'screen-saver');
     }
     return { success: false, error: err.message };
   }

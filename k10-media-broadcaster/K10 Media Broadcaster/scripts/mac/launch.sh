@@ -13,20 +13,10 @@ if [ ! -d "node_modules" ] || [ ! -x "node_modules/.bin/electron" ]; then
     npm install 2>&1 | tail -5
 fi
 
-# Rebuild React dashboard if missing
-SRC_DIR="$APP_DIR/../src"
-if [ -f "$SRC_DIR/package.json" ] && [ ! -f "dashboard-react.html" ]; then
-    echo "Building React dashboard..."
-    if [ ! -d "$SRC_DIR/node_modules" ]; then
-        (cd "$SRC_DIR" && npm install 2>&1 | tail -3)
-    fi
-    (cd "$SRC_DIR" && npx vite build 2>&1 | tail -5)
-fi
-
-# Rebuild vanilla TS dashboard if missing
+# Rebuild dashboard if missing
 SRC_VANILLA_DIR="$APP_DIR/../src-vanilla"
 if [ -f "$SRC_VANILLA_DIR/package.json" ] && [ ! -f "dashboard-build.html" ]; then
-    echo "Building vanilla TS dashboard..."
+    echo "Building dashboard..."
     if [ ! -d "$SRC_VANILLA_DIR/node_modules" ]; then
         (cd "$SRC_VANILLA_DIR" && npm install 2>&1 | tail -3)
     fi

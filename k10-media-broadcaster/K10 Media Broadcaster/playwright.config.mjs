@@ -12,22 +12,22 @@ export default defineConfig({
     },
   },
   projects: [
-    // Original dashboard (dashboard.html)
+    // Primary dashboard (dashboard-build.html — vanilla TypeScript build)
+    {
+      name: 'dashboard',
+      testDir: './tests/build',
+      testMatch: /dashboard\.spec\.mjs$/,
+    },
+    // Non-dashboard tests (Discord OAuth, etc.)
+    {
+      name: 'unit',
+      testDir: './tests/unit',
+    },
+    // Legacy: original dashboard.html (opt-in, not run by default)
     {
       name: 'original',
       testDir: './tests/original',
       testMatch: /dashboard\.spec\.mjs$/,
-    },
-    // Vanilla TS build (dashboard-build.html)
-    {
-      name: 'build',
-      testDir: './tests/build',
-      testMatch: /dashboard\.spec\.mjs$/,
-    },
-    // Non-dashboard tests (Discord OAuth, etc.) — run once
-    {
-      name: 'unit',
-      testDir: './tests/unit',
     },
   ],
 });

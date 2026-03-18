@@ -9,13 +9,13 @@
     "start": "electron .",
     "dev": "electron . --dev",
     "start:safe": "cross-env K10_FORCE_SOFTWARE=1 electron .",
-    "rebuild-react": "cd ../src && npm install && npx vite build",
-    "rebuild-vanilla": "cd ../src-vanilla && npm install && npm run build",
-    "rebuild-all": "npm run rebuild-react && npm run rebuild-vanilla",
-    "build": "npm run rebuild-all && npm install electron-builder --save-dev && electron-builder",
-    "build:mac": "npm run rebuild-all && npm install electron-builder --save-dev && electron-builder --mac",
-    "build:win": "npm run rebuild-all && npm install electron-builder --save-dev && electron-builder --win",
-    "dist": "npm run rebuild-all && npm install electron-builder --save-dev && electron-builder --mac --win"
+    "rebuild": "cd ../src-vanilla && npm install && npm run build",
+    "build": "npm run rebuild && npm install electron-builder --save-dev && electron-builder",
+    "build:mac": "npm run rebuild && npm install electron-builder --save-dev && electron-builder --mac",
+    "build:win": "npm run rebuild && npm install electron-builder --save-dev && electron-builder --win",
+    "dist": "npm run rebuild && npm install electron-builder --save-dev && electron-builder --mac --win",
+    "test": "npx playwright test --project=unit",
+    "test:dashboard": "npx playwright test"
   },
   "build": {
     "appId": "org.k10mediabroadcaster.broadcaster",
@@ -23,12 +23,10 @@
     "files": [
       "main.js",
       "preload.js",
-      "dashboard.html",
-      "dashboard-react.html",
+      "remote-server.js",
       "dashboard-build.html",
       "modules/**/*",
-      "images/**/*",
-      "scripts/**/*"
+      "images/**/*"
     ],
     "icon": "images/branding/icon.png",
     "mac": {

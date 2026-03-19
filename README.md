@@ -28,38 +28,39 @@ A standalone Electron overlay that renders the full telemetry HUD as a transpare
 
 The overlay runs at ~30fps, polling the plugin's HTTP API on port 8889. It supports native transparency on x64 and green-screen chroma keying on ARM. The same dashboard HTML also works as a SimHub dashboard template or directly in a browser.
 
-Full setup and configuration: **[k10-media-broadcaster/K10 Media Broadcaster/README.md](k10-media-broadcaster/K10%20Media%20Broadcast/README.md)**
+Full setup and configuration: **[dashboard-overlay/README.md](dashboard-overlay/README.md)**
 
 ## Repository Structure
 
 ```
-├── simhub-plugin/                        SimHub plugin and data
-│   ├── plugin/K10MediaBroadcaster.Plugin/      C# plugin (NET Framework 4.8, WPF)
-│   │   ├── Engine/                       Commentary engine, trigger evaluator, fragments
-│   │   ├── Models/                       Data models (topics, sentiments)
-│   │   └── Properties/                   Assembly metadata
-│   ├── dataset/                          Shared commentary data files (JSON)
-│   │   ├── commentary_topics.json        33 topics with triggers, thresholds, prompts
-│   │   ├── commentary_fragments.json     Composable sentence fragments (240+ combos/topic)
-│   │   ├── sentiments.json               Sentiment vocabulary and colors
-│   │   ├── channel_notes.json            Voice-matching style profiles
-│   │   └── commentary_sources.json       Alternative transcript source index
-│   ├── tests/
-│   │   ├── K10MediaBroadcaster.Tests/          C# unit tests (NUnit, 200+ tests)
-│   │   ├── validate_datasets.py          Python dataset validation (28 tests)
-│   │   └── recordings/                   Synthetic telemetry transcripts
-│   ├── tools/
-│   │   ├── replay_telemetry.py           Offline telemetry replay and scenario generation
-│   │   └── generate_fragments.py         Haiku-powered fragment generation script
-│   ├── DashTemplates/                    SimHub dashboard templates
-│   └── docs/                             In-depth documentation
-├── k10-media-broadcaster/                  Standalone broadcast overlay (Electron)
-│   └── K10 Media Broadcaster/              Electron overlay app (dashboard HUD)
+├── dashboard-overlay/                    Electron overlay app + dashboard HUD
+│   ├── main.js                           Electron main process
+│   ├── preload.js                        IPC bridge
+│   ├── remote-server.js                  LAN HTTP server for remote access
+│   ├── dashboard.html                    Main overlay UI (vanilla JS, no build step)
+│   ├── modules/js/                       28 JavaScript modules (polling, commentary, drive mode, etc.)
+│   ├── modules/styles/                   8 CSS modules
+│   ├── data/                             Track + car research data for commentary
+│   ├── streamdeck/                       Elgato Stream Deck profile + icons
+│   └── images/                           Branding, car logos, flags
+├── simhub-plugin/                        SimHub C# plugin + data
+│   ├── plugin/K10MediaBroadcaster.Plugin/  C# source (NET Framework 4.8, WPF)
+│   │   └── Engine/                       Commentary engine, trigger evaluator, sectors, iRating
+│   ├── k10-media-broadcaster-data/       Commentary topics, fragments, sentiments (JSON)
+│   ├── tests/                            C# unit tests + Python dataset validation
+│   ├── tools/                            Telemetry replay, fragment generation
+│   └── DashTemplates/                    SimHub dashboard templates
 ├── homebridge-plugin/                    Homebridge platform plugin (TypeScript)
 │   ├── src/__tests__/                    Jest test suite (133 tests)
 │   └── docs/                             Homebridge-specific documentation
-├── install.bat                           One-click Windows installer
-├── export.bat                            Export built files from SimHub back to repo
+├── src/agents/                           MCP servers (Model Context Protocol)
+│   ├── simhub-telemetry/                 Telemetry data reader
+│   ├── k10-plugin/                       SimHub plugin source inspector
+│   ├── k10-broadcaster/                  Dashboard component inspector
+│   └── claude-mcp-config.json            MCP server configuration
+├── scripts/                              Installation + launch scripts
+│   ├── mac/                              macOS install, launch, rebuild
+│   └── windows/                          Windows install, start, export
 └── .github/workflows/                    CI pipelines
 ```
 
@@ -137,7 +138,7 @@ Full setup walkthrough with multi-light configuration, automation scripts, and t
 | [homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md](homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md)     | Platform architecture, color mapping, polling loop, per-light overrides                        |
 | [homebridge-plugin/docs/HOMEKIT.md](homebridge-plugin/docs/HOMEKIT.md)                         | Apple HomeKit setup instructions, light modes, multi-light configuration, troubleshooting      |
 | **Dashboard Overlay**                                                                          |                                                                                                |
-| [k10-media-broadcaster/K10 Media Broadcaster/README.md](k10-media-broadcaster/K10%20Media%20Broadcast/README.md) | Electron overlay setup, panel reference, architecture, ARM compatibility, OBS integration      |
+| [dashboard-overlay/README.md](dashboard-overlay/README.md)                                     | Electron overlay setup, panel reference, architecture, drive mode, Stream Deck, OBS integration |
 | **Shared**                                                                                     |                                                                                                |
 | [simhub-plugin/docs/DATASETS.md](simhub-plugin/docs/DATASETS.md)                               | Topic schema, trigger conditions, fragment format, sentiment reference, how to add new topics  |
 | [simhub-plugin/docs/TESTING.md](simhub-plugin/docs/TESTING.md)                                 | All four test suites, synthetic scenarios, CI integration, telemetry recording/replay          |
@@ -213,7 +214,7 @@ The composable fragment system (opener + body + closer) is directly inspired by 
 
 ### AI-Assisted Content
 
-Commentary fragments in `simhub-plugin/dataset/commentary_fragments.json` were generated using [Claude](https://claude.ai) (Anthropic's `claude-haiku-4-5` model) with the commentary topics, sentiment vocabulary, and channel style profiles as input. The generation is a one-time offline process — no AI API calls occur at runtime in the current version.
+Commentary fragments in `simhub-plugin/k10-media-broadcaster-data/commentary_fragments.json` were generated using [Claude](https://claude.ai) (Anthropic's `claude-haiku-4-5` model) with the commentary topics, sentiment vocabulary, and channel style profiles as input. The generation is a one-time offline process — no AI API calls occur at runtime in the current version.
 
 Plugin codebase, test suites, dataset structures, documentation, and Homebridge companion plugin built with [Claude Code](https://claude.ai/claude-code) (Anthropic's `claude-opus-4-6`).
 

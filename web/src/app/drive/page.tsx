@@ -17,7 +17,7 @@ export default function DrivePage() {
         and race history across all iRacing categories.
       </p>
       <a
-        href="/api/auth/discord"
+        href="/api/auth/signin/discord"
         className="relative z-10 px-8 py-3 rounded-lg bg-[#5865F2] text-white font-bold text-sm uppercase tracking-wider hover:brightness-110 transition flex items-center gap-2"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">

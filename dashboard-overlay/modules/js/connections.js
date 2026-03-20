@@ -289,6 +289,19 @@
     saveSettings();
   }
 
+  function toggleAmbientLight(el) {
+    const isOn = el.classList.contains('on');
+    const newVal = !isOn;
+    el.classList.toggle('on', newVal);
+    _settings.showAmbientLight = newVal;
+    if (newVal) {
+      if (typeof window.startAmbientLight === 'function') window.startAmbientLight();
+    } else {
+      if (typeof window.stopAmbientLight === 'function') window.stopAmbientLight();
+    }
+    saveSettings();
+  }
+
   function toggleBonkers(el) {
     const isOn = el.classList.contains('on');
     const newVal = !isOn;

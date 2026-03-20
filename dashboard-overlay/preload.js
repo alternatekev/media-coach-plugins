@@ -51,4 +51,10 @@ contextBridge.exposeInMainWorld('k10', {
   getRemoteServerInfo: () => ipcRenderer.invoke('get-remote-server-info'),
   startRemoteServer: (opts) => ipcRenderer.invoke('start-remote-server', opts),
   stopRemoteServer: () => ipcRenderer.invoke('stop-remote-server'),
+  // Ambient light screen capture
+  ambientStart: () => ipcRenderer.invoke('ambient-start'),
+  ambientStop:  () => ipcRenderer.invoke('ambient-stop'),
+  onAmbientColor: (callback) => {
+    ipcRenderer.on('ambient-color', (_event, color) => callback(color));
+  },
 });

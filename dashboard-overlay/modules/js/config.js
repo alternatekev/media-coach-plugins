@@ -464,7 +464,7 @@ const _defaultSettings = {
   showMaps: true, showPosition: true, showTacho: true, showCommentary: true,
   showK10Logo: true, showCarLogo: true, showGameLogo: true, simhubUrl: 'http://localhost:8889/k10mediabroadcaster/',
   layoutPosition: 'top-right', layoutFlow: 'ltr', verticalSwap: false,
-  greenScreen: false, showWebGL: true, showBonkers: true,
+  greenScreen: false, showWebGL: true, showBonkers: true, showAmbientLight: true,
   zoom: 165, forceFlag: '', showLeaderboard: true, showDatastream: true, showIncidents: true, showSpotter: true,
   incPenalty: 17, incDQ: 25, secLayout: 'row', secOffsetX: 0, secOffsetY: 0,
   secVOppose: true, secHOppose: true,

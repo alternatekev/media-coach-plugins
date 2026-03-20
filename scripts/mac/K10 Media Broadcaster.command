@@ -3,9 +3,9 @@
 #  K10 Media Broadcaster — Overlay Launcher (macOS)
 # ═══════════════════════════════════════════════
 
-# Navigate to app root (K10 Media Broadcaster/)
+# Navigate to the Electron app root (dashboard-overlay/)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-APP_DIR="$SCRIPT_DIR/../.."
+APP_DIR="$SCRIPT_DIR/../../dashboard-overlay"
 cd "$APP_DIR"
 
 echo "═══════════════════════════════════════════════"
@@ -18,6 +18,7 @@ echo "  Cmd+Shift+H   Toggle overlay visibility"
 echo "  Cmd+Shift+G   Toggle green-screen mode (restarts)"
 echo "  Cmd+Shift+R   Reset window position/size"
 echo "  Cmd+Shift+D   Restart demo sequence"
+echo "  Cmd+Shift+M   Reset track map"
 echo "  Cmd+Shift+Q   Quit overlay"
 echo ""
 

@@ -1,8 +1,8 @@
 @echo off
 title K10 Media Broadcaster
 
-:: Navigate to app root (K10 Media Broadcaster/)
-cd /d "%~dp0..\.."
+:: Navigate to the Electron app root (dashboard-overlay/)
+cd /d "%~dp0..\..\dashboard-overlay"
 
 echo ═══════════════════════════════════════════════
 echo  K10 Media Broadcaster — Starting Overlay

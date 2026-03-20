@@ -1,0 +1,80 @@
+/* ═══════════════════════════════════════════════════════════════
+   AMBIENT LIGHT — Screen-reactive glow layer
+   ═══════════════════════════════════════════════════════════════
+
+   Full-viewport WebGL canvas sits behind all panels.
+   The WebGL shader paints a radial glow from center, colored by
+   the live screen capture (desktopCapturer, 8 fps).
+
+   Each .panel also gets a subtle box-shadow driven by the same
+   color via --ambient-shadow-* CSS custom properties set from
+   ambient-light.js.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Full-viewport glow canvas ──
+   z-index: 0 (not -1!) because transparent Electron windows
+   clip negative z-index elements behind the window itself. */
+.ambient-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Dashboard content must layer above the ambient canvas */
+.dashboard {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Per-panel ambient reflection ──
+   ambient-light.js sets these as pre-composed rgba() strings
+   so we avoid the rgba(var(--r), var(--g), var(--b), a) pitfall. */
+:root {
+  --ambient-shadow:      0 0 0 transparent;
+  --ambient-shadow-lg:   0 0 0 transparent;
+  --ambient-shadow-tacho: 0 0 0 transparent;
+  --ambient-shadow-tacho-lg: 0 0 0 transparent;
+}
+
+.panel {
+  box-shadow: var(--ambient-shadow), var(--ambient-shadow-lg);
+  transition: box-shadow 300ms ease;
+}
+
+/* Stronger glow on the tacho block (larger surface, center of attention) */
+.tacho-block {
+  box-shadow: var(--ambient-shadow-tacho), var(--ambient-shadow-tacho-lg);
+}
+
+/* Commentary panel */
+.commentary-inner {
+  box-shadow: var(--ambient-shadow), var(--ambient-shadow-lg);
+  transition: box-shadow 300ms ease;
+}
+
+/* Leaderboard panel */
+.leaderboard-panel {
+  box-shadow: var(--ambient-shadow), var(--ambient-shadow-lg);
+  transition: box-shadow 300ms ease;
+}
+
+/* Datastream panel */
+.datastream-panel {
+  box-shadow: var(--ambient-shadow);
+  transition: box-shadow 300ms ease;
+}
+
+/* ── Green-screen mode: disable ambient (would key poorly) ── */
+body.opaque-mode .ambient-canvas {
+  display: none;
+}
+body.opaque-mode .panel,
+body.opaque-mode .tacho-block,
+body.opaque-mode .commentary-inner,
+body.opaque-mode .leaderboard-panel,
+body.opaque-mode .datastream-panel {
+  box-shadow: none !important;
+}

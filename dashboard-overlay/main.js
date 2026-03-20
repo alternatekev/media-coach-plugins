@@ -4,7 +4,7 @@
 // that renders the HTML dashboard over the sim
 // ═══════════════════════════════════════════════════════════════
 
-const { app, BrowserWindow, ipcMain, screen, globalShortcut, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, globalShortcut, shell, desktopCapturer } = require('electron');
 const path   = require('path');
 const fs     = require('fs');
 const os     = require('os');
@@ -772,3 +772,92 @@ ipcMain.handle('stop-remote-server', async () => {
   saveSettingsSync(settings);
   return { success: true };
 });
+
+// ═══════════════════════════════════════════════════════════════
+// AMBIENT LIGHT — Screen Color Capture
+// Captures a tiny thumbnail of the primary display at ~8 fps,
+// computes the average RGB from the center region, and sends
+// it to the renderer for the WebGL ambient glow effect.
+// ═══════════════════════════════════════════════════════════════
+
+let _ambientTimer = null;
+let _ambientEnabled = false;
+
+async function captureAmbientColor() {
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ['screen'],
+      thumbnailSize: { width: 24, height: 24 }
+    });
+
+    const primary = sources[0];
+    if (!primary) return null;
+
+    const thumbnail = primary.thumbnail;
+    const bitmap = thumbnail.toBitmap();
+    const size = thumbnail.getSize();
+    if (size.width === 0 || size.height === 0) return null;
+
+    // Sample center 60% of the thumbnail (avoids panel regions in corners)
+    let rSum = 0, gSum = 0, bSum = 0, count = 0;
+    const x0 = Math.floor(size.width  * 0.2);
+    const x1 = Math.ceil (size.width  * 0.8);
+    const y0 = Math.floor(size.height * 0.2);
+    const y1 = Math.ceil (size.height * 0.8);
+
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) {
+        // Electron toBitmap() returns BGRA on Windows, RGBA on macOS/Linux
+        const offset = (y * size.width + x) * 4;
+        if (process.platform === 'win32') {
+          bSum += bitmap[offset];
+          gSum += bitmap[offset + 1];
+          rSum += bitmap[offset + 2];
+        } else {
+          rSum += bitmap[offset];
+          gSum += bitmap[offset + 1];
+          bSum += bitmap[offset + 2];
+        }
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      return {
+        r: Math.round(rSum / count),
+        g: Math.round(gSum / count),
+        b: Math.round(bSum / count)
+      };
+    }
+  } catch (e) {
+    // Silent — screen capture can fail briefly when display changes
+  }
+  return null;
+}
+
+function startAmbientCapture() {
+  if (_ambientTimer) return;
+  _ambientEnabled = true;
+  logToFile('[K10] Ambient light capture started (8 fps, 24×24 thumbnails)');
+
+  _ambientTimer = setInterval(async () => {
+    if (!overlayWindow || overlayWindow.isDestroyed() || !_ambientEnabled) return;
+    const color = await captureAmbientColor();
+    if (color) {
+      overlayWindow.webContents.send('ambient-color', color);
+    }
+  }, 125); // ~8 fps
+}
+
+function stopAmbientCapture() {
+  _ambientEnabled = false;
+  if (_ambientTimer) {
+    clearInterval(_ambientTimer);
+    _ambientTimer = null;
+    logToFile('[K10] Ambient light capture stopped');
+  }
+}
+
+// IPC: renderer can toggle ambient capture on/off
+ipcMain.handle('ambient-start', async () => { startAmbientCapture(); });
+ipcMain.handle('ambient-stop',  async () => { stopAmbientCapture();  });

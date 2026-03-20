@@ -43,6 +43,13 @@
       c.style.display = webglOn ? '' : 'none';
     });
 
+    // Ambient light toggle — start/stop screen capture + glow
+    if (_settings.showAmbientLight !== false) {
+      if (typeof window.startAmbientLight === 'function') window.startAmbientLight();
+    } else {
+      if (typeof window.stopAmbientLight === 'function') window.stopAmbientLight();
+    }
+
     // Bonkers pit limiter toggle
     document.body.classList.toggle('bonkers-off', _settings.showBonkers === false);
 

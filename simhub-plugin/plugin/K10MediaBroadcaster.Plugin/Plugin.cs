@@ -890,6 +890,48 @@ namespace K10MediaBroadcaster.Plugin
                     Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcABS", s.AbsSetting, ic);
                     Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcAntiRollFront", s.ArbFront, ic);
                     Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcAntiRollRear", s.ArbRear, ic);
+                    // Additional car adjustments
+                    Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcEnginePower", s.EnginePower, ic);
+                    Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcFuelMixture", s.FuelMixture, ic);
+                    Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcWeightJackerLeft", s.WeightJackerLeft, ic);
+                    Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcWeightJackerRight", s.WeightJackerRight, ic);
+                    Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcWingFront", s.WingFront, ic);
+                    Jp(sb, "DataCorePlugin.GameRawData.Telemetry.dcWingRear", s.WingRear, ic);
+                    // Pit stop selections
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PitSvFlags", s.PitSvFlags);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PitSvFuel", s.PitSvFuel, ic);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PitSvLFP", s.PitSvLFP, ic);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PitSvRFP", s.PitSvRFP, ic);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PitSvLRP", s.PitSvLRP, ic);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PitSvRRP", s.PitSvRRP, ic);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.TireCompound", s.PitSvTireCompound);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.FastRepair", s.PitSvFastRepair);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.Windshield", s.PitSvWindshieldTearoff);
+                    // Pit box computed display strings
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.TireLF", s.PitTireLF ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.TireRF", s.PitTireRF ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.TireLR", s.PitTireLR ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.TireRR", s.PitTireRR ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.TiresRequested", s.PitTiresRequested ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.FuelRequested", s.PitFuelRequested ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.FastRepairRequested", s.PitFastRepairRequested ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.WindshieldRequested", s.PitWindshieldRequested ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.FuelDisplay", Escape(s.PitFuelDisplay));
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PressureLF", Escape(s.PitPressureLFDisplay));
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PressureRF", Escape(s.PitPressureRFDisplay));
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PressureLR", Escape(s.PitPressureLRDisplay));
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.PressureRR", Escape(s.PitPressureRRDisplay));
+                    // Car-specific adjustment availability
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasTC", s.HasTC ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasABS", s.HasABS ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasARBFront", s.HasARBFront ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasARBRear", s.HasARBRear ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasEnginePower", s.HasEnginePower ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasFuelMixture", s.HasFuelMixture ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasWeightJackerL", s.HasWeightJackerL ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasWeightJackerR", s.HasWeightJackerR ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasWingFront", s.HasWingFront ? 1 : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.PitBox.HasWingRear", s.HasWingRear ? 1 : 0);
                     Jp(sb, "DataCorePlugin.GameData.Position", s.Position);
                     Jp(sb, "DataCorePlugin.GameData.CurrentLap", s.CurrentLap);
                     Jp(sb, "DataCorePlugin.GameData.BestLapTime", s.LapBestTime, ic);

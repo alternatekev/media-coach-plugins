@@ -4,6 +4,8 @@
     --corner-r: 8px;
     --corner-r-sm: 5px;
     --gap: 4px;
+    --panel-gap: 6px;           /* gap between adjacent secondary panels */
+    --edge: 10px;               /* universal inset from screen edges */
     --pad: 6px;
 
     --dash-h: 200px;
@@ -133,6 +135,7 @@
   body.drive-mode-active #dashboard,
   body.drive-mode-active .leaderboard-panel,
   body.drive-mode-active .datastream-panel,
+  body.drive-mode-active .pitbox-panel,
   body.drive-mode-active .incidents-panel,
   body.drive-mode-active .spotter-panel,
   body.drive-mode-active .commentary-col,
@@ -355,26 +358,64 @@
 
   .dashboard {
     position: fixed;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: var(--row-h) var(--row-h) auto;
+    display: flex;
+    flex-direction: column;
     gap: var(--gap);
     transition: all var(--t-slow);
+    z-index: 55;
+    pointer-events: none;
+  }
+  /* Bottom layouts: timer on top, main HUD hugs bottom screen edge */
+  .dashboard.layout-br,
+  .dashboard.layout-bl {
+    flex-direction: column-reverse;
   }
   .main-row {
-    grid-column: 1;
-    grid-row: 1 / 3;
     display: flex;
     gap: var(--gap);
     height: var(--dash-h);
     align-items: stretch;
+    flex-shrink: 0;
   }
   .timer-row {
-    grid-column: 1;
-    grid-row: 3;
+    flex-shrink: 0;
   }
+
+  /* ── COMMENTARY — independent fixed overlay ──
+     Diagonally opposite the main HUD.
+     Variable height content, so no max-height transition (that clips).
+     Fade + slide in from BOTH of its nearest edges. */
   .commentary-col {
-    grid-column: 2;
-    grid-row: 1 / 3;
+    position: fixed;
+    z-index: 56;
+    pointer-events: none;
+    width: 280px;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .commentary-col.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(0, 0);
+  }
+  /* Bottom-left: slides in from left and below */
+  .commentary-col.cmt-bl {
+    bottom: calc(var(--edge-z, var(--edge)) + 100px); left: calc(var(--edge-z, var(--edge)) + 50px);
+    transform: translate(-20px, 12px);
+  }
+  /* Bottom-right: slides in from right and below */
+  .commentary-col.cmt-br {
+    bottom: calc(var(--edge-z, var(--edge)) + 100px); right: calc(var(--edge-z, var(--edge)) + 50px);
+    transform: translate(20px, 12px);
+  }
+  /* Top-left: slides in from left and above */
+  .commentary-col.cmt-tl {
+    top: calc(var(--edge-z, var(--edge)) + 100px); left: calc(var(--edge-z, var(--edge)) + 50px);
+    transform: translate(-20px, -12px);
+  }
+  /* Top-right: slides in from right and above */
+  .commentary-col.cmt-tr {
+    top: calc(var(--edge-z, var(--edge)) + 100px); right: calc(var(--edge-z, var(--edge)) + 50px);
+    transform: translate(20px, -12px);
   }
 

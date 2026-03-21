@@ -274,6 +274,9 @@
 
     _collapseParentColumns();
 
+    // Re-run layout so dynamically positioned panels (pitbox) reflow
+    applyLayout();
+
     saveSettings();
   }
 
@@ -351,152 +354,121 @@
 
   // ─── Layout management ───
 
+  /* ── Layout Position Map ──
+     5 positions: 4 user-selectable corners + 1 programmatic (absolute-center).
+     All behavior is deterministic from the position:
+       Right → RTL flow        Left → LTR flow
+       Bottom → column-reverse + vswap (automatic)
+       Absolute-center → pre-race/podium, ~500px from top */
   const _layoutPositionMap = {
     'top-right': 'layout-tr', 'top-left': 'layout-tl',
     'bottom-right': 'layout-br', 'bottom-left': 'layout-bl',
-    'top-center': 'layout-tc', 'bottom-center': 'layout-bc'
+    'absolute-center': 'layout-ac'
   };
-
-  function _resolveFlow(pos, explicitFlow) {
-    // For corner positions, flow is determined by which side
-    if (pos.includes('right')) return 'rtl';
-    if (pos.includes('left')) return 'ltr';
-    // For center positions, user picks
-    return explicitFlow || 'ltr';
-  }
+  const _allLayoutClasses = Object.values(_layoutPositionMap);
 
   function applyLayout() {
     const dash = document.getElementById('dashboard');
     const pos = _settings.layoutPosition || 'top-right';
-    const flow = _resolveFlow(pos, _settings.layoutFlow);
-    const vswap = _settings.verticalSwap || false;
 
-    // Clear all layout classes
-    Object.values(_layoutPositionMap).forEach(c => dash.classList.remove(c));
-    dash.classList.remove('flow-ltr', 'flow-rtl', 'vswap');
+    // ── 1. Dashboard position ──
+    _allLayoutClasses.forEach(c => dash.classList.remove(c));
+    dash.classList.add(_layoutPositionMap[pos] || 'layout-tr');
 
-    // Apply position
-    const layoutClass = _layoutPositionMap[pos] || 'layout-tr';
-    dash.classList.add(layoutClass);
+    // Derived properties — deterministic from corner choice
+    const isBottom = pos.includes('bottom');
+    const isRight  = pos.includes('right');
+    const isLeft   = pos.includes('left');
+    const isCenter = (pos === 'absolute-center');
 
-    // Apply flow
-    dash.classList.add('flow-' + flow);
-
-    // Apply vertical swap
-    if (vswap) dash.classList.add('vswap');
-
-    // Sync settings UI controls
-    const posSelect = document.getElementById('settingsPosition');
-    if (posSelect) posSelect.value = pos;
-
-    const flowSelect = document.getElementById('settingsFlow');
-    if (flowSelect) flowSelect.value = _settings.layoutFlow || 'ltr';
-
-    const flowRow = document.getElementById('flowDirectionRow');
-    if (flowRow) flowRow.style.display = pos.includes('center') ? '' : 'none';
-
-    const vswapToggle = document.getElementById('vswapToggle');
-    if (vswapToggle) vswapToggle.classList.toggle('on', vswap);
-
-    // Secondary panels: oppose or same edge as dashboard (vertical + horizontal independently)
-    const secVOppose = _settings.secVOppose !== false; // default true
-    const secHOppose = _settings.secHOppose !== false; // default true
-    const dashIsBottom = pos.includes('bottom');
-    const dashIsRight = pos.includes('right');
-    const dashIsLeft = pos.includes('left');
-    const dashIsCenter = pos.includes('center');
-    const secVert = secVOppose ? (dashIsBottom ? 'top' : 'bottom') : (dashIsBottom ? 'bottom' : 'top');
-
-    // Horizontal: oppose flips side, same keeps it
-    let secHoriz;
-    if (dashIsCenter) secHoriz = 'center';
-    else if (secHOppose) secHoriz = dashIsRight ? 'left' : 'right';
-    else secHoriz = dashIsRight ? 'right' : 'left';
-
-    // DS horizontal class names differ for center layout
-    let dsHoriz = secHoriz;
-    if (dashIsCenter) { dsHoriz = 'center-left'; }
-
-    // Incidents panel: opposite horizontal from dashboard, same vertical as dashboard
-    const dashVert = dashIsBottom ? 'bottom' : 'top';
-    let incHoriz = dashIsCenter ? 'center-left' : (dashIsRight ? 'left' : 'right');
-    const incVert = dashVert;
-
-    // Sync toggle UIs
-    const secVToggle = document.getElementById('secVOpposeToggle');
-    if (secVToggle) secVToggle.classList.toggle('on', secVOppose);
-    const secHToggle = document.getElementById('secHOpposeToggle');
-    if (secHToggle) secHToggle.classList.toggle('on', secHOppose);
-
-    // When on the same side as the dashboard (not opposed), we need to push
-    // the secondary panels vertically past the dashboard so they don't overlap.
-    // dash-h (200) + timer row (~30px) + gap (10px) = ~240px clearance
-    const sameSideVOffset = (!secHOppose && !dashIsCenter) ? 250 : 0;
-
-    // Position leaderboard
-    const lb = document.getElementById('leaderboardPanel');
-    if (lb) {
-      lb.classList.remove('lb-top', 'lb-bottom', 'lb-left', 'lb-right', 'lb-center');
-      lb.classList.add('lb-' + secVert);
-      lb.classList.add('lb-' + secHoriz);
-      // Apply same-side vertical offset
-      if (sameSideVOffset && secVert === 'top') lb.style.marginTop = sameSideVOffset + 'px';
-      else if (sameSideVOffset && secVert === 'bottom') lb.style.marginBottom = sameSideVOffset + 'px';
-      else { lb.style.marginTop = ''; lb.style.marginBottom = ''; }
-    }
-
-    // Position datastream adjacent to leaderboard
-    const ds = document.getElementById('datastreamPanel');
-    if (ds) {
-      ds.classList.remove('ds-top', 'ds-bottom', 'ds-left', 'ds-right', 'ds-center-left', 'ds-center-right');
-      ds.classList.add('ds-' + secVert);
-      ds.classList.add('ds-' + dsHoriz);
-      ds.style.left = ''; ds.style.right = '';
-      if (sameSideVOffset && secVert === 'top') ds.style.marginTop = sameSideVOffset + 'px';
-      else if (sameSideVOffset && secVert === 'bottom') ds.style.marginBottom = sameSideVOffset + 'px';
-      else { ds.style.marginTop = ''; ds.style.marginBottom = ''; }
-      // In center mode, compute position from leaderboard's actual edge
-      if (dashIsCenter && lb) {
-        requestAnimationFrame(function() {
-          const lbRect = lb.getBoundingClientRect();
-          const gap = 4;
-          ds.style.left = (lbRect.right + gap) + 'px';
-        });
+    // ── 2. Commentary: diagonally opposite corner ──
+    const cmtCol = document.getElementById('commentaryCol');
+    if (cmtCol) {
+      cmtCol.classList.remove('cmt-tl', 'cmt-tr', 'cmt-bl', 'cmt-br');
+      if (!isCenter) {
+        const cmtV = isBottom ? 't' : 'b';
+        const cmtH = isRight  ? 'l' : 'r';
+        cmtCol.classList.add('cmt-' + cmtV + cmtH);
+      } else {
+        // Absolute-center: commentary goes bottom-left
+        cmtCol.classList.add('cmt-bl');
       }
     }
 
-    // Position incidents panel: opposite horizontal from dashboard, same vertical edge
+    // ── 3. Sync settings dropdown ──
+    const posSelect = document.getElementById('settingsPosition');
+    if (posSelect && posSelect.value !== pos) posSelect.value = pos;
+
+    // ── 4. Secondary panels (leaderboard, datastream, pitbox) ──
+    // Opposite vertical edge, same horizontal edge as main HUD.
+    // Two rows: main HUD + incidents on one edge, sec panels + commentary on the other.
+    const secVert  = isCenter ? 'bottom' : (isBottom ? 'top'    : 'bottom');
+    const secHoriz = isCenter ? 'right'  : (isRight  ? 'right'  : 'left');
+
+    const sec = document.getElementById('secContainer');
+    if (sec) {
+      sec.classList.remove('sec-top', 'sec-bottom', 'sec-left', 'sec-right');
+      sec.classList.add('sec-' + secVert);
+      sec.classList.add('sec-' + secHoriz);
+      sec.style.marginTop = '';
+      sec.style.marginBottom = '';
+    }
+
+    // Individual panel class bookkeeping (for CSS styling hooks)
+    const lb = document.getElementById('leaderboardPanel');
+    if (lb) {
+      lb.classList.remove('lb-top', 'lb-bottom', 'lb-left', 'lb-right');
+      lb.classList.add('lb-' + secVert, 'lb-' + secHoriz);
+    }
+    const ds = document.getElementById('datastreamPanel');
+    if (ds) {
+      ds.classList.remove('ds-top', 'ds-bottom', 'ds-left', 'ds-right');
+      ds.classList.add('ds-' + secVert, 'ds-' + secHoriz);
+    }
+    const pb = document.getElementById('pitBoxPanel');
+    if (pb) {
+      pb.classList.remove('pb-top', 'pb-bottom', 'pb-left', 'pb-right');
+      pb.classList.add('pb-' + secVert, 'pb-' + secHoriz);
+    }
+
+    // ── 5. Incidents: same vertical edge, opposite horizontal edge ──
+    const incVert  = isCenter ? 'bottom' : (isBottom ? 'bottom' : 'top');
+    const incHoriz = isCenter ? 'left'   : (isRight  ? 'left'   : 'right');
+
     const inc = document.getElementById('incidentsPanel');
     if (inc) {
-      inc.classList.remove('inc-top', 'inc-bottom', 'inc-left', 'inc-right', 'inc-center-left', 'inc-center-right');
+      inc.classList.remove('inc-top', 'inc-bottom', 'inc-left', 'inc-right');
       inc.classList.add('inc-' + incVert);
       inc.classList.add('inc-' + incHoriz);
       inc.style.marginTop = '';
       inc.style.marginBottom = '';
     }
 
-    // Position spotter horizontally next to incidents panel (same vertical edge, offset by incidents width + gap)
+    // ── 6. Spotter: next to incidents, same vertical edge ──
     const sp = document.getElementById('spotterPanel');
     if (sp) {
-      sp.classList.remove('sp-top', 'sp-bottom', 'sp-left', 'sp-right');
+      sp.classList.remove('sp-top', 'sp-bottom');
       sp.classList.add('sp-' + incVert);
-      // Place spotter to the inboard side of incidents (toward screen center)
-      const gap = 4; // matches --gap
-      if (inc) {
-        const incW = inc.offsetWidth || 0;
-        if (incHoriz === 'left' || incHoriz === 'center-left') {
-          // Incidents on left edge → spotter to its right
-          sp.style.left = (10 + incW + gap) + 'px';
-          sp.style.right = '';
-        } else {
-          // Incidents on right edge → spotter to its left
-          sp.style.right = (10 + incW + gap) + 'px';
-          sp.style.left = '';
-        }
-      }
       sp.style.marginTop = '';
       sp.style.marginBottom = '';
     }
+
+    // ── 7. Deferred layout (needs rendered widths) ──
+    requestAnimationFrame(function() {
+      if (sp && inc) {
+        const edgeZ = getComputedStyle(document.documentElement).getPropertyValue('--edge-z');
+        const edge  = parseInt(edgeZ) || parseInt(getComputedStyle(document.documentElement).getPropertyValue('--edge')) || 10;
+        const gap   = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--panel-gap')) || 6;
+        const incW = inc.offsetWidth || 0;
+        if (incHoriz === 'left') {
+          sp.style.left  = (edge + incW + gap) + 'px';
+          sp.style.right = '';
+        } else {
+          sp.style.right = (edge + incW + gap) + 'px';
+          sp.style.left  = '';
+        }
+      }
+    });
   }
 
   function updateLayoutPosition(value) {
@@ -505,72 +477,8 @@
     saveSettings();
   }
 
-  function updateLayoutFlow(value) {
-    _settings.layoutFlow = value;
-    applyLayout();
-    saveSettings();
-  }
-
-  function toggleVerticalSwap(el) {
-    _settings.verticalSwap = !_settings.verticalSwap;
-    el.classList.toggle('on', _settings.verticalSwap);
-    applyLayout();
-    saveSettings();
-  }
-
-  function toggleSecVOppose(el) {
-    _settings.secVOppose = !_settings.secVOppose;
-    el.classList.toggle('on', _settings.secVOppose);
-    applyLayout();
-    saveSettings();
-  }
-
-  function toggleSecHOppose(el) {
-    _settings.secHOppose = !_settings.secHOppose;
-    el.classList.toggle('on', _settings.secHOppose);
-    applyLayout();
-    saveSettings();
-  }
-
-  function updateSecLayout(value) {
-    _settings.secLayout = value;
-    applySecLayout();
-    saveSettings();
-  }
-
-  function updateSecOffset(axis, val) {
-    val = Math.max(-800, Math.min(800, +val));
-    if (axis === 'x') {
-      _settings.secOffsetX = val;
-      document.getElementById('secOffsetXVal').textContent = val + 'px';
-    } else {
-      _settings.secOffsetY = val;
-      document.getElementById('secOffsetYVal').textContent = val + 'px';
-    }
-    applySecOffset();
-    saveSettings();
-  }
-
-  function applySecLayout() {
-    const mode = _settings.secLayout || 'stack';
-    document.body.classList.remove('sec-stack', 'sec-row', 'sec-compact', 'sec-minimal');
-    document.body.classList.add('sec-' + mode);
-  }
-
-  function applySecOffset() {
-    const ox = (_settings.secOffsetX || 0) + 'px';
-    const oy = (_settings.secOffsetY || 0) + 'px';
-    const panels = document.querySelectorAll('.leaderboard-panel, .datastream-panel');
-    panels.forEach(p => {
-      p.style.setProperty('--sec-offset-x', ox);
-      p.style.setProperty('--sec-offset-y', oy);
-    });
-    if (_settings.secOffsetX || _settings.secOffsetY) {
-      document.body.setAttribute('data-sec-offset', '1');
-    } else {
-      document.body.removeAttribute('data-sec-offset');
-    }
-  }
+  // Layout helper functions removed — all behavior is now deterministic
+  // from the 4-corner position choice. No flow/vswap/oppose/offset toggles needed.
 
   function previewZoom(val) {
     // Live preview: apply zoom to all modules while dragging, but NOT the settings panel
@@ -588,17 +496,29 @@
   function applyZoom(val, skipSettings) {
     const scale = (val || 100) / 100;
     document.documentElement.style.setProperty('--dash-zoom', scale);
+
+    // Scale --edge so zoomed fixed elements keep consistent visual margins.
+    // At zoom 1.65, a 10px edge in CSS gives only ~6px visual gap.
+    // Compensate: --edge-z = base-edge / zoom (so CSS 6px * 1.65 zoom = 10px visual).
+    const baseEdge = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--edge')) || 10;
+    document.documentElement.style.setProperty('--edge-z', (baseEdge / scale) + 'px');
+
+    // Zoomed fixed elements: dashboard, incidents, spotter, commentary, race control
     document.getElementById('dashboard').style.zoom = scale;
-    const lb = document.getElementById('leaderboardPanel');
-    if (lb) lb.style.zoom = scale;
-    const ds = document.getElementById('datastreamPanel');
-    if (ds) ds.style.zoom = scale;
     const inc = document.getElementById('incidentsPanel');
     if (inc) inc.style.zoom = scale;
-    const rc = document.getElementById('rcBanner');
-    if (rc) rc.style.zoom = scale;
     const sp = document.getElementById('spotterPanel');
     if (sp) sp.style.zoom = scale;
+    const cmtCol = document.getElementById('commentaryCol');
+    if (cmtCol) cmtCol.style.zoom = scale;
+    const rc = document.getElementById('rcBanner');
+    if (rc) rc.style.zoom = scale;
+
+    // Secondary container: zoom the container, not individual panels.
+    // Container is position:fixed — its --edge offset needs compensating too.
+    const sec = document.getElementById('secContainer');
+    if (sec) sec.style.zoom = scale;
+
     // Scale the settings panel itself on release (not during drag)
     if (!skipSettings) {
       const settingsOverlay = document.getElementById('settingsOverlay');

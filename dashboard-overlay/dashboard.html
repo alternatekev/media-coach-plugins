@@ -51,6 +51,7 @@
 <link rel="stylesheet" href="modules/styles/connections.css">
 <link rel="stylesheet" href="modules/styles/rally.css">
 <link rel="stylesheet" href="modules/styles/ambient.css">
+<link rel="stylesheet" href="modules/styles/pitbox.css">
 <!-- drive-mode.css removed — iPad drive mode no longer active -->
 
 </head>
@@ -109,7 +110,7 @@
 </div>
 
 <!-- COMPONENT: Main Dashboard -->
-<div class="dashboard layout-tr flow-rtl" id="dashboard">
+<div class="dashboard layout-tr" id="dashboard">
 
   <div class="main-row">
   <div class="main-area">
@@ -356,27 +357,27 @@
     </div>
   </div>
 
-  <!-- COMMENTARY — spans both rows, hidden by default -->
-  <div class="commentary-col" id="commentaryCol" style="--commentary-h: 0;">
-    <div class="commentary-inner" id="commentaryInner">
-      <div class="commentary-icon" id="commentaryIcon"></div>
-      <div class="commentary-title" id="commentaryTitle"></div>
-      <div class="commentary-text-scroll" id="commentaryScroll">
-        <div class="commentary-text" id="commentaryText"></div>
-      </div>
-      <canvas class="commentary-gl-canvas" id="commentaryGlCanvas"></canvas>
-      <div class="commentary-viz" id="commentaryViz">
-        <canvas id="commentaryVizCanvas"></canvas>
-        <div class="commentary-viz-value" id="commentaryVizValue"></div>
-        <div class="commentary-viz-label" id="commentaryVizLabel"></div>
-      </div>
-      <div class="commentary-meta" id="commentaryMeta"></div>
-    </div>
-  </div>
-
   <div class="conn-status connecting" id="connStatus" title="Connecting to plugin server..."></div>
 
 </div><!-- /dashboard -->
+
+<!-- COMMENTARY — independent fixed overlay, positioned in the open corner opposite the HUD -->
+<div class="commentary-col" id="commentaryCol" style="--commentary-h: 0;">
+  <canvas class="commentary-gl-canvas" id="commentaryGlCanvas"></canvas>
+  <div class="commentary-inner" id="commentaryInner">
+    <div class="commentary-icon" id="commentaryIcon"></div>
+    <div class="commentary-title" id="commentaryTitle"></div>
+    <div class="commentary-text-scroll" id="commentaryScroll">
+      <div class="commentary-text" id="commentaryText"></div>
+    </div>
+    <div class="commentary-viz" id="commentaryViz">
+      <canvas id="commentaryVizCanvas"></canvas>
+      <div class="commentary-viz-value" id="commentaryVizValue"></div>
+      <div class="commentary-viz-label" id="commentaryVizLabel"></div>
+    </div>
+    <div class="commentary-meta" id="commentaryMeta"></div>
+  </div>
+</div>
 
 <!-- COMPONENT: Connection Setup Banner (shown when plugin server unreachable) -->
 <div class="conn-banner" id="connBanner">
@@ -389,6 +390,9 @@
     <button class="conn-skip" onclick="dismissConnBanner()">Dismiss</button>
   </div>
 </div>
+
+<!-- SECONDARY PANELS CONTAINER — flex row, positioned by applyLayout() -->
+<div class="sec-container" id="secContainer">
 
 <!-- COMPONENT: Leaderboard Panel -->
 <div class="leaderboard-panel lb-bottom lb-right" id="leaderboardPanel">
@@ -466,6 +470,96 @@
 
   </div>
 </div>
+
+<!-- COMPONENT: Pit Box Panel (iRacing pit stop selections) -->
+<div class="pitbox-panel pb-bottom pb-left" id="pitBoxPanel">
+  <div class="pb-inner">
+
+    <div class="pb-no-data" id="pbNoData" style="display:none;">iRacing only</div>
+
+    <div id="pbContent">
+      <!-- Tab bar -->
+      <div class="pb-tabs">
+        <div class="pb-tab active" data-pb-tab="pit" onclick="switchPitBoxTab('pit')">Pit Stop</div>
+        <div class="pb-tab" data-pb-tab="setup" onclick="switchPitBoxTab('setup')">Car Setup</div>
+      </div>
+
+      <!-- TAB: Pit Stop -->
+      <div class="pb-tab-content active" id="pbTabPit">
+        <!-- Fuel -->
+        <div class="pb-section">
+          <div class="pb-section-label">Fuel</div>
+          <div class="pb-row">
+            <span class="pb-label">Add</span>
+            <span class="pb-value inactive" id="pbFuelVal">—</span>
+          </div>
+        </div>
+
+        <!-- Tires -->
+        <div class="pb-section">
+          <div class="pb-section-label">Tires</div>
+          <div class="pb-tire-grid">
+            <div class="pb-tire-cell">
+              <span class="pb-tire-pos">LF</span>
+              <span class="pb-tire-status keeping" id="pbTireLF">KEEP</span>
+              <span class="pb-tire-pressure" id="pbPressLF">—</span>
+            </div>
+            <div class="pb-tire-cell">
+              <span class="pb-tire-pos">RF</span>
+              <span class="pb-tire-status keeping" id="pbTireRF">KEEP</span>
+              <span class="pb-tire-pressure" id="pbPressRF">—</span>
+            </div>
+            <div class="pb-tire-cell">
+              <span class="pb-tire-pos">LR</span>
+              <span class="pb-tire-status keeping" id="pbTireLR">KEEP</span>
+              <span class="pb-tire-pressure" id="pbPressLR">—</span>
+            </div>
+            <div class="pb-tire-cell">
+              <span class="pb-tire-pos">RR</span>
+              <span class="pb-tire-status keeping" id="pbTireRR">KEEP</span>
+              <span class="pb-tire-pressure" id="pbPressRR">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="pb-section">
+          <div class="pb-section-label">Services</div>
+          <div class="pb-row">
+            <span class="pb-label">Fast Repair</span>
+            <span class="pb-value off" id="pbFastRepair">NO</span>
+          </div>
+          <div class="pb-row">
+            <span class="pb-label">Tearoff</span>
+            <span class="pb-value off" id="pbWindshield">NO</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Car Setup -->
+      <div class="pb-tab-content" id="pbTabSetup">
+        <div class="pb-section">
+          <div class="pb-adj-grid" id="pbAdjGrid">
+            <div class="pb-adj-item" id="pbRowBB"><span class="pb-adj-label">BB</span><span class="pb-adj-val zero" id="pbAdjBB">—</span></div>
+            <div class="pb-adj-item" id="pbRowTC"><span class="pb-adj-label">TC</span><span class="pb-adj-val zero" id="pbAdjTC">—</span></div>
+            <div class="pb-adj-item" id="pbRowABS"><span class="pb-adj-label">ABS</span><span class="pb-adj-val zero" id="pbAdjABS">—</span></div>
+            <div class="pb-adj-item" id="pbRowARBF"><span class="pb-adj-label">ARB F</span><span class="pb-adj-val zero" id="pbAdjARBF">—</span></div>
+            <div class="pb-adj-item" id="pbRowARBR"><span class="pb-adj-label">ARB R</span><span class="pb-adj-val zero" id="pbAdjARBR">—</span></div>
+            <div class="pb-adj-item" id="pbRowEng"><span class="pb-adj-label">ENG</span><span class="pb-adj-val zero" id="pbAdjEng">—</span></div>
+            <div class="pb-adj-item" id="pbRowFuel"><span class="pb-adj-label">FUEL MIX</span><span class="pb-adj-val zero" id="pbAdjFuel">—</span></div>
+            <div class="pb-adj-item" id="pbRowWJL"><span class="pb-adj-label">WJ L</span><span class="pb-adj-val zero" id="pbAdjWJL">—</span></div>
+            <div class="pb-adj-item" id="pbRowWJR"><span class="pb-adj-label">WJ R</span><span class="pb-adj-val zero" id="pbAdjWJR">—</span></div>
+            <div class="pb-adj-item" id="pbRowWingF"><span class="pb-adj-label">WING F</span><span class="pb-adj-val zero" id="pbAdjWingF">—</span></div>
+            <div class="pb-adj-item" id="pbRowWingR"><span class="pb-adj-label">WING R</span><span class="pb-adj-val zero" id="pbAdjWingR">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /sec-container -->
 
 <!-- COMPONENT: Incidents Panel (incident counter) -->
 <div class="incidents-panel inc-bottom inc-right" id="incidentsPanel">
@@ -707,6 +801,9 @@
       </div>
       <div class="settings-row settings-sub"><span class="settings-label">Expand to Fill</span><div class="settings-toggle" id="lbExpandToggle" onclick="toggleLbExpand(this)"></div></div>
 
+      <div class="settings-group-label">Pit Box</div>
+      <div class="settings-row"><span class="settings-label">Show</span><div class="settings-toggle on" data-section="pitBoxPanel" data-key="showPitBox" onclick="toggleSetting(this)"></div></div>
+
       <div class="settings-group-label">Datastream</div>
       <div class="settings-row"><span class="settings-label">Show</span><div class="settings-toggle on" data-section="datastreamPanel" data-key="showDatastream" onclick="toggleSetting(this)"></div></div>
       <div class="settings-row settings-sub"><span class="settings-label">G-Force</span><div class="settings-toggle on" data-key="dsShowGforce" onclick="toggleDsSetting(this)"></div></div>
@@ -736,7 +833,7 @@
     <div class="settings-tab-content" id="settingsTabLayout">
       <div class="settings-two-col">
 
-      <div class="settings-group-label">Main HUD</div>
+      <div class="settings-group-label">Layout</div>
       <div class="settings-row">
         <span class="settings-label">Position</span>
         <select class="settings-select" id="settingsPosition" onchange="updateLayoutPosition(this.value)">
@@ -744,58 +841,13 @@
           <option value="top-left">Top Left</option>
           <option value="bottom-right">Bottom Right</option>
           <option value="bottom-left">Bottom Left</option>
-          <option value="top-center">Top Center</option>
-          <option value="bottom-center">Bottom Center</option>
         </select>
-      </div>
-      <div class="settings-row" id="flowDirectionRow" style="display:none;">
-        <span class="settings-label">Flow Direction</span>
-        <select class="settings-select" id="settingsFlow" onchange="updateLayoutFlow(this.value)">
-          <option value="ltr">Left to Right</option>
-          <option value="rtl">Right to Left</option>
-        </select>
-      </div>
-      <div class="settings-row">
-        <span class="settings-label">Swap Vertical</span>
-        <div class="settings-toggle" id="vswapToggle" data-key="verticalSwap" onclick="toggleVerticalSwap(this)"></div>
       </div>
       <div class="settings-row">
         <span class="settings-label">Zoom</span>
         <div class="settings-range-row">
           <input class="settings-range" id="settingsZoom" type="range" min="100" max="200" step="5" value="165" oninput="previewZoom(this.value)" onchange="updateZoom(this.value)"/>
           <span class="settings-range-val" id="zoomVal">165%</span>
-        </div>
-      </div>
-
-      <div class="settings-group-label">Secondary Panels</div>
-      <div class="settings-row">
-        <span class="settings-label">Oppose Vertical</span>
-        <div class="settings-toggle on" id="secVOpposeToggle" data-key="secVOppose" onclick="toggleSecVOppose(this)"></div>
-      </div>
-      <div class="settings-row">
-        <span class="settings-label">Oppose Horizontal</span>
-        <div class="settings-toggle on" id="secHOpposeToggle" data-key="secHOppose" onclick="toggleSecHOppose(this)"></div>
-      </div>
-      <div class="settings-row">
-        <span class="settings-label">Panel Style</span>
-        <select class="settings-select" id="settingsSecLayout" onchange="updateSecLayout(this.value)">
-          <option value="stack">Stack</option>
-          <option value="compact">Compact</option>
-          <option value="minimal">Minimal</option>
-        </select>
-      </div>
-      <div class="settings-row">
-        <span class="settings-label">Offset X</span>
-        <div class="settings-range-row">
-          <input class="settings-range" id="settingsSecOffsetX" type="range" min="-800" max="800" step="10" value="0" oninput="updateSecOffset('x', this.value)"/>
-          <span class="settings-range-val" id="secOffsetXVal">0px</span>
-        </div>
-      </div>
-      <div class="settings-row">
-        <span class="settings-label">Offset Y</span>
-        <div class="settings-range-row">
-          <input class="settings-range" id="settingsSecOffsetY" type="range" min="-800" max="800" step="10" value="0" oninput="updateSecOffset('y', this.value)"/>
-          <span class="settings-range-val" id="secOffsetYVal">0px</span>
         </div>
       </div>
 
@@ -1030,6 +1082,7 @@
 <script src="modules/js/connections.js"></script>
 <script src="modules/js/leaderboard.js"></script>
 <script src="modules/js/datastream.js"></script>
+<script src="modules/js/pitbox.js"></script>
 <script src="modules/js/race-control.js"></script>
 <script src="modules/js/race-timeline.js"></script>
 <script src="modules/js/incidents.js"></script>

@@ -1,109 +1,96 @@
   /* ═══════════════════════════════════════════════
-     LAYOUT POSITION SYSTEM
+     LAYOUT POSITION SYSTEM — 5 positions
+     4 corners (user-selectable) + absolute-center (programmatic).
+     All behavior is deterministic from the corner choice:
+       Right corners → RTL flow (logo at right edge)
+       Left corners  → LTR flow (logo at left edge)
+       Bottom corners → column-reverse + vswap
+       Top corners    → column normal
      ═══════════════════════════════════════════════ */
 
-  /* Position anchoring — bottom uses same margin as sides */
-  .dashboard.layout-tr { top: 10px; right: 10px; }
-  .dashboard.layout-tl { top: 10px; left: 10px; }
-  .dashboard.layout-br { bottom: 10px; right: 10px; }
-  .dashboard.layout-bl { bottom: 10px; left: 10px; }
-  .dashboard.layout-tc { top: 10px; left: 50%; transform: translateX(-50%); }
-  .dashboard.layout-bc { bottom: 10px; left: 50%; transform: translateX(-50%); }
+  /* ── Position anchoring ──
+     Zoomed fixed elements use --edge-z (zoom-compensated) so the visual
+     gap from screen edges stays consistent regardless of zoom level.
+     --edge-z is set by applyZoom() in JS. Falls back to --edge. */
+  .dashboard.layout-tr { top: var(--edge-z, var(--edge)); right: var(--edge-z, var(--edge)); }
+  .dashboard.layout-tl { top: var(--edge-z, var(--edge)); left: var(--edge-z, var(--edge)); }
+  .dashboard.layout-br { bottom: var(--edge-z, var(--edge)); right: var(--edge-z, var(--edge)); }
+  .dashboard.layout-bl { bottom: var(--edge-z, var(--edge)); left: var(--edge-z, var(--edge)); }
+  .dashboard.layout-ac { top: 500px; left: 50%; transform: translateX(-50%); }
 
-  /* Flow RTL — logo on right edge, commentary extends left */
-  .dashboard.flow-rtl { grid-template-columns: auto 1fr; }
-  .dashboard.flow-rtl .main-row { grid-column: 2; flex-direction: row-reverse; }
-  .dashboard.flow-rtl .main-area { flex-direction: row; }
-  .dashboard.flow-rtl .timer-row { grid-column: 2; }
-  .dashboard.flow-rtl .commentary-col { grid-column: 1; grid-row: 1 / 3; }
+  /* ── Horizontal flow ── */
+  /* Right corners: RTL — logo+tacho at right edge, data panels extend left */
+  .dashboard.layout-tr .main-row,
+  .dashboard.layout-br .main-row { flex-direction: row-reverse; }
+  .dashboard.layout-tr .main-area,
+  .dashboard.layout-br .main-area { flex-direction: row; }
 
-  /* Flow LTR — logo on left edge, commentary extends right */
-  .dashboard.flow-ltr .main-row { flex-direction: row; }
-  .dashboard.flow-ltr .main-area { flex-direction: row-reverse; }
+  /* Left corners: LTR — logo+tacho at left edge, data panels extend right */
+  .dashboard.layout-tl .main-row,
+  .dashboard.layout-bl .main-row { flex-direction: row; }
+  .dashboard.layout-tl .main-area,
+  .dashboard.layout-bl .main-area { flex-direction: row-reverse; }
 
-  /* ── Corner rounding overrides for LTR flow ── */
-  .dashboard.flow-ltr .fuel-block  {
+  /* Absolute center: LTR default */
+  .dashboard.layout-ac .main-row { flex-direction: row; }
+  .dashboard.layout-ac .main-area { flex-direction: row-reverse; }
+
+  /* ── Corner rounding for LTR flow (left corners) ── */
+  .dashboard.layout-tl .fuel-block,
+  .dashboard.layout-bl .fuel-block,
+  .dashboard.layout-ac .fuel-block {
     border-top-left-radius: 0; border-top-right-radius: var(--corner-r);
   }
-  .dashboard.flow-ltr .tyres-block {
+  .dashboard.layout-tl .tyres-block,
+  .dashboard.layout-bl .tyres-block,
+  .dashboard.layout-ac .tyres-block {
     border-bottom-left-radius: 0; border-bottom-right-radius: var(--corner-r);
   }
-  .dashboard.flow-ltr .tacho-block {
+  .dashboard.layout-tl .tacho-block,
+  .dashboard.layout-bl .tacho-block,
+  .dashboard.layout-ac .tacho-block {
     border-top-right-radius: 0; border-bottom-right-radius: 0;
     border-top-left-radius: var(--corner-r); border-bottom-left-radius: var(--corner-r);
   }
 
-  /* ── Vertical swap — reverse top/bottom in stacked columns ── */
-  .dashboard.vswap .fuel-tyres-col,
-  .dashboard.vswap .controls-pedals-block,
-  .dashboard.vswap .maps-col,
-  .dashboard.vswap .pos-gaps-col,
-  .dashboard.vswap .logo-col {
+  /* ── Vertical swap for bottom corners ──
+     Reverses internal column order so panels read correctly
+     when the HUD is anchored to the bottom edge. */
+  .dashboard.layout-br .fuel-tyres-col,
+  .dashboard.layout-bl .fuel-tyres-col,
+  .dashboard.layout-br .controls-pedals-block,
+  .dashboard.layout-bl .controls-pedals-block,
+  .dashboard.layout-br .maps-col,
+  .dashboard.layout-bl .maps-col,
+  .dashboard.layout-br .pos-gaps-col,
+  .dashboard.layout-bl .pos-gaps-col,
+  .dashboard.layout-br .logo-col,
+  .dashboard.layout-bl .logo-col {
     flex-direction: column-reverse;
   }
 
-  /* Vswap corner rounding — RTL flow: fuel→bottom-left, tyres→top-left */
-  .dashboard.vswap.flow-rtl .fuel-block  { border-top-left-radius: 0; border-bottom-left-radius: var(--corner-r); }
-  .dashboard.vswap.flow-rtl .tyres-block { border-bottom-left-radius: 0; border-top-left-radius: var(--corner-r); }
+  /* Vswap corner rounding — bottom-right (RTL): fuel→bottom-left, tyres→top-left */
+  .dashboard.layout-br .fuel-block  { border-top-left-radius: 0; border-bottom-left-radius: var(--corner-r); }
+  .dashboard.layout-br .tyres-block { border-bottom-left-radius: 0; border-top-left-radius: var(--corner-r); }
 
-  /* Vswap corner rounding — LTR flow: fuel→bottom-right, tyres→top-right */
-  .dashboard.vswap.flow-ltr .fuel-block  {
+  /* Vswap corner rounding — bottom-left (LTR): fuel→bottom-right, tyres→top-right */
+  .dashboard.layout-bl .fuel-block  {
     border-top-right-radius: 0; border-bottom-right-radius: var(--corner-r);
     border-top-left-radius: 0; border-bottom-left-radius: 0;
   }
-  .dashboard.vswap.flow-ltr .tyres-block {
+  .dashboard.layout-bl .tyres-block {
     border-bottom-right-radius: 0; border-top-right-radius: var(--corner-r);
     border-bottom-left-radius: 0; border-top-left-radius: 0;
   }
 
-  /* ── Commentary border-radius: rounded on outward edge, squared on component edge ──
-     LTR flow: commentary is on the RIGHT → square left corners (faces components)
-     RTL flow: commentary is on the LEFT  → square right corners (faces components)
-     Top layout: top faces components → square top
-     Bottom layout: bottom faces components → square bottom */
-
-  /* Horizontal: square the side that abuts the main group */
-  .dashboard.flow-ltr .commentary-inner {
-    border-top-left-radius: 0; border-bottom-left-radius: 0;
-    border-top-right-radius: var(--corner-r); border-bottom-right-radius: var(--corner-r);
-  }
-  .dashboard.flow-rtl .commentary-inner {
-    border-top-right-radius: 0; border-bottom-right-radius: 0;
-    border-top-left-radius: var(--corner-r); border-bottom-left-radius: var(--corner-r);
-  }
-
-  /* Top layouts: square the top (grows downward from component row) */
-  .dashboard.layout-tr .commentary-inner,
-  .dashboard.layout-tl .commentary-inner,
-  .dashboard.layout-tc .commentary-inner {
-    border-top-left-radius: 0; border-top-right-radius: 0;
-  }
-
-  /* Bottom layouts: square the bottom (grows upward from component row) */
-  .dashboard.layout-br .commentary-inner,
-  .dashboard.layout-bl .commentary-inner,
-  .dashboard.layout-bc .commentary-inner {
-    border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-  }
-
-  /* ── Bottom layout: commentary grows upward ── */
-  .dashboard.layout-br .commentary-col,
-  .dashboard.layout-bl .commentary-col,
-  .dashboard.layout-bc .commentary-col {
-    justify-content: flex-end;
-  }
-  .dashboard.layout-br .commentary-inner,
-  .dashboard.layout-bl .commentary-inner,
-  .dashboard.layout-bc .commentary-inner {
-    justify-content: flex-start;
-  }
-
-  /* Vswap logo column — first-child now at bottom, last-child at top */
-  .dashboard.vswap .logo-col .logo-square:first-child {
+  /* Vswap logo column — bottom corners flip logo squares */
+  .dashboard.layout-br .logo-col .logo-square:first-child,
+  .dashboard.layout-bl .logo-col .logo-square:first-child {
     border-top-left-radius: 0; border-top-right-radius: 0;
     border-bottom-left-radius: var(--corner-r); border-bottom-right-radius: var(--corner-r);
   }
-  .dashboard.vswap .logo-col .logo-square:last-child {
+  .dashboard.layout-br .logo-col .logo-square:last-child,
+  .dashboard.layout-bl .logo-col .logo-square:last-child {
     border-bottom-left-radius: 0; border-bottom-right-radius: 0;
     border-top-left-radius: var(--corner-r); border-top-right-radius: var(--corner-r);
   }
@@ -117,7 +104,7 @@
     z-index: 0;
     transition: background 1s ease;
   }
-  .dashboard > * { position: relative; z-index: 1; }
+  .dashboard > * { position: relative; z-index: 1; pointer-events: auto; }
 
   .panel {
     background: var(--bg);
@@ -147,21 +134,7 @@
     white-space: nowrap;
   }
 
-  /* ── COMMENTARY ── */
-  .commentary-col {
-    width: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.45s ease 0.05s;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-  }
-  .commentary-col.visible {
-    width: 280px;
-    opacity: 1;
-  }
+  /* ── COMMENTARY (positioning now handled in base.css as position:fixed) ── */
   .commentary-inner {
     position: relative;
     width: 280px;
@@ -179,9 +152,9 @@
   }
   .commentary-gl-canvas {
     position: absolute;
-    inset: -10px -14px;
-    width: calc(100% + 28px);
-    height: calc(100% + 20px);
+    inset: -8px;
+    width: calc(100% + 16px);
+    height: calc(100% + 16px);
     pointer-events: none;
     z-index: 0;
     border-radius: calc(var(--corner-r) + 4px);
@@ -1025,34 +998,19 @@
   .timer-row.timer-visible {
     max-height: 80px;
   }
-  /* RTL: timer on right side, offset inward past logo + tacho */
-  .dashboard.flow-rtl .timer-row {
+  /* Right corners (RTL): timer aligns right, offset past logo + tacho */
+  .dashboard.layout-tr .timer-row,
+  .dashboard.layout-br .timer-row {
     justify-content: flex-end;
     padding-right: calc(var(--row-h) + 140px + var(--gap) * 2);
   }
-  /* LTR: timer on left side, offset inward past logo + tacho */
-  .dashboard.flow-ltr .timer-row {
+  /* Left corners (LTR): timer aligns left, offset past logo + tacho */
+  .dashboard.layout-tl .timer-row,
+  .dashboard.layout-bl .timer-row,
+  .dashboard.layout-ac .timer-row {
     justify-content: flex-start;
     padding-left: calc(var(--row-h) + 140px + var(--gap) * 2);
   }
-
-  /* Bottom layouts: timer row above main row */
-  .dashboard.layout-br,
-  .dashboard.layout-bl,
-  .dashboard.layout-bc { grid-template-rows: auto var(--row-h) var(--row-h); }
-  .dashboard.layout-br .timer-row,
-  .dashboard.layout-bl .timer-row,
-  .dashboard.layout-bc .timer-row { grid-row: 1; }
-  .dashboard.layout-br .main-row,
-  .dashboard.layout-bl .main-row,
-  .dashboard.layout-bc .main-row { grid-row: 2 / 4; }
-  .dashboard.layout-br .commentary-col,
-  .dashboard.layout-bl .commentary-col,
-  .dashboard.layout-bc .commentary-col { grid-row: 2 / 4; }
-  .dashboard.layout-br.flow-rtl .commentary-col,
-  .dashboard.layout-bl.flow-rtl .commentary-col,
-  .dashboard.layout-bc.flow-rtl .commentary-col { grid-row: 2 / 4; }
-  /* Top layouts: timer row below main row (default grid order) */
 
   .race-timer-block {
     width: 150px;

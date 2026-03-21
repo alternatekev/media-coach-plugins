@@ -34,6 +34,16 @@ namespace K10MediaBroadcaster.Plugin.Engine
         private static string _ersDetectCarModel = "";
         private static bool   _sessionHasErs     = false;
 
+        // ── Car-specific adjustment detection ────────────────────────────────
+        // Track which dc* variables have been non-zero to determine what the car supports.
+        // Reset on car change (same pattern as ERS detection).
+        private static string _adjDetectCarModel = "";
+        private static bool _hasTC = false, _hasABS = false;
+        private static bool _hasARBF = false, _hasARBR = false;
+        private static bool _hasEng = false, _hasFuelMix = false;
+        private static bool _hasWJL = false, _hasWJR = false;
+        private static bool _hasWingF = false, _hasWingR = false;
+
         // ── iRating estimator (reads directly from iRacing shared memory) ────
         private static IRatingEstimator _irEstimator;
         private static SectorTracker _sectorTracker = new SectorTracker();
@@ -409,6 +419,57 @@ namespace K10MediaBroadcaster.Plugin.Engine
             // with game-aware logic, so we only set the ARB values here (iRacing-only)
             s.ArbFront               = GetRaw<float>(pm, "dcAntiRollFront");
             s.ArbRear                = GetRaw<float>(pm, "dcAntiRollRear");
+
+            // Additional car adjustments (iRacing dc* variables)
+            s.EnginePower            = GetRaw<float>(pm, "dcEnginePower");
+            s.FuelMixture            = GetRaw<float>(pm, "dcFuelMixture");
+            s.WeightJackerLeft       = GetRaw<float>(pm, "dcWeightJackerLeft");
+            s.WeightJackerRight      = GetRaw<float>(pm, "dcWeightJackerRight");
+            s.WingFront              = GetRaw<float>(pm, "dcWingFront");
+            s.WingRear               = GetRaw<float>(pm, "dcWingRear");
+
+            // ── Car-specific adjustment detection ─────────────────────────
+            // Reset on car change; accumulate "seen non-zero" flags.
+            // BB is always available so we don't track it.
+            if (s.CarModel != _adjDetectCarModel)
+            {
+                _adjDetectCarModel = s.CarModel;
+                _hasTC = false; _hasABS = false;
+                _hasARBF = false; _hasARBR = false;
+                _hasEng = false; _hasFuelMix = false;
+                _hasWJL = false; _hasWJR = false;
+                _hasWingF = false; _hasWingR = false;
+            }
+            if (s.TractionControlSetting != 0) _hasTC = true;
+            if (s.AbsSetting != 0)             _hasABS = true;
+            if (s.ArbFront != 0)               _hasARBF = true;
+            if (s.ArbRear != 0)                _hasARBR = true;
+            if (s.EnginePower != 0)            _hasEng = true;
+            if (s.FuelMixture != 0)            _hasFuelMix = true;
+            if (s.WeightJackerLeft != 0)       _hasWJL = true;
+            if (s.WeightJackerRight != 0)      _hasWJR = true;
+            if (s.WingFront != 0)              _hasWingF = true;
+            if (s.WingRear != 0)               _hasWingR = true;
+
+            s.HasTC = _hasTC;       s.HasABS = _hasABS;
+            s.HasARBFront = _hasARBF; s.HasARBRear = _hasARBR;
+            s.HasEnginePower = _hasEng; s.HasFuelMixture = _hasFuelMix;
+            s.HasWeightJackerL = _hasWJL; s.HasWeightJackerR = _hasWJR;
+            s.HasWingFront = _hasWingF; s.HasWingRear = _hasWingR;
+
+            // ── Pit stop selections (iRacing-only, read-only) ─────────────
+            if (detectedGame == GameId.IRacing)
+            {
+                s.PitSvFlags             = GetRaw<int>(pm, "PitSvFlags");
+                s.PitSvFuel              = GetRaw<float>(pm, "PitSvFuel");
+                s.PitSvLFP               = GetRaw<float>(pm, "PitSvLFP");
+                s.PitSvRFP               = GetRaw<float>(pm, "PitSvRFP");
+                s.PitSvLRP               = GetRaw<float>(pm, "PitSvLRP");
+                s.PitSvRRP               = GetRaw<float>(pm, "PitSvRRP");
+                s.PitSvTireCompound      = GetRaw<int>(pm, "PitSvTireCompound");
+                s.PitSvFastRepair        = GetRaw<int>(pm, "dpFastRepair");
+                s.PitSvWindshieldTearoff = GetRaw<int>(pm, "dpWindshieldTearoff");
+            }
 
             return s;
         }

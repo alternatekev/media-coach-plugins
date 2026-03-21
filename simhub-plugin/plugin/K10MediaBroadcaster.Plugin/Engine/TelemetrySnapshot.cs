@@ -117,6 +117,48 @@ namespace K10MediaBroadcaster.Plugin.Engine
         public double AbsSetting          { get; set; }
         public double ArbFront            { get; set; }
         public double ArbRear             { get; set; }
+        // Additional car adjustments (iRacing dc* variables)
+        public double EnginePower         { get; set; }  // dcEnginePower
+        public double FuelMixture         { get; set; }  // dcFuelMixture
+        public double WeightJackerLeft    { get; set; }  // dcWeightJackerLeft
+        public double WeightJackerRight   { get; set; }  // dcWeightJackerRight
+        public double WingFront           { get; set; }  // dcWingFront (Gurney flap)
+        public double WingRear            { get; set; }  // dcWingRear
+
+        // ── Car-specific adjustment availability ─────────────────────────
+        // True once the dc* variable has been seen non-zero during the session.
+        // Resets on car change. Used to hide irrelevant rows in the pit box panel.
+        public bool HasTC              { get; set; }
+        public bool HasABS             { get; set; }
+        public bool HasARBFront        { get; set; }
+        public bool HasARBRear         { get; set; }
+        public bool HasEnginePower     { get; set; }
+        public bool HasFuelMixture     { get; set; }
+        public bool HasWeightJackerL   { get; set; }
+        public bool HasWeightJackerR   { get; set; }
+        public bool HasWingFront       { get; set; }
+        public bool HasWingRear        { get; set; }
+
+        // ── Pit stop selections (iRacing read-only telemetry) ────────────
+        // These reflect the driver's current pit menu selections.
+        /// <summary>Bitmask of pit services requested (PitSvFlags enum).</summary>
+        public int    PitSvFlags          { get; set; }
+        /// <summary>Fuel to add in liters (pit menu selection).</summary>
+        public double PitSvFuel           { get; set; }
+        /// <summary>Left-front tire pressure in kPa (pit menu).</summary>
+        public double PitSvLFP            { get; set; }
+        /// <summary>Right-front tire pressure in kPa (pit menu).</summary>
+        public double PitSvRFP            { get; set; }
+        /// <summary>Left-rear tire pressure in kPa (pit menu).</summary>
+        public double PitSvLRP            { get; set; }
+        /// <summary>Right-rear tire pressure in kPa (pit menu).</summary>
+        public double PitSvRRP            { get; set; }
+        /// <summary>Tire compound selected for pit stop.</summary>
+        public int    PitSvTireCompound   { get; set; }
+        /// <summary>Fast repair requested (0 or 1).</summary>
+        public int    PitSvFastRepair     { get; set; }
+        /// <summary>Windshield tearoff requested (0 or 1).</summary>
+        public int    PitSvWindshieldTearoff { get; set; }
         public float[] CarIdxLapDistPct   { get; set; } = new float[0];
         public bool[]  CarIdxOnPitRoad    { get; set; } = new bool[0];
         public int[]   CarIdxLapCompleted { get; set; } = new int[0];
@@ -309,5 +351,50 @@ namespace K10MediaBroadcaster.Plugin.Engine
 
         /// <summary>Gap to car behind, formatted with sign: "+1.23", or "—".</summary>
         public string GapBehindFormatted => GapBehind > 0 ? "+" + GapBehind.ToString("F2") : "\u2014";
+
+        // ═══════════════════════════════════════════════════════════════════════
+        //  PIT BOX — computed display properties for pit stop panel
+        // ═══════════════════════════════════════════════════════════════════════
+
+        // iRacing PitSvFlags bitmask constants
+        public const int PIT_SV_LF_TIRE   = 0x01;
+        public const int PIT_SV_RF_TIRE   = 0x02;
+        public const int PIT_SV_LR_TIRE   = 0x04;
+        public const int PIT_SV_RR_TIRE   = 0x08;
+        public const int PIT_SV_FUEL      = 0x10;
+        public const int PIT_SV_WINDSHIELD = 0x20;
+        public const int PIT_SV_FAST_REPAIR = 0x40;
+
+        /// <summary>True when left-front tire change is selected.</summary>
+        public bool PitTireLF => (PitSvFlags & PIT_SV_LF_TIRE) != 0;
+        /// <summary>True when right-front tire change is selected.</summary>
+        public bool PitTireRF => (PitSvFlags & PIT_SV_RF_TIRE) != 0;
+        /// <summary>True when left-rear tire change is selected.</summary>
+        public bool PitTireLR => (PitSvFlags & PIT_SV_LR_TIRE) != 0;
+        /// <summary>True when right-rear tire change is selected.</summary>
+        public bool PitTireRR => (PitSvFlags & PIT_SV_RR_TIRE) != 0;
+        /// <summary>True when any tire change is selected.</summary>
+        public bool PitTiresRequested => (PitSvFlags & 0x0F) != 0;
+        /// <summary>True when fuel fill is selected.</summary>
+        public bool PitFuelRequested => (PitSvFlags & PIT_SV_FUEL) != 0;
+        /// <summary>True when fast repair is selected.</summary>
+        public bool PitFastRepairRequested => (PitSvFlags & PIT_SV_FAST_REPAIR) != 0;
+        /// <summary>True when windshield tearoff is selected.</summary>
+        public bool PitWindshieldRequested => (PitSvFlags & PIT_SV_WINDSHIELD) != 0;
+
+        /// <summary>Pit fuel formatted as liters: "45.2L", or "—".</summary>
+        public string PitFuelDisplay => PitFuelRequested && PitSvFuel > 0 ? PitSvFuel.ToString("F1") + "L" : "\u2014";
+
+        /// <summary>Convert kPa to PSI for display.</summary>
+        private static double KpaToPsi(double kpa) => kpa * 0.14503773773;
+
+        /// <summary>LF pressure in PSI formatted, or "—".</summary>
+        public string PitPressureLFDisplay => PitTireLF && PitSvLFP > 0 ? KpaToPsi(PitSvLFP).ToString("F1") : "\u2014";
+        /// <summary>RF pressure in PSI formatted, or "—".</summary>
+        public string PitPressureRFDisplay => PitTireRF && PitSvRFP > 0 ? KpaToPsi(PitSvRFP).ToString("F1") : "\u2014";
+        /// <summary>LR pressure in PSI formatted, or "—".</summary>
+        public string PitPressureLRDisplay => PitTireLR && PitSvLRP > 0 ? KpaToPsi(PitSvLRP).ToString("F1") : "\u2014";
+        /// <summary>RR pressure in PSI formatted, or "—".</summary>
+        public string PitPressureRRDisplay => PitTireRR && PitSvRRP > 0 ? KpaToPsi(PitSvRRP).ToString("F1") : "\u2014";
     }
 }

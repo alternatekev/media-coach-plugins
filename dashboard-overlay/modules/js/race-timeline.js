@@ -25,20 +25,20 @@
     if (sample.p1) {
       const heat = Math.min(Math.abs(sample.delta), 5);
       const lit  = 58 + heat * 4;
-      return 'hsl(42, 72%, ' + lit + '%)';
+      return 'hsla(42, 72%, ' + lit + '%, 0.8)';
     }
     const d = sample.delta;
-    if (d === 0) return 'hsl(210, 42%, 54%)';
+    if (d === 0) return 'hsla(210, 42%, 54%, 0.8)';
     if (d < 0) {
       const heat = Math.min(Math.abs(d), 5);
       const sat  = 38 + heat * 8;
       const lit  = 46 + heat * 5;
-      return 'hsl(145, ' + sat + '%, ' + lit + '%)';
+      return 'hsla(145, ' + sat + '%, ' + lit + '%, 0.8)';
     }
     const heat = Math.min(d, 5);
     const sat  = 38 + heat * 8;
     const lit  = 48 + heat * 5;
-    return 'hsl(0, ' + sat + '%, ' + lit + '%)';
+    return 'hsla(0, ' + sat + '%, ' + lit + '%, 0.8)';
   }
 
   function updateRaceTimeline(position, currentLap, flagState, incidentCount, isInPit) {
@@ -117,7 +117,7 @@
           for (let cx = x; cx < x + sw; cx += sqSize) {
             const row = Math.floor(cy / sqSize);
             const col = Math.floor((cx - x) / sqSize);
-            ctx.fillStyle = (row + col) % 2 === 0 ? 'hsla(0,0%,100%,0.15)' : 'hsla(0,0%,100%,0.04)';
+            ctx.fillStyle = (row + col) % 2 === 0 ? 'hsla(0,0%,100%,0.12)' : 'hsla(0,0%,100%,0.03)';
             ctx.fillRect(cx, cy, Math.min(sqSize, x + sw - cx), Math.min(sqSize, h - cy));
           }
         }
@@ -144,7 +144,7 @@
       ctx.fill();
 
       // Vertical tick line
-      ctx.strokeStyle = color.replace(/[\d.]+\)$/, '0.4)');
+      ctx.strokeStyle = color.replace(/[\d.]+\)$/, '0.6)');
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x, 5);

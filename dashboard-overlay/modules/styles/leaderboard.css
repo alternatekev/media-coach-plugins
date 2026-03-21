@@ -312,18 +312,12 @@
      LEADERBOARD PANEL
      ═══════════════════════════════════════════════ */
   .leaderboard-panel {
-    position: fixed;
-    z-index: 50;
     width: 310px;
     transition: opacity 0.4s ease;
+    flex-shrink: 0;
   }
   .leaderboard-panel.section-hidden { display: none; }
-  /* Vertical opposite: if dash is top → leaderboard bottom; if dash is bottom → leaderboard top */
-  .leaderboard-panel.lb-bottom { bottom: 28px; }
-  .leaderboard-panel.lb-top { top: 10px; }
-  .leaderboard-panel.lb-right { right: 10px; }
-  .leaderboard-panel.lb-left { left: 10px; }
-  .leaderboard-panel.lb-center { left: 50%; transform: translateX(-50%); }
+  /* Position offsets removed — now handled by .sec-container flex layout */
 
   .lb-inner {
     background: hsla(0, 0%, 5%, 0.90);

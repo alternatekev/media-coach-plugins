@@ -20,12 +20,11 @@
 
   // Opposite corner mapping: dashboard position → logo position
   var OPPOSITE_CORNER = {
-    'top-right':     'bottom-left',
-    'top-left':      'bottom-right',
-    'bottom-right':  'top-left',
-    'bottom-left':   'top-right',
-    'top-center':    'bottom-left',
-    'bottom-center': 'top-left'
+    'top-right':       'bottom-left',
+    'top-left':        'bottom-right',
+    'bottom-right':    'top-left',
+    'bottom-left':     'top-right',
+    'absolute-center': 'bottom-left'
   };
 
   // CSS class map for positioning

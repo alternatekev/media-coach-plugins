@@ -20,19 +20,12 @@
      DATASTREAM PANEL
      ═══════════════════════════════════════════════ */
   .datastream-panel {
-    position: fixed;
-    z-index: 50;
     width: 200px;
     transition: opacity 0.4s ease;
+    flex-shrink: 0;
   }
   .datastream-panel.section-hidden { display: none; }
-  .datastream-panel.ds-bottom { bottom: 28px; }
-  .datastream-panel.ds-top { top: 10px; }
-  .datastream-panel.ds-right { right: 326px; }   /* leaderboard (310) + 16px gap */
-  .datastream-panel.ds-left { left: 326px; }
-  /* center modes: positioned dynamically by applyLayout() JS */
-  .datastream-panel.ds-center-right { right: auto; }
-  .datastream-panel.ds-center-left { left: auto; }
+  /* Position offsets removed — now handled by .sec-container flex layout */
 
   .ds-inner {
     background: hsla(0, 0%, 5%, 0.90);
@@ -150,12 +143,10 @@
     transition: opacity 0.4s ease;
   }
   .incidents-panel.section-hidden { display: none; }
-  .incidents-panel.inc-bottom { bottom: 28px; }
-  .incidents-panel.inc-top { top: 10px; }
-  .incidents-panel.inc-right { right: 10px; }
-  .incidents-panel.inc-left { left: 10px; }
-  .incidents-panel.inc-center-right { right: 10px; }
-  .incidents-panel.inc-center-left { left: 10px; }
+  .incidents-panel.inc-bottom { bottom: var(--edge-z, var(--edge)); }
+  .incidents-panel.inc-top { top: var(--edge-z, var(--edge)); }
+  .incidents-panel.inc-right { right: var(--edge-z, var(--edge)); }
+  .incidents-panel.inc-left { left: var(--edge-z, var(--edge)); }
 
   .inc-gl-canvas {
     position: absolute;

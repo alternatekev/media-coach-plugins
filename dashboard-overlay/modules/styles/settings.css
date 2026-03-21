@@ -1,91 +1,41 @@
   /* ═══════════════════════════════════════════════
      SECONDARY PANELS FLEX CONTAINER
-     Wraps leaderboard, datastream, incidents in a flex row.
-     Hidden panels collapse, remaining panels reflow.
+     Wraps leaderboard, datastream, pitbox in a flex row.
+     Flows horizontally from the same corner as the main HUD.
+     Hidden panels collapse, remaining panels reflow automatically.
      ═══════════════════════════════════════════════ */
   .sec-container {
     position: fixed;
     z-index: 50;
     display: flex;
-    gap: 6px;
+    flex-direction: row;
+    gap: var(--panel-gap);
     align-items: flex-start;
     pointer-events: none;
   }
   .sec-container > * { pointer-events: auto; }
 
-  /* Container positioning classes (set by applyLayout) */
-  .sec-container.sec-bottom { bottom: 28px; }
-  .sec-container.sec-top { top: 10px; }
-  .sec-container.sec-right { right: 10px; flex-direction: row-reverse; }
-  .sec-container.sec-left { left: 10px; flex-direction: row; }
-  .sec-container.sec-center { left: 50%; transform: translateX(-50%); }
+  /* Vertical edge — uses --edge-z (zoom-compensated) for consistent visual margins */
+  .sec-container.sec-top    { top: var(--edge-z, var(--edge)); }
+  .sec-container.sec-bottom { bottom: calc(var(--edge-z, var(--edge)) + 50px); align-items: flex-end; }
 
-  /* User-adjustable offset via settings */
-  [data-sec-offset] .sec-container {
-    transform: translate(var(--sec-offset-x, 0px), var(--sec-offset-y, 0px));
-  }
+  /* Horizontal edge — right positions use row-reverse so
+     the first child (leaderboard) stays at the screen edge */
+  .sec-container.sec-right  { right: var(--edge-z, var(--edge)); flex-direction: row-reverse; }
+  .sec-container.sec-left   { left: var(--edge-z, var(--edge)); }
 
-  /* Panels inside container: relative positioning, no fixed offsets */
+  /* Panels inside container: relative flow, no fixed offsets */
   .sec-container .leaderboard-panel,
   .sec-container .datastream-panel,
-  .sec-container .incidents-panel {
+  .sec-container .pitbox-panel {
     position: relative;
     top: auto; bottom: auto; left: auto; right: auto;
     margin: 0;
   }
 
-  /* Override the offset transforms when inside container */
-  .sec-container .leaderboard-panel,
-  .sec-container .datastream-panel,
-  .sec-container .incidents-panel {
-    transform: translate(var(--sec-offset-x, 0px), var(--sec-offset-y, 0px));
-  }
-
-  /* ═══════════════════════════════════════════════
-     SECONDARY BLOCK LAYOUT VARIATIONS
-     ═══════════════════════════════════════════════ */
-  /* Stack: vertical column (default) */
-  body.sec-stack .sec-container { flex-direction: column; align-items: flex-end; }
-  body.sec-stack .sec-container.sec-left { align-items: flex-start; }
-
-  /* Row: horizontal row along edge */
-  body.sec-row .leaderboard-panel.lb-left,
-  body.sec-row .datastream-panel.ds-left,
-  body.sec-row .incidents-panel.inc-left {
-    left: auto;
-  }
-  body.sec-row .leaderboard-panel.lb-right,
-  body.sec-row .datastream-panel.ds-right,
-  body.sec-row .incidents-panel.inc-right {
-    right: auto;
-  }
-
-  /* Compact: narrower panels, tighter spacing */
-  body.sec-compact .leaderboard-panel { width: 260px; }
-  body.sec-compact .spotter-panel { max-width: 180px; }
-  body.sec-compact .datastream-panel { width: 160px; }
-  body.sec-compact .lb-row { font-size: 14px; padding: 2px 8px; }
-  body.sec-compact .lb-row { grid-template-columns: 20px 1fr 48px 38px 46px; }
-
-  /* Minimal: leaderboard only, datastream and incidents hidden */
+  /* Minimal: leaderboard only, datastream + pit box hidden */
   body.sec-minimal .datastream-panel,
-  body.sec-minimal .incidents-panel { display: none !important; }
-
-  /* Margin offsets — applied via CSS custom properties (incidents + spotter excluded — positioned independently) */
-  .leaderboard-panel,
-  .datastream-panel {
-    --sec-offset-x: 0px;
-    --sec-offset-y: 0px;
-  }
-  /* Apply offsets using translate so they compose with existing positioning */
-  body[data-sec-offset] .leaderboard-panel,
-  body[data-sec-offset] .datastream-panel {
-    transform: translate(var(--sec-offset-x), var(--sec-offset-y));
-  }
-  /* Center leaderboard needs special handling since it already uses transform */
-  body[data-sec-offset] .leaderboard-panel.lb-center {
-    transform: translateX(calc(-50% + var(--sec-offset-x))) translateY(var(--sec-offset-y));
-  }
+  body.sec-minimal .pitbox-panel { display: none !important; }
 
   /* ═══════════════════════════════════════════════
      SETTINGS PANEL
@@ -107,8 +57,7 @@
   }
   /* Bottom layouts: dot goes above */
   .dashboard.layout-br .conn-status,
-  .dashboard.layout-bl .conn-status,
-  .dashboard.layout-bc .conn-status {
+  .dashboard.layout-bl .conn-status {
     bottom: auto;
     top: -28px;
   }

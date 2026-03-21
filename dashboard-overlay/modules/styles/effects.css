@@ -119,6 +119,7 @@
   body.rc-active #dashboard,
   body.rc-active .leaderboard-panel,
   body.rc-active .datastream-panel,
+  body.rc-active .pitbox-panel,
   body.rc-active .incidents-panel {
     opacity: 0.5;
     transition: opacity 0.5s ease;
@@ -247,6 +248,7 @@
   body.pit-mode .panel,
   body.pit-mode .leaderboard-panel,
   body.pit-mode .datastream-panel,
+  body.pit-mode .pitbox-panel,
   body.pit-mode .incidents-panel,
   body.pit-mode .spotter-panel {
     transition: opacity 1.2s ease;
@@ -255,6 +257,7 @@
   body:not(.pit-mode) .panel,
   body:not(.pit-mode) .leaderboard-panel,
   body:not(.pit-mode) .datastream-panel,
+  body:not(.pit-mode) .pitbox-panel,
   body:not(.pit-mode) .incidents-panel,
   body:not(.pit-mode) .spotter-panel {
     transition: opacity 1.2s ease;
@@ -295,6 +298,7 @@
   body.idle-state #dashboard,
   body.idle-state .leaderboard-panel,
   body.idle-state .datastream-panel,
+  body.idle-state .pitbox-panel,
   body.idle-state .incidents-panel,
   body.idle-state .spotter-panel,
   body.idle-state .pit-banner,
@@ -642,10 +646,10 @@
     transition: opacity 0.4s ease;
   }
   .spotter-panel.section-hidden { display: none; }
-  .spotter-panel.sp-bottom { bottom: 28px; }
-  .spotter-panel.sp-top { top: 10px; }
-  .spotter-panel.sp-left { left: 10px; }
-  .spotter-panel.sp-right { right: 10px; }
+  .spotter-panel.sp-bottom { bottom: var(--edge-z, var(--edge)); }
+  .spotter-panel.sp-top { top: var(--edge-z, var(--edge)); }
+  .spotter-panel.sp-left { left: var(--edge-z, var(--edge)); }
+  .spotter-panel.sp-right { right: var(--edge-z, var(--edge)); }
 
   .sp-gl-canvas {
     position: absolute;
@@ -1029,6 +1033,7 @@
   body.grid-active .panel,
   body.grid-active .leaderboard-panel,
   body.grid-active .datastream-panel,
+  body.grid-active .pitbox-panel,
   body.grid-active .incidents-panel,
   body.grid-active .spotter-panel {
     transition: opacity 1.0s ease;

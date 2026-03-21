@@ -23,10 +23,16 @@
   pointer-events: none;
 }
 
-/* Dashboard content must layer above the ambient canvas */
+/* Dashboard content must layer above the ambient canvas
+   and above incidents (z:50) / spotter (z:52) so commentary
+   slides out visibly.  pointer-events:none lets clicks pass
+   through transparent grid gaps to panels underneath. */
+/* z-index and pointer-events are set here to layer dashboard above
+   ambient canvas and incidents/spotter panels. position:fixed is
+   already set in base.css — do NOT override it to relative. */
 .dashboard {
-  position: relative;
-  z-index: 1;
+  z-index: 55;
+  pointer-events: none;
 }
 
 /* ── Per-panel ambient reflection ──
@@ -67,6 +73,12 @@
   transition: box-shadow 300ms ease;
 }
 
+/* Pit box panel */
+.pitbox-panel {
+  box-shadow: var(--ambient-shadow);
+  transition: box-shadow 300ms ease;
+}
+
 /* ── Green-screen mode: disable ambient (would key poorly) ── */
 body.opaque-mode .ambient-canvas {
   display: none;
@@ -75,6 +87,7 @@ body.opaque-mode .panel,
 body.opaque-mode .tacho-block,
 body.opaque-mode .commentary-inner,
 body.opaque-mode .leaderboard-panel,
-body.opaque-mode .datastream-panel {
+body.opaque-mode .datastream-panel,
+body.opaque-mode .pitbox-panel {
   box-shadow: none !important;
 }

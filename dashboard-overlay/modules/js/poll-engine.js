@@ -749,6 +749,9 @@
     // ─── Datastream ───
     try { updateDatastream(p, _demo); } catch(e) { console.error('[K10] Datastream error:', e); }
 
+    // ─── Pit Box ───
+    try { updatePitBox(p); } catch(e) { console.error('[K10] PitBox error:', e); }
+
     // ─── Incidents ───
     try { updateIncidents(p, _demo); } catch(e) { console.error('[K10] Incidents error:', e); }
 

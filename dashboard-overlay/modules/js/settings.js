@@ -53,19 +53,8 @@
     // Bonkers pit limiter toggle
     document.body.classList.toggle('bonkers-off', _settings.showBonkers === false);
 
-    // Layout
+    // Layout — all behavior is deterministic from position choice
     applyLayout();
-
-    // Secondary layout
-    applySecLayout();
-    applySecOffset();
-    // Restore secondary layout UI
-    const secLayoutSelect = document.getElementById('settingsSecLayout');
-    if (secLayoutSelect) secLayoutSelect.value = _settings.secLayout || 'stack';
-    const secOxSlider = document.getElementById('settingsSecOffsetX');
-    if (secOxSlider) { secOxSlider.value = _settings.secOffsetX || 0; document.getElementById('secOffsetXVal').textContent = (_settings.secOffsetX || 0) + 'px'; }
-    const secOySlider = document.getElementById('settingsSecOffsetY');
-    if (secOySlider) { secOySlider.value = _settings.secOffsetY || 0; document.getElementById('secOffsetYVal').textContent = (_settings.secOffsetY || 0) + 'px'; }
 
     // Zoom
     const zoomVal = _settings.zoom || 100;

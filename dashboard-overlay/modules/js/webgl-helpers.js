@@ -307,6 +307,7 @@
     textEl.classList.remove('scrolling');
     scrollEl.classList.remove('no-overflow');
     document.getElementById('commentaryMeta').textContent = meta;
+
     col.classList.add('visible');
     dash.style.setProperty('--sentiment-h', hue);
     dash.style.setProperty('--sentiment-s', '40%');
@@ -332,7 +333,7 @@
       } else {
         scrollEl.classList.add('no-overflow');
       }
-    }, 620);  // wait for commentary-col width transition (0.55s) to finish
+    }, 620);  // wait for commentary-col max-height transition (0.55s) to finish
   }
   function hideCommentary() {
     col.classList.remove('visible');

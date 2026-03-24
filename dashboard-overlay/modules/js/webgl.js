@@ -659,6 +659,149 @@
        ════════════════════════════════════════════ */
     let _postfxTime = 0;
 
+    // ══════════════════════════════════════════════════════════════
+    //  PERFORMANCE INSTRUMENTATION — glare shader perf tracking
+    // ══════════════════════════════════════════════════════════════
+    //  Measures:
+    //    • FPS (frames per second, 1s rolling window)
+    //    • Frame time (ms per glare draw call, via EXT_disjoint_timer_query)
+    //    • Draw call skip rate (% of frames where glare had nothing to draw)
+    //
+    //  Access from console:  window._glarePerf
+    //  Logs a summary every 5 seconds when ambient light is active.
+    // ══════════════════════════════════════════════════════════════
+    const _glarePerf = {
+      fps: 0,
+      frameTimeMs: 0,           // GPU time per glare draw (0 if timer unavailable)
+      drawCalls: 0,
+      skippedFrames: 0,
+      totalFrames: 0,
+      _frameTimes: [],          // last 60 frame timestamps for FPS calc
+      _gpuQueries: [],          // pending GPU timer queries
+      _timerExt: null,          // EXT_disjoint_timer_query_webgl2
+      _lastLogSec: 0,
+      _enabled: false,
+
+      /** Call once after GL context is ready */
+      init(gl) {
+        // Try to get GPU timer extension (available on most Windows drivers)
+        this._timerExt = gl.getExtension('EXT_disjoint_timer_query_webgl2');
+        if (this._timerExt) {
+          console.log('[GlarePerf] GPU timer query available — frame timing enabled');
+        } else {
+          console.log('[GlarePerf] GPU timer query unavailable — FPS-only mode');
+        }
+        this._enabled = true;
+      },
+
+      /** Call at the START of each glare frame */
+      beginFrame(gl) {
+        if (!this._enabled) return null;
+        this.totalFrames++;
+
+        // FPS: rolling 1-second window
+        const now = performance.now();
+        this._frameTimes.push(now);
+        while (this._frameTimes.length > 0 && this._frameTimes[0] < now - 1000) {
+          this._frameTimes.shift();
+        }
+        this.fps = this._frameTimes.length;
+
+        // GPU timer: start query if extension available
+        if (this._timerExt) {
+          const query = gl.createQuery();
+          gl.beginQuery(this._timerExt.TIME_ELAPSED_EXT, query);
+          return query;
+        }
+        return null;
+      },
+
+      /** Call at the END of each glare frame */
+      endFrame(gl, query) {
+        if (!this._enabled) return;
+        this.drawCalls++;
+
+        if (query && this._timerExt) {
+          gl.endQuery(this._timerExt.TIME_ELAPSED_EXT);
+          this._gpuQueries.push({ query, time: performance.now() });
+        }
+
+        // Harvest completed GPU queries
+        this._harvestQueries(gl);
+
+        // Log every 5 seconds
+        const sec = Math.floor(performance.now() / 1000);
+        if (sec % 5 === 0 && sec !== this._lastLogSec) {
+          this._lastLogSec = sec;
+          const skipPct = this.totalFrames > 0
+            ? ((this.skippedFrames / this.totalFrames) * 100).toFixed(1)
+            : '0.0';
+          console.log(
+            `[GlarePerf] FPS=${this.fps} | GPU=${this.frameTimeMs.toFixed(2)}ms | ` +
+            `draws=${this.drawCalls} skipped=${skipPct}% | ` +
+            `ambient=${window._ambientGL ? window._ambientGL.lum.toFixed(2) : 'off'}`
+          );
+        }
+      },
+
+      /** Mark a frame as skipped (no draw call needed) */
+      markSkipped() {
+        if (!this._enabled) return;
+        this.totalFrames++;
+        this.skippedFrames++;
+
+        // Still update FPS counter
+        const now = performance.now();
+        this._frameTimes.push(now);
+        while (this._frameTimes.length > 0 && this._frameTimes[0] < now - 1000) {
+          this._frameTimes.shift();
+        }
+        this.fps = this._frameTimes.length;
+      },
+
+      /** Harvest completed GPU timer queries */
+      _harvestQueries(gl) {
+        const ext = this._timerExt;
+        if (!ext) return;
+        // Check for GPU disjoint (driver reset, etc.)
+        const disjoint = gl.getParameter(ext.GPU_DISJOINT_EXT);
+        const pending = this._gpuQueries;
+        let i = 0;
+        while (i < pending.length) {
+          const q = pending[i];
+          const available = gl.getQueryParameter(q.query, gl.QUERY_RESULT_AVAILABLE);
+          if (available) {
+            if (!disjoint) {
+              const ns = gl.getQueryParameter(q.query, gl.QUERY_RESULT);
+              this.frameTimeMs = ns / 1e6;  // nanoseconds → milliseconds
+            }
+            gl.deleteQuery(q.query);
+            pending.splice(i, 1);
+          } else if (performance.now() - q.time > 2000) {
+            // Stale query — drop it
+            gl.deleteQuery(q.query);
+            pending.splice(i, 1);
+          } else {
+            i++;
+          }
+        }
+      },
+
+      /** Get a summary snapshot for external consumption */
+      snapshot() {
+        return {
+          fps: this.fps,
+          gpuMs: this.frameTimeMs,
+          drawCalls: this.drawCalls,
+          skippedPct: this.totalFrames > 0
+            ? ((this.skippedFrames / this.totalFrames) * 100)
+            : 0,
+          totalFrames: this.totalFrames,
+        };
+      }
+    };
+    window._glarePerf = _glarePerf;
+
     // Smoothed telemetry for post-processing
     const _pfx = {
       speed: 0, speedTarget: 0,
@@ -761,51 +904,42 @@
         // ── Steer-rotated UV helper ──
         // Rotates UV around a center point by -uSteer (inverted: glare moves
         // opposite the wheel).  ±1 → ∓0.25 rad ≈ ∓14°.
+        // PERF-LITE: rotation reduced 75% (0.25 → 0.0625 rad ≈ ±3.6°)
         vec2 steerRotateUV(vec2 uv, vec2 center) {
-          float a = -uSteer * 0.25;
+          float a = -uSteer * 0.0625;
           float cs = cos(a), sn = sin(a);
           vec2 d = uv - center;
           return vec2(d.x * cs - d.y * sn, d.x * sn + d.y * cs) + center;
         }
 
-        // One cheap radial glow from screen center, tinted by sampled color.
-        // All movement comes from shader effects — no per-panel loop.
-        // Color is sampled infrequently; the shader fakes rich lighting.
+        // ── PERF-LITE: single centered radial glow + sweep only ──
+        // Removed: shimmer (sin×sin pow4), edgeBloom (duplicate panelMask loop).
+        // Kept: center glow, bloom pulse, light sweep — enough to sell
+        // sun/cloud movement across glass surfaces.
         vec4 ambientGlow(vec2 uv) {
           if (uAmbientMode == 0 || uAmbientLum < 0.01) return vec4(0.0);
-          // Matte mode: 50% center glow strength, reduce sweep/shimmer
           float modeMul = (uAmbientMode == 1) ? 0.5 : 1.0;
 
-          // Speed scales all movement: idle ×0.3, full speed ×2.0
-          float spdMul = 0.3 + uSpeed * 1.7;
+          // Speed scales movement: idle ×0.075, full speed ×0.5 (75% slower)
+          float spdMul = 0.075 + uSpeed * 0.425;
 
           // Single radial glow from screen center
           vec2 center = vec2(0.5, 0.45);
           float dist = length(uv - center);
           float glow = exp(-dist * dist * 1.8) * 2.0;
 
-          // ── Bloom pulse: slow breathing that swells and fades ──
+          // Bloom pulse: slow breathing
           float bloom = 0.8 + 0.2 * sin(uTime * 1.5 * spdMul);
           glow *= bloom;
 
-          // Steer-rotated UV for sweep & shimmer (inverted — glare opposes wheel)
+          // Steer-rotated UV for sweep (rotation at 25% of original)
           vec2 rUV = steerRotateUV(uv, center);
 
-          // ── Light sweep: diagonal band that travels across the screen ──
-          float sweep = sin(rUV.x * 2.0 + rUV.y * 1.3 - uTime * 0.8 * spdMul) * 0.5 + 0.5;
-          sweep = pow(sweep, 3.0) * 0.7;  // wider softer band
+          // Light sweep: diagonal band simulating sun/cloud movement
+          float sweep = sin(rUV.x * 2.0 + rUV.y * 1.3 - uTime * 0.2 * spdMul) * 0.5 + 0.5;
+          sweep = pow(sweep, 3.0) * 0.7;
 
-          // ── Shimmer: softer sparkle that catches edges ──
-          float shimmer = sin(rUV.x * 12.0 + uTime * 2.5 * spdMul)
-                        * sin(rUV.y * 9.0 - uTime * 1.8 * spdMul) * 0.5 + 0.5;
-          shimmer = pow(shimmer, 4.0) * 0.4;
-
-          // ── Edge bloom: brighter near panel edges (Fresnel-like) ──
-          // Uses panelMask gradient — pixels near panel boundary glow stronger
-          float edgeDist = panelMask(uv);  // 1.0 inside, 0.0 outside
-          float edgeBloom = (1.0 - edgeDist) * smoothstep(0.0, 0.5, edgeDist) * 1.5;
-
-          float total = (glow + sweep + shimmer + edgeBloom) * uAmbientLum * modeMul;
+          float total = (glow + sweep) * uAmbientLum * modeMul;
           total = min(total, 2.5);
 
           vec3 col = uAmbientColor * total;
@@ -846,7 +980,8 @@
             // Brighter at top, dimmer toward bottom
             glow *= mix(1.0, 0.3, downBias);
 
-            float p = pulse(uTime, 3.5 + inten * 2.0, 0.88);
+            // PERF-LITE: pulse speed reduced 75% (3.5→0.875, 2.0→0.5)
+            float p = pulse(uTime, 0.875 + inten * 0.5, 0.88);
             glow *= p;
 
             col += clr.rgb * glow * 0.9;
@@ -875,46 +1010,13 @@
           return vec4(tint, finalVig);
         }
 
-        // EFFECT 3: Speed chromatic aberration
-        vec4 speedAberration(vec2 uv) {
-          if (uSpeed < 0.3) return vec4(0.0);
-          float intensity = smoothstep(0.3, 0.95, uSpeed) * 0.20;
-          vec2 center = vec2(0.5);
-          vec2 sUV = steerRotateUV(uv, center);
-          vec2 dir = sUV - center;
-          float dist = length(dir);
-          float edgeMask = smoothstep(0.3, 0.8, dist);
-          float angle = atan(dir.y, dir.x);
-          float streak = pow(abs(sin(angle * 40.0 + uTime * 2.0)), 16.0);
-          streak += pow(abs(sin(angle * 25.0 - uTime * 1.3)), 12.0) * 0.5;
-          float t = fract(angle / 6.2832 + 0.5);
-          vec3 col = mix(
-            vec3(0.15, 0.20, 0.60),
-            vec3(0.50, 0.10, 0.15),
-            t * 0.5 + 0.25
-          );
-          float alpha = streak * edgeMask * intensity;
-          return vec4(col * alpha, alpha * 0.6);
-        }
+        // EFFECT 3: Speed chromatic aberration — REMOVED for performance
+        // (dual pow(sin) streaks + steer rotation per pixel, rarely visible)
+        vec4 speedAberration(vec2 uv) { return vec4(0.0); }
 
-        // EFFECT 4: Brake heat wash
-        vec4 brakeHeatWash(vec2 uv) {
-          if (uBrakeHeat < 0.05) return vec4(0.0);
-          float heat = smoothstep(0.05, 0.8, uBrakeHeat);
-          float rise = 1.0 - uv.y;
-          rise = pow(rise, 2.0);
-          float hSpread = smoothstep(0.5, 0.0, abs(uv.x - 0.5) - heat * 0.3);
-          float shimmer = 0.85 + 0.15 * sin(uTime * 8.0 + uv.x * 20.0)
-                                     * sin(uTime * 6.0 + uv.y * 15.0);
-          float mask = rise * hSpread * heat * shimmer;
-          vec3 col = mix(
-            vec3(0.90, 0.25, 0.05),
-            vec3(1.00, 0.55, 0.10),
-            rise * 0.6
-          );
-          float alpha = mask * 0.25;
-          return vec4(col * alpha, alpha);
-        }
+        // EFFECT 4: Brake heat wash — REMOVED for performance
+        // (double sin×sin shimmer per pixel, niche visual)
+        vec4 brakeHeatWash(vec2 uv) { return vec4(0.0); }
 
         // EFFECT 5: RPM redline pulse
         vec4 rpmRedlinePulse(vec2 uv) {
@@ -992,23 +1094,15 @@
             grad *= (1.0 + edgeSteep * 3.0);
             vec3 normal = normalize(vec3(-grad, z));
 
-            // Specular: Blinn-Phong with a soft highlight
+            // Specular: Blinn-Phong only (Fresnel rim + caustic shimmer removed)
             vec3 viewDir = vec3(0.0, 0.0, 1.0);
             vec3 halfVec = normalize(lightDir + viewDir);
             float spec = pow(max(dot(normal, halfVec), 0.0), 32.0 * domeScale + 8.0);
 
-            // Fresnel rim: stronger reflection at dome edges
-            float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0) * 0.35;
-
-            // Tint specular with ambient color, add white highlight
             vec3 specCol = mix(vec3(1.0), uAmbientColor * 1.5 + 0.5, 0.3);
-            float intensity = (spec * 0.3 + fresnel * 0.15) * uAmbientLum * domeScale;
+            float intensity = spec * 0.3 * uAmbientLum * domeScale;
 
-            // Subtle time-based caustic shimmer on the dome
-            float caustic = sin(local.x * 8.0 + uTime * 0.5) * sin(local.y * 6.0 - uTime * 0.3);
-            caustic = caustic * caustic * 0.04 * domeScale;
-
-            float a = clamp((intensity + caustic) * inside * uPanelAlpha[i], 0.0, 0.5);
+            float a = clamp(intensity * inside * uPanelAlpha[i], 0.0, 0.5);
             totalCol += specCol * a;
             totalAlpha += a;
           }
@@ -1204,6 +1298,9 @@
         // Refresh panel element list periodically (panels may show/hide)
         let _panelRefreshCounter = 0;
 
+        // Init perf instrumentation
+        _glarePerf.init(gGL);
+
         window._glareFXFrame = function(dt) {
           _postfxTime += dt;
           lerpPFX(dt);
@@ -1237,9 +1334,9 @@
 
           const hasGlow    = count > 0;
           const hasAmbient = (window._ambientGL && window._ambientGL.lum > 0.01);
-          const hasEffects = _pfx.speed > 0.28 ||
-                             Math.abs(_pfx.latG) > 0.25 || Math.abs(_pfx.longG) > 0.25 ||
-                             _pfx.brakeHeat > 0.04 ||
+          // PERF-LITE: brakeHeat and speed aberration removed, only check
+          // g-force vignette and RPM redline (the two remaining telemetry effects)
+          const hasEffects = Math.abs(_pfx.latG) > 0.25 || Math.abs(_pfx.longG) > 0.25 ||
                              _pfx.rpm > 0.86;
 
           if (!hasGlow && !hasAmbient && !hasEffects) {
@@ -1247,8 +1344,12 @@
               gGL.clearColor(0, 0, 0, 0);
               gGL.clear(gGL.COLOR_BUFFER_BIT);
             }
+            _glarePerf.markSkipped();
             return;
           }
+
+          // ── Perf: begin GPU timer ──
+          const gpuQuery = _glarePerf.beginFrame(gGL);
 
           resizeCanvasScreen(gC, gGL);
 
@@ -1303,6 +1404,9 @@
           gGL.uniform1i(uAmbientMode, window._ambientModeInt !== undefined ? window._ambientModeInt : 2);
 
           gGL.drawArrays(gGL.TRIANGLE_STRIP, 0, 4);
+
+          // ── Perf: end GPU timer ──
+          _glarePerf.endFrame(gGL, gpuQuery);
         };
       }
     }

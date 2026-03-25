@@ -1,6 +1,6 @@
 # Screenshot Testing Tool — Specification
 
-This document specs out an automated visual regression testing tool for the K10 Media Broadcaster SimHub dashboard. The tool captures screenshots of the dashboard at specific moments during a demo sequence and compares them against golden reference images to detect visual regressions.
+This document specs out an automated visual regression testing tool for the K10 Motorsports SimHub dashboard. The tool captures screenshots of the dashboard at specific moments during a demo sequence and compares them against golden reference images to detect visual regressions.
 
 ## Problem
 
@@ -10,7 +10,7 @@ The existing test suites validate trigger logic, dataset integrity, and Homebrid
 
 **Hard requirements:**
 - Windows only (SimHub is Windows-only)
-- SimHub installed with the K10 Media Broadcaster plugin and dashboard template
+- SimHub installed with the K10 Motorsports plugin and dashboard template
 - No live sim session needed (uses demo mode)
 - Produces a pass/fail result with diff images on failure
 - Runs unattended after initial golden image generation
@@ -44,7 +44,7 @@ tools/screenshot_test.py
 
 SimHub dashboards render in a dedicated WPF window. The tool needs to:
 
-1. Find the SimHub dashboard window by title (the dashboard name is "k10 media broadcaster")
+1. Find the SimHub dashboard window by title (the dashboard name is "k10 motorsports")
 2. Capture just that window, not the full screen
 3. Handle DPI scaling (SimHub dashboards can render at non-100% scale)
 
@@ -101,7 +101,7 @@ def wait_for_step(expected_title, timeout=10):
     """Poll until the dashboard shows the expected topic title."""
     start = time.time()
     while time.time() - start < timeout:
-        title = requests.get(f"{SIMHUB_URL}/K10MediaBroadcaster.Plugin.CommentaryTitle").text.strip('"')
+        title = requests.get(f"{SIMHUB_URL}/K10Motorsports.Plugin.CommentaryTitle").text.strip('"')
         if title == expected_title:
             time.sleep(0.3)  # let the dashboard render
             return True
@@ -179,7 +179,7 @@ Color sampling is useful because it catches the specific bug from alpha testing 
 {
   "timestamp": "2026-03-11T15:30:00",
   "simhub_version": "9.5.2",
-  "dashboard": "k10 media broadcaster",
+  "dashboard": "k10 motorsports",
   "steps": [
     {
       "step": 1,
@@ -271,7 +271,7 @@ The threshold may need to be looser on CI (0.05 vs 0.02) to account for renderin
 ## Limitations
 
 - Requires SimHub installed (cannot run in a minimal CI container)
-- Dashboard window must exist — SimHub needs to load the "k10 media broadcaster" dashboard template
+- Dashboard window must exist — SimHub needs to load the "k10 motorsports" dashboard template
 - Font rendering may differ across Windows versions (the golden images are tied to the machine that generated them)
 - DPI scaling differences between machines can cause false positives (mitigated by perceptual hash fallback)
 - The demo sequence timing is not perfectly deterministic (the 0.3s render delay may need tuning per machine)

@@ -1,5 +1,5 @@
 appId: org.k10mediabroadcaster.broadcaster
-productName: K10 Media Broadcaster
+productName: K10 Motorsports
 copyright: Copyright (c) 2026 Kevin Conboy
 
 files:
@@ -36,7 +36,7 @@ mac:
         - arm64
 
 dmg:
-  title: K10 Media Broadcaster
+  title: K10 Motorsports
   contents:
     - x: 130
       "y": 220

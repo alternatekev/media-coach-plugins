@@ -19,19 +19,19 @@ The `.csproj` references SimHub DLLs from the SimHub installation directory. Set
 # Environment variable (recommended)
 set SIMHUB_PATH=C:\Program Files (x86)\SimHub\
 
-# Or edit plugin/K10MediaBroadcaster.Plugin/K10MediaBroadcaster.Plugin.csproj directly:
+# Or edit plugin/K10Motorsports.Plugin/K10Motorsports.Plugin.csproj directly:
 # <SimHubPath>C:\Your\SimHub\Path\</SimHubPath>
 ```
 
 ### Building
 
 ```bash
-dotnet build plugin/K10MediaBroadcaster.Plugin/K10MediaBroadcaster.Plugin.sln
+dotnet build plugin/K10Motorsports.Plugin/K10Motorsports.Plugin.sln
 ```
 
 The build automatically:
-1. Compiles `K10MediaBroadcaster.Plugin.dll` to the SimHub directory
-2. Copies `k10-media-broadcaster-data/` to `SimHub\dataset\` (post-build target `CopyDataset`)
+1. Compiles `K10Motorsports.Plugin.dll` to the SimHub directory
+2. Copies `k10-motorsports-data/` to `SimHub\dataset\` (post-build target `CopyDataset`)
 3. Copies `DashTemplates/` to `SimHub\DashTemplates\` (post-build target `CopyDashboard`)
 
 In Debug configuration, pressing F5 in Visual Studio launches SimHub directly for debugging.
@@ -93,7 +93,7 @@ npm run test:coverage
 npm run lint
 ```
 
-After `npm link`, restart Homebridge to pick up changes. The plugin is registered as `homebridge-k10-media-broadcaster-lights` and uses the `K10MediaBroadcasterLights` platform alias.
+After `npm link`, restart Homebridge to pick up changes. The plugin is registered as `homebridge-k10-motorsports-lights` and uses the `K10MotorsportsLights` platform alias.
 
 ### Dependencies
 
@@ -103,7 +103,7 @@ The plugin has zero runtime dependencies. All functionality uses Node.js built-i
 
 ### Editing Topics and Fragments
 
-Edit the JSON files in `k10-media-broadcaster-data/` directly. After changes:
+Edit the JSON files in `k10-motorsports-data/` directly. After changes:
 
 ```bash
 # Validate structural integrity (28 tests)
@@ -135,7 +135,7 @@ All test suites run without SimHub, iRacing, or any external service:
 
 ```bash
 # C# unit tests (200+ tests, NUnit, .NET 6.0)
-cd tests/K10MediaBroadcaster.Tests && dotnet test
+cd tests/K10Motorsports.Tests && dotnet test
 
 # Python dataset validation (28 tests)
 python3 tests/validate_datasets.py
@@ -161,29 +161,29 @@ After building in Visual Studio or via `dotnet build`, the compiled DLL lands in
 **Double-click `export.bat`** in the repository root, or run it from a terminal.
 
 The export tool copies:
-- `K10MediaBroadcaster.Plugin.dll` and `.pdb` from SimHub to the repo root
-- The `DashTemplates/k10 media broadcaster/` folder from SimHub to the repo (excluding `_Backups/`)
+- `K10Motorsports.Plugin.dll` and `.pdb` from SimHub to the repo root
+- The `DashTemplates/k10 motorsports/` folder from SimHub to the repo (excluding `_Backups/`)
 
-It does **not** copy the `k10-media-broadcaster-data/` folder back — the repo is the source of truth for dataset files. Changes to datasets should be made in the repo and pushed to SimHub via `install.bat` or a rebuild.
+It does **not** copy the `k10-motorsports-data/` folder back — the repo is the source of truth for dataset files. Changes to datasets should be made in the repo and pushed to SimHub via `install.bat` or a rebuild.
 
 ```bash
 # After export, the typical commit flow is:
-git add K10MediaBroadcaster.Plugin.dll K10MediaBroadcaster.Plugin.pdb DashTemplates/
+git add K10Motorsports.Plugin.dll K10Motorsports.Plugin.pdb DashTemplates/
 git commit -m "Update built plugin and dashboard"
 ```
 
 ## Project Layout
 
 ```
-├── plugin/K10MediaBroadcaster.Plugin/    SimHub plugin source (C#)
+├── plugin/K10Motorsports.Plugin/    SimHub plugin source (C#)
 │   ├── Engine/                     Core logic (no manual edits to .csproj needed)
 │   ├── Models/                     Data models
 │   └── Properties/                 Assembly info
 ├── homebridge-plugin/              Homebridge plugin source (TypeScript)
 │   └── src/__tests__/              Jest tests
-├── k10-media-broadcaster-data/                        Shared data files (JSON)
+├── k10-motorsports-data/                        Shared data files (JSON)
 ├── tests/
-│   ├── K10MediaBroadcaster.Tests/        C# unit tests (.NET 6.0, NUnit)
+│   ├── K10Motorsports.Tests/        C# unit tests (.NET 6.0, NUnit)
 │   ├── validate_datasets.py        Python dataset validation
 ├── tools/
 │   ├── generate_fragments.py       Fragment generation (Haiku)

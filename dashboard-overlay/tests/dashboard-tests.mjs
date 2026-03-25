@@ -1,5 +1,5 @@
 /**
- * K10 Media Broadcaster — Dashboard Test Suite
+ * K10 Motorsports — Dashboard Test Suite
  *
  * Playwright tests for the HTML dashboard overlay. Covers:
  *   - Initial page structure and element presence
@@ -296,7 +296,7 @@ test.describe('Fuel bar states', () => {
     await load(page, {
       'DataCorePlugin.GameData.Fuel': 40,
       'DataCorePlugin.GameData.MaxFuel': 60,
-      'K10MediaBroadcaster.Plugin.DS.FuelPct': 66.7,
+      'K10Motorsports.Plugin.DS.FuelPct': 66.7,
     });
     await expect(page.locator('.fuel-bar-inner')).toHaveClass(/healthy/);
   });
@@ -305,7 +305,7 @@ test.describe('Fuel bar states', () => {
     await load(page, {
       'DataCorePlugin.GameData.Fuel': 12,
       'DataCorePlugin.GameData.MaxFuel': 60,
-      'K10MediaBroadcaster.Plugin.DS.FuelPct': 20,
+      'K10Motorsports.Plugin.DS.FuelPct': 20,
     });
     await expect(page.locator('.fuel-bar-inner')).toHaveClass(/caution/);
   });
@@ -314,7 +314,7 @@ test.describe('Fuel bar states', () => {
     await load(page, {
       'DataCorePlugin.GameData.Fuel': 4,
       'DataCorePlugin.GameData.MaxFuel': 60,
-      'K10MediaBroadcaster.Plugin.DS.FuelPct': 6.7,
+      'K10Motorsports.Plugin.DS.FuelPct': 6.7,
     });
     await expect(page.locator('.fuel-bar-inner')).toHaveClass(/critical/);
   });
@@ -325,8 +325,8 @@ test.describe('Fuel bar states', () => {
       'DataCorePlugin.GameData.MaxFuel': 60,
       'DataCorePlugin.Computed.Fuel_LitersPerLap': 3.0,
       'DataCorePlugin.GameData.RemainingLaps': 14,
-      'K10MediaBroadcaster.Plugin.DS.FuelPct': 16.7,
-      'K10MediaBroadcaster.Plugin.DS.FuelLapsRemaining': 3.3,
+      'K10Motorsports.Plugin.DS.FuelPct': 16.7,
+      'K10Motorsports.Plugin.DS.FuelLapsRemaining': 3.3,
     });
     const pitSug = page.locator('.fuel-pit-suggest');
     const text = await pitSug.textContent();
@@ -339,8 +339,8 @@ test.describe('Fuel bar states', () => {
       'DataCorePlugin.GameData.MaxFuel': 60,
       'DataCorePlugin.Computed.Fuel_LitersPerLap': 3.0,
       'DataCorePlugin.GameData.RemainingLaps': 10,
-      'K10MediaBroadcaster.Plugin.DS.FuelPct': 83.3,
-      'K10MediaBroadcaster.Plugin.DS.FuelLapsRemaining': 16.7,
+      'K10Motorsports.Plugin.DS.FuelPct': 83.3,
+      'K10Motorsports.Plugin.DS.FuelLapsRemaining': 16.7,
     });
     const pitSug = page.locator('.fuel-pit-suggest');
     const text = await pitSug.textContent();
@@ -403,12 +403,12 @@ test.describe('Commentary panel', () => {
 
   test('commentary shows when CommentaryVisible is 1', async ({ page }) => {
     await load(page, {
-      'K10MediaBroadcaster.Plugin.CommentaryVisible': 1,
-      'K10MediaBroadcaster.Plugin.CommentaryText': 'Watch the rear end through turn 3.',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicTitle': 'Oversteer',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicId': 'car_balance_sustained',
-      'K10MediaBroadcaster.Plugin.CommentaryCategory': 'car_response',
-      'K10MediaBroadcaster.Plugin.CommentarySentimentColor': '#FFFF6F00',
+      'K10Motorsports.Plugin.CommentaryVisible': 1,
+      'K10Motorsports.Plugin.CommentaryText': 'Watch the rear end through turn 3.',
+      'K10Motorsports.Plugin.CommentaryTopicTitle': 'Oversteer',
+      'K10Motorsports.Plugin.CommentaryTopicId': 'car_balance_sustained',
+      'K10Motorsports.Plugin.CommentaryCategory': 'car_response',
+      'K10Motorsports.Plugin.CommentarySentimentColor': '#FFFF6F00',
     });
     const col = page.locator('#commentaryCol');
     await expect(col).toHaveClass(/visible/);
@@ -416,11 +416,11 @@ test.describe('Commentary panel', () => {
 
   test('commentary title and text populate correctly', async ({ page }) => {
     await load(page, {
-      'K10MediaBroadcaster.Plugin.CommentaryVisible': 1,
-      'K10MediaBroadcaster.Plugin.CommentaryText': 'Massive lockup into T1.',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicTitle': 'Brake Lock',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicId': 'heavy_braking',
-      'K10MediaBroadcaster.Plugin.CommentaryCategory': 'hardware',
+      'K10Motorsports.Plugin.CommentaryVisible': 1,
+      'K10Motorsports.Plugin.CommentaryText': 'Massive lockup into T1.',
+      'K10Motorsports.Plugin.CommentaryTopicTitle': 'Brake Lock',
+      'K10Motorsports.Plugin.CommentaryTopicId': 'heavy_braking',
+      'K10Motorsports.Plugin.CommentaryCategory': 'hardware',
     });
     await expect(page.locator('#commentaryTitle')).toHaveText('Brake Lock');
     await expect(page.locator('#commentaryText')).toHaveText('Massive lockup into T1.');
@@ -430,18 +430,18 @@ test.describe('Commentary panel', () => {
   test('commentary hides after data clears', async ({ page }) => {
     // First show commentary
     await load(page, {
-      'K10MediaBroadcaster.Plugin.CommentaryVisible': 1,
-      'K10MediaBroadcaster.Plugin.CommentaryText': 'Test',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicTitle': 'Test',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicId': 'spin_catch',
-      'K10MediaBroadcaster.Plugin.CommentaryCategory': 'test',
-      'K10MediaBroadcaster.Plugin.CommentarySentimentColor': '#FF00FF00',
+      'K10Motorsports.Plugin.CommentaryVisible': 1,
+      'K10Motorsports.Plugin.CommentaryText': 'Test',
+      'K10Motorsports.Plugin.CommentaryTopicTitle': 'Test',
+      'K10Motorsports.Plugin.CommentaryTopicId': 'spin_catch',
+      'K10Motorsports.Plugin.CommentaryCategory': 'test',
+      'K10Motorsports.Plugin.CommentarySentimentColor': '#FF00FF00',
     });
     await expect(page.locator('#commentaryCol')).toHaveClass(/visible/);
 
     // Then hide it
     await updateMockData(page, {
-      'K10MediaBroadcaster.Plugin.CommentaryVisible': 0,
+      'K10Motorsports.Plugin.CommentaryVisible': 0,
     });
     await page.waitForTimeout(500);
     await expect(page.locator('#commentaryCol')).not.toHaveClass(/visible/);
@@ -573,11 +573,11 @@ test.describe('Rating/Position cycling', () => {
 test.describe('Track map', () => {
   test('track map updates when data arrives', async ({ page }) => {
     await load(page, {
-      'K10MediaBroadcaster.Plugin.TrackMap.Ready': 1,
-      'K10MediaBroadcaster.Plugin.TrackMap.SvgPath': 'M10 10 L 90 10 L 90 90 L 10 90 Z',
-      'K10MediaBroadcaster.Plugin.TrackMap.PlayerX': 50,
-      'K10MediaBroadcaster.Plugin.TrackMap.PlayerY': 50,
-      'K10MediaBroadcaster.Plugin.TrackMap.Opponents': '30,30,0;70,70,0',
+      'K10Motorsports.Plugin.TrackMap.Ready': 1,
+      'K10Motorsports.Plugin.TrackMap.SvgPath': 'M10 10 L 90 10 L 90 90 L 10 90 Z',
+      'K10Motorsports.Plugin.TrackMap.PlayerX': 50,
+      'K10Motorsports.Plugin.TrackMap.PlayerY': 50,
+      'K10Motorsports.Plugin.TrackMap.Opponents': '30,30,0;70,70,0',
     });
     const path = await page.locator('#fullMapTrack').getAttribute('d');
     expect(path).toContain('M10 10');
@@ -587,11 +587,11 @@ test.describe('Track map', () => {
 
   test('opponents render as circles', async ({ page }) => {
     await load(page, {
-      'K10MediaBroadcaster.Plugin.TrackMap.Ready': 1,
-      'K10MediaBroadcaster.Plugin.TrackMap.SvgPath': 'M10 10 L 90 90',
-      'K10MediaBroadcaster.Plugin.TrackMap.PlayerX': 50,
-      'K10MediaBroadcaster.Plugin.TrackMap.PlayerY': 50,
-      'K10MediaBroadcaster.Plugin.TrackMap.Opponents': '20,20,0;80,80,0;50,10,1',
+      'K10Motorsports.Plugin.TrackMap.Ready': 1,
+      'K10Motorsports.Plugin.TrackMap.SvgPath': 'M10 10 L 90 90',
+      'K10Motorsports.Plugin.TrackMap.PlayerX': 50,
+      'K10Motorsports.Plugin.TrackMap.PlayerY': 50,
+      'K10Motorsports.Plugin.TrackMap.Opponents': '20,20,0;80,80,0;50,10,1',
     });
     const fullOpponents = page.locator('#fullMapOpponents circle');
     // 3 opponents (including one in pit)
@@ -711,12 +711,12 @@ test.describe('Settings panel', () => {
 
   test('toggling commentary off hides commentary column', async ({ page }) => {
     await load(page, {
-      'K10MediaBroadcaster.Plugin.CommentaryVisible': 1,
-      'K10MediaBroadcaster.Plugin.CommentaryText': 'Test',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicTitle': 'Test',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicId': 'spin_catch',
-      'K10MediaBroadcaster.Plugin.CommentaryCategory': 'test',
-      'K10MediaBroadcaster.Plugin.CommentarySentimentColor': '#FF00FF00',
+      'K10Motorsports.Plugin.CommentaryVisible': 1,
+      'K10Motorsports.Plugin.CommentaryText': 'Test',
+      'K10Motorsports.Plugin.CommentaryTopicTitle': 'Test',
+      'K10Motorsports.Plugin.CommentaryTopicId': 'spin_catch',
+      'K10Motorsports.Plugin.CommentaryCategory': 'test',
+      'K10Motorsports.Plugin.CommentarySentimentColor': '#FF00FF00',
     });
     await page.evaluate(() => {
       _settings.showCommentary = false;

@@ -1,12 +1,12 @@
-# Apple HomeKit Light Control for K10 Media Broadcaster
+# Apple HomeKit Light Control for K10 Motorsports
 
-This guide walks through connecting your Apple HomeKit-compatible smart lights to the K10 Media Broadcaster SimHub plugin, so your lights react to what's happening on track.
+This guide walks through connecting your Apple HomeKit-compatible smart lights to the K10 Motorsports SimHub plugin, so your lights react to what's happening on track.
 
 ## Prerequisites
 
 Before starting, you need the following running on your network:
 
-- **SimHub** with the K10 Media Broadcaster plugin installed and active
+- **SimHub** with the K10 Motorsports plugin installed and active
 - **SimHub Web Dashboard Server** enabled (Settings > Web Server in SimHub, default port 8888)
 - **Homebridge** (v1.6.0+) running on any machine that can reach your SimHub PC over the network
 - **Node.js** 18 or later on the Homebridge host
@@ -36,19 +36,19 @@ Open SimHub, go to **Settings**, and enable **Web Dashboard Server**. The defaul
 Verify the API is working by visiting this URL in a browser:
 
 ```
-http://localhost:8888/api/pluginproperty/K10MediaBroadcaster.Plugin.CommentaryVisible
+http://localhost:8888/api/pluginproperty/K10Motorsports.Plugin.CommentaryVisible
 ```
 
-You should see a `0` or `1` response. If you get an error, confirm the K10 Media Broadcaster plugin is loaded and SimHub's web server is active.
+You should see a `0` or `1` response. If you get an error, confirm the K10 Motorsports plugin is loaded and SimHub's web server is active.
 
 ### 3. Configure in Homebridge
 
-Open the Homebridge UI and find **K10 Media Broadcaster Lights** in the plugin list. Add a platform entry to your Homebridge `config.json`:
+Open the Homebridge UI and find **K10 Motorsports Lights** in the plugin list. Add a platform entry to your Homebridge `config.json`:
 
 ```json
 {
-  "platform": "K10MediaBroadcasterLights",
-  "name": "K10 Media Broadcaster Lights",
+  "platform": "K10MotorsportsLights",
+  "name": "K10 Motorsports Lights",
   "simhubUrl": "http://localhost:8888",
   "pollIntervalMs": 500,
   "mode": "all_colors",
@@ -56,7 +56,7 @@ Open the Homebridge UI and find **K10 Media Broadcaster Lights** in the plugin l
   "lights": [
     {
       "name": "Sim Rig Light",
-      "uniqueId": "k10-media-broadcaster-light-1"
+      "uniqueId": "k10-motorsports-light-1"
     }
   ]
 }
@@ -119,7 +119,7 @@ This gives you on/off mirroring only. For full color mirroring, Controller for H
 
 #### Path B: homebridge-plugin-automation (for Homebridge-managed lights)
 
-[homebridge-plugin-automation](https://github.com/grrowl/homebridge-plugin-automation) lets you write JavaScript rules that run directly on the Homebridge server. When the K10 Media Broadcaster virtual light's characteristics change, your script reads the new values and writes them to your physical light — all within the same Homebridge process, no HomeKit round-trip required. This is the lowest-latency option available.
+[homebridge-plugin-automation](https://github.com/grrowl/homebridge-plugin-automation) lets you write JavaScript rules that run directly on the Homebridge server. When the K10 Motorsports virtual light's characteristics change, your script reads the new values and writes them to your physical light — all within the same Homebridge process, no HomeKit round-trip required. This is the lowest-latency option available.
 
 **Important:** This only works for lights that are registered as accessories within the same Homebridge instance (via plugins like homebridge-hue, homebridge-shelly, homebridge-zigbee2mqtt, etc.). It cannot control native HomeKit accessories that weren't created by Homebridge. If your lights are paired directly to HomeKit, use Path A instead.
 
@@ -137,18 +137,18 @@ homebridge-plugin-automation requires Homebridge to run in insecure mode (`-I` f
 
 **Step 3: Create your automation script**
 
-Create a file called `k10-media-broadcaster-lights.js` somewhere accessible to Homebridge (e.g., alongside your `config.json`):
+Create a file called `k10-motorsports-lights.js` somewhere accessible to Homebridge (e.g., alongside your `config.json`):
 
 ```javascript
-// k10-media-broadcaster-lights.js
-// Mirrors K10 Media Broadcaster virtual light colors to physical Homebridge lights
+// k10-motorsports-lights.js
+// Mirrors K10 Motorsports virtual light colors to physical Homebridge lights
 
 // Configuration — change these to match your accessory names
-const VIRTUAL_LIGHT = 'Sim Rig Light';       // Name of the K10 Media Broadcaster virtual light
+const VIRTUAL_LIGHT = 'Sim Rig Light';       // Name of the K10 Motorsports virtual light
 const PHYSICAL_LIGHTS = ['Desk Lamp', 'LED Strip'];  // Names of your real lights
 
 automation.listen(({ serviceName, characteristic, value }) => {
-  // Only react to changes on the K10 Media Broadcaster virtual light
+  // Only react to changes on the K10 Motorsports virtual light
   if (serviceName !== VIRTUAL_LIGHT) return;
 
   // Mirror the characteristic to all physical lights
@@ -170,7 +170,7 @@ Add this to the `platforms` array in your Homebridge `config.json`:
 ```json
 {
   "platform": "Automation",
-  "automationCode": "/path/to/k10-media-broadcaster-lights.js"
+  "automationCode": "/path/to/k10-motorsports-lights.js"
 }
 ```
 
@@ -207,7 +207,7 @@ automation.listen(({ serviceName, characteristic, value }) => {
 
 With the automation in place:
 
-1. Start a race session in SimHub (or enable Demo mode in the K10 Media Broadcaster plugin settings)
+1. Start a race session in SimHub (or enable Demo mode in the K10 Motorsports plugin settings)
 2. Watch the virtual light's color tile change in Apple Home
 3. Confirm your physical light follows those changes
 4. If there's a noticeable delay, lower `pollIntervalMs` in the Homebridge config (see Troubleshooting)
@@ -285,8 +285,8 @@ You can control multiple lights independently. Each light in the `lights` array 
 
 ```json
 {
-  "platform": "K10MediaBroadcasterLights",
-  "name": "K10 Media Broadcaster Lights",
+  "platform": "K10MotorsportsLights",
+  "name": "K10 Motorsports Lights",
   "simhubUrl": "http://192.168.1.50:8888",
   "mode": "all_colors",
   "enableBlink": true,
@@ -349,9 +349,9 @@ This would set a very dim blue ambient instead.
 ## Troubleshooting
 
 **Lights don't respond at all**
-- Confirm SimHub's web server is enabled and reachable from the Homebridge host. Try `curl http://<simhub-ip>:8888/api/pluginproperty/K10MediaBroadcaster.Plugin.CommentaryVisible` from the Homebridge machine.
-- Check Homebridge logs for connection errors from the K10 Media Broadcaster Lights plugin.
-- Ensure the K10 Media Broadcaster plugin is active in SimHub (look for "K10MediaBroadcaster.Plugin" in SimHub's plugin list).
+- Confirm SimHub's web server is enabled and reachable from the Homebridge host. Try `curl http://<simhub-ip>:8888/api/pluginproperty/K10Motorsports.Plugin.CommentaryVisible` from the Homebridge machine.
+- Check Homebridge logs for connection errors from the K10 Motorsports Lights plugin.
+- Ensure the K10 Motorsports plugin is active in SimHub (look for "K10Motorsports.Plugin" in SimHub's plugin list).
 
 **Lights respond but colors are wrong**
 - Verify the light mode is set to `all_colors` for full color support.

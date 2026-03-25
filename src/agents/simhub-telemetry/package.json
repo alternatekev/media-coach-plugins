@@ -1,7 +1,7 @@
 {
   "name": "@k10/simhub-telemetry-mcp",
   "version": "1.0.0",
-  "description": "MCP server for reading SimHub telemetry via the K10 Media Broadcaster plugin HTTP API",
+  "description": "MCP server for reading SimHub telemetry via the K10 Motorsports plugin HTTP API",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

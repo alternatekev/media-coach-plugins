@@ -1,4 +1,4 @@
-# K10 Media Broadcaster — Dashboard Overlay
+# K10 Motorsports — Dashboard Overlay
 
 A standalone Electron overlay that renders real-time sim racing telemetry as a transparent HUD on top of your sim. Designed for stream overlays and broadcast production — it composites directly over the game window with no capture card or secondary monitor required.
 
@@ -6,7 +6,7 @@ A standalone Electron overlay that renders real-time sim racing telemetry as a t
 
 ## Overview
 
-The dashboard connects to the K10 Media Broadcaster SimHub plugin's HTTP API and renders telemetry data at ~30fps. It runs as a frameless, always-on-top, click-through window so the game receives all mouse and keyboard input normally. On systems that support native transparency (x64 Windows), the window background is fully transparent. On ARM devices (Surface Pro, Snapdragon laptops), it uses a green chroma key background for OBS Color Key compositing.
+The dashboard connects to the K10 Motorsports SimHub plugin's HTTP API and renders telemetry data at ~30fps. It runs as a frameless, always-on-top, click-through window so the game receives all mouse and keyboard input normally. On systems that support native transparency (x64 Windows), the window background is fully transparent. On ARM devices (Surface Pro, Snapdragon laptops), it uses a green chroma key background for OBS Color Key compositing.
 
 The `dashboard.html` file powers three deployment modes: the Electron overlay (this app), the SimHub built-in dashboard template, and direct browser access via the plugin's HTTP server.
 
@@ -15,7 +15,7 @@ The `dashboard.html` file powers three deployment modes: the Electron overlay (t
 ### Prerequisites
 
 - Node.js 18+
-- SimHub running with the K10 Media Broadcaster plugin enabled
+- SimHub running with the K10 Motorsports plugin enabled
 - The plugin's HTTP server active on port 8889 (starts automatically with the plugin)
 - **iRacing users:** The [iRacing Extra Properties](https://drive.google.com/drive/folders/1AiIWHviD4j-_D-zgRrjJU1AFhJ_xmass) plugin by RomainRob (required for iRating and Safety Rating display). Copy `RSC.iRacingExtraProperties.dll` into your SimHub folder while SimHub is closed.
 
@@ -29,7 +29,7 @@ npm start
 
 **Platform launchers** (double-click to run — auto-install dependencies and build dashboards):
 
-- **macOS:** `scripts/mac/K10 Media Broadcaster.command`
+- **macOS:** `scripts/mac/K10 Motorsports.command`
 - **Windows:** `scripts/windows/start.bat`
 
 The overlay appears in the top-right corner of your primary display. If you see a crash on ARM hardware, use the safe mode launcher:
@@ -97,7 +97,7 @@ An expandable panel that slides in from the left when the commentary engine fire
 
 ```
 ┌─────────────────────────────────────┐
-│  SimHub + K10 Media Broadcaster Plugin    │
+│  SimHub + K10 Motorsports Plugin    │
 │  ┌────────────────────────────────┐ │
 │  │ HTTP Server (port 8889)        │ │
 │  │ GET /k10mediabroadcaster/            │ │
@@ -106,7 +106,7 @@ An expandable panel that slides in from the left when the commentary engine fire
 └──────────────────┬──────────────────┘
                    │ HTTP GET (~30fps)
 ┌──────────────────▼──────────────────┐
-│  K10 Media Broadcaster (Electron)     │
+│  K10 Motorsports (Electron)        │
 │  ┌────────────────────────────────┐ │
 │  │ main.js         (main process) │ │
 │  │ • Window management            │ │
@@ -133,7 +133,7 @@ An expandable panel that slides in from the left when the commentary engine fire
 
 1. The SimHub plugin runs an `HttpListener` on port 8889 that serves all telemetry and commentary state as a flat JSON object at `/k10mediabroadcaster/`.
 
-2. The dashboard's `fetchProps()` function issues a single HTTP GET every 33ms (~30fps). When the plugin is in demo mode, the dashboard reads from `K10MediaBroadcaster.Plugin.Demo.*` properties instead of `DataCorePlugin.GameData.*` properties — the switching is transparent.
+2. The dashboard's `fetchProps()` function issues a single HTTP GET every 33ms (~30fps). When the plugin is in demo mode, the dashboard reads from `K10Motorsports.Plugin.Demo.*` properties instead of `DataCorePlugin.GameData.*` properties — the switching is transparent.
 
 3. Each poll cycle, `pollUpdate()` maps the JSON values to DOM elements: updating text content, CSS custom properties, SVG transforms, and class toggles. Animations (tachometer color, commentary slide-in, gap flashes) are handled by CSS transitions triggered by class changes.
 
@@ -169,7 +169,7 @@ Press `Ctrl+Shift+S` to enter settings mode, then click the gear icon to open th
 - K10 logo
 - Car manufacturer logo
 
-You can also change the SimHub API URL if the plugin is running on a different machine (e.g., `http://playbox.local:8889/k10mediabroadcaster`).
+You can also change the SimHub API URL if the plugin is running on a different machine (e.g., `http://playbox.local:8889/k10mediabroadcaster`). The plugin is part of the K10 Motorsports suite.
 
 Settings persist between sessions — they're saved via Electron IPC to a JSON file in the app's user data directory, with a localStorage fallback when running in a browser.
 
@@ -205,7 +205,7 @@ On ARM64 Windows devices (Qualcomm Snapdragon, Microsoft SQ processors), Chromiu
 
 ### OBS Setup for ARM
 
-1. Add a **Window Capture** source pointing to the K10 Media Broadcaster window
+1. Add a **Window Capture** source pointing to the K10 Motorsports window
 2. Right-click the source → **Filters**
 3. Add **Color Key** filter
 4. Set key color to green (`#00FF00`)
@@ -221,7 +221,7 @@ The standalone Electron app described in this document. Best for streaming and b
 
 ### SimHub Dashboard Template
 
-The same `dashboard.html` is installed as a SimHub dashboard template (in `DashTemplates/k10 media broadcaster/`). When opened inside SimHub's dashboard viewer, it uses SimHub's `$prop()` API for data instead of HTTP polling. No Electron needed — SimHub handles the rendering.
+The same `dashboard.html` is installed as a SimHub dashboard template (in `DashTemplates/k10 motorsports/`) as part of the K10 Motorsports suite. When opened inside SimHub's dashboard viewer, it uses SimHub's `$prop()` API for data instead of HTTP polling. No Electron needed — SimHub handles the rendering.
 
 ### Browser Access
 
@@ -229,12 +229,12 @@ Open `dashboard.html` directly in any browser while SimHub and the plugin are ru
 
 ## Troubleshooting
 
-**Dashboard shows no data:** Verify the plugin's HTTP server is running — open `http://localhost:8889/k10mediabroadcaster/` in a browser. You should see a JSON blob with 77+ properties. If not, check that the K10 Media Broadcaster plugin is enabled in SimHub.
+**Dashboard shows no data:** Verify the plugin's HTTP server is running — open `http://localhost:8889/k10mediabroadcaster/` in a browser. You should see a JSON blob with 77+ properties. If not, check that the K10 Motorsports plugin is enabled in SimHub.
 
-**Overlay crashes on launch (ARM):** Use `npm run start:safe` which forces software rendering. If that still fails, check that you're running Electron 33+ which includes the ARM compatibility fixes.
+**K10 Motorsports overlay crashes on launch (ARM):** Use `npm run start:safe` which forces software rendering. If that still fails, check that you're running Electron 33+ which includes the ARM compatibility fixes.
 
-**Commentary panel never appears:** Enable Demo Mode in the SimHub plugin settings to trigger test commentary events. The commentary panel only slides in when `K10MediaBroadcaster.Plugin.CommentaryVisible` is set to 1 by the engine.
+**Commentary panel never appears:** Enable Demo Mode in the SimHub plugin settings to trigger test commentary events. The commentary panel only slides in when `K10Motorsports.Plugin.CommentaryVisible` is set to 1 by the engine.
 
 **Overlay covers clicks:** The overlay should be click-through by default. If you accidentally entered settings mode (`Ctrl+Shift+S`), press `Ctrl+Shift+S` again to lock the overlay and restore click-through behavior.
 
-**OBS shows black/solid overlay:** On x64, make sure you're using **Game Capture** or **Window Capture** with "Allow Transparency" enabled. On ARM, use the Color Key filter approach described above.
+**OBS shows black/solid K10 Motorsports overlay:** On x64, make sure you're using **Game Capture** or **Window Capture** with "Allow Transparency" enabled. On ARM, use the Color Key filter approach described above.

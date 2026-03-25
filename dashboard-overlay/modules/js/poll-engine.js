@@ -7,7 +7,7 @@
   // Works as standalone browser overlay or OBS Browser Source.
   // The JavascriptExtensions file is unused in this mode.
   //
-  // Config: K10 Media Broadcaster plugin HTTP server (port 8889)
+  // Config: K10 Motorsports plugin HTTP server (port 8889)
   // The plugin serves all telemetry, demo, commentary and track map data
   // as a flat JSON map from its own HTTP server — no SimHub web API needed.
   // ═══════════════════════════════════════════════════════════════
@@ -31,7 +31,7 @@
     // Diagnostic logging (first 3 frames + every 300 frames ~10s)
     if (_pollFrame <= 3 || _pollFrame % 300 === 0) {
       const keys = Object.keys(p).filter(k => p[k] != null && p[k] !== 0 && p[k] !== '');
-      console.log(`[K10 poll #${_pollFrame}] Got ${Object.keys(p).length} keys, ${keys.length} non-empty. DemoMode=${p['K10MediaBroadcaster.Plugin.DemoMode']}, GameRunning=${p['DataCorePlugin.GameRunning']}`);
+      console.log(`[K10 poll #${_pollFrame}] Got ${Object.keys(p).length} keys, ${keys.length} non-empty. DemoMode=${p['K10Motorsports.Plugin.DemoMode']}, GameRunning=${p['DataCorePlugin.GameRunning']}`);
       if (_pollFrame === 1) console.log('[K10 poll] Sample values:', JSON.stringify(Object.fromEntries(keys.slice(0, 10).map(k => [k, p[k]]))));
     }
 
@@ -51,19 +51,19 @@
     const vs = (k) => p[k] != null ? '' + p[k] : '';
 
     // Demo mode: swap data sources when plugin demo mode is active
-    const _demo = +v('K10MediaBroadcaster.Plugin.DemoMode') || 0;
-    const d = (gameKey, demoKey) => _demo ? v('K10MediaBroadcaster.Plugin.' + demoKey) : v(gameKey);
-    const ds = (gameKey, demoKey) => _demo ? vs('K10MediaBroadcaster.Plugin.' + demoKey) : vs(gameKey);
+    const _demo = +v('K10Motorsports.Plugin.DemoMode') || 0;
+    const d = (gameKey, demoKey) => _demo ? v('K10Motorsports.Plugin.' + demoKey) : v(gameKey);
+    const ds = (gameKey, demoKey) => _demo ? vs('K10Motorsports.Plugin.' + demoKey) : vs(gameKey);
 
     // ─── Idle State Detection ───
     const gameRunning = +v('DataCorePlugin.GameRunning') || 0;
-    const sessionPre = _demo ? 'K10MediaBroadcaster.Plugin.Demo.Grid.' : 'K10MediaBroadcaster.Plugin.Grid.';
-    const dsPre = _demo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
+    const sessionPre = _demo ? 'K10Motorsports.Plugin.Demo.Grid.' : 'K10Motorsports.Plugin.Grid.';
+    const dsPre = _demo ? 'K10Motorsports.Plugin.Demo.DS.' : 'K10Motorsports.Plugin.DS.';
     const sessNum = parseInt(vs(sessionPre + 'SessionState')) || 0;
     const _inPitLane = +(p[dsPre + 'IsInPitLane']) > 0;
 
     // Detect game and apply feature gating
-    const rawGameId = v('K10MediaBroadcaster.Plugin.GameId') || '';
+    const rawGameId = v('K10Motorsports.Plugin.GameId') || '';
     const newGameId = detectGameId(rawGameId);
     if (newGameId !== _currentGameId) {
       _currentGameId = newGameId;
@@ -183,7 +183,7 @@
     if (fuelRem) fuelRem.innerHTML = fuel > 0 ? fuel.toFixed(1) + ' <span class="unit">L</span>' : '— <span class="unit">L</span>';
     updateFuelBar(fuelPct, 0);
 
-    const fuelPerLap = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.FuelPerLap') || 0) : (+v('DataCorePlugin.Computed.Fuel_LitersPerLap') || 0);
+    const fuelPerLap = _demo ? (+v('K10Motorsports.Plugin.Demo.FuelPerLap') || 0) : (+v('DataCorePlugin.Computed.Fuel_LitersPerLap') || 0);
     const fuelLapsEst = +(p[dsPre + 'FuelLapsRemaining']) || (fuelPerLap > 0 ? fuel / fuelPerLap : 0);
     const completedLaps = +(p[dsPre + 'CompletedLaps']) || 0;
     const fuelVals = document.querySelectorAll('.fuel-stats .val');
@@ -208,10 +208,10 @@
 
     // ─── Tyres ───
     if (_demo) {
-      updateTyreCell(0, +v('K10MediaBroadcaster.Plugin.Demo.TyreTempFL'), (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearFL') || 1) * 100);
-      updateTyreCell(1, +v('K10MediaBroadcaster.Plugin.Demo.TyreTempFR'), (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearFR') || 1) * 100);
-      updateTyreCell(2, +v('K10MediaBroadcaster.Plugin.Demo.TyreTempRL'), (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearRL') || 1) * 100);
-      updateTyreCell(3, +v('K10MediaBroadcaster.Plugin.Demo.TyreTempRR'), (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearRR') || 1) * 100);
+      updateTyreCell(0, +v('K10Motorsports.Plugin.Demo.TyreTempFL'), (+v('K10Motorsports.Plugin.Demo.TyreWearFL') || 1) * 100);
+      updateTyreCell(1, +v('K10Motorsports.Plugin.Demo.TyreTempFR'), (+v('K10Motorsports.Plugin.Demo.TyreWearFR') || 1) * 100);
+      updateTyreCell(2, +v('K10Motorsports.Plugin.Demo.TyreTempRL'), (+v('K10Motorsports.Plugin.Demo.TyreWearRL') || 1) * 100);
+      updateTyreCell(3, +v('K10Motorsports.Plugin.Demo.TyreTempRR'), (+v('K10Motorsports.Plugin.Demo.TyreWearRR') || 1) * 100);
     } else {
       updateTyreCell(0, +v('DataCorePlugin.GameData.TyreTempFrontLeft'), (p['DataCorePlugin.GameData.TyreWearFrontLeft'] != null ? +p['DataCorePlugin.GameData.TyreWearFrontLeft'] * 100 : 100));
       updateTyreCell(1, +v('DataCorePlugin.GameData.TyreTempFrontRight'), (p['DataCorePlugin.GameData.TyreWearFrontRight'] != null ? +p['DataCorePlugin.GameData.TyreWearFrontRight'] * 100 : 100));
@@ -220,9 +220,9 @@
     }
 
     // ─── Controls (BB / TC / ABS) ───
-    const bb = _demo ? +v('K10MediaBroadcaster.Plugin.Demo.BrakeBias') : (+v('DataCorePlugin.GameRawData.Telemetry.dcBrakeBias') || 0);
-    const tc = _demo ? +v('K10MediaBroadcaster.Plugin.Demo.TC') : p['DataCorePlugin.GameRawData.Telemetry.dcTractionControl'];
-    const abs = _demo ? +v('K10MediaBroadcaster.Plugin.Demo.ABS') : p['DataCorePlugin.GameRawData.Telemetry.dcABS'];
+    const bb = _demo ? +v('K10Motorsports.Plugin.Demo.BrakeBias') : (+v('DataCorePlugin.GameRawData.Telemetry.dcBrakeBias') || 0);
+    const tc = _demo ? +v('K10Motorsports.Plugin.Demo.TC') : p['DataCorePlugin.GameRawData.Telemetry.dcTractionControl'];
+    const abs = _demo ? +v('K10Motorsports.Plugin.Demo.ABS') : p['DataCorePlugin.GameRawData.Telemetry.dcABS'];
     const absActive = +v(dsPre + 'AbsActive') || 0; // Track ABS activation even if not adjustable
     const carModel = ds('DataCorePlugin.GameData.CarModel', 'Demo.CarModel');
     if (carModel !== _lastCarModel) {
@@ -449,9 +449,9 @@
     // ─── iRating / Safety ───
     // Priority: manual entry (always wins when set) → telemetry
     let ir = window._manualIRating > 0 ? window._manualIRating
-      : (_demo ? (+v('K10MediaBroadcaster.Plugin.Demo.IRating') || 0) : (+v('IRacingExtraProperties.iRacing_DriverInfo_IRating') || 0));
+      : (_demo ? (+v('K10Motorsports.Plugin.Demo.IRating') || 0) : (+v('IRacingExtraProperties.iRacing_DriverInfo_IRating') || 0));
     let sr = window._manualSafetyRating > 0 ? window._manualSafetyRating
-      : (_demo ? (+v('K10MediaBroadcaster.Plugin.Demo.SafetyRating') || 0) : (+v('IRacingExtraProperties.iRacing_DriverInfo_SafetyRating') || 0));
+      : (_demo ? (+v('K10Motorsports.Plugin.Demo.SafetyRating') || 0) : (+v('IRacingExtraProperties.iRacing_DriverInfo_SafetyRating') || 0));
     _hasRatingData = (ir > 0 || sr > 0);
     const ratVals = document.querySelectorAll('.rating-value');
     if (ratVals.length >= 2) { ratVals[0].textContent = ir > 0 ? ir : '—'; ratVals[1].textContent = sr > 0 ? sr.toFixed(2) : '—'; }
@@ -496,8 +496,8 @@
     // ─── Gaps / Lap Timing ───
     // Prefer server-computed DS.IsNonRaceSession, fallback to client-side string check
     const nonRace = +(p[dsPre + 'IsNonRaceSession']) > 0 || _isNonRaceSession(
-      _demo ? (p['K10MediaBroadcaster.Plugin.Demo.SessionTypeName'] || '')
-            : (p['K10MediaBroadcaster.Plugin.SessionTypeName'] || ''));
+      _demo ? (p['K10Motorsports.Plugin.Demo.SessionTypeName'] || '')
+            : (p['K10Motorsports.Plugin.SessionTypeName'] || ''));
 
     const gapLabels = document.querySelectorAll('.panel-label');
     const gapTimes = document.querySelectorAll('.gap-time');
@@ -541,7 +541,7 @@
 
       // Read current lap time for live sector elapsed
       const currentLapTime = _demo
-        ? (+(p['K10MediaBroadcaster.Plugin.Demo.CurrentLapTime']) || 0)
+        ? (+(p['K10Motorsports.Plugin.Demo.CurrentLapTime']) || 0)
         : (+(p['DataCorePlugin.GameData.CurrentLapTime']) || 0);
 
       // ── Dynamic sector cell management ──
@@ -662,12 +662,12 @@
         _gapsWorstLap = 0;
         _gapsLastLap = 0;
       }
-      const gAhead  = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.GapAhead') || 0)  : (+v('IRacingExtraProperties.iRacing_Opponent_Ahead_Gap') || 0);
-      const gBehind = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.GapBehind') || 0) : (+v('IRacingExtraProperties.iRacing_Opponent_Behind_Gap') || 0);
-      const dAhead  = _demo ? vs('K10MediaBroadcaster.Plugin.Demo.DriverAhead')  : vs('IRacingExtraProperties.iRacing_Opponent_Ahead_Name');
-      const dBehind = _demo ? vs('K10MediaBroadcaster.Plugin.Demo.DriverBehind') : vs('IRacingExtraProperties.iRacing_Opponent_Behind_Name');
-      const irA     = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.IRAhead') || 0)   : (+v('IRacingExtraProperties.iRacing_Opponent_Ahead_IRating') || 0);
-      const irB     = _demo ? (+v('K10MediaBroadcaster.Plugin.Demo.IRBehind') || 0)  : (+v('IRacingExtraProperties.iRacing_Opponent_Behind_IRating') || 0);
+      const gAhead  = _demo ? (+v('K10Motorsports.Plugin.Demo.GapAhead') || 0)  : (+v('IRacingExtraProperties.iRacing_Opponent_Ahead_Gap') || 0);
+      const gBehind = _demo ? (+v('K10Motorsports.Plugin.Demo.GapBehind') || 0) : (+v('IRacingExtraProperties.iRacing_Opponent_Behind_Gap') || 0);
+      const dAhead  = _demo ? vs('K10Motorsports.Plugin.Demo.DriverAhead')  : vs('IRacingExtraProperties.iRacing_Opponent_Ahead_Name');
+      const dBehind = _demo ? vs('K10Motorsports.Plugin.Demo.DriverBehind') : vs('IRacingExtraProperties.iRacing_Opponent_Behind_Name');
+      const irA     = _demo ? (+v('K10Motorsports.Plugin.Demo.IRAhead') || 0)   : (+v('IRacingExtraProperties.iRacing_Opponent_Ahead_IRating') || 0);
+      const irB     = _demo ? (+v('K10Motorsports.Plugin.Demo.IRBehind') || 0)  : (+v('IRacingExtraProperties.iRacing_Opponent_Behind_IRating') || 0);
       if (gapTimes.length >= 2) { gapTimes[0].textContent = (gAhead && Math.abs(gAhead) >= 0.05) ? fmtGap(-Math.abs(gAhead)) : '—'; gapTimes[1].textContent = (gBehind && Math.abs(gBehind) >= 0.05) ? fmtGap(Math.abs(gBehind)) : '—'; }
       if (gapDrivers.length >= 2) { gapDrivers[0].textContent = dAhead || '—'; gapDrivers[1].textContent = dBehind || '—'; }
       if (gapIRs.length >= 2) { gapIRs[0].textContent = irA > 0 ? irA + ' iR' : ''; gapIRs[1].textContent = irB > 0 ? irB + ' iR' : ''; }
@@ -767,26 +767,26 @@
 
     // ─── Ambient light — feed screen color from C# plugin ───
     {
-      const ambHas = +v('K10MediaBroadcaster.Plugin.DS.AmbientHasData') || 0;
+      const ambHas = +v('K10Motorsports.Plugin.DS.AmbientHasData') || 0;
       if (ambHas && typeof window.updateAmbientFromPoll === 'function') {
-        const ambR = +v('K10MediaBroadcaster.Plugin.DS.AmbientR') || 0;
-        const ambG = +v('K10MediaBroadcaster.Plugin.DS.AmbientG') || 0;
-        const ambB = +v('K10MediaBroadcaster.Plugin.DS.AmbientB') || 0;
+        const ambR = +v('K10Motorsports.Plugin.DS.AmbientR') || 0;
+        const ambG = +v('K10Motorsports.Plugin.DS.AmbientG') || 0;
+        const ambB = +v('K10Motorsports.Plugin.DS.AmbientB') || 0;
         window.updateAmbientFromPoll(ambR, ambG, ambB);
       }
     }
 
     // ─── Commentary ───
-    const cmVis = +v('K10MediaBroadcaster.Plugin.CommentaryVisible') || 0;
+    const cmVis = +v('K10Motorsports.Plugin.CommentaryVisible') || 0;
     if (cmVis && !_commentaryWasVisible) {
-      const cmTopicId = vs('K10MediaBroadcaster.Plugin.CommentaryTopicId');
+      const cmTopicId = vs('K10Motorsports.Plugin.CommentaryTopicId');
       // In pit lane: only allow pit-related commentary through
       const pitAllowedTopics = ['pit_entry', 'low_fuel', 'tyre_wear_high'];
       const suppressInPit = _inPitLane && !pitAllowedTopics.includes(cmTopicId);
       if (!suppressInPit) {
-        const hue = colorToHue(vs('K10MediaBroadcaster.Plugin.CommentarySentimentColor'));
-        const severity = +v('K10MediaBroadcaster.Plugin.CommentarySeverity') || 0;
-        showCommentary(hue, vs('K10MediaBroadcaster.Plugin.CommentaryTopicTitle'), vs('K10MediaBroadcaster.Plugin.CommentaryText'), vs('K10MediaBroadcaster.Plugin.CommentaryCategory'), cmTopicId, severity);
+        const hue = colorToHue(vs('K10Motorsports.Plugin.CommentarySentimentColor'));
+        const severity = +v('K10Motorsports.Plugin.CommentarySeverity') || 0;
+        showCommentary(hue, vs('K10Motorsports.Plugin.CommentaryTopicTitle'), vs('K10Motorsports.Plugin.CommentaryText'), vs('K10Motorsports.Plugin.CommentaryCategory'), cmTopicId, severity);
       }
     } else if (!cmVis && _commentaryWasVisible) {
       hideCommentary();
@@ -805,7 +805,7 @@
         abs: +(abs || 0),
         fuelPct: fuelPct,
         lapDelta: +(v(dsPre + 'LapDelta') || 0),
-        gapAhead: _demo ? +(v('K10MediaBroadcaster.Plugin.Demo.GapAhead') || 0) : +(v('IRacingExtraProperties.iRacing_Opponent_Ahead_Gap') || 0),
+        gapAhead: _demo ? +(v('K10Motorsports.Plugin.Demo.GapAhead') || 0) : +(v('IRacingExtraProperties.iRacing_Opponent_Ahead_Gap') || 0),
         latG: +(v(dsPre + 'LatG') || 0),
         longG: +(v(dsPre + 'LongG') || 0),
         steerTorque: +(v(dsPre + 'SteerTorque') || 0),
@@ -820,28 +820,28 @@
         sessionTime: vs('DataCorePlugin.GameData.RemainingTime') || '',
         trackTemp: +(v(dsPre + 'TrackTemp') || 0),
         tyreTemps: _demo
-          ? [+v('K10MediaBroadcaster.Plugin.Demo.TyreTempFL'), +v('K10MediaBroadcaster.Plugin.Demo.TyreTempFR'), +v('K10MediaBroadcaster.Plugin.Demo.TyreTempRL'), +v('K10MediaBroadcaster.Plugin.Demo.TyreTempRR')]
+          ? [+v('K10Motorsports.Plugin.Demo.TyreTempFL'), +v('K10Motorsports.Plugin.Demo.TyreTempFR'), +v('K10Motorsports.Plugin.Demo.TyreTempRL'), +v('K10Motorsports.Plugin.Demo.TyreTempRR')]
           : [+v('DataCorePlugin.GameData.TyreTempFrontLeft'), +v('DataCorePlugin.GameData.TyreTempFrontRight'), +v('DataCorePlugin.GameData.TyreTempRearLeft'), +v('DataCorePlugin.GameData.TyreTempRearRight')],
         tyreWears: _demo
-          ? [(+v('K10MediaBroadcaster.Plugin.Demo.TyreWearFL') || 1) * 100, (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearFR') || 1) * 100, (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearRL') || 1) * 100, (+v('K10MediaBroadcaster.Plugin.Demo.TyreWearRR') || 1) * 100]
+          ? [(+v('K10Motorsports.Plugin.Demo.TyreWearFL') || 1) * 100, (+v('K10Motorsports.Plugin.Demo.TyreWearFR') || 1) * 100, (+v('K10Motorsports.Plugin.Demo.TyreWearRL') || 1) * 100, (+v('K10Motorsports.Plugin.Demo.TyreWearRR') || 1) * 100]
           : [(p['DataCorePlugin.GameData.TyreWearFrontLeft'] != null ? +p['DataCorePlugin.GameData.TyreWearFrontLeft'] * 100 : 100), (p['DataCorePlugin.GameData.TyreWearFrontRight'] != null ? +p['DataCorePlugin.GameData.TyreWearFrontRight'] * 100 : 100), (p['DataCorePlugin.GameData.TyreWearRearLeft'] != null ? +p['DataCorePlugin.GameData.TyreWearRearLeft'] * 100 : 100), (p['DataCorePlugin.GameData.TyreWearRearRight'] != null ? +p['DataCorePlugin.GameData.TyreWearRearRight'] * 100 : 100)]
       });
     }
 
     // ─── Driver display name (for leaderboard) ───
-    const dfn = vs('K10MediaBroadcaster.Plugin.DriverFirstName') || '';
-    const dln = vs('K10MediaBroadcaster.Plugin.DriverLastName') || '';
+    const dfn = vs('K10Motorsports.Plugin.DriverFirstName') || '';
+    const dln = vs('K10Motorsports.Plugin.DriverLastName') || '';
     if (dfn || dln) {
       _driverDisplayName = (dfn && dln) ? dfn.charAt(0) + '. ' + dln : (dfn || dln);
     }
 
     // ─── Track map ───
-    const mapReady = +v('K10MediaBroadcaster.Plugin.TrackMap.Ready') || 0;
+    const mapReady = +v('K10Motorsports.Plugin.TrackMap.Ready') || 0;
     if (mapReady) {
-      const mapPath = vs('K10MediaBroadcaster.Plugin.TrackMap.SvgPath') || '';
-      const mapPX   = +v('K10MediaBroadcaster.Plugin.TrackMap.PlayerX') || 50;
-      const mapPY   = +v('K10MediaBroadcaster.Plugin.TrackMap.PlayerY') || 50;
-      const mapOpp  = vs('K10MediaBroadcaster.Plugin.TrackMap.Opponents') || '';
+      const mapPath = vs('K10Motorsports.Plugin.TrackMap.SvgPath') || '';
+      const mapPX   = +v('K10Motorsports.Plugin.TrackMap.PlayerX') || 50;
+      const mapPY   = +v('K10Motorsports.Plugin.TrackMap.PlayerY') || 50;
+      const mapOpp  = vs('K10Motorsports.Plugin.TrackMap.Opponents') || '';
       updateTrackMap(mapPath, mapPX, mapPY, mapOpp, speed);
     }
     const mapNameEl = document.getElementById('mapTrackName');
@@ -885,8 +885,8 @@
 
     // ─── Race Timeline ───
     try {
-      const rtIncidents = +(v('K10MediaBroadcaster.Plugin.DS.IncidentCount')) || 0;
-      const rtInPit = +(v('K10MediaBroadcaster.Plugin.DS.IsInPitLane')) > 0;
+      const rtIncidents = +(v('K10Motorsports.Plugin.DS.IncidentCount')) || 0;
+      const rtInPit = +(v('K10Motorsports.Plugin.DS.IsInPitLane')) > 0;
       updateRaceTimeline(pos, lap, flagState, rtIncidents, rtInPit);
     } catch(e) { console.error('[K10] Timeline error:', e); }
 
@@ -921,7 +921,7 @@
   // telemetry, demo, commentary, and track map data as a single JSON blob.
   // Load external assets before starting the poll loop
   Promise.all([loadCarLogos(), loadCountryFlags()]).then(() => {
-    console.log('[K10 Media Broadcaster] Assets loaded, polling SimHub HTTP API at ' + SIMHUB_URL);
+    console.log('[K10 Motorsports] Assets loaded, polling SimHub HTTP API at ' + SIMHUB_URL);
 
     // Initialize logo cycling (before we connect, the logos will cycle to be visible)
     _logoCycleTimer = setInterval(() => {

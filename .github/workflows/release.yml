@@ -99,11 +99,11 @@ jobs:
 
       - name: Verify plugin DLL exists in repo
         run: |
-          if (!(Test-Path "simhub-plugin/K10MediaBroadcaster.Plugin.dll")) {
+          if (!(Test-Path "simhub-plugin/K10Motorsports.Plugin.dll")) {
             Write-Error "Plugin DLL not found. Build locally with SimHub and commit before tagging."
             exit 1
           }
-          Write-Host "Plugin DLL found: $(Get-Item simhub-plugin/K10MediaBroadcaster.Plugin.dll | Select-Object -ExpandProperty Length) bytes"
+          Write-Host "Plugin DLL found: $(Get-Item simhub-plugin/K10Motorsports.Plugin.dll | Select-Object -ExpandProperty Length) bytes"
         shell: pwsh
 
       - name: Install Inno Setup
@@ -117,14 +117,14 @@ jobs:
 
       - name: Update version in .iss
         run: |
-          $iss = Get-Content installer/k10-media-broadcaster.iss -Raw
+          $iss = Get-Content installer/k10-motorsports.iss -Raw
           $iss = $iss -replace '#define MyAppVersion\s+"[^"]+"', "#define MyAppVersion   `"${{ steps.version.outputs.VERSION }}`""
-          Set-Content installer/k10-media-broadcaster.iss $iss
+          Set-Content installer/k10-motorsports.iss $iss
         shell: pwsh
 
       - name: Compile installer
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\k10-media-broadcaster.iss
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\k10-motorsports.iss
         shell: pwsh
 
       - name: Upload installer

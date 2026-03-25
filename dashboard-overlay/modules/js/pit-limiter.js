@@ -8,7 +8,7 @@
   let _sparkTimer = null;
 
   function updatePitLimiter(p, isDemo) {
-    const pre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
+    const pre = isDemo ? 'K10Motorsports.Plugin.Demo.DS.' : 'K10Motorsports.Plugin.DS.';
     const inPitLane = +(p[pre + 'IsInPitLane']) > 0;
     const speedKmh = +(p[pre + 'SpeedKmh']) || 0;
     const pitLimiterOn = +(p[pre + 'PitLimiterOn']) > 0;

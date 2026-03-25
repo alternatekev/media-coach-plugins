@@ -1,7 +1,7 @@
 {
-  "name": "homebridge-k10-media-broadcaster-lights",
-  "version": "1.0.0",
-  "description": "Homebridge plugin for K10 Media Broadcaster SimHub integration - maps telemetry to HomeKit light colors",
+  "name": "homebridge-k10-motorsports-lights",
+  "version": "0.0.8",
+  "description": "Homebridge plugin for K10 Motorsports SimHub integration - maps telemetry to HomeKit light colors",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -17,7 +17,7 @@
     "homebridge-plugin",
     "homebridge",
     "simhub",
-    "k10-media-broadcaster",
+    "k10-motorsports",
     "racing",
     "lights"
   ],

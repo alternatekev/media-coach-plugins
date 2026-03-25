@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src/images/logomark.png" alt="K10 Media Broadcaster" width="200">
+  <img src="src/images/logomark.png" alt="K10 Motorsports" width="200">
 </p>
 
-# K10 Media Broadcaster
+# K10 Motorsports
 
 ![Dashboard](simhub-plugin/docs/dashboard-screenshot.png)
 
@@ -22,7 +22,7 @@ The prompts are written in first person, present tense, technically grounded —
 
 The companion plugin reads the same telemetry properties via SimHub's HTTP API and translates them into HomeKit light colors: flags as colored lights, severity as brightness, proximity as red/orange warning indicators. Multiple lights can run different modes independently, so one light can show flags while another responds to the full telemetry stream.
 
-### K10 Media Broadcaster — Stream Overlay Dashboard
+### K10 Motorsports — Stream Overlay Dashboard
 
 A standalone Electron overlay that renders the full telemetry HUD as a transparent window on top of the sim. The dashboard shows gear, speed, and RPM with a color-coded tachometer; pedal input traces; fuel level with per-lap consumption and pit stop estimates; four-corner tyre temperatures with heat-map coloring; brake bias, traction control, and ABS settings; race position with gap times to the cars ahead and behind; iRating and Safety Rating; and the commentary engine's live prompts. The commentary panel slides in from the left when events fire, tinted to match the event's sentiment color.
 
@@ -44,9 +44,9 @@ Full setup and configuration: **[dashboard-overlay/README.md](dashboard-overlay/
 │   ├── streamdeck/                       Elgato Stream Deck profile + icons
 │   └── images/                           Branding, car logos, flags
 ├── simhub-plugin/                        SimHub C# plugin + data
-│   ├── plugin/K10MediaBroadcaster.Plugin/  C# source (NET Framework 4.8, WPF)
+│   ├── plugin/K10Motorsports.Plugin/  C# source (NET Framework 4.8, WPF)
 │   │   └── Engine/                       Commentary engine, trigger evaluator, sectors, iRating
-│   ├── k10-media-broadcaster-data/       Commentary topics, fragments, sentiments (JSON)
+│   ├── k10-motorsports-data/       Commentary topics, fragments, sentiments (JSON)
 │   ├── tests/                            C# unit tests + Python dataset validation
 │   ├── tools/                            Telemetry replay, fragment generation
 │   └── DashTemplates/                    SimHub dashboard templates
@@ -59,7 +59,7 @@ Full setup and configuration: **[dashboard-overlay/README.md](dashboard-overlay/
 │   ├── k10-broadcaster/                  Dashboard component inspector
 │   └── claude-mcp-config.json            MCP server configuration
 ├── installer/                            Inno Setup combined Windows installer
-│   └── k10-media-broadcaster.iss         Installer script (plugin + overlay)
+│   └── k10-motorsports.iss         Installer script (plugin + overlay)
 ├── scripts/                              Installation + launch scripts
 │   ├── mac/                              macOS install, launch, rebuild
 │   └── windows/                          Windows install, start, export, build-installer
@@ -70,9 +70,9 @@ Full setup and configuration: **[dashboard-overlay/README.md](dashboard-overlay/
 
 ### Windows Installer (Recommended)
 
-Download **K10-Media-Broadcaster-Setup.exe** from the [latest release](https://github.com/alternatekev/media-coach-simhub-plugin/releases/latest). The installer bundles both the SimHub plugin and the overlay application. You can choose to install either or both during setup. The installer auto-detects your SimHub installation and handles all file placement.
+Download **K10-Motorsports-Setup.exe** from the [latest release](https://github.com/alternatekev/media-coach-simhub-plugin/releases/latest). The installer bundles both the SimHub plugin and the overlay application. You can choose to install either or both during setup. The installer auto-detects your SimHub installation and handles all file placement.
 
-The plugin includes a built-in **Check for updates** button in its SimHub settings panel. When an update is available, it downloads the latest installer and launches it — SimHub will restart automatically.
+The plugin includes a built-in **Check for updates** button in its SimHub settings panel. When an update is available, it downloads the latest K10 Motorsports installer and launches it — SimHub will restart automatically.
 
 ### Manual Install (SimHub Plugin Only)
 
@@ -85,11 +85,11 @@ Prerequisites: [SimHub](https://www.simhubdash.com/) installed on Windows.
 After installation:
 
 1. Launch SimHub
-2. Enable "K10 Media Broadcaster" in the plugin list
-3. Open the "k10 media broadcaster" dashboard template
+2. Enable "K10 Motorsports" in the plugin list
+3. Open the "k10 motorsports" dashboard template
 4. Configure display timing, category filters, and event-only mode in the plugin settings panel
 
-The plugin exposes all its data as SimHub properties (prefixed `K10MediaBroadcaster.Plugin.*`), so you can build your own dashboard layout or integrate the properties into an existing one.
+The plugin exposes all its data as SimHub properties (prefixed `K10Motorsports.Plugin.*`), so you can build your own dashboard layout or integrate the properties into an existing one.
 
 To build from source instead: **[simhub-plugin/docs/DEVELOPMENT.md](simhub-plugin/docs/DEVELOPMENT.md)**
 
@@ -104,16 +104,16 @@ cd homebridge-plugin
 npm install && npm run build && npm link
 ```
 
-Add the `K10MediaBroadcasterLights` platform to your Homebridge `config.json`:
+Add the `K10MotorsportsLights` platform to your Homebridge `config.json`:
 
 ```json
 {
-  "platform": "K10MediaBroadcasterLights",
-  "name": "K10 Media Broadcaster Lights",
+  "platform": "K10MotorsportsLights",
+  "name": "K10 Motorsports Lights",
   "simhubUrl": "http://localhost:8888",
   "mode": "all_colors",
   "enableBlink": true,
-  "lights": [{ "name": "Sim Rig Light", "uniqueId": "k10-media-broadcaster-light-1" }]
+  "lights": [{ "name": "Sim Rig Light", "uniqueId": "k10-motorsports-light-1" }]
 }
 ```
 
@@ -158,7 +158,7 @@ Three test suites run without SimHub, iRacing, or any external service:
 
 ```bash
 # C# unit tests (200+ tests, NUnit)
-cd simhub-plugin/tests/K10MediaBroadcaster.Tests && dotnet test
+cd simhub-plugin/tests/K10Motorsports.Tests && dotnet test
 
 # Python dataset validation (28 tests)
 python3 simhub-plugin/tests/validate_datasets.py
@@ -219,7 +219,7 @@ The composable fragment system (opener + body + closer) is directly inspired by 
 
 ### AI-Assisted Content
 
-Commentary fragments in `simhub-plugin/k10-media-broadcaster-data/commentary_fragments.json` were generated using [Claude](https://claude.ai) (Anthropic's `claude-haiku-4-5` model) with the commentary topics, sentiment vocabulary, and channel style profiles as input. The generation is a one-time offline process — no AI API calls occur at runtime in the current version.
+Commentary fragments in `simhub-plugin/k10-motorsports-data/commentary_fragments.json` were generated using [Claude](https://claude.ai) (Anthropic's `claude-haiku-4-5` model) with the commentary topics, sentiment vocabulary, and channel style profiles as input. The generation is a one-time offline process — no AI API calls occur at runtime in the current version.
 
 Plugin codebase, test suites, dataset structures, documentation, and Homebridge companion plugin built with [Claude Code](https://claude.ai/claude-code) (Anthropic's `claude-opus-4-6`).
 

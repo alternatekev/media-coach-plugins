@@ -1,6 +1,6 @@
 # SimHub Reference DLLs
 
-These DLLs are needed to compile the K10 Media Broadcaster plugin. They come from
+These DLLs are needed to compile the K10 Motorsports plugin. They come from
 your SimHub installation directory (`C:\Program Files (x86)\SimHub\`).
 
 ## Required files

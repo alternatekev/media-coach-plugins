@@ -1,11 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
-title K10 Media Broadcaster - Export Built Files to Repo
+title K10 Motorsports - Export Built Files to Repo
 
 echo.
 echo  ============================================
-echo   K10 Media Broadcaster - Export Built Files to Repo
+echo   K10 Motorsports - Export Built Files to Repo
 echo  ============================================
 echo.
 echo  Copies the built DLL, PDB, and dashboard
@@ -64,46 +64,46 @@ set "PLUGIN_DIR=%REPO_DIR%\simhub-plugin"
 
 echo  [1/3] Exporting plugin binaries...
 
-if exist "%SIMHUB_DIR%\K10MediaBroadcaster.Plugin.dll" (
-    copy /Y "%SIMHUB_DIR%\K10MediaBroadcaster.Plugin.dll" "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.dll" >NUL
+if exist "%SIMHUB_DIR%\K10Motorsports.Plugin.dll" (
+    copy /Y "%SIMHUB_DIR%\K10Motorsports.Plugin.dll" "%PLUGIN_DIR%\K10Motorsports.Plugin.dll" >NUL
     if !ERRORLEVEL! NEQ 0 (
         echo        FAILED - could not copy DLL. Is SimHub running?
         goto :error
     )
-    echo        OK - K10MediaBroadcaster.Plugin.dll
+    echo        OK - K10Motorsports.Plugin.dll
 ) else (
-    echo        SKIPPED - K10MediaBroadcaster.Plugin.dll not found in SimHub directory.
+    echo        SKIPPED - K10Motorsports.Plugin.dll not found in SimHub directory.
     echo        Build the plugin first (dotnet build).
     goto :error
 )
 
-if exist "%SIMHUB_DIR%\K10MediaBroadcaster.Plugin.pdb" (
-    copy /Y "%SIMHUB_DIR%\K10MediaBroadcaster.Plugin.pdb" "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.pdb" >NUL
-    echo        OK - K10MediaBroadcaster.Plugin.pdb
+if exist "%SIMHUB_DIR%\K10Motorsports.Plugin.pdb" (
+    copy /Y "%SIMHUB_DIR%\K10Motorsports.Plugin.pdb" "%PLUGIN_DIR%\K10Motorsports.Plugin.pdb" >NUL
+    echo        OK - K10Motorsports.Plugin.pdb
 ) else (
-    echo        SKIPPED - K10MediaBroadcaster.Plugin.pdb not found (Release build?)
+    echo        SKIPPED - K10Motorsports.Plugin.pdb not found (Release build?)
 )
 
 :: -------------------------------------------------------------------
-:: 4. Export "k10 media broadcaster" dashboard (excluding _Backups)
+:: 4. Export "k10 motorsports" dashboard (excluding _Backups)
 :: -------------------------------------------------------------------
 
-echo  [2/3] Exporting k10 media broadcaster dashboard...
+echo  [2/3] Exporting k10 motorsports dashboard...
 
-set "DASH1_SRC=%SIMHUB_DIR%\DashTemplates\k10 media broadcaster"
-set "DASH1_DST=%PLUGIN_DIR%\DashTemplates\k10 media broadcaster"
+set "DASH1_SRC=%SIMHUB_DIR%\DashTemplates\k10 motorsports"
+set "DASH1_DST=%PLUGIN_DIR%\DashTemplates\k10 motorsports"
 
 if exist "%DASH1_SRC%" (
     if not exist "%DASH1_DST%" mkdir "%DASH1_DST%"
 
     :: Core dashboard files
     for %%F in (
-        "k10 media broadcaster.djson"
-        "k10 media broadcaster.djson.png"
-        "k10 media broadcaster.djson.00.png"
-        "k10 media broadcaster.djson.metadata"
-        "k10 media broadcaster.djson.carclasses"
-        "k10 media broadcaster.html"
+        "k10 motorsports.djson"
+        "k10 motorsports.djson.png"
+        "k10 motorsports.djson.00.png"
+        "k10 motorsports.djson.metadata"
+        "k10 motorsports.djson.carclasses"
+        "k10 motorsports.html"
     ) do (
         if exist "%DASH1_SRC%\%%~F" (
             copy /Y "%DASH1_SRC%\%%~F" "%DASH1_DST%\%%~F" >NUL
@@ -116,29 +116,29 @@ if exist "%DASH1_SRC%" (
         xcopy /E /Y /Q "%DASH1_SRC%\JavascriptExtensions" "%DASH1_DST%\JavascriptExtensions" >NUL
     )
 
-    echo        OK - DashTemplates\k10 media broadcaster\
+    echo        OK - DashTemplates\k10 motorsports\
     echo        NOTE: _Backups directory was excluded (SimHub-local only)
 ) else (
-    echo        SKIPPED - k10 media broadcaster dashboard not found in SimHub.
+    echo        SKIPPED - k10 motorsports dashboard not found in SimHub.
 )
 
 :: -------------------------------------------------------------------
-:: 5. Export "k10 media broadcaster" dashboard (excluding _Backups)
+:: 5. Export "k10 motorsports" dashboard (excluding _Backups)
 :: -------------------------------------------------------------------
 
-echo  [3/3] Exporting k10 media broadcaster dashboard...
+echo  [3/3] Exporting k10 motorsports dashboard...
 
-set "DASH2_SRC=%SIMHUB_DIR%\DashTemplates\k10 media broadcaster"
-set "DASH2_DST=%PLUGIN_DIR%\DashTemplates\k10 media broadcaster"
+set "DASH2_SRC=%SIMHUB_DIR%\DashTemplates\k10 motorsports"
+set "DASH2_DST=%PLUGIN_DIR%\DashTemplates\k10 motorsports"
 
 if exist "%DASH2_SRC%" (
     if not exist "%DASH2_DST%" mkdir "%DASH2_DST%"
 
     :: Core dashboard files
     for %%F in (
-        "k10 media broadcaster.djson"
-        "k10 media broadcaster.djson.metadata"
-        "k10 media broadcaster.html"
+        "k10 motorsports.djson"
+        "k10 motorsports.djson.metadata"
+        "k10 motorsports.html"
     ) do (
         if exist "%DASH2_SRC%\%%~F" (
             copy /Y "%DASH2_SRC%\%%~F" "%DASH2_DST%\%%~F" >NUL
@@ -151,18 +151,18 @@ if exist "%DASH2_SRC%" (
         xcopy /E /Y /Q "%DASH2_SRC%\JavascriptExtensions" "%DASH2_DST%\JavascriptExtensions" >NUL
     )
 
-    echo        OK - DashTemplates\k10 media broadcaster\
+    echo        OK - DashTemplates\k10 motorsports\
 
     :: Also update the Electron overlay's local copy
     set "ELECTRON_DIR=%REPO_DIR%\dashboard-overlay"
     if exist "!ELECTRON_DIR!" (
-        if exist "%DASH2_SRC%\k10 media broadcaster.html" (
-            copy /Y "%DASH2_SRC%\k10 media broadcaster.html" "!ELECTRON_DIR!\dashboard.html" >NUL
-            echo        OK - K10 Media Broadcaster\dashboard.html (synced)
+        if exist "%DASH2_SRC%\k10 motorsports.html" (
+            copy /Y "%DASH2_SRC%\k10 motorsports.html" "!ELECTRON_DIR!\dashboard.html" >NUL
+            echo        OK - K10 Motorsports\dashboard.html (synced)
         )
     )
 ) else (
-    echo        SKIPPED - k10 media broadcaster dashboard not found in SimHub.
+    echo        SKIPPED - k10 motorsports dashboard not found in SimHub.
 )
 
 :: -------------------------------------------------------------------
@@ -175,15 +175,15 @@ echo   Export complete.
 echo  ============================================
 echo.
 echo  Exported files:
-echo    %PLUGIN_DIR%\K10MediaBroadcaster.Plugin.dll
-if exist "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.pdb" (
-    echo    %PLUGIN_DIR%\K10MediaBroadcaster.Plugin.pdb
+echo    %PLUGIN_DIR%\K10Motorsports.Plugin.dll
+if exist "%PLUGIN_DIR%\K10Motorsports.Plugin.pdb" (
+    echo    %PLUGIN_DIR%\K10Motorsports.Plugin.pdb
 )
-echo    %PLUGIN_DIR%\DashTemplates\k10 media broadcaster\
-echo    %PLUGIN_DIR%\DashTemplates\k10 media broadcaster\
+echo    %PLUGIN_DIR%\DashTemplates\k10 motorsports\
+echo    %PLUGIN_DIR%\DashTemplates\k10 motorsports\
 echo.
 echo  NOTE: Dataset files are NOT exported from SimHub.
-echo  The k10-media-broadcaster-data/ folder in the repo is the source of
+echo  The k10-motorsports-data/ folder in the repo is the source of
 echo  truth. Edit dataset files in the repo, then use
 echo  install.bat or rebuild.bat to push them to SimHub.
 echo.

@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>K10 Media Broadcaster Dashboard</title>
+<title>K10 Motorsports Dashboard</title>
 <!--
-  SimHub HTML Dashboard — K10 Media Broadcaster
+  SimHub HTML Dashboard — K10 Motorsports
   ════════════════════════════════════════════════════════════════
 
   JS API (call from SimHub JavascriptExtensions or NCalc bindings):
@@ -333,7 +333,7 @@
     <div class="logo-col">
       <div class="logo-square" id="k10LogoSquare">
         <canvas class="gl-overlay" id="k10LogoGlCanvas" style="z-index:1;"></canvas>
-        <img src="images/branding/logomark.png" alt="K10 Media Broadcaster" style="width:75%;height:auto;opacity:1;position:relative;z-index:2;">
+        <img src="images/branding/logomark.png" alt="K10 Motorsports" style="width:75%;height:auto;opacity:1;position:relative;z-index:2;">
       </div>
       <div class="logo-square" id="carLogoSquare">
         <!-- Generic logo (replaced by JS when CarModel data arrives) -->
@@ -748,12 +748,12 @@
 <!-- COMPONENT: Settings Overlay (configuration panel) -->
 <div class="settings-overlay" id="settingsOverlay">
   <div class="settings-panel">
-    <div class="settings-title">K10 Media Broadcaster</div>
+    <div class="settings-title">K10 Motorsports</div>
     <div class="settings-subtitle">Toggle HUD sections and configure the overlay</div>
 
     <div class="settings-conn-warn" id="settingsConnWarn">
       <div><span class="warn-icon"></span><span class="warn-title">Can't reach SimHub</span></div>
-      <div class="warn-detail">Make sure SimHub is running and the K10 Media Broadcaster plugin is installed. Check the connection URL in the System tab.</div>
+      <div class="warn-detail">Make sure SimHub is running and the K10 Motorsports plugin is installed. Check the connection URL in the System tab.</div>
       <div class="warn-url" id="settingsConnWarnUrl"></div>
     </div>
 
@@ -890,7 +890,7 @@
           </div>
           <div>
             <div class="conn-card-title">SimHub Plugin</div>
-            <div class="conn-card-subtitle">K10 Media Broadcaster telemetry server</div>
+            <div class="conn-card-subtitle">K10 Motorsports telemetry server</div>
           </div>
         </div>
         <div class="conn-card-status">
@@ -924,7 +924,7 @@
             <div class="conn-status-text" id="connDiscordText">Not connected</div>
           </div>
           <div class="conn-card-detail">
-            Connect your Discord account to join the K10 Media Broadcaster community and unlock future features for authenticated users.
+            Connect your Discord account to join the K10 Motorsports community and unlock future features for authenticated users.
           </div>
           <div class="conn-card-actions">
             <button class="conn-btn discord-btn" id="discordConnectBtn" onclick="connectDiscord()">
@@ -1079,7 +1079,7 @@
 
     <button class="settings-close" onclick="toggleSettings()">Close Settings</button>
 
-    <div class="settings-version">K10 Media Broadcaster v1.0.0 — Original Dashboard</div>
+    <div class="settings-version">K10 Motorsports v1.0.0 — Original Dashboard</div>
 
   </div>
 </div>

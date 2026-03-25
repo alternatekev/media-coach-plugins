@@ -1,6 +1,6 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
-  "k10-media-broadcaster": {
+  "k10-motorsports": {
     "color": {
       "background": {
         "base": { "$value": "hsla(0, 0%, 8%, 1.0)", "$description": "Main dashboard bg, near-black not true black" },

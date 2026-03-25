@@ -1,4 +1,4 @@
-# K10 Media Broadcaster SimHub Plugin
+# K10 Motorsports SimHub Plugin
 
 ## Overview
 
@@ -81,13 +81,13 @@ Plugin (plugin/)
 
 Dashboard properties exported:
 
-- K10MediaBroadcaster.Plugin.CommentaryText — full prompt text (with optional topic title)
-- K10MediaBroadcaster.Plugin.CommentaryVisible — 1/0, controls panel visibility
-- K10MediaBroadcaster.Plugin.CommentaryCategory — for color-coding
-- K10MediaBroadcaster.Plugin.CommentaryTopicTitle — short topic name
-- K10MediaBroadcaster.Plugin.CommentarySecondsRemaining — countdown for progress bar
+- K10Motorsports.Plugin.CommentaryText — full prompt text (with optional topic title)
+- K10Motorsports.Plugin.CommentaryVisible — 1/0, controls panel visibility
+- K10Motorsports.Plugin.CommentaryCategory — for color-coding
+- K10Motorsports.Plugin.CommentaryTopicTitle — short topic name
+- K10Motorsports.Plugin.CommentarySecondsRemaining — countdown for progress bar
 
-Dashboard (dashboard/K10MediaBroadcaster.simhubdash)
+Dashboard (dashboard/K10Motorsports.simhubdash)
 
 - Black background, white centered text, proportional font size
 - Thin color-coded countdown bar at the bottom (color varies by category)
@@ -95,11 +95,11 @@ Dashboard (dashboard/K10MediaBroadcaster.simhubdash)
 
 Install Instructions
 
-1. Open plugin/K10MediaBroadcaster.Plugin.sln in Visual Studio on Windows
+1. Open plugin/K10Motorsports.Plugin.sln in Visual Studio on Windows
 2. Set the SIMHUB_PATH environment variable to your SimHub install folder (default: C:\Program Files (x86)\SimHub\)
 3. Build in Release|x64 — DLL deploys directly to SimHub, dataset is copied alongside it
-4. In SimHub → Additional Plugins → enable K10 Media Broadcaster, then restart SimHub
-5. Copy the dashboard/K10MediaBroadcaster/ folder into SimHub's Dashboards folder, then open it via Dash Studio
+4. In SimHub → Additional Plugins → enable K10 Motorsports, then restart SimHub
+5. Copy the dashboard/K10Motorsports/ folder into SimHub's Dashboards folder, then open it via Dash Studio
 6. Launch iRacing and drive
 
 ## Updating Haiku Support

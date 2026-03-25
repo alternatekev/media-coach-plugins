@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * K10 Media Broadcaster — Stream Deck Profile Generator
+ * K10 Motorsports — Stream Deck Profile Generator
  *
  * Generates a .streamDeckProfile directory that can be double-clicked
  * to import into the Elgato Stream Deck software.
  *
  * Usage: node generate-profile.js
- * Output: K10 Media Broadcaster.streamDeckProfile/
+ * Output: K10 Motorsports.streamDeckProfile/
  */
 
 const fs = require('fs');
@@ -134,7 +134,7 @@ const topLevel = {
     'UUID': '',
   },
   'Dpi': 2,
-  'Name': 'K10 Media Broadcaster',
+  'Name': 'K10 Motorsports',
   'Pages': {
     'Current': profileUUID,
     'Pages': [profileUUID],
@@ -143,7 +143,7 @@ const topLevel = {
 };
 
 // ── Write the .streamDeckProfile directory ──
-const profileDir = path.join(__dirname, 'K10 Media Broadcaster.streamDeckProfile');
+const profileDir = path.join(__dirname, 'K10 Motorsports.streamDeckProfile');
 const pageDir = path.join(profileDir, profileUUID);
 
 // Clean if exists
@@ -158,7 +158,7 @@ fs.writeFileSync(path.join(pageDir, 'manifest.json'), JSON.stringify(manifest, n
 console.log('Generated: ' + profileDir);
 console.log('');
 console.log('To install:');
-console.log('  1. Double-click "K10 Media Broadcaster.streamDeckProfile"');
+console.log('  1. Double-click "K10 Motorsports.streamDeckProfile"');
 console.log('  2. The Stream Deck software will import it automatically');
 console.log('');
 console.log('Button layout (5x3 for Stream Deck Classic):');

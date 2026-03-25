@@ -1,7 +1,7 @@
 {
-  "name": "k10-media-broadcaster",
-  "version": "1.0.0",
-  "description": "K10 Media Broadcaster — standalone transparent overlay for sim racing streams",
+  "name": "k10-motorsports",
+  "version": "0.0.8",
+  "description": "K10 Motorsports — standalone transparent overlay for sim racing streams",
   "main": "main.js",
   "author": "Kevin Conboy",
   "license": "MIT",

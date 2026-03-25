@@ -31,30 +31,30 @@ async function loadBuild(page, data, opts = {}) {
 // Extended mock data with DS prefix values for datastream/incidents
 const DS_TELEMETRY = {
   ...MOCK_TELEMETRY,
-  'K10MediaBroadcaster.Plugin.DS.LatG': 0.85,
-  'K10MediaBroadcaster.Plugin.DS.LongG': -0.42,
-  'K10MediaBroadcaster.Plugin.DS.YawRate': 0.35,
-  'K10MediaBroadcaster.Plugin.DS.SteerTorque': 12.4,
-  'K10MediaBroadcaster.Plugin.DS.TrackTemp': 38.5,
-  'K10MediaBroadcaster.Plugin.DS.IncidentCount': 4,
-  'K10MediaBroadcaster.Plugin.DS.IncidentLimitPenalty': 17,
-  'K10MediaBroadcaster.Plugin.DS.IncidentLimitDQ': 25,
-  'K10MediaBroadcaster.Plugin.DS.AbsActive': 0,
-  'K10MediaBroadcaster.Plugin.DS.TcActive': 0,
-  'K10MediaBroadcaster.Plugin.DS.LapDelta': -0.234,
-  'K10MediaBroadcaster.Plugin.DS.IsInPitLane': 0,
-  'K10MediaBroadcaster.Plugin.DS.SpeedKmh': 204,
-  'K10MediaBroadcaster.Plugin.DS.PitLimiterOn': 0,
-  'K10MediaBroadcaster.Plugin.DS.PitSpeedLimitKmh': 60,
-  'K10MediaBroadcaster.Plugin.DS.ThrottleNorm': 0.82,
-  'K10MediaBroadcaster.Plugin.DS.BrakeNorm': 0.0,
-  'K10MediaBroadcaster.Plugin.DS.ClutchNorm': 0.0,
-  'K10MediaBroadcaster.Plugin.DS.RpmRatio': 0.80,
-  'K10MediaBroadcaster.Plugin.DS.FuelPct': 47.3,
-  'K10MediaBroadcaster.Plugin.DS.FuelLapsRemaining': 9.1,
-  'K10MediaBroadcaster.Plugin.DS.SpeedMph': 127,
-  'K10MediaBroadcaster.Plugin.DS.IsNonRaceSession': 0,
-  'K10MediaBroadcaster.Plugin.DS.StartPosition': 7,
+  'K10Motorsports.Plugin.DS.LatG': 0.85,
+  'K10Motorsports.Plugin.DS.LongG': -0.42,
+  'K10Motorsports.Plugin.DS.YawRate': 0.35,
+  'K10Motorsports.Plugin.DS.SteerTorque': 12.4,
+  'K10Motorsports.Plugin.DS.TrackTemp': 38.5,
+  'K10Motorsports.Plugin.DS.IncidentCount': 4,
+  'K10Motorsports.Plugin.DS.IncidentLimitPenalty': 17,
+  'K10Motorsports.Plugin.DS.IncidentLimitDQ': 25,
+  'K10Motorsports.Plugin.DS.AbsActive': 0,
+  'K10Motorsports.Plugin.DS.TcActive': 0,
+  'K10Motorsports.Plugin.DS.LapDelta': -0.234,
+  'K10Motorsports.Plugin.DS.IsInPitLane': 0,
+  'K10Motorsports.Plugin.DS.SpeedKmh': 204,
+  'K10Motorsports.Plugin.DS.PitLimiterOn': 0,
+  'K10Motorsports.Plugin.DS.PitSpeedLimitKmh': 60,
+  'K10Motorsports.Plugin.DS.ThrottleNorm': 0.82,
+  'K10Motorsports.Plugin.DS.BrakeNorm': 0.0,
+  'K10Motorsports.Plugin.DS.ClutchNorm': 0.0,
+  'K10Motorsports.Plugin.DS.RpmRatio': 0.80,
+  'K10Motorsports.Plugin.DS.FuelPct': 47.3,
+  'K10Motorsports.Plugin.DS.FuelLapsRemaining': 9.1,
+  'K10Motorsports.Plugin.DS.SpeedMph': 127,
+  'K10Motorsports.Plugin.DS.IsNonRaceSession': 0,
+  'K10Motorsports.Plugin.DS.StartPosition': 7,
   'currentFlagState': 'none',
 };
 
@@ -100,7 +100,7 @@ test.describe('Tachometer', () => {
   });
 
   test('adds tacho-redline class at high RPM', async ({ page }) => {
-    await loadBuild(page, { ...DS_TELEMETRY, 'K10MediaBroadcaster.Plugin.DS.RpmRatio': 0.95 });
+    await loadBuild(page, { ...DS_TELEMETRY, 'K10Motorsports.Plugin.DS.RpmRatio': 0.95 });
     await page.waitForTimeout(200);
     const hasRedline = await page.locator('.tacho-block.tacho-redline').count();
     expect(hasRedline).toBe(1);
@@ -232,8 +232,8 @@ test.describe('Controls', () => {
   test('applies ctrl-active class when ABS/TC firing', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.DS.AbsActive': 1,
-      'K10MediaBroadcaster.Plugin.DS.TcActive': 1,
+      'K10Motorsports.Plugin.DS.AbsActive': 1,
+      'K10Motorsports.Plugin.DS.TcActive': 1,
     });
     await page.waitForTimeout(200);
     const absActive = await page.locator('#ctrlABS.ctrl-active').count();
@@ -271,8 +271,8 @@ test.describe('Position & Gaps', () => {
   test('clears gaps block during practice/qualifying', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.DS.IsNonRaceSession': 1,
-      'K10MediaBroadcaster.Plugin.SessionTypeName': 'Practice',
+      'K10Motorsports.Plugin.DS.IsNonRaceSession': 1,
+      'K10Motorsports.Plugin.SessionTypeName': 'Practice',
     });
     await page.waitForTimeout(200);
     const labels = await page.locator('.panel-label').allTextContents();
@@ -413,7 +413,7 @@ test.describe('Incidents', () => {
 test.describe('Leaderboard', () => {
   const LB_TELEMETRY = {
     ...DS_TELEMETRY,
-    'K10MediaBroadcaster.Plugin.Leaderboard': JSON.stringify(LEADERBOARD_DATA),
+    'K10Motorsports.Plugin.Leaderboard': JSON.stringify(LEADERBOARD_DATA),
   };
 
   test('renders correct number of rows', async ({ page }) => {
@@ -459,7 +459,7 @@ test.describe('Leaderboard', () => {
     lb2[0][4] = 91.8; // slightly different last lap
     await updateMockData(page, {
       ...LB_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.Leaderboard': JSON.stringify(lb2),
+      'K10Motorsports.Plugin.Leaderboard': JSON.stringify(lb2),
     });
     await page.waitForTimeout(200);
 
@@ -467,7 +467,7 @@ test.describe('Leaderboard', () => {
     lb3[0][4] = 92.3;
     await updateMockData(page, {
       ...LB_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.Leaderboard': JSON.stringify(lb3),
+      'K10Motorsports.Plugin.Leaderboard': JSON.stringify(lb3),
     });
     await page.waitForTimeout(200);
 
@@ -484,10 +484,10 @@ test.describe('Pit Limiter', () => {
   test('shows pit banner when in pit lane', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.DS.IsInPitLane': 1,
-      'K10MediaBroadcaster.Plugin.DS.PitLimiterOn': 1,
-      'K10MediaBroadcaster.Plugin.DS.SpeedKmh': 55,
-      'K10MediaBroadcaster.Plugin.DS.SpeedMph': 34,
+      'K10Motorsports.Plugin.DS.IsInPitLane': 1,
+      'K10Motorsports.Plugin.DS.PitLimiterOn': 1,
+      'K10Motorsports.Plugin.DS.SpeedKmh': 55,
+      'K10Motorsports.Plugin.DS.SpeedMph': 34,
     });
     const banner = page.locator('#pitBanner.pit-visible');
     await expect(banner).toBeVisible();
@@ -496,9 +496,9 @@ test.describe('Pit Limiter', () => {
   test('shows normal state with limiter on', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.DS.IsInPitLane': 1,
-      'K10MediaBroadcaster.Plugin.DS.PitLimiterOn': 1,
-      'K10MediaBroadcaster.Plugin.DS.SpeedKmh': 55,
+      'K10Motorsports.Plugin.DS.IsInPitLane': 1,
+      'K10Motorsports.Plugin.DS.PitLimiterOn': 1,
+      'K10Motorsports.Plugin.DS.SpeedKmh': 55,
     });
     const label = await page.locator('.pit-label').textContent();
     expect(label).toBe('Pit Limiter');
@@ -511,9 +511,9 @@ test.describe('Pit Limiter', () => {
   test('shows warning when limiter off', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.DS.IsInPitLane': 1,
-      'K10MediaBroadcaster.Plugin.DS.PitLimiterOn': 0,
-      'K10MediaBroadcaster.Plugin.DS.SpeedKmh': 55,
+      'K10Motorsports.Plugin.DS.IsInPitLane': 1,
+      'K10Motorsports.Plugin.DS.PitLimiterOn': 0,
+      'K10Motorsports.Plugin.DS.SpeedKmh': 55,
     });
     await page.waitForTimeout(200);
     const label = await page.locator('.pit-label').textContent();
@@ -523,10 +523,10 @@ test.describe('Pit Limiter', () => {
   test('shows bonkers/speeding state', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.DS.IsInPitLane': 1,
-      'K10MediaBroadcaster.Plugin.DS.PitLimiterOn': 0,
-      'K10MediaBroadcaster.Plugin.DS.IsPitSpeeding': 1,
-      'K10MediaBroadcaster.Plugin.DS.SpeedKmh': 80,
+      'K10Motorsports.Plugin.DS.IsInPitLane': 1,
+      'K10Motorsports.Plugin.DS.PitLimiterOn': 0,
+      'K10Motorsports.Plugin.DS.IsPitSpeeding': 1,
+      'K10Motorsports.Plugin.DS.SpeedKmh': 80,
     });
     await page.waitForTimeout(200);
     const label = await page.locator('.pit-label').textContent();
@@ -550,12 +550,12 @@ test.describe('Formation / Grid', () => {
   test('shows grid module during formation lap', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.Grid.SessionState': 3,
-      'K10MediaBroadcaster.Plugin.Grid.GriddedCars': 20,
-      'K10MediaBroadcaster.Plugin.Grid.TotalCars': 24,
-      'K10MediaBroadcaster.Plugin.Grid.PaceMode': 2,
-      'K10MediaBroadcaster.Plugin.Grid.StartType': 'rolling',
-      'K10MediaBroadcaster.Plugin.Grid.TrackCountry': 'AU',
+      'K10Motorsports.Plugin.Grid.SessionState': 3,
+      'K10Motorsports.Plugin.Grid.GriddedCars': 20,
+      'K10Motorsports.Plugin.Grid.TotalCars': 24,
+      'K10Motorsports.Plugin.Grid.PaceMode': 2,
+      'K10Motorsports.Plugin.Grid.StartType': 'rolling',
+      'K10Motorsports.Plugin.Grid.TrackCountry': 'AU',
     });
     await page.waitForTimeout(300);
     const visible = await page.locator('#gridModule.grid-visible').count();
@@ -565,9 +565,9 @@ test.describe('Formation / Grid', () => {
   test('shows gridded/total cars count', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.Grid.SessionState': 3,
-      'K10MediaBroadcaster.Plugin.Grid.GriddedCars': 20,
-      'K10MediaBroadcaster.Plugin.Grid.TotalCars': 24,
+      'K10Motorsports.Plugin.Grid.SessionState': 3,
+      'K10Motorsports.Plugin.Grid.GriddedCars': 20,
+      'K10Motorsports.Plugin.Grid.TotalCars': 24,
     });
     await page.waitForTimeout(200);
     const gridded = await page.locator('#gridCarsGridded').textContent();
@@ -579,8 +579,8 @@ test.describe('Formation / Grid', () => {
   test('shows start lights during active phase', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.Grid.SessionState': 3,
-      'K10MediaBroadcaster.Plugin.Grid.LightsPhase': 3,
+      'K10Motorsports.Plugin.Grid.SessionState': 3,
+      'K10Motorsports.Plugin.Grid.LightsPhase': 3,
     });
     await page.waitForTimeout(200);
     // Phase 3: first 3 columns lit red
@@ -591,8 +591,8 @@ test.describe('Formation / Grid', () => {
   test('does not show during idle state (sessionState <= 1 but no formation)', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.Grid.SessionState': 0,
-      'K10MediaBroadcaster.Plugin.Grid.LightsPhase': 0,
+      'K10Motorsports.Plugin.Grid.SessionState': 0,
+      'K10Motorsports.Plugin.Grid.LightsPhase': 0,
     });
     await page.waitForTimeout(200);
     const visible = await page.locator('#gridModule.grid-visible').count();
@@ -608,12 +608,12 @@ test.describe('Commentary', () => {
   test('shows commentary when CommentaryVisible is 1', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.CommentaryVisible': 1,
-      'K10MediaBroadcaster.Plugin.CommentaryTopicTitle': 'Heavy Braking',
-      'K10MediaBroadcaster.Plugin.CommentaryText': 'Strong braking into turn 1',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicId': 'heavy_braking',
-      'K10MediaBroadcaster.Plugin.CommentarySentimentColor': '#448aff',
-      'K10MediaBroadcaster.Plugin.CommentarySeverity': 1,
+      'K10Motorsports.Plugin.CommentaryVisible': 1,
+      'K10Motorsports.Plugin.CommentaryTopicTitle': 'Heavy Braking',
+      'K10Motorsports.Plugin.CommentaryText': 'Strong braking into turn 1',
+      'K10Motorsports.Plugin.CommentaryTopicId': 'heavy_braking',
+      'K10Motorsports.Plugin.CommentarySentimentColor': '#448aff',
+      'K10Motorsports.Plugin.CommentarySeverity': 1,
     });
     await page.waitForTimeout(200);
     const visible = await page.locator('#commentaryCol.visible').count();
@@ -625,11 +625,11 @@ test.describe('Commentary', () => {
   test('commentary viz canvas is activated for known topics', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.CommentaryVisible': 1,
-      'K10MediaBroadcaster.Plugin.CommentaryTopicTitle': 'Heavy Braking',
-      'K10MediaBroadcaster.Plugin.CommentaryText': 'Test',
-      'K10MediaBroadcaster.Plugin.CommentaryTopicId': 'heavy_braking',
-      'K10MediaBroadcaster.Plugin.CommentarySentimentColor': '#448aff',
+      'K10Motorsports.Plugin.CommentaryVisible': 1,
+      'K10Motorsports.Plugin.CommentaryTopicTitle': 'Heavy Braking',
+      'K10Motorsports.Plugin.CommentaryText': 'Test',
+      'K10Motorsports.Plugin.CommentaryTopicId': 'heavy_braking',
+      'K10Motorsports.Plugin.CommentarySentimentColor': '#448aff',
     });
     await page.waitForTimeout(400);
     // The commentary viz container should be visible
@@ -716,10 +716,10 @@ test.describe('Track Map', () => {
   test('renders track path when data available', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.TrackMap.Ready': 1,
-      'K10MediaBroadcaster.Plugin.TrackMap.SvgPath': 'M 10 50 C 20 20, 40 20, 50 50 C 60 80, 80 80, 90 50',
-      'K10MediaBroadcaster.Plugin.TrackMap.PlayerX': 30,
-      'K10MediaBroadcaster.Plugin.TrackMap.PlayerY': 40,
+      'K10Motorsports.Plugin.TrackMap.Ready': 1,
+      'K10Motorsports.Plugin.TrackMap.SvgPath': 'M 10 50 C 20 20, 40 20, 50 50 C 60 80, 80 80, 90 50',
+      'K10Motorsports.Plugin.TrackMap.PlayerX': 30,
+      'K10Motorsports.Plugin.TrackMap.PlayerY': 40,
     });
     await page.waitForTimeout(300);
     const path = await page.locator('#fullMapTrack').getAttribute('d');
@@ -729,11 +729,11 @@ test.describe('Track Map', () => {
   test('renders opponent dots', async ({ page }) => {
     await loadBuild(page, {
       ...DS_TELEMETRY,
-      'K10MediaBroadcaster.Plugin.TrackMap.Ready': 1,
-      'K10MediaBroadcaster.Plugin.TrackMap.SvgPath': 'M 10 50 C 20 20, 40 20, 50 50',
-      'K10MediaBroadcaster.Plugin.TrackMap.PlayerX': 30,
-      'K10MediaBroadcaster.Plugin.TrackMap.PlayerY': 40,
-      'K10MediaBroadcaster.Plugin.TrackMap.Opponents': '20,30,0;60,70,0;80,20,1',
+      'K10Motorsports.Plugin.TrackMap.Ready': 1,
+      'K10Motorsports.Plugin.TrackMap.SvgPath': 'M 10 50 C 20 20, 40 20, 50 50',
+      'K10Motorsports.Plugin.TrackMap.PlayerX': 30,
+      'K10Motorsports.Plugin.TrackMap.PlayerY': 40,
+      'K10Motorsports.Plugin.TrackMap.Opponents': '20,30,0;60,70,0;80,20,1',
     });
     await page.waitForTimeout(300);
     const opponentDots = await page.locator('#fullMapOpponents circle').count();

@@ -1,7 +1,7 @@
 {
   "name": "@k10/broadcaster-mcp",
   "version": "1.0.0",
-  "description": "MCP server for reading K10 Media Broadcaster React overlay source, components, types, and config",
+  "description": "MCP server for reading K10 Motorsports React overlay source, components, types, and config",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

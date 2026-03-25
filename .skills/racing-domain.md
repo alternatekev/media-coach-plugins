@@ -1,4 +1,4 @@
-# K10 Media Broadcaster — Racing Domain Knowledge
+# K10 Motorsports — Racing Domain Knowledge
 
 ## Driver Priorities (Information Hierarchy)
 

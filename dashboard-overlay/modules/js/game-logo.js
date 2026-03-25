@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// K10 Media Broadcaster — Game Logo Overlay
+// K10 Motorsports — Game Logo Overlay
 // Shows the current game's logo (iRacing, LMU, etc.) in the
 // corner opposite the main dashboard layout position.
 // ═══════════════════════════════════════════════════════════════

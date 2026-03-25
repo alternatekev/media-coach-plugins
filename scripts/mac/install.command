@@ -1,15 +1,15 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════
-#  K10 Media Broadcaster — Install Dependencies
+#  K10 Motorsports — Install Dependencies
 # ═══════════════════════════════════════════════
 
-# Navigate to app root (K10 Media Broadcaster/)
+# Navigate to app root (K10 Motorsports/)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$SCRIPT_DIR/../../dashboard-overlay"
 cd "$APP_DIR"
 
 echo "═══════════════════════════════════════════════"
-echo " K10 Media Broadcaster — Install Dependencies"
+echo " K10 Motorsports — Install Dependencies"
 echo "═══════════════════════════════════════════════"
 echo ""
 
@@ -52,6 +52,6 @@ else
 fi
 
 echo ""
-echo "Done! Double-click 'K10 Media Broadcaster.command' to launch the overlay."
+echo "Done! Double-click 'K10 Motorsports.command' to launch the overlay."
 echo ""
 read -p "Press Enter to close..."

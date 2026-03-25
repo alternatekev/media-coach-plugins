@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// K10 Media Broadcaster — Remote Dashboard Server
+// K10 Motorsports — Remote Dashboard Server
 // LAN-accessible HTTP server that serves dashboard.html and
 // proxies SimHub telemetry so any browser on the network can
 // view the dashboard with a single URL.
@@ -243,7 +243,7 @@ function handleRequest(req, res) {
   if (urlPath === '/api/status') {
     res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
     res.end(JSON.stringify({
-      app: 'K10 Media Broadcaster',
+      app: 'K10 Motorsports',
       remoteServer: true,
       port: _port,
       lanAddress: getLanAddress(),
@@ -297,12 +297,12 @@ function start(opts = {}) {
 
     _server.listen(_port, '0.0.0.0', () => {
       const info = getInfo();
-      _logFn(`[K10] Remote dashboard server started: ${info.url}`);
+      _logFn(`[K10 Motorsports] Remote dashboard server started: ${info.url}`);
       resolve(info);
     });
 
     _server.on('error', (err) => {
-      _logFn(`[K10] Remote server error: ${err.message}`);
+      _logFn(`[K10 Motorsports] Remote server error: ${err.message}`);
       _server = null;
       reject(err);
     });
@@ -313,7 +313,7 @@ function stop() {
   return new Promise((resolve) => {
     if (!_server) { resolve(); return; }
     _server.close(() => {
-      _logFn('[K10] Remote dashboard server stopped');
+      _logFn('[K10 Motorsports] Remote dashboard server stopped');
       _server = null;
       resolve();
     });

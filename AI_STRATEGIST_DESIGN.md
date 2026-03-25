@@ -2,7 +2,7 @@
 
 ## The Opportunity
 
-The K10 Media Broadcaster already has the bones of a race engineer: 80+ telemetry fields captured at ~30 fps, a trigger/event system, sector tracking, opponent data, and a commentary engine that can surface information to the driver. What it doesn't have is a *strategic brain* — something that watches the whole race unfold, builds a model of what's happening, and tells you what to do about it.
+The K10 Motorsports already has the bones of a race engineer: 80+ telemetry fields captured at ~30 fps, a trigger/event system, sector tracking, opponent data, and a commentary engine that can surface information to the driver. What it doesn't have is a *strategic brain* — something that watches the whole race unfold, builds a model of what's happening, and tells you what to do about it.
 
 CrewChief monitors and reports. Coach Dave analyzes after the fact. Neither synthesizes everything happening *right now* into actionable, real-time strategy calls the way a human race engineer on a pit wall would. That's the gap.
 
@@ -426,7 +426,7 @@ Phase 1 is achievable in weeks with the existing data pipeline. Phase 2 adds the
 
 5. **Full opponent leaderboard** — Currently `BuildLeaderboard()` returns the full field but the dashboard only shows a window. The strategy module needs the full array for race projection. The server-side data is already there, just needs to be stored for the strategy coordinator rather than discarded after JSON serialization.
 
-6. **Historical data across sessions** — The most powerful version of this system would learn track-specific fuel burn, tire wear rates, and sector times across multiple sessions. The telemetry recording system (now writing to `k10-media-broadcaster-data/recordings/`) could serve as a foundation for this — replay past recordings to bootstrap the models.
+6. **Historical data across sessions** — The most powerful version of this system would learn track-specific fuel burn, tire wear rates, and sector times across multiple sessions. The telemetry recording system (now writing to `k10-motorsports-data/recordings/`) could serve as a foundation for this — replay past recordings to bootstrap the models.
 
 ---
 

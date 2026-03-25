@@ -1,8 +1,8 @@
-# K10 Broadcaster MCP - Quick Start Guide
+# K10 Motorsports MCP - Quick Start Guide
 
 ## What is this?
 
-A Model Context Protocol (MCP) server that lets Claude understand the K10 Media Broadcaster dashboard overlay code without reading raw HTML files.
+A Model Context Protocol (MCP) server that lets Claude understand the K10 Motorsports dashboard overlay code without reading raw HTML files.
 
 ## Location
 

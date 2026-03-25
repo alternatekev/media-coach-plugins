@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// K10 Media Broadcaster — Electron Overlay
+// K10 Motorsports — Electron Overlay
 // Transparent, always-on-top, click-through overlay window
 // that renders the HTML dashboard over the sim
 // ═══════════════════════════════════════════════════════════════
@@ -32,7 +32,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // ── App name ──────────────────────────────────────────────────
-app.setName('K10 Media Broadcaster');
+app.setName('K10 Motorsports');
 
 // ── GPU / sandbox flags ─────────────────────────────────────
 app.commandLine.appendSwitch('disable-gpu-sandbox');
@@ -519,7 +519,7 @@ const DISCORD_CLIENT_ID     = '1483105220023160882';
 const DISCORD_REDIRECT_PORT = 18492;
 const DISCORD_REDIRECT_URI  = `http://localhost:${DISCORD_REDIRECT_PORT}/callback`;
 const DISCORD_SCOPES        = 'identify guilds.join';
-const DISCORD_GUILD_ID      = '1310050023326121994';  // K10 Media Broadcaster server
+const DISCORD_GUILD_ID      = '1310050023326121994';  // K10 Motorsports server
 const DISCORD_GUILD_INVITE  = 'https://discord.gg/k10mediabroadcaster';
 
 let _discordCallbackServer = null;
@@ -644,7 +644,7 @@ function startCallbackServer() {
 
         if (code) {
           res.writeHead(200, { 'Content-Type': 'text/html' });
-          res.end('<html><body style="background:#1a1a2e;color:#fff;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2 style="color:#4caf50">Connected!</h2><p>You can close this tab and return to the K10 Media Broadcaster overlay.</p></div></body></html>');
+          res.end('<html><body style="background:#1a1a2e;color:#fff;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2 style="color:#4caf50">Connected!</h2><p>You can close this tab and return to the K10 Motorsports overlay.</p></div></body></html>');
           resolve({ code });
           setTimeout(() => { try { _discordCallbackServer.close(); } catch (e) {} _discordCallbackServer = null; }, 1000);
           return;

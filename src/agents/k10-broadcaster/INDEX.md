@@ -1,4 +1,4 @@
-# K10 Broadcaster MCP - Complete Index
+# K10 Motorsports MCP - Complete Index
 
 ## Quick Links
 
@@ -30,7 +30,7 @@
 
 ## What This MCP Does
 
-The K10 Broadcaster MCP provides 12 specialized tools for understanding the K10 Media Broadcaster dashboard overlay source code. Instead of manually reading files or parsing HTML, Claude can use structured MCP tools to:
+The K10 Motorsports MCP provides 12 specialized tools for understanding the K10 Motorsports dashboard overlay source code. Instead of manually reading files or parsing HTML, Claude can use structured MCP tools to:
 
 - Discover and read dashboard modules
 - Understand configuration and data definitions

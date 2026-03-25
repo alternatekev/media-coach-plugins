@@ -1,5 +1,5 @@
 /**
- * K10 MEDIA BROADCASTER — DRIVE MODE MODULE
+ * K10 MOTORSPORTS — DRIVE MODE MODULE
  *
  * iPad-optimized full-screen racing dashboard for in-cockpit glanceability.
  * Completely self-contained: creates all DOM dynamically, integrates with telemetry pipeline.
@@ -575,8 +575,8 @@
     // Helper extractors
     const v = (k) => props[k] != null ? props[k] : 0;
     const vs = (k) => props[k] != null ? '' + props[k] : '';
-    const pre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.' : '';
-    const dsPre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
+    const pre = isDemo ? 'K10Motorsports.Plugin.Demo.' : '';
+    const dsPre = isDemo ? 'K10Motorsports.Plugin.Demo.DS.' : 'K10Motorsports.Plugin.DS.';
 
     // ─── GEAR & SPEED ───
     const gear = v(pre + 'Gear') || 0;

@@ -1,6 +1,6 @@
 # K10 Plugin MCP Server
 
-An MCP (Model Context Protocol) server that provides structured access to the K10 Media Broadcaster SimHub plugin's source code, configuration, commentary dataset, and telemetry schema.
+An MCP (Model Context Protocol) server that provides structured access to the K10 Motorsports SimHub plugin's source code, configuration, commentary dataset, and telemetry schema.
 
 ## Overview
 

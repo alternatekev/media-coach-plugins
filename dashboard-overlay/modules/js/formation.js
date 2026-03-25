@@ -14,7 +14,7 @@
   }
 
   function updateGrid(p, isDemo) {
-    const pre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.Grid.' : 'K10MediaBroadcaster.Plugin.Grid.';
+    const pre = isDemo ? 'K10Motorsports.Plugin.Demo.Grid.' : 'K10Motorsports.Plugin.Grid.';
     const sessionState = +(p[pre + 'SessionState']) || 0;
     const griddedCars  = +(p[pre + 'GriddedCars']) || 0;
     const totalCars    = +(p[pre + 'TotalCars']) || 0;
@@ -93,7 +93,7 @@
 
       // Mini grid strip — one dot per car, player highlighted in blue
       const playerPos = isDemo
-        ? (+(p['K10MediaBroadcaster.Plugin.Demo.Position']) || 0)
+        ? (+(p['K10Motorsports.Plugin.Demo.Position']) || 0)
         : (+(p['DataCorePlugin.GameData.Position']) || 0);
       _renderGridStrip(totalCars, griddedCars, playerPos);
 
@@ -120,8 +120,8 @@
       // Countdown: display time to green or pace mode
       const countdownEl = document.getElementById('gridCountdown');
       const timeToGreen = isDemo
-        ? +(p['K10MediaBroadcaster.Plugin.Demo.Grid.TimeToGreen']) || 0
-        : +(p['K10MediaBroadcaster.Plugin.Grid.TimeToGreen']) || 0;
+        ? +(p['K10Motorsports.Plugin.Demo.Grid.TimeToGreen']) || 0
+        : +(p['K10Motorsports.Plugin.Grid.TimeToGreen']) || 0;
 
       // During lights sequence (paceMode 1-3), show pace mode status
       // Otherwise, show countdown timer if available

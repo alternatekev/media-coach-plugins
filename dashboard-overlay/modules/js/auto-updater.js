@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// K10 Media Broadcaster — Auto-Updater (main process)
+// K10 Motorsports — Auto-Updater (main process)
 // Checks GitHub Releases for new overlay versions and installs
 // updates with user confirmation.
 // ═══════════════════════════════════════════════════════════════

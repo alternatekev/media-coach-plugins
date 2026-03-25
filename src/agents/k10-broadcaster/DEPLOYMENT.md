@@ -1,8 +1,8 @@
-# K10 Media Broadcaster MCP - Deployment Guide
+# K10 Motorsports MCP - Deployment Guide
 
 ## Overview
 
-This MCP server provides structured access to the K10 Media Broadcaster dashboard overlay source code. It replaces the need to manually read from dashboard.html or parse raw files.
+This MCP server provides structured access to the K10 Motorsports dashboard overlay source code. It replaces the need to manually read from dashboard.html or parse raw files.
 
 ## Files Created
 
@@ -45,10 +45,10 @@ mcp/k10-broadcaster/
 
 ## Architecture
 
-The MCP reads from the K10 Broadcaster source at:
+The MCP reads from the K10 Motorsports source at:
 
 ```
-k10-media-broadcaster/src/src/
+k10-motorsports/src/src/
 ```
 
 With environment variable support:

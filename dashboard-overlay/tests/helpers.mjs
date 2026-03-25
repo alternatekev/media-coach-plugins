@@ -1,5 +1,5 @@
 /**
- * Test helpers for K10 Media Broadcaster dashboard tests.
+ * Test helpers for K10 Motorsports dashboard tests.
  *
  * Provides mock telemetry data and a page-setup utility that loads
  * dashboard.html with fetch() intercepted so no real HTTP server is needed.
@@ -24,7 +24,7 @@ export const DASHBOARD_PATH = DASHBOARD_PATHS.original;
 /** Realistic mid-race telemetry snapshot */
 export const MOCK_TELEMETRY = {
   'DataCorePlugin.GameRunning': 1,
-  'K10MediaBroadcaster.Plugin.DemoMode': 0,
+  'K10Motorsports.Plugin.DemoMode': 0,
   'DataCorePlugin.GameData.Gear': '4',
   'DataCorePlugin.GameData.Rpms': 6842,
   'DataCorePlugin.GameData.CarSettings_MaxRPM': 8500,
@@ -59,60 +59,60 @@ export const MOCK_TELEMETRY = {
   'IRacingExtraProperties.iRacing_Opponent_Behind_Name': 'S. Leclerc',
   'IRacingExtraProperties.iRacing_Opponent_Ahead_IRating': 3210,
   'IRacingExtraProperties.iRacing_Opponent_Behind_IRating': 2530,
-  'K10MediaBroadcaster.Plugin.CommentaryVisible': 0,
-  'K10MediaBroadcaster.Plugin.CommentaryText': '',
-  'K10MediaBroadcaster.Plugin.CommentaryTopicTitle': '',
-  'K10MediaBroadcaster.Plugin.CommentaryTopicId': '',
-  'K10MediaBroadcaster.Plugin.CommentaryCategory': '',
-  'K10MediaBroadcaster.Plugin.CommentarySentimentColor': '',
-  'K10MediaBroadcaster.Plugin.CommentarySeverity': 0,
-  'K10MediaBroadcaster.Plugin.TrackMap.Ready': 0,
-  'K10MediaBroadcaster.Plugin.Grid.SessionState': 4,
-  'K10MediaBroadcaster.Plugin.GameId': 'iracing',
-  'K10MediaBroadcaster.Plugin.SessionTypeName': 'Race',
-  'K10MediaBroadcaster.Plugin.DS.FuelPct': 47.3,
-  'K10MediaBroadcaster.Plugin.DS.FuelLapsRemaining': 9.1,
+  'K10Motorsports.Plugin.CommentaryVisible': 0,
+  'K10Motorsports.Plugin.CommentaryText': '',
+  'K10Motorsports.Plugin.CommentaryTopicTitle': '',
+  'K10Motorsports.Plugin.CommentaryTopicId': '',
+  'K10Motorsports.Plugin.CommentaryCategory': '',
+  'K10Motorsports.Plugin.CommentarySentimentColor': '',
+  'K10Motorsports.Plugin.CommentarySeverity': 0,
+  'K10Motorsports.Plugin.TrackMap.Ready': 0,
+  'K10Motorsports.Plugin.Grid.SessionState': 4,
+  'K10Motorsports.Plugin.GameId': 'iracing',
+  'K10Motorsports.Plugin.SessionTypeName': 'Race',
+  'K10Motorsports.Plugin.DS.FuelPct': 47.3,
+  'K10Motorsports.Plugin.DS.FuelLapsRemaining': 9.1,
 };
 
 /** Demo mode telemetry — uses Demo.* keys instead */
 export const MOCK_DEMO = {
   ...MOCK_TELEMETRY,
-  'K10MediaBroadcaster.Plugin.DemoMode': 1,
-  'K10MediaBroadcaster.Plugin.Demo.Gear': '3',
-  'K10MediaBroadcaster.Plugin.Demo.Rpm': 5400,
-  'K10MediaBroadcaster.Plugin.Demo.MaxRpm': 7500,
-  'K10MediaBroadcaster.Plugin.Demo.SpeedMph': 98,
-  'K10MediaBroadcaster.Plugin.Demo.Throttle': 0.65,
-  'K10MediaBroadcaster.Plugin.Demo.Brake': 0.12,
-  'K10MediaBroadcaster.Plugin.Demo.Clutch': 0.0,
-  'K10MediaBroadcaster.Plugin.Demo.Fuel': 18.0,
-  'K10MediaBroadcaster.Plugin.Demo.MaxFuel': 60.0,
-  'K10MediaBroadcaster.Plugin.Demo.FuelPerLap': 3.5,
-  'K10MediaBroadcaster.Plugin.Demo.RemainingLaps': 10,
-  'K10MediaBroadcaster.Plugin.Demo.TyreTempFL': 210,
-  'K10MediaBroadcaster.Plugin.Demo.TyreTempFR': 215,
-  'K10MediaBroadcaster.Plugin.Demo.TyreTempRL': 195,
-  'K10MediaBroadcaster.Plugin.Demo.TyreTempRR': 198,
-  'K10MediaBroadcaster.Plugin.Demo.TyreWearFL': 0.80,
-  'K10MediaBroadcaster.Plugin.Demo.TyreWearFR': 0.75,
-  'K10MediaBroadcaster.Plugin.Demo.TyreWearRL': 0.85,
-  'K10MediaBroadcaster.Plugin.Demo.TyreWearRR': 0.83,
-  'K10MediaBroadcaster.Plugin.Demo.BrakeBias': 54.0,
-  'K10MediaBroadcaster.Plugin.Demo.TC': 6,
-  'K10MediaBroadcaster.Plugin.Demo.ABS': 2,
-  'K10MediaBroadcaster.Plugin.Demo.Position': 3,
-  'K10MediaBroadcaster.Plugin.Demo.CurrentLap': 12,
-  'K10MediaBroadcaster.Plugin.Demo.BestLapTime': 88.921,
-  'K10MediaBroadcaster.Plugin.Demo.CarModel': 'BMW M4 GT3',
-  'K10MediaBroadcaster.Plugin.Demo.IRating': 3150,
-  'K10MediaBroadcaster.Plugin.Demo.SafetyRating': 3.88,
-  'K10MediaBroadcaster.Plugin.Demo.GapAhead': 0.8,
-  'K10MediaBroadcaster.Plugin.Demo.GapBehind': 3.5,
-  'K10MediaBroadcaster.Plugin.Demo.DriverAhead': 'J. Smith',
-  'K10MediaBroadcaster.Plugin.Demo.DriverBehind': 'A. Johnson',
-  'K10MediaBroadcaster.Plugin.Demo.IRAhead': 3500,
-  'K10MediaBroadcaster.Plugin.Demo.IRBehind': 2100,
-  'K10MediaBroadcaster.Plugin.Demo.Grid.SessionState': 4,
+  'K10Motorsports.Plugin.DemoMode': 1,
+  'K10Motorsports.Plugin.Demo.Gear': '3',
+  'K10Motorsports.Plugin.Demo.Rpm': 5400,
+  'K10Motorsports.Plugin.Demo.MaxRpm': 7500,
+  'K10Motorsports.Plugin.Demo.SpeedMph': 98,
+  'K10Motorsports.Plugin.Demo.Throttle': 0.65,
+  'K10Motorsports.Plugin.Demo.Brake': 0.12,
+  'K10Motorsports.Plugin.Demo.Clutch': 0.0,
+  'K10Motorsports.Plugin.Demo.Fuel': 18.0,
+  'K10Motorsports.Plugin.Demo.MaxFuel': 60.0,
+  'K10Motorsports.Plugin.Demo.FuelPerLap': 3.5,
+  'K10Motorsports.Plugin.Demo.RemainingLaps': 10,
+  'K10Motorsports.Plugin.Demo.TyreTempFL': 210,
+  'K10Motorsports.Plugin.Demo.TyreTempFR': 215,
+  'K10Motorsports.Plugin.Demo.TyreTempRL': 195,
+  'K10Motorsports.Plugin.Demo.TyreTempRR': 198,
+  'K10Motorsports.Plugin.Demo.TyreWearFL': 0.80,
+  'K10Motorsports.Plugin.Demo.TyreWearFR': 0.75,
+  'K10Motorsports.Plugin.Demo.TyreWearRL': 0.85,
+  'K10Motorsports.Plugin.Demo.TyreWearRR': 0.83,
+  'K10Motorsports.Plugin.Demo.BrakeBias': 54.0,
+  'K10Motorsports.Plugin.Demo.TC': 6,
+  'K10Motorsports.Plugin.Demo.ABS': 2,
+  'K10Motorsports.Plugin.Demo.Position': 3,
+  'K10Motorsports.Plugin.Demo.CurrentLap': 12,
+  'K10Motorsports.Plugin.Demo.BestLapTime': 88.921,
+  'K10Motorsports.Plugin.Demo.CarModel': 'BMW M4 GT3',
+  'K10Motorsports.Plugin.Demo.IRating': 3150,
+  'K10Motorsports.Plugin.Demo.SafetyRating': 3.88,
+  'K10Motorsports.Plugin.Demo.GapAhead': 0.8,
+  'K10Motorsports.Plugin.Demo.GapBehind': 3.5,
+  'K10Motorsports.Plugin.Demo.DriverAhead': 'J. Smith',
+  'K10Motorsports.Plugin.Demo.DriverBehind': 'A. Johnson',
+  'K10Motorsports.Plugin.Demo.IRAhead': 3500,
+  'K10Motorsports.Plugin.Demo.IRBehind': 2100,
+  'K10Motorsports.Plugin.Demo.Grid.SessionState': 4,
 };
 
 /**
@@ -131,7 +131,7 @@ export async function loadDashboard(page, data, opts = {}) {
   const dashPath = opts.dashboardPath || DASHBOARD_PATH;
 
   // Intercept all fetch requests to the plugin server and serve mock data
-  await page.route(/k10mediabroadcaster/, async (route) => {
+  await page.route(/k10motorsports/, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -171,8 +171,8 @@ export async function loadDashboard(page, data, opts = {}) {
  * Update mock data mid-test by re-routing fetch.
  */
 export async function updateMockData(page, data) {
-  await page.unroute(/k10mediabroadcaster/);
-  await page.route(/k10mediabroadcaster/, async (route) => {
+  await page.unroute(/k10motorsports/);
+  await page.route(/k10motorsports/, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',

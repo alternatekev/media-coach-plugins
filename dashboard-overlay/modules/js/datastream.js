@@ -257,7 +257,7 @@
     // Skip entirely if panel is not visible
     if (_dsPanel && _dsPanel.offsetParent === null) return;
 
-    const pre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
+    const pre = isDemo ? 'K10Motorsports.Plugin.Demo.DS.' : 'K10Motorsports.Plugin.DS.';
     const vd = (key) => +p[pre + key] || 0;
 
     const latG = vd('LatG');

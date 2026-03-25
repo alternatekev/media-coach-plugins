@@ -1,5 +1,5 @@
-K10 MEDIA BROADCASTER MCP - IMPLEMENTATION SUMMARY
-=====================================================
+K10 MOTORSPORTS MCP - IMPLEMENTATION SUMMARY
+==============================================
 
 PROJECT LOCATION:
 /sessions/gifted-keen-pasteur/mnt/media-coach-simhub-plugin/mcp/k10-broadcaster/
@@ -171,7 +171,7 @@ KEY FEATURES:
 
 SOURCE ACCESSIBILITY:
 
-Reads from: /sessions/gifted-keen-pasteur/mnt/media-coach-simhub-plugin/k10-media-broadcaster/src/src/
+Reads from: /sessions/gifted-keen-pasteur/mnt/media-coach-simhub-plugin/k10-motorsports/src/src/
 
 ✓ components/ - All 20+ React components
 ✓ hooks/ - useTelemetry, useSettings
@@ -220,7 +220,7 @@ Test installation:
 ENVIRONMENT:
 
 K10_BROADCASTER_ROOT environment variable:
-  Default: /sessions/gifted-keen-pasteur/mnt/media-coach-simhub-plugin/k10-media-broadcaster/src/src
+  Default: /sessions/gifted-keen-pasteur/mnt/media-coach-simhub-plugin/k10-motorsports/src/src
   Can be overridden: export K10_BROADCASTER_ROOT=/path/to/source
 
 Node.js requirement: 16+ (ES2022 support)
@@ -251,7 +251,7 @@ Claude no longer needs to:
 
 STATUS: ✓ PRODUCTION READY
 
-The K10 Media Broadcaster MCP is fully implemented, tested, and ready for
+The K10 Motorsports MCP is fully implemented, tested, and ready for
 integration with Claude. It provides comprehensive structured access to the
 React overlay source code, replacing manual file reading and HTML parsing.
 

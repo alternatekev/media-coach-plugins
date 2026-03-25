@@ -1,4 +1,4 @@
-# K10 Media Broadcaster — Component Architecture (React/TS Migration Reference)
+# K10 Motorsports — Component Architecture (React/TS Migration Reference)
 
 ## Component Tree
 ```

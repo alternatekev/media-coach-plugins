@@ -147,8 +147,8 @@
     // ═══════════════════════════════════════════════════════════
     //  RACE SESSIONS: gap-based proximity spotter
     // ═══════════════════════════════════════════════════════════
-    const gAhead  = isDemo ? (+p['K10MediaBroadcaster.Plugin.Demo.GapAhead'] || 0)  : (+p['IRacingExtraProperties.iRacing_Opponent_Ahead_Gap'] || 0);
-    const gBehind = isDemo ? (+p['K10MediaBroadcaster.Plugin.Demo.GapBehind'] || 0) : (+p['IRacingExtraProperties.iRacing_Opponent_Behind_Gap'] || 0);
+    const gAhead  = isDemo ? (+p['K10Motorsports.Plugin.Demo.GapAhead'] || 0)  : (+p['IRacingExtraProperties.iRacing_Opponent_Ahead_Gap'] || 0);
+    const gBehind = isDemo ? (+p['K10Motorsports.Plugin.Demo.GapBehind'] || 0) : (+p['IRacingExtraProperties.iRacing_Opponent_Behind_Gap'] || 0);
 
     // Compute gap deltas (negative = gap shrinking = closing)
     const deltaA = _spotterLastGapA > 0 && gAhead > 0 ? gAhead - _spotterLastGapA : 0;

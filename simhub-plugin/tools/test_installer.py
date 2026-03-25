@@ -40,22 +40,22 @@ EXPORT_BAT = os.path.join(ACTUAL_REPO_ROOT, "scripts", "windows", "export.bat")
 
 # Files the installer is expected to copy TO SimHub
 INSTALL_MANIFEST = {
-    "dll": "K10MediaBroadcaster.Plugin.dll",
-    "pdb": "K10MediaBroadcaster.Plugin.pdb",  # optional
+    "dll": "K10Motorsports.Plugin.dll",
+    "pdb": "K10Motorsports.Plugin.pdb",  # optional
     "dataset_files": [
-        "k10-media-broadcaster-data/commentary_topics.json",
-        "k10-media-broadcaster-data/commentary_fragments.json",
-        "k10-media-broadcaster-data/sentiments.json",
-        "k10-media-broadcaster-data/channel_notes.json",
-        "k10-media-broadcaster-data/commentary_sources.json",
+        "k10-motorsports-data/commentary_topics.json",
+        "k10-motorsports-data/commentary_fragments.json",
+        "k10-motorsports-data/sentiments.json",
+        "k10-motorsports-data/channel_notes.json",
+        "k10-motorsports-data/commentary_sources.json",
     ],
 }
 
 # Files the export tool copies FROM SimHub back to the repo
 EXPORT_MANIFEST = {
-    "dll": "K10MediaBroadcaster.Plugin.dll",
-    "pdb": "K10MediaBroadcaster.Plugin.pdb",
-    "dashboard_root": "DashTemplates/k10 media broadcaster",
+    "dll": "K10Motorsports.Plugin.dll",
+    "pdb": "K10Motorsports.Plugin.pdb",
+    "dashboard_root": "DashTemplates/k10 motorsports",
 }
 
 
@@ -99,21 +99,21 @@ def create_fake_simhub_with_built_files(tmpdir):
     simhub = create_fake_simhub(tmpdir)
 
     # DLL + PDB (write recognizable content so we can verify the copy)
-    with open(os.path.join(simhub, "K10MediaBroadcaster.Plugin.dll"), "wb") as f:
+    with open(os.path.join(simhub, "K10Motorsports.Plugin.dll"), "wb") as f:
         f.write(b"BUILT_DLL_CONTENT_12345")
-    with open(os.path.join(simhub, "K10MediaBroadcaster.Plugin.pdb"), "wb") as f:
+    with open(os.path.join(simhub, "K10Motorsports.Plugin.pdb"), "wb") as f:
         f.write(b"BUILT_PDB_CONTENT_12345")
 
     # Dashboard files (simulating SimHub having modified them)
-    dash_dir = os.path.join(simhub, "DashTemplates", "k10 media broadcaster")
+    dash_dir = os.path.join(simhub, "DashTemplates", "k10 motorsports")
     os.makedirs(dash_dir, exist_ok=True)
-    with open(os.path.join(dash_dir, "k10 media broadcaster.djson"), "w") as f:
+    with open(os.path.join(dash_dir, "k10 motorsports.djson"), "w") as f:
         f.write('{"modified_in_simhub": true}')
-    with open(os.path.join(dash_dir, "k10 media broadcaster.djson.png"), "wb") as f:
+    with open(os.path.join(dash_dir, "k10 motorsports.djson.png"), "wb") as f:
         f.write(b"PNG_UPDATED")
-    with open(os.path.join(dash_dir, "k10 media broadcaster.djson.00.png"), "wb") as f:
+    with open(os.path.join(dash_dir, "k10 motorsports.djson.00.png"), "wb") as f:
         f.write(b"PNG_THUMB_UPDATED")
-    with open(os.path.join(dash_dir, "k10 media broadcaster.djson.metadata"), "w") as f:
+    with open(os.path.join(dash_dir, "k10 motorsports.djson.metadata"), "w") as f:
         f.write('{"metadata": "updated"}')
 
     js_dir = os.path.join(dash_dir, "JavascriptExtensions")
@@ -131,7 +131,7 @@ def create_fake_simhub_with_built_files(tmpdir):
     # Backups directory (should NOT be exported)
     backups_dir = os.path.join(dash_dir, "_Backups")
     os.makedirs(backups_dir, exist_ok=True)
-    with open(os.path.join(backups_dir, "k10 media broadcaster_b1.djson"), "w") as f:
+    with open(os.path.join(backups_dir, "k10 motorsports_b1.djson"), "w") as f:
         f.write("backup content - should not be copied")
 
     return simhub
@@ -156,12 +156,12 @@ class TestInstallerStructure(unittest.TestCase):
     def test_install_bat_references_correct_dll(self):
         with open(INSTALL_BAT, "r") as f:
             content = f.read()
-        self.assertIn("K10MediaBroadcaster.Plugin.dll", content)
+        self.assertIn("K10Motorsports.Plugin.dll", content)
 
     def test_install_bat_references_dataset(self):
         with open(INSTALL_BAT, "r") as f:
             content = f.read()
-        self.assertIn("k10-media-broadcaster-data", content)
+        self.assertIn("k10-motorsports-data", content)
 
     def test_install_bat_checks_simhub_exe(self):
         with open(INSTALL_BAT, "r") as f:
@@ -208,12 +208,12 @@ class TestExportStructure(unittest.TestCase):
     def test_export_bat_references_dll(self):
         with open(EXPORT_BAT, "r") as f:
             content = f.read()
-        self.assertIn("K10MediaBroadcaster.Plugin.dll", content)
+        self.assertIn("K10Motorsports.Plugin.dll", content)
 
     def test_export_bat_references_pdb(self):
         with open(EXPORT_BAT, "r") as f:
             content = f.read()
-        self.assertIn("K10MediaBroadcaster.Plugin.pdb", content)
+        self.assertIn("K10Motorsports.Plugin.pdb", content)
 
     def test_export_bat_references_dashtemplates(self):
         with open(EXPORT_BAT, "r") as f:
@@ -287,8 +287,8 @@ class TestSimulatedInstall(unittest.TestCase):
     def _simulate_install(self):
         """Replicate what install.bat does using Python file operations."""
         # Step 1: Copy DLL (build artifact — may not exist in CI)
-        src = os.path.join(REPO_ROOT, "K10MediaBroadcaster.Plugin.dll")
-        dst = os.path.join(self.simhub, "K10MediaBroadcaster.Plugin.dll")
+        src = os.path.join(REPO_ROOT, "K10Motorsports.Plugin.dll")
+        dst = os.path.join(self.simhub, "K10Motorsports.Plugin.dll")
         if os.path.exists(src):
             shutil.copy2(src, dst)
         else:
@@ -297,24 +297,24 @@ class TestSimulatedInstall(unittest.TestCase):
                 f.write(b"STUB_DLL_FOR_TESTING")
 
         # Step 1b: Copy PDB if present (build artifact — optional)
-        pdb_src = os.path.join(REPO_ROOT, "K10MediaBroadcaster.Plugin.pdb")
+        pdb_src = os.path.join(REPO_ROOT, "K10Motorsports.Plugin.pdb")
         if os.path.exists(pdb_src):
-            shutil.copy2(pdb_src, os.path.join(self.simhub, "K10MediaBroadcaster.Plugin.pdb"))
+            shutil.copy2(pdb_src, os.path.join(self.simhub, "K10Motorsports.Plugin.pdb"))
         else:
-            with open(os.path.join(self.simhub, "K10MediaBroadcaster.Plugin.pdb"), "wb") as f:
+            with open(os.path.join(self.simhub, "K10Motorsports.Plugin.pdb"), "wb") as f:
                 f.write(b"STUB_PDB_FOR_TESTING")
 
         # Step 2: Copy dataset
-        dataset_src = os.path.join(REPO_ROOT, "k10-media-broadcaster-data")
-        dataset_dst = os.path.join(self.simhub, "k10-media-broadcaster-data")
+        dataset_src = os.path.join(REPO_ROOT, "k10-motorsports-data")
+        dataset_dst = os.path.join(self.simhub, "k10-motorsports-data")
         shutil.copytree(dataset_src, dataset_dst, dirs_exist_ok=True)
 
     def test_dll_installed(self):
         self._simulate_install()
-        dll = os.path.join(self.simhub, "K10MediaBroadcaster.Plugin.dll")
+        dll = os.path.join(self.simhub, "K10Motorsports.Plugin.dll")
         self.assertTrue(os.path.isfile(dll))
         # Verify content matches repo (only when the real DLL exists)
-        repo_dll = os.path.join(REPO_ROOT, "K10MediaBroadcaster.Plugin.dll")
+        repo_dll = os.path.join(REPO_ROOT, "K10Motorsports.Plugin.dll")
         if os.path.isfile(repo_dll):
             with open(repo_dll, "rb") as f:
                 repo_content = f.read()
@@ -325,7 +325,7 @@ class TestSimulatedInstall(unittest.TestCase):
 
     def test_pdb_installed(self):
         self._simulate_install()
-        pdb = os.path.join(self.simhub, "K10MediaBroadcaster.Plugin.pdb")
+        pdb = os.path.join(self.simhub, "K10Motorsports.Plugin.pdb")
         self.assertTrue(os.path.isfile(pdb))
 
     def test_all_dataset_files_installed(self):
@@ -361,7 +361,7 @@ class TestSimulatedInstall(unittest.TestCase):
         self._simulate_install()  # second run
 
         # All files should still be present
-        dll = os.path.join(self.simhub, "K10MediaBroadcaster.Plugin.dll")
+        dll = os.path.join(self.simhub, "K10Motorsports.Plugin.dll")
         self.assertTrue(os.path.isfile(dll))
         for relpath in INSTALL_MANIFEST["dataset_files"]:
             self.assertTrue(os.path.isfile(os.path.join(self.simhub, relpath)))
@@ -392,37 +392,37 @@ class TestSimulatedExport(unittest.TestCase):
     def _simulate_export(self):
         """Replicate what export.bat does using Python file operations."""
         # Copy DLL + PDB from SimHub to repo root
-        for fname in ["K10MediaBroadcaster.Plugin.dll", "K10MediaBroadcaster.Plugin.pdb"]:
+        for fname in ["K10Motorsports.Plugin.dll", "K10Motorsports.Plugin.pdb"]:
             src = os.path.join(self.simhub, fname)
             dst = os.path.join(self.fake_repo, fname)
             if os.path.exists(src):
                 shutil.copy2(src, dst)
 
         # Copy DashTemplates (excluding _Backups)
-        dash_src = os.path.join(self.simhub, "DashTemplates", "k10 media broadcaster")
-        dash_dst = os.path.join(self.fake_repo, "DashTemplates", "k10 media broadcaster")
+        dash_src = os.path.join(self.simhub, "DashTemplates", "k10 motorsports")
+        dash_dst = os.path.join(self.fake_repo, "DashTemplates", "k10 motorsports")
         if os.path.isdir(dash_src):
             shutil.copytree(dash_src, dash_dst, dirs_exist_ok=True,
                             ignore=shutil.ignore_patterns("_Backups"))
 
     def test_dll_exported(self):
         self._simulate_export()
-        dll = os.path.join(self.fake_repo, "K10MediaBroadcaster.Plugin.dll")
+        dll = os.path.join(self.fake_repo, "K10Motorsports.Plugin.dll")
         self.assertTrue(os.path.isfile(dll))
         with open(dll, "rb") as f:
             self.assertEqual(f.read(), b"BUILT_DLL_CONTENT_12345")
 
     def test_pdb_exported(self):
         self._simulate_export()
-        pdb = os.path.join(self.fake_repo, "K10MediaBroadcaster.Plugin.pdb")
+        pdb = os.path.join(self.fake_repo, "K10Motorsports.Plugin.pdb")
         self.assertTrue(os.path.isfile(pdb))
         with open(pdb, "rb") as f:
             self.assertEqual(f.read(), b"BUILT_PDB_CONTENT_12345")
 
     def test_dashboard_exported(self):
         self._simulate_export()
-        djson = os.path.join(self.fake_repo, "DashTemplates", "k10 media broadcaster",
-                             "k10 media broadcaster.djson")
+        djson = os.path.join(self.fake_repo, "DashTemplates", "k10 motorsports",
+                             "k10 motorsports.djson")
         self.assertTrue(os.path.isfile(djson))
         with open(djson, "r") as f:
             data = json.load(f)
@@ -431,16 +431,16 @@ class TestSimulatedExport(unittest.TestCase):
     def test_dashboard_assets_exported(self):
         self._simulate_export()
         assets = [
-            "k10 media broadcaster.djson.png",
-            "k10 media broadcaster.djson.00.png",
-            "k10 media broadcaster.djson.metadata",
+            "k10 motorsports.djson.png",
+            "k10 motorsports.djson.00.png",
+            "k10 motorsports.djson.metadata",
             "JavascriptExtensions/sample.js",
             "_SHFonts/DymoFontInvers.ttf",
             "_SHFonts/eurostyle-normal.ttf",
         ]
         for asset in assets:
             fullpath = os.path.join(self.fake_repo, "DashTemplates",
-                                    "k10 media broadcaster", asset)
+                                    "k10 motorsports", asset)
             self.assertTrue(os.path.isfile(fullpath),
                             f"Expected {asset} to be exported")
 
@@ -448,7 +448,7 @@ class TestSimulatedExport(unittest.TestCase):
         """_Backups directory should NOT be copied to the repo."""
         self._simulate_export()
         backups = os.path.join(self.fake_repo, "DashTemplates",
-                               "k10 media broadcaster", "_Backups")
+                               "k10 motorsports", "_Backups")
         self.assertFalse(os.path.isdir(backups),
                          "_Backups directory should not be exported to repo")
 
@@ -456,7 +456,7 @@ class TestSimulatedExport(unittest.TestCase):
         """Dataset files live in the repo and are pushed TO SimHub.
         Export should never copy dataset FROM SimHub back to repo."""
         self._simulate_export()
-        dataset_dir = os.path.join(self.fake_repo, "k10-media-broadcaster-data")
+        dataset_dir = os.path.join(self.fake_repo, "k10-motorsports-data")
         self.assertFalse(os.path.isdir(dataset_dir),
                          "Export should not copy dataset from SimHub to repo")
 
@@ -506,9 +506,9 @@ class TestLiveInstall(unittest.TestCase):
 
         # Verify files landed
         self.assertTrue(os.path.isfile(
-            os.path.join(self.simhub, "K10MediaBroadcaster.Plugin.dll")))
+            os.path.join(self.simhub, "K10Motorsports.Plugin.dll")))
         self.assertTrue(os.path.isdir(
-            os.path.join(self.simhub, "k10-media-broadcaster-data")))
+            os.path.join(self.simhub, "k10-motorsports-data")))
 
     def test_install_bat_fails_without_dll(self):
         """If the DLL is missing from repo root, installer should fail."""
@@ -516,7 +516,7 @@ class TestLiveInstall(unittest.TestCase):
         env["SIMHUB_PATH"] = self.simhub
 
         # Rename the DLL temporarily
-        dll = os.path.join(REPO_ROOT, "K10MediaBroadcaster.Plugin.dll")
+        dll = os.path.join(REPO_ROOT, "K10Motorsports.Plugin.dll")
         dll_backup = dll + ".testbackup"
         os.rename(dll, dll_backup)
         try:

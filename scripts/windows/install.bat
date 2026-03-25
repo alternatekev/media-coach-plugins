@@ -1,11 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
-title K10 Media Broadcaster Plugin Installer
+title K10 Motorsports Plugin Installer
 
 echo.
 echo  ============================================
-echo   K10 Media Broadcaster - SimHub Plugin Installer
+echo   K10 Motorsports - SimHub Plugin Installer
 echo  ============================================
 echo.
 
@@ -84,23 +84,23 @@ set "PLUGIN_DIR=%REPO_DIR%\simhub-plugin"
 
 echo  [1/2] Installing plugin DLL...
 
-if exist "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.dll" (
-    copy /Y "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.dll" "%SIMHUB_DIR%\K10MediaBroadcaster.Plugin.dll" >NUL
+if exist "%PLUGIN_DIR%\K10Motorsports.Plugin.dll" (
+    copy /Y "%PLUGIN_DIR%\K10Motorsports.Plugin.dll" "%SIMHUB_DIR%\K10Motorsports.Plugin.dll" >NUL
     if !ERRORLEVEL! NEQ 0 (
         echo        FAILED - could not copy DLL. Is SimHub running?
         goto :error
     )
-    echo        OK - K10MediaBroadcaster.Plugin.dll
+    echo        OK - K10Motorsports.Plugin.dll
 ) else (
-    echo        SKIPPED - K10MediaBroadcaster.Plugin.dll not found.
+    echo        SKIPPED - K10Motorsports.Plugin.dll not found.
     echo        Build the plugin first, or copy the DLL to simhub-plugin\.
     echo        See simhub-plugin\docs\DEVELOPMENT.md for build instructions.
     goto :error
 )
 
 :: Copy PDB if present (optional, for debugging)
-if exist "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.pdb" (
-    copy /Y "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.pdb" "%SIMHUB_DIR%\K10MediaBroadcaster.Plugin.pdb" >NUL
+if exist "%PLUGIN_DIR%\K10Motorsports.Plugin.pdb" (
+    copy /Y "%PLUGIN_DIR%\K10Motorsports.Plugin.pdb" "%SIMHUB_DIR%\K10Motorsports.Plugin.pdb" >NUL
 )
 
 :: -------------------------------------------------------------------
@@ -109,15 +109,15 @@ if exist "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.pdb" (
 
 echo  [2/2] Installing dataset files...
 
-if exist "%PLUGIN_DIR%\k10-media-broadcaster-data" (
-    xcopy /E /Y /I /Q "%PLUGIN_DIR%\k10-media-broadcaster-data" "%SIMHUB_DIR%\k10-media-broadcaster-data" >NUL
+if exist "%PLUGIN_DIR%\k10-motorsports-data" (
+    xcopy /E /Y /I /Q "%PLUGIN_DIR%\k10-motorsports-data" "%SIMHUB_DIR%\k10-motorsports-data" >NUL
     if !ERRORLEVEL! NEQ 0 (
         echo        FAILED - could not copy data folder.
         goto :error
     )
-    echo        OK - k10-media-broadcaster-data\
+    echo        OK - k10-motorsports-data\
 ) else (
-    echo        FAILED - k10-media-broadcaster-data folder not found.
+    echo        FAILED - k10-motorsports-data folder not found.
     goto :error
 )
 
@@ -133,8 +133,8 @@ echo  ============================================
 echo.
 echo  Next steps:
 echo    1. Launch SimHub
-echo    2. Go to the plugin list and enable K10 Media Broadcaster
-echo    3. Open the "k10 media broadcaster" or "k10 media broadcaster" dashboard
+echo    2. Go to the plugin list and enable K10 Motorsports
+echo    3. Open the "k10 motorsports" or "k10 motorsports" dashboard
 echo.
 pause
 exit /b 0

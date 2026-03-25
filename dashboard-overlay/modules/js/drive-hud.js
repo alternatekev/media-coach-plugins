@@ -35,12 +35,12 @@
   function updateDriveHud(p, isDemo) {
     if (!_active) return;
 
-    const dsPre = isDemo ? 'K10MediaBroadcaster.Plugin.Demo.DS.' : 'K10MediaBroadcaster.Plugin.DS.';
+    const dsPre = isDemo ? 'K10Motorsports.Plugin.Demo.DS.' : 'K10Motorsports.Plugin.DS.';
     const v = function(k) { return p[k] != null ? p[k] : 0; };
 
     // Position
     const pos = isDemo
-      ? (+v('K10MediaBroadcaster.Plugin.Demo.Position') || 0)
+      ? (+v('K10Motorsports.Plugin.Demo.Position') || 0)
       : (+v('DataCorePlugin.GameData.Position') || 0);
     const posEl = document.getElementById('dhPosition');
     if (posEl) posEl.textContent = pos > 0 ? 'P' + pos : 'P—';
@@ -57,9 +57,9 @@
     }
 
     // Best / Last / Current lap
-    var bestLap = isDemo ? (+v('K10MediaBroadcaster.Plugin.Demo.BestLapTime') || 0) : (+v('DataCorePlugin.GameData.BestLapTime') || 0);
-    var lastLap = isDemo ? (+v('K10MediaBroadcaster.Plugin.Demo.LastLapTime') || 0) : (+v('DataCorePlugin.GameData.LastLapTime') || 0);
-    var curLap = isDemo ? (+v('K10MediaBroadcaster.Plugin.Demo.CurrentLap') || 0) : (+v('DataCorePlugin.GameData.CurrentLap') || 0);
+    var bestLap = isDemo ? (+v('K10Motorsports.Plugin.Demo.BestLapTime') || 0) : (+v('DataCorePlugin.GameData.BestLapTime') || 0);
+    var lastLap = isDemo ? (+v('K10Motorsports.Plugin.Demo.LastLapTime') || 0) : (+v('DataCorePlugin.GameData.LastLapTime') || 0);
+    var curLap = isDemo ? (+v('K10Motorsports.Plugin.Demo.CurrentLap') || 0) : (+v('DataCorePlugin.GameData.CurrentLap') || 0);
     var bestEl = document.getElementById('dhBestLap');
     var lastEl = document.getElementById('dhLastLap');
     var lapEl = document.getElementById('dhCurrentLap');
@@ -74,7 +74,7 @@
     var states = [+(p[dsPre + 'SectorStateS1']) || 0, +(p[dsPre + 'SectorStateS2']) || 0, +(p[dsPre + 'SectorStateS3']) || 0];
     var stateClass = ['', 'dh-s-pb', 'dh-s-faster', 'dh-s-slower'];
     var currentLapTime = isDemo
-      ? (+(p['K10MediaBroadcaster.Plugin.Demo.CurrentLapTime']) || 0)
+      ? (+(p['K10Motorsports.Plugin.Demo.CurrentLapTime']) || 0)
       : (+(p['DataCorePlugin.GameData.CurrentLapTime']) || 0);
 
     for (var si = 1; si <= 3; si++) {
@@ -147,9 +147,9 @@
     }
 
     // Track map — local zoom view centered on player + opponents
-    var mapReady = +v('K10MediaBroadcaster.Plugin.TrackMap.Ready') || 0;
+    var mapReady = +v('K10Motorsports.Plugin.TrackMap.Ready') || 0;
     if (mapReady) {
-      var svgPath = (p['K10MediaBroadcaster.Plugin.TrackMap.SvgPath'] || '');
+      var svgPath = (p['K10Motorsports.Plugin.TrackMap.SvgPath'] || '');
       var dhTrack = document.getElementById('dhMapTrack');
       if (dhTrack && svgPath && dhTrack.getAttribute('d') !== svgPath) {
         dhTrack.setAttribute('d', svgPath);
@@ -162,8 +162,8 @@
         }
       }
 
-      var px = Math.max(0, Math.min(100, +v('K10MediaBroadcaster.Plugin.TrackMap.PlayerX') || 50));
-      var py = Math.max(0, Math.min(100, +v('K10MediaBroadcaster.Plugin.TrackMap.PlayerY') || 50));
+      var px = Math.max(0, Math.min(100, +v('K10Motorsports.Plugin.TrackMap.PlayerX') || 50));
+      var py = Math.max(0, Math.min(100, +v('K10Motorsports.Plugin.TrackMap.PlayerY') || 50));
 
       // Update player dot
       var dhPlayer = document.getElementById('dhMapPlayer');
@@ -182,7 +182,7 @@
       }
 
       // Opponents
-      var opponentStr = p['K10MediaBroadcaster.Plugin.TrackMap.Opponents'] || '';
+      var opponentStr = p['K10Motorsports.Plugin.TrackMap.Opponents'] || '';
       var dhOppG = document.getElementById('dhMapOpponents');
       if (dhOppG) {
         var parts = opponentStr ? opponentStr.split(';').filter(function(s) { return s.length > 0; }) : [];

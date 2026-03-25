@@ -1,6 +1,6 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════
-#  K10 Media Broadcaster — Overlay Launcher (macOS)
+#  K10 Motorsports — Overlay Launcher (macOS)
 # ═══════════════════════════════════════════════
 
 # Navigate to the Electron app root (dashboard-overlay/)
@@ -9,7 +9,7 @@ APP_DIR="$SCRIPT_DIR/../../dashboard-overlay"
 cd "$APP_DIR"
 
 echo "═══════════════════════════════════════════════"
-echo " K10 Media Broadcaster — Starting Overlay"
+echo " K10 Motorsports — Starting Overlay"
 echo "═══════════════════════════════════════════════"
 echo ""
 echo "Hotkeys:"

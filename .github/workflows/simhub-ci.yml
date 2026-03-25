@@ -49,13 +49,13 @@ jobs:
           dotnet-version: "6.0.x"
 
       - name: Restore NuGet packages
-        run: dotnet restore simhub-plugin/tests/K10MediaBroadcaster.Tests/K10MediaBroadcaster.Tests.csproj
+        run: dotnet restore simhub-plugin/tests/K10Motorsports.Tests/K10Motorsports.Tests.csproj
 
       - name: Build test project
-        run: dotnet build simhub-plugin/tests/K10MediaBroadcaster.Tests/K10MediaBroadcaster.Tests.csproj --no-restore
+        run: dotnet build simhub-plugin/tests/K10Motorsports.Tests/K10Motorsports.Tests.csproj --no-restore
 
       - name: Run tests (200+ tests)
-        run: dotnet test simhub-plugin/tests/K10MediaBroadcaster.Tests/K10MediaBroadcaster.Tests.csproj --no-build --verbosity normal
+        run: dotnet test simhub-plugin/tests/K10Motorsports.Tests/K10Motorsports.Tests.csproj --no-build --verbosity normal
 
   # ---------------------------------------------------------------
   # Windows-only: live .bat execution against fake SimHub directory

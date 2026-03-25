@@ -1,6 +1,6 @@
 # Homebridge Plugin Architecture
 
-The Homebridge plugin (`homebridge-k10-media-broadcaster-lights`) is a TypeScript Dynamic Platform Plugin that drives Apple HomeKit lights based on SimHub telemetry. It polls the SimHub HTTP API and sets Lightbulb characteristics (hue, saturation, brightness) based on race flags, event severity, and driver proximity.
+The Homebridge plugin (`homebridge-k10-motorsports-lights`) is a TypeScript Dynamic Platform Plugin that drives Apple HomeKit lights based on SimHub telemetry. It polls the SimHub HTTP API and sets Lightbulb characteristics (hue, saturation, brightness) based on race flags, event severity, and driver proximity.
 
 ## Source Structure
 
@@ -26,7 +26,7 @@ homebridge-plugin/
 ## Communication Flow
 
 ```
-SimHub (K10 Media Broadcaster properties)
+SimHub (K10 Motorsports properties)
   → SimHub HTTP API (port 8888)
   → Homebridge Plugin (polling at configurable interval)
   → HomeKit Lightbulb characteristics
@@ -37,12 +37,12 @@ The plugin reads six properties from SimHub's HTTP API on each poll:
 
 | SimHub Property | Purpose |
 |----------------|---------|
-| `K10MediaBroadcaster.Plugin.CommentarySeverity` | Event severity (0-5) |
-| `K10MediaBroadcaster.Plugin.CommentaryVisible` | Whether a prompt is active (0/1) |
-| `K10MediaBroadcaster.Plugin.CommentarySentimentColor` | AARRGGBB color string |
-| `K10MediaBroadcaster.Plugin.CommentaryCategory` | Event category name |
-| `K10MediaBroadcaster.Plugin.CurrentFlagState` | Human-readable flag string |
-| `K10MediaBroadcaster.Plugin.NearestCarDistance` | Closest opponent distance fraction |
+| `K10Motorsports.Plugin.CommentarySeverity` | Event severity (0-5) |
+| `K10Motorsports.Plugin.CommentaryVisible` | Whether a prompt is active (0/1) |
+| `K10Motorsports.Plugin.CommentarySentimentColor` | AARRGGBB color string |
+| `K10Motorsports.Plugin.CommentaryCategory` | Event category name |
+| `K10Motorsports.Plugin.CurrentFlagState` | Human-readable flag string |
+| `K10Motorsports.Plugin.NearestCarDistance` | Closest opponent distance fraction |
 
 All six properties are fetched in parallel (`Promise.all`) with a 1.5-second per-property timeout. If any request fails, the plugin returns a default state (lights off) and logs the error. On the next successful poll, it clears the error state and resumes normal operation.
 

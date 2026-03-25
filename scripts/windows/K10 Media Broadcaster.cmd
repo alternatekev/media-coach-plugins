@@ -1,11 +1,11 @@
 @echo off
-title K10 Media Broadcaster
+title K10 Motorsports
 
 :: Navigate to the Electron app root (dashboard-overlay/)
 cd /d "%~dp0..\..\dashboard-overlay"
 
 echo ═══════════════════════════════════════════════
-echo  K10 Media Broadcaster — Starting Overlay
+echo  K10 Motorsports — Starting Overlay
 echo ═══════════════════════════════════════════════
 echo.
 echo Hotkeys:

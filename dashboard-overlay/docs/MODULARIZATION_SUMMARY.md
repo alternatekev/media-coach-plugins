@@ -1,4 +1,4 @@
-# K10 Media Broadcaster Dashboard Modularization
+# K10 Motorsports Dashboard Modularization
 
 ## Overview
 
@@ -182,7 +182,7 @@ All original functionality is preserved:
 ## File System Layout
 
 ```
-K10 Media Broadcaster/
+K10 Motorsports/
 ├── dashboard.html                    (435 lines, thin assembly)
 ├── modules/
 │   ├── styles/                       (95 KB, 8 files)

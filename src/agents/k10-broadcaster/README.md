@@ -1,6 +1,6 @@
-# K10 Media Broadcaster MCP Server
+# K10 Motorsports MCP Server
 
-A Model Context Protocol (MCP) server providing structured access to the K10 Media Broadcaster dashboard overlay source code. This MCP enables Claude to understand the overlay's architecture, modules, styling, and configuration without parsing raw HTML or manually reading files.
+A Model Context Protocol (MCP) server providing structured access to the K10 Motorsports dashboard overlay source code. This MCP enables Claude to understand the overlay's architecture, modules, styling, and configuration without parsing raw HTML or manually reading files.
 
 ## Location
 
@@ -47,7 +47,7 @@ The MCP provides 12 specialized tools for exploring the K10 Broadcaster dashboar
 
 ## Source Structure
 
-The MCP reads from the K10 Broadcaster dashboard source:
+The MCP reads from the K10 Motorsports dashboard source:
 
 ```
 dashboard-overlay/

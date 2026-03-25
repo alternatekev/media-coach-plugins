@@ -1,4 +1,4 @@
-# K10 Media Broadcaster — Visual Aesthetic Profile
+# K10 Motorsports — Visual Aesthetic Profile
 
 ## Core Principles
 1. **Dark-but-not-black**: 8% luminance base, never true black (avoids OLED ghosting, adds warmth)

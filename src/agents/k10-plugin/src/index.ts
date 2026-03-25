@@ -6,7 +6,7 @@ import { join, relative } from 'path';
 
 // Resolve base paths
 const PLUGIN_ROOT = process.env.K10_PLUGIN_ROOT || '/sessions/jolly-great-babbage/mnt/media-coach-simhub-plugin/simhub-plugin';
-const PLUGIN_SOURCE_DIR = join(PLUGIN_ROOT, 'plugin/K10MediaBroadcaster.Plugin');
+const PLUGIN_SOURCE_DIR = join(PLUGIN_ROOT, 'plugin/K10Motorsports.Plugin');
 const DATASET_DIR = join(PLUGIN_ROOT, 'dataset');
 
 interface CommentaryTopic {

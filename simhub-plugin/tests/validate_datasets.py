@@ -15,7 +15,7 @@ import colorsys
 import unittest
 from pathlib import Path
 
-DATASET_DIR = Path(__file__).resolve().parent.parent / "k10-media-broadcaster-data"
+DATASET_DIR = Path(__file__).resolve().parent.parent / "k10-motorsports-data"
 TOPICS_PATH = DATASET_DIR / "commentary_topics.json"
 FRAGMENTS_PATH = DATASET_DIR / "commentary_fragments.json"
 SENTIMENTS_PATH = DATASET_DIR / "sentiments.json"

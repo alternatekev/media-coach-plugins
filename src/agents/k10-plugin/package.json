@@ -1,7 +1,7 @@
 {
   "name": "@k10/plugin-mcp",
   "version": "1.0.0",
-  "description": "MCP server for reading K10 Media Broadcaster SimHub plugin source, config, and dataset",
+  "description": "MCP server for reading K10 Motorsports SimHub plugin source, config, and dataset",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

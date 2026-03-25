@@ -1,10 +1,10 @@
-# Homebridge K10 Media Broadcaster Lights Plugin
+# Homebridge K10 Motorsports Lights Plugin
 
-A Homebridge plugin that maps SimHub K10 Media Broadcaster telemetry to HomeKit-connected smart lights. Control light colors based on race flags, driver proximity, and event severity in real-time.
+A Homebridge plugin that maps SimHub K10 Motorsports telemetry to HomeKit-connected smart lights. Control light colors based on race flags, driver proximity, and event severity in real-time.
 
 ## Features
 
-- Polls SimHub HTTP API for K10 Media Broadcaster plugin state
+- Polls SimHub HTTP API for K10 Motorsports plugin state
 - Maps race flags (green, yellow, red, black, blue, debris) to light colors
 - Proximity-based warnings (car distance on track)
 - Event severity coloring (info through critical)
@@ -16,7 +16,7 @@ A Homebridge plugin that maps SimHub K10 Media Broadcaster telemetry to HomeKit-
 
 ### Prerequisites
 
-1. **SimHub** running with the K10 Media Broadcaster plugin active
+1. **SimHub** running with the K10 Motorsports plugin active
 2. **SimHub Web Server** enabled (SimHub Settings → Plugins → Web Server)
 3. **Homebridge** installed (v1.6.0 or later)
 
@@ -24,12 +24,12 @@ A Homebridge plugin that maps SimHub K10 Media Broadcaster telemetry to HomeKit-
 
 1. Install the plugin via Homebridge UI:
    - Go to Homebridge → Plugins → Install Plugin
-   - Search for `homebridge-k10-media-broadcaster-lights`
+   - Search for `homebridge-k10-motorsports-lights`
    - Click Install
 
 2. Configure the plugin:
    - Go to Homebridge → Settings
-   - Find "K10 Media Broadcaster Lights" platform
+   - Find "K10 Motorsports Lights" platform
    - Enter your SimHub HTTP API URL (default: `http://localhost:8888`)
    - Set poll interval (default: 500ms)
    - Choose light mode (flags_only, events_only, or all_colors)
@@ -39,7 +39,7 @@ A Homebridge plugin that maps SimHub K10 Media Broadcaster telemetry to HomeKit-
    - Open Apple Home app
    - Tap + in top left corner
    - Select "Add Accessory"
-   - Choose "K10 Media Broadcaster" from Homebridge
+   - Choose "K10 Motorsports" from Homebridge
    - Assign to a room
 
 ## Configuration
@@ -106,7 +106,7 @@ When enabled (default), lights blink for:
 - Check SimHub web server is enabled (Settings → Plugins → Web Server)
 - Verify SimHub URL in plugin config (default: `http://localhost:8888`)
 - Check Homebridge logs for connection errors
-- Ensure K10 Media Broadcaster plugin is active in SimHub
+- Ensure K10 Motorsports plugin is active in SimHub
 
 ### Colors not showing
 - Verify HomeKit light supports color changes (RGB bulbs required)
@@ -145,12 +145,12 @@ npm install
 npm run build
 
 # 2. Copy the built plugin into Homebridge's plugin directory
-sudo cp -r /path/to/k10-media-broadcaster-plugins/homebridge-plugin \
-    /var/lib/homebridge/node_modules/homebridge-k10-media-broadcaster-lights
+sudo cp -r /path/to/k10-motorsports-plugins/homebridge-plugin \
+    /var/lib/homebridge/node_modules/homebridge-k10-motorsports-lights
 
 # 3. Fix ownership (Homebridge runs as the homebridge user)
 sudo chown -R homebridge:homebridge \
-    /var/lib/homebridge/node_modules/homebridge-k10-media-broadcaster-lights
+    /var/lib/homebridge/node_modules/homebridge-k10-motorsports-lights
 
 # 4. Restart Homebridge
 sudo systemctl restart homebridge
@@ -160,8 +160,8 @@ On subsequent deploys, only the `dist/` folder needs to be re-copied:
 
 ```bash
 npm run build && \
-sudo cp -r dist /var/lib/homebridge/node_modules/homebridge-k10-media-broadcaster-lights/ && \
-sudo chown -R homebridge:homebridge /var/lib/homebridge/node_modules/homebridge-k10-media-broadcaster-lights && \
+sudo cp -r dist /var/lib/homebridge/node_modules/homebridge-k10-motorsports-lights/ && \
+sudo chown -R homebridge:homebridge /var/lib/homebridge/node_modules/homebridge-k10-motorsports-lights && \
 sudo systemctl restart homebridge
 ```
 
@@ -173,7 +173,7 @@ sudo tail -f /var/lib/homebridge/homebridge.log
 
 Expected startup output:
 ```
-Loaded plugin: homebridge-k10-media-broadcaster-lights@1.0.0
+Loaded plugin: homebridge-k10-motorsports-lights@1.0.0
 Registered accessory: Sim Rig Light
 Starting SimHub polling (interval: 500ms)
 Homebridge v1.x.x is running on port 51370
@@ -188,13 +188,13 @@ Homebridge v1.x.x is running on port 51370
 
 ## API Reference
 
-The plugin expects SimHub K10 Media Broadcaster plugin to expose these properties via HTTP API:
+The plugin expects SimHub K10 Motorsports plugin to expose these properties via HTTP API:
 
-- `K10MediaBroadcaster.Plugin.CommentarySeverity` - Event severity (0-5)
-- `K10MediaBroadcaster.Plugin.CommentaryVisible` - Event visible flag (0/1)
-- `K10MediaBroadcaster.Plugin.CommentarySentimentColor` - Sentiment color (#AARRGGBB)
-- `K10MediaBroadcaster.Plugin.CurrentFlagState` - Race flag state (green/yellow/red/etc.)
-- `K10MediaBroadcaster.Plugin.NearestCarDistance` - Nearest opponent distance (0.0-1.0)
+- `K10Motorsports.Plugin.CommentarySeverity` - Event severity (0-5)
+- `K10Motorsports.Plugin.CommentaryVisible` - Event visible flag (0/1)
+- `K10Motorsports.Plugin.CommentarySentimentColor` - Sentiment color (#AARRGGBB)
+- `K10Motorsports.Plugin.CurrentFlagState` - Race flag state (green/yellow/red/etc.)
+- `K10Motorsports.Plugin.NearestCarDistance` - Nearest opponent distance (0.0-1.0)
 
 ## License
 
@@ -206,4 +206,4 @@ Kevin Conboy
 
 ---
 
-For more information on K10 Media Broadcaster, visit: http://www.alternate.org
+For more information on K10 Motorsports, visit: http://www.alternate.org

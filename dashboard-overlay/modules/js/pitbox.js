@@ -109,7 +109,7 @@
     }
     if (!isIRacing) return;
 
-    const pb = key => d['K10MediaBroadcaster.Plugin.PitBox.' + key];
+    const pb = key => d['K10Motorsports.Plugin.PitBox.' + key];
     const dc = key => d['DataCorePlugin.GameRawData.Telemetry.' + key];
 
     // ── Fuel ──

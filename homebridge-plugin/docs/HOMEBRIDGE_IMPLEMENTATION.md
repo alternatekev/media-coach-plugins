@@ -2,7 +2,7 @@
 
 ## Overview
 
-A complete Homebridge platform plugin has been created to integrate SimHub K10 Media Broadcaster telemetry with HomeKit-connected smart lights. The plugin polls SimHub's HTTP API and maps race flags, driver proximity, and event severity to light colors in real-time.
+A complete Homebridge platform plugin has been created to integrate SimHub K10 Motorsports telemetry with HomeKit-connected smart lights. The plugin polls SimHub's HTTP API and maps race flags, driver proximity, and event severity to light colors in real-time.
 
 ## Architecture
 
@@ -28,7 +28,7 @@ homebridge-plugin/
 ### Communication Flow
 
 ```
-SimHub (K10 Media Broadcaster plugin)
+SimHub (K10 Motorsports plugin)
          ↓
    HTTP API (port 8888)
          ↓
@@ -48,11 +48,11 @@ Smart Lights
 Handles HTTP polling of SimHub properties:
 
 - **Polling properties:**
-  - `K10MediaBroadcaster.Plugin.CommentarySeverity` (0-5)
-  - `K10MediaBroadcaster.Plugin.CommentaryVisible` (0/1)
-  - `K10MediaBroadcaster.Plugin.CommentarySentimentColor` (#AARRGGBB)
-  - `K10MediaBroadcaster.Plugin.CurrentFlagState` (green/yellow/red/black/blue/debris/none)
-  - `K10MediaBroadcaster.Plugin.NearestCarDistance` (0.0-1.0)
+  - `K10Motorsports.Plugin.CommentarySeverity` (0-5)
+  - `K10Motorsports.Plugin.CommentaryVisible` (0/1)
+  - `K10Motorsports.Plugin.CommentarySentimentColor` (#AARRGGBB)
+  - `K10Motorsports.Plugin.CurrentFlagState` (green/yellow/red/black/blue/debris/none)
+  - `K10Motorsports.Plugin.NearestCarDistance` (0.0-1.0)
 
 - **Features:**
   - Non-blocking async HTTP GET requests
@@ -92,7 +92,7 @@ Maps SimHub state to HomeKit HSB colors:
   - Black/debris: 0.5 Hz (pulse)
   - Close proximity: 2 Hz (urgent)
 
-### 3. K10MediaBroadcasterLightsPlatform (platform.ts)
+### 3. K10MotorsportsLightsPlatform (platform.ts)
 
 Main platform plugin class:
 
@@ -112,7 +112,7 @@ Main platform plugin class:
   - `events_only` - Only display proximity/events
   - `all_colors` - Priority: flags > severity > proximity > ambient
 
-### 4. K10MediaBroadcasterLightAccessory (platformAccessory.ts)
+### 4. K10MotorsportsLightAccessory (platformAccessory.ts)
 
 Wraps a single HomeKit Lightbulb service:
 
@@ -194,18 +194,18 @@ Provides a UI form in Homebridge with:
    ```
 
 2. Install in Homebridge:
-   - Via Homebridge UI: Search for `homebridge-k10-media-broadcaster-lights` and install
+   - Via Homebridge UI: Search for `homebridge-k10-motorsports-lights` and install
    - Or locally: `npm link` after building
 
 3. Configure:
    - Go to Homebridge settings
-   - Find "K10 Media Broadcaster Lights" platform
+   - Find "K10 Motorsports Lights" platform
    - Set SimHub URL, polling interval, and light mode
    - Add lights to HomeKit if desired
 
 4. Enable in SimHub:
    - Enable "Web Server" in SimHub settings
-   - Ensure K10 Media Broadcaster plugin is active
+   - Ensure K10 Motorsports plugin is active
 
 ## TypeScript Implementation Details
 
@@ -231,8 +231,8 @@ Provides a UI form in Homebridge with:
 ## File Locations
 
 All files are located at:
-- Homebridge plugin: `/sessions/gracious-elegant-shannon/mnt/k10-media-broadcaster-plugin/homebridge-plugin/`
-- SimHub plugin update: `/sessions/gracious-elegant-shannon/mnt/k10-media-broadcaster-plugin/plugin/K10MediaBroadcaster.Plugin/Plugin.cs`
+- Homebridge plugin: `/sessions/gracious-elegant-shannon/mnt/k10-motorsports-plugin/homebridge-plugin/`
+- SimHub plugin update: `/sessions/gracious-elegant-shannon/mnt/k10-motorsports-plugin/plugin/K10Motorsports.Plugin/Plugin.cs`
 
 ## Testing
 

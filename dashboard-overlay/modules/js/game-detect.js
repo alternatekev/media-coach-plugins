@@ -70,7 +70,7 @@
     const el = document.getElementById('connStatus');
     if (!el) return;
     el.className = 'conn-status ' + state;
-    const titles = { connected: 'Connected to plugin server', disconnected: 'Cannot reach plugin server — is the K10 Media Broadcaster plugin loaded in SimHub?', connecting: 'Connecting to plugin server...' };
+    const titles = { connected: 'Connected to plugin server', disconnected: 'Cannot reach plugin server — is the K10 Motorsports plugin loaded in SimHub?', connecting: 'Connecting to plugin server...' };
     el.title = titles[state] || '';
 
     // Settings-embedded warning banner
@@ -144,7 +144,7 @@
     const banner = document.getElementById('connBanner');
     if (banner) banner.classList.remove('visible');
     if (window.k10?.releaseInteractive) window.k10.releaseInteractive();
-    console.log('[K10 Media Broadcaster] SimHub URL changed to ' + newUrl);
+    console.log('[K10 Motorsports] SimHub URL changed to ' + newUrl);
   }
 
   function dismissConnBanner() {
@@ -189,7 +189,7 @@
     _connFails++;
     _backoffUntil = Date.now() + Math.min(1000 * Math.pow(2, _connFails - 1), 10000);
     _updateConnStatus('disconnected');
-    if (_connFails <= 3) console.warn(`[K10 Media Broadcaster] Plugin server unreachable at ${window._simhubUrlOverride || SIMHUB_URL} — fail #${_connFails}`);
+    if (_connFails <= 3) console.warn(`[K10 Motorsports] Plugin server unreachable at ${window._simhubUrlOverride || SIMHUB_URL} — fail #${_connFails}`);
     return null;
   }
 

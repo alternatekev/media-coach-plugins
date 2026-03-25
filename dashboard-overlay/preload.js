@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// K10 Media Broadcaster — Preload Script
+// K10 Motorsports — Preload Script
 // Exposes safe IPC bridge to the HTML dashboard
 // ═══════════════════════════════════════════════════════════════
 

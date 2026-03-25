@@ -1,11 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
-title K10 Media Broadcaster — Build Installer
+title K10 Motorsports — Build Installer
 
 echo.
 echo  ============================================
-echo   K10 Media Broadcaster — Build Installer
+echo   K10 Motorsports — Build Installer
 echo  ============================================
 echo.
 echo  Builds the SimHub plugin, packages the Electron
@@ -19,7 +19,7 @@ echo.
 set "SCRIPTS_DIR=%~dp0"
 if "%SCRIPTS_DIR:~-1%"=="\" set "SCRIPTS_DIR=%SCRIPTS_DIR:~0,-1%"
 for %%I in ("%SCRIPTS_DIR%\..\..") do set "REPO_DIR=%%~fI"
-set "PLUGIN_DIR=%REPO_DIR%\simhub-plugin\plugin\K10MediaBroadcaster.Plugin"
+set "PLUGIN_DIR=%REPO_DIR%\simhub-plugin\plugin\K10Motorsports.Plugin"
 set "OVERLAY_DIR=%REPO_DIR%\dashboard-overlay"
 set "INSTALLER_DIR=%REPO_DIR%\installer"
 
@@ -39,7 +39,7 @@ echo  [1/4] Building SimHub plugin (dotnet build Release)...
 set "STAGING=%REPO_DIR%\installer\staging"
 if not exist "%STAGING%" mkdir "%STAGING%"
 
-dotnet build "%PLUGIN_DIR%\K10MediaBroadcaster.Plugin.csproj" ^
+dotnet build "%PLUGIN_DIR%\K10Motorsports.Plugin.csproj" ^
   -c Release ^
   -p:OutputPath="%STAGING%" ^
   -p:AppendTargetFrameworkToOutputPath=false ^
@@ -54,9 +54,9 @@ if !ERRORLEVEL! NEQ 0 (
 )
 
 :: Copy the DLL and PDB to the expected location for Inno Setup
-copy /Y "%STAGING%\K10MediaBroadcaster.Plugin.dll" "%REPO_DIR%\simhub-plugin\K10MediaBroadcaster.Plugin.dll" >NUL
-if exist "%STAGING%\K10MediaBroadcaster.Plugin.pdb" (
-    copy /Y "%STAGING%\K10MediaBroadcaster.Plugin.pdb" "%REPO_DIR%\simhub-plugin\K10MediaBroadcaster.Plugin.pdb" >NUL
+copy /Y "%STAGING%\K10Motorsports.Plugin.dll" "%REPO_DIR%\simhub-plugin\K10Motorsports.Plugin.dll" >NUL
+if exist "%STAGING%\K10Motorsports.Plugin.pdb" (
+    copy /Y "%STAGING%\K10Motorsports.Plugin.pdb" "%REPO_DIR%\simhub-plugin\K10Motorsports.Plugin.pdb" >NUL
 )
 
 echo        OK — Plugin built successfully.
@@ -121,14 +121,14 @@ if not defined ISCC (
     echo    %OVERLAY_DIR%\dist\win-unpacked\
     echo.
     echo  You can compile the installer manually:
-    echo    iscc "%INSTALLER_DIR%\k10-media-broadcaster.iss"
+    echo    iscc "%INSTALLER_DIR%\k10-motorsports.iss"
     echo.
     goto :done
 )
 
 if not exist "%INSTALLER_DIR%\output" mkdir "%INSTALLER_DIR%\output"
 
-"%ISCC%" "%INSTALLER_DIR%\k10-media-broadcaster.iss"
+"%ISCC%" "%INSTALLER_DIR%\k10-motorsports.iss"
 if !ERRORLEVEL! NEQ 0 (
     echo.
     echo  ERROR: Inno Setup compilation failed.
@@ -147,16 +147,16 @@ echo  ============================================
 echo   Build complete!
 echo  ============================================
 echo.
-if exist "%INSTALLER_DIR%\output\K10-Media-Broadcaster-Setup-*.exe" (
+if exist "%INSTALLER_DIR%\output\K10-Motorsports-Setup-*.exe" (
     echo  Installer:
-    for %%F in ("%INSTALLER_DIR%\output\K10-Media-Broadcaster-Setup-*.exe") do echo    %%F
+    for %%F in ("%INSTALLER_DIR%\output\K10-Motorsports-Setup-*.exe") do echo    %%F
     echo.
 )
 echo  Overlay (portable):
 echo    %OVERLAY_DIR%\dist\win-unpacked\
 echo.
 echo  Plugin DLL:
-echo    %REPO_DIR%\simhub-plugin\K10MediaBroadcaster.Plugin.dll
+echo    %REPO_DIR%\simhub-plugin\K10Motorsports.Plugin.dll
 echo.
 pause
 exit /b 0

@@ -160,7 +160,7 @@
     }
 
     if (_pollFrame % 2 === 0) {
-      // Update trace circular buffer + WebGL texture
+      // Update DOM histogram bars + 2D canvas trace
       renderPedalTrace(thr, brk, _clutchHidden ? 0 : clt);
     }
 

@@ -222,12 +222,9 @@ All WebGL2 shader programs in a single IIFE. Each shader section follows the pat
 4. `window._*FXFrame(dt)` -- per-frame update function
 5. `window.set*` -- public API for activation
 
-**Shader programs (10 total):**
+**Shader programs (9 total):**
 1. **tachoFX** -- tachometer rev glow (canvas: `tachoGlCanvas`)
-2. **pedalsFX** -- pedal histogram edge glow (canvas: `pedalsGlCanvas`)
-   - Throttle: right edge, neon green `vec3(0.20, 1.0, 0.05)`, multipliers 0.9/0.4
-   - Brake: left edge, red `vec3(0.92, 0.22, 0.20)`, multipliers 0.35/0.12
-   - Clutch: right edge (shared), blue `vec3(0.25, 0.50, 0.92)`, multipliers 0.14/0.04
+2. ~~pedalsFX~~ -- **removed**: pedal histogram reverted to DOM bars + 2D canvas trace
 3. **flagFX** -- flag overlay animation (canvas: `flagGlCanvas`)
 4. **lbFX** -- leaderboard effects (canvas: `lbGlCanvas`)
 5. **lbEvtFX** -- leaderboard event effects
@@ -242,7 +239,7 @@ All WebGL2 shader programs in a single IIFE. Each shader section follows the pat
 
 **Master FX loop** (requestAnimationFrame):
 ```javascript
-tachoFX -> pedalsFX -> flagFX -> lbFX -> lbEvtFX -> k10LogoFX -> spotterFX -> bonkersFX -> commTrailFX -> gridFlagFX
+tachoFX -> flagFX -> lbFX -> lbEvtFX -> k10LogoFX -> spotterFX -> bonkersFX -> commTrailFX -> gridFlagFX
 ```
 
 ### incidents.js (~73 lines)

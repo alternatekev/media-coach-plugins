@@ -62,11 +62,11 @@ test.describe('Page structure', () => {
     await expect(segs).toHaveCount(11);
   });
 
-  test('pedal rolling histogram rendered via WebGL', async ({ page }) => {
+  test('pedal rolling histogram rendered via DOM bars', async ({ page }) => {
     await load(page);
-    // Rolling bar histogram is drawn by the pedals WebGL shader.
-    const hasFn = await page.evaluate(() => typeof window._pedalsFXFrame === 'function');
-    expect(hasFn).toBeTruthy();
+    // Rolling bar histogram is drawn by DOM elements + 2D canvas trace.
+    const hasHist = await page.evaluate(() => document.querySelectorAll('.pedal-hist-bar').length > 0);
+    expect(hasHist).toBeTruthy();
   });
 
   test('K10 logo image is present', async ({ page }) => {
@@ -793,7 +793,6 @@ test.describe('Window API', () => {
     await load(page);
     const fns = await page.evaluate(() => [
       typeof window.updateTacho,
-      typeof window._pedalsFXFrame,
       typeof window.showCommentary,
       typeof window.hideCommentary,
       typeof window.cycleRatingPos,

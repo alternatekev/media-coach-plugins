@@ -156,7 +156,26 @@
         <div class="ctrl-no-adj" id="ctrlNoAdj">NO ADJUSTMENTS</div>
       </div>
       <div class="panel pedals-area" id="pedalsArea">
-        <canvas class="gl-overlay" id="pedalsGlCanvas"></canvas>
+        <div class="pedal-labels-row">
+          <div class="pedal-label-group">
+            <div class="pedal-channel-label throttle">THROTTLE</div>
+            <div class="pedal-pct" style="color:var(--green);">0%</div>
+          </div>
+          <div class="pedal-label-group">
+            <div class="pedal-channel-label brake">BRAKE</div>
+            <div class="pedal-pct" style="color:var(--red);">0%</div>
+          </div>
+          <div class="pedal-label-group" id="clutchLabelGroup">
+            <div class="pedal-channel-label clutch">CLUTCH</div>
+            <div class="pedal-pct" style="color:var(--blue);">0%</div>
+          </div>
+        </div>
+        <div class="pedal-viz-stack">
+          <div class="pedal-viz-layer throttle-layer" id="throttleHist"></div>
+          <div class="pedal-viz-layer brake-layer" id="brakeHist"></div>
+          <div class="pedal-viz-layer clutch-layer" id="clutchHist"></div>
+          <canvas class="pedal-trace-canvas" id="pedalTraceCanvas" width="240" height="80"></canvas>
+        </div>
       </div>
     </div>
 

@@ -44,19 +44,6 @@ jobs:
           name: overlay-win-unpacked
           path: dashboard-overlay/dist/win-unpacked/
 
-      - name: Upload overlay NSIS installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: overlay-win-setup
-          path: dashboard-overlay/dist/K10-Media-Broadcaster-Setup-*.exe
-
-      - name: Upload auto-update metadata
-        uses: actions/upload-artifact@v4
-        with:
-          name: overlay-update-meta
-          path: |
-            dashboard-overlay/dist/latest.yml
-
   # ---------------------------------------------------------------
   # Build the Electron overlay for macOS (optional — does not block)
   # ---------------------------------------------------------------
@@ -172,9 +159,7 @@ jobs:
           generate_release_notes: true
           files: |
             release-artifacts/installer/*.exe
-            release-artifacts/overlay-win-setup/*.exe
             release-artifacts/overlay-mac/*.dmg
-            release-artifacts/overlay-update-meta/latest.yml
           draft: false
           prerelease: false
         env:

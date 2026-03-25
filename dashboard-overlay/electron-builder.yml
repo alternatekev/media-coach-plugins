@@ -21,21 +21,9 @@ icon: images/branding/icon.png
 win:
   icon: images/branding/icon.ico
   target:
-    - target: nsis
+    - target: dir
       arch:
         - x64
-  artifactName: "K10-Media-Broadcaster-Setup-${version}.${ext}"
-
-nsis:
-  oneClick: false
-  perMachine: false
-  allowToChangeInstallationDirectory: true
-  installerIcon: images/branding/icon.ico
-  uninstallerIcon: images/branding/icon.ico
-  installerHeaderIcon: images/branding/icon.ico
-  createDesktopShortcut: true
-  createStartMenuShortcut: true
-  shortcutName: K10 Media Broadcaster
 
 mac:
   category: public.app-category.utilities

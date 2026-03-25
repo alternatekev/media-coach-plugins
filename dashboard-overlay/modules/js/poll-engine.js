@@ -546,7 +546,6 @@
 
       // ── Dynamic sector cell management ──
       // Ensure sectorIndicator has the right number of cells
-      const sectorEl = document.getElementById('sectorIndicator');
       if (sectorEl) {
         const existing = sectorEl.querySelectorAll('.sector-cell');
         if (existing.length !== sectorCount) {

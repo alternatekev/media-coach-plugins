@@ -34,9 +34,7 @@ namespace K10MediaBroadcaster.Plugin
             ShowTitleCheck.IsChecked  = s.ShowTopicTitle;
             EventOnlyCheck.IsChecked  = s.EventOnlyMode;
             DemoModeCheck.IsChecked   = s.DemoMode;
-            RecordModeCheck.IsChecked = s.RecordMode;
-
-            bool allEnabled = s.EnabledCategories == null || s.EnabledCategories.Count == 0;
+bool allEnabled = s.EnabledCategories == null || s.EnabledCategories.Count == 0;
             CatHardware.IsChecked    = allEnabled || s.EnabledCategories.Contains("hardware");
             CatGameFeel.IsChecked    = allEnabled || s.EnabledCategories.Contains("game_feel");
             CatCarResponse.IsChecked = allEnabled || s.EnabledCategories.Contains("car_response");
@@ -95,14 +93,7 @@ namespace K10MediaBroadcaster.Plugin
             SaveAndApply();
         }
 
-        private void RecordModeCheck_Changed(object sender, RoutedEventArgs e)
-        {
-            if (_loading) return;
-            _plugin.Settings.RecordMode = RecordModeCheck.IsChecked == true;
-            SaveAndApply();
-        }
-
-        private void BrowseTopics_Click(object sender, RoutedEventArgs e)
+private void BrowseTopics_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new OpenFileDialog
             {

@@ -20,7 +20,7 @@ plugin/K10MediaBroadcaster.Plugin/
     ├── TelemetrySnapshot.Capture.cs    SimHub-specific telemetry capture (reflection)
     ├── DemoSequence.cs                 Curated demo events for testing without a live session
     ├── FeedbackEngine.cs               User feedback tracking (adjusts cooldown multipliers)
-    └── TelemetryRecorder.cs            JSONL recording for offline replay testing
+    └── ScreenColorSampler.cs           GDI+ ambient light screen capture
 ```
 
 ## How It Runs
@@ -61,7 +61,6 @@ All settings are serialized through SimHub's built-in settings system (`ReadComm
 | EnabledCategories | all | hardware, game_feel, car_response, racing_experience | Which topic categories are active |
 | EventOnlyMode | false | — | Show short exposition text instead of full prompts |
 | DemoMode | false | — | Run the curated demo sequence (no live session needed) |
-| RecordMode | false | — | Write telemetry to JSONL for offline testing |
 | ShowTopicTitle | true | — | Prepend the topic title to prompt text |
 | TopicsFilePath | (auto) | — | Override path to commentary_topics.json |
 

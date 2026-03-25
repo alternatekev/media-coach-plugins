@@ -236,6 +236,4 @@ Each source entry includes relevance scores per category, acquisition method, an
 
 4. Run the validation suite: `python3 tests/validate_datasets.py`. All 28 tests must pass.
 
-5. Run a telemetry replay to verify the topic fires at the expected threshold: `python3 tools/replay_telemetry.py generate full_race`.
-
-6. Rebuild the SimHub plugin to copy the updated dataset to the SimHub directory.
+5. Rebuild the SimHub plugin to copy the updated dataset to the SimHub directory.

@@ -141,12 +141,12 @@ Full setup walkthrough with multi-light configuration, automation scripts, and t
 | [dashboard-overlay/README.md](dashboard-overlay/README.md)                                     | Electron overlay setup, panel reference, architecture, drive mode, Stream Deck, OBS integration |
 | **Shared**                                                                                     |                                                                                                |
 | [simhub-plugin/docs/DATASETS.md](simhub-plugin/docs/DATASETS.md)                               | Topic schema, trigger conditions, fragment format, sentiment reference, how to add new topics  |
-| [simhub-plugin/docs/TESTING.md](simhub-plugin/docs/TESTING.md)                                 | All four test suites, synthetic scenarios, CI integration, telemetry recording/replay          |
+| [simhub-plugin/docs/TESTING.md](simhub-plugin/docs/TESTING.md)                                 | Test suites, CI integration                                                                   |
 | [simhub-plugin/docs/DEVELOPMENT.md](simhub-plugin/docs/DEVELOPMENT.md)                         | Building from source, project setup, contributor workflow                                      |
 
 ## Testing
 
-Four test suites run without SimHub, iRacing, or any external service:
+Three test suites run without SimHub, iRacing, or any external service:
 
 ```bash
 # C# unit tests (200+ tests, NUnit)
@@ -154,9 +154,6 @@ cd simhub-plugin/tests/K10MediaBroadcaster.Tests && dotnet test
 
 # Python dataset validation (28 tests)
 python3 simhub-plugin/tests/validate_datasets.py
-
-# Telemetry replay with synthetic scenarios
-python3 simhub-plugin/tools/replay_telemetry.py generate full_race
 
 # Homebridge Jest tests (133 tests)
 cd homebridge-plugin && npm test

@@ -8,7 +8,6 @@ The test suite covers five layers: C# unit tests for the SimHub plugin logic, Py
 |-------|----------|-----------|-------|----------------|
 | K10MediaBroadcaster.Tests | C# | NUnit (.NET 6.0) | 200+ | Trigger evaluation, fragment assembly, color resolution, dataset validation |
 | validate_datasets.py | Python | unittest | 28 | JSON structure, cross-references, threshold regressions |
-| replay_telemetry.py | Python | — | 7 scenarios | End-to-end trigger pipeline against synthetic telemetry |
 | Homebridge tests | TypeScript | Jest | 133 | Color mapping, SimHub client, per-light mode overrides |
 | test_installer.py | Python | unittest | 34 | Installer structure, simulated install/export, file manifests |
 
@@ -76,64 +75,6 @@ python3 tests/validate_datasets.py
 
 **TestCrossReferences** — Every sentiment referenced by a topic exists in `sentiments.json`. No duplicate IDs across topics or fragments.
 
-## Telemetry Replay
-
-```bash
-# Generate a synthetic scenario and run it through the trigger pipeline
-python3 tools/replay_telemetry.py generate full_race
-
-# Replay a recorded JSONL file
-python3 tools/replay_telemetry.py replay tests/recordings/synthetic_full_race.jsonl
-
-# Compare two transcripts for regression testing
-python3 tools/replay_telemetry.py diff transcript_a.json transcript_b.json
-
-# List available scenarios
-python3 tools/replay_telemetry.py list
-```
-
-The replay tool reimplements the full trigger evaluation pipeline in Python (all 18 condition types, cooldowns, severity-based interruption). It reads the actual `commentary_topics.json` and `commentary_fragments.json` from the repo, so it tests the real data.
-
-### Synthetic Scenarios
-
-| Scenario | Frames | Duration | Tests |
-|----------|--------|----------|-------|
-| full_race | 1770 | ~29 min | Race start, formation lap, position changes, spin, yellow flag, personal best |
-| incident_heavy | 90 | ~1.5 min | Severe crash sequence with high G-force spikes |
-| tyre_degradation | 300 | ~5 min | Progressive wear from 100% to 30% life, temperature buildup to 260°F |
-| flag_sequence | 150 | ~2.5 min | Green → yellow → red → green flag transitions |
-| race_start | 60 | ~1 min | Formation lap to lights out |
-| pit_stop | 120 | ~2 min | Pit entry, service, pit exit |
-| close_battle | 180 | ~3 min | Proximity oscillating between 0.005 and 0.03 track distance |
-
-### Transcript Output
-
-Each replay produces a JSON transcript with timestamped events:
-
-```json
-{
-  "timestamp": "00:07:50",
-  "topic": "spin_catch",
-  "title": "Big Save",
-  "severity": 5,
-  "category": "car_response",
-  "text": "Massive snap right there. Feel the yaw rate hitting the limit...",
-  "color": "#FF66BB6A"
-}
-```
-
-The `diff` command compares two transcripts and reports added, removed, or changed events — useful for verifying that threshold adjustments produce the expected changes in trigger behavior.
-
-### Recording Real Telemetry
-
-Enable `RecordMode` in the plugin settings, then drive a session. The plugin writes a JSONL file to the SimHub directory with one telemetry frame per line. This file can be replayed through the Python tool:
-
-```bash
-python3 tools/replay_telemetry.py replay path/to/recording.jsonl
-```
-
-This is how the threshold corrections were validated: record a session that felt wrong, replay it, identify which topics fired inappropriately, adjust thresholds, replay again, confirm the fix.
-
 ## Homebridge Jest Tests
 
 ```bash
@@ -192,7 +133,6 @@ To run locally without CI:
 ```bash
 # Python (no dependencies beyond stdlib)
 python3 tests/validate_datasets.py
-python3 tools/replay_telemetry.py generate full_race
 python3 tools/test_installer.py
 
 # C# (.NET 6.0 SDK)

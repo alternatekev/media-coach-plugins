@@ -109,8 +109,6 @@ Edit the JSON files in `k10-media-broadcaster-data/` directly. After changes:
 # Validate structural integrity (28 tests)
 python3 tests/validate_datasets.py
 
-# Verify trigger behavior with synthetic telemetry
-python3 tools/replay_telemetry.py generate full_race
 ```
 
 ### Regenerating Fragments
@@ -129,8 +127,7 @@ This reads `commentary_topics.json`, `sentiments.json`, and `channel_notes.json`
 2. Add matching fragments to `commentary_fragments.json` (same topic ID, minimum 6 openers / 8 bodies / 5 closers)
 3. If using a new sentiment, add it to `sentiments.json` with a color that doesn't collide with flag hues
 4. Run `python3 tests/validate_datasets.py` — all 28 tests must pass
-5. Run `python3 tools/replay_telemetry.py generate full_race` to verify the new topic fires at expected thresholds
-6. Rebuild the SimHub plugin to copy updated dataset files
+5. Rebuild the SimHub plugin to copy updated dataset files
 
 ## Running Tests
 
@@ -142,9 +139,6 @@ cd tests/K10MediaBroadcaster.Tests && dotnet test
 
 # Python dataset validation (28 tests)
 python3 tests/validate_datasets.py
-
-# Telemetry replay (synthetic scenarios)
-python3 tools/replay_telemetry.py generate full_race
 
 # Homebridge Jest tests (133 tests)
 cd homebridge-plugin && npm test
@@ -191,9 +185,7 @@ git commit -m "Update built plugin and dashboard"
 ├── tests/
 │   ├── K10MediaBroadcaster.Tests/        C# unit tests (.NET 6.0, NUnit)
 │   ├── validate_datasets.py        Python dataset validation
-│   └── recordings/                 Synthetic telemetry transcripts
 ├── tools/
-│   ├── replay_telemetry.py         Offline telemetry replay
 │   ├── generate_fragments.py       Fragment generation (Haiku)
 │   └── test_installer.py           Installer and export tool tests (34 tests)
 ├── DashTemplates/                  SimHub dashboard templates

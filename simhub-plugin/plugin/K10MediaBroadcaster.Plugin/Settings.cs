@@ -19,10 +19,7 @@ namespace K10MediaBroadcaster.Plugin
         /// <summary>Whether to show the topic title above the prompt text.</summary>
         public bool ShowTopicTitle { get; set; } = true;
 
-        /// <summary>When true, telemetry snapshots are written to a JSONL file for offline analysis.</summary>
-        public bool RecordMode { get; set; } = false;
-
-        /// <summary>
+/// <summary>
         /// When true, displays a concise exposition of the event and its telemetry value
         /// instead of the full commentary prompt. Designed for on-air readability.
         /// </summary>

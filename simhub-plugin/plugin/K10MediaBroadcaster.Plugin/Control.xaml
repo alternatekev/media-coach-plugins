@@ -90,15 +90,6 @@
         <TextBlock Text="Cycles through all event types and severity levels as a simulated race. Max 30 seconds between events. No game session required. Use this to preview dashboard colors and prompt styles."
                    FontSize="10" Foreground="#666" TextWrapping="Wrap" Margin="18,0,0,20"/>
 
-        <!-- Telemetry Recording -->
-        <TextBlock Text="TELEMETRY RECORDING" FontSize="11" FontWeight="Bold"
-                   Foreground="#888" Margin="0,0,0,6"/>
-        <CheckBox x:Name="RecordModeCheck" Content="Record telemetry for offline trigger testing"
-                  Foreground="White" FontSize="13" Margin="0,0,0,4"
-                  Checked="RecordModeCheck_Changed" Unchecked="RecordModeCheck_Changed"/>
-        <TextBlock x:Name="RecordingStatusLabel"
-                   Text="Recordings saved to: k10-media-broadcaster-data\recordings\ (next to plugin DLL)"
-                   FontSize="10" Foreground="#666" TextWrapping="Wrap" Margin="0,0,0,4"/>
         <TextBlock Text="Use ThumbsUp / ThumbsDown actions in Control Mapper to rate prompts."
                    FontSize="10" Foreground="#666" TextWrapping="Wrap" Margin="0,0,0,20"/>
 

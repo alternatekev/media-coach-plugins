@@ -33,8 +33,7 @@ namespace K10MediaBroadcaster.Plugin
 
         // Engine
         private readonly CommentaryEngine  _engine   = new CommentaryEngine();
-        private readonly TelemetryRecorder _recorder = new TelemetryRecorder();
-        private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
+private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
         private readonly Engine.IRacingSdkBridge _sdkBridge = new Engine.IRacingSdkBridge();
         private FeedbackEngine _feedback;
 
@@ -299,20 +298,7 @@ namespace K10MediaBroadcaster.Plugin
                 SimHub.Logging.Current.Info($"[K10MediaBroadcaster] ThumbsDown: {_engine.CurrentTopicId}");
             });
 
-            // Recording toggle actions
-            this.AddAction("StartRecording", (a, b) =>
-            {
-                Settings.RecordMode = true;
-                ApplySettings();
-            });
-
-            this.AddAction("StopRecording", (a, b) =>
-            {
-                Settings.RecordMode = false;
-                ApplySettings();
-            });
-
-            // ── Events ────────────────────────────────────────────────────────
+// ── Events ────────────────────────────────────────────────────────
             this.AddEvent("NewCommentaryPrompt");
 
             // Show a brief placeholder so the dashboard is visible before any game starts
@@ -459,11 +445,7 @@ namespace K10MediaBroadcaster.Plugin
             bool wasVisible = _engine.IsVisible;
             _engine.Update(_current, _previous);
 
-            // Write telemetry frame to recording if active
-            if (_recorder.IsRecording)
-                _recorder.Write(_current);
-
-            // Fire event when a new prompt appears
+// Fire event when a new prompt appears
             if (_engine.IsVisible && !wasVisible)
                 this.TriggerEvent("NewCommentaryPrompt");
         }
@@ -473,7 +455,6 @@ namespace K10MediaBroadcaster.Plugin
             _sdkBridge.Stop();
             _screenColorSampler.Dispose();
             StopHttpServer();
-            _recorder.StopRecording();
             this.SaveCommonSettings("GeneralSettings", Settings);
             SimHub.Logging.Current.Info("[K10MediaBroadcaster] Plugin stopped, settings saved");
         }
@@ -571,16 +552,6 @@ namespace K10MediaBroadcaster.Plugin
                 ? new System.Collections.Generic.HashSet<string>(Settings.EnabledCategories)
                 : null;
 
-            if (Settings.RecordMode && !_recorder.IsRecording)
-            {
-                string dllDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? "";
-                string dir = Path.Combine(dllDir, "k10-media-broadcaster-data", "recordings");
-                _recorder.StartRecording(dir);
-            }
-            else if (!Settings.RecordMode && _recorder.IsRecording)
-            {
-                _recorder.StopRecording();
-            }
         }
 
         private string BuildDisplayText()

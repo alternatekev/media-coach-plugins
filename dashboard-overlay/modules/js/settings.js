@@ -52,8 +52,9 @@
     if (typeof applyAmbientMode === 'function') applyAmbientMode(ambMode);
     const ambSel = document.getElementById('settingsAmbientMode');
     if (ambSel) ambSel.value = ambMode;
-    // Restore saved capture region and send to main process
-    if (typeof window.restoreAmbientCapture === 'function') window.restoreAmbientCapture();
+    // Restore saved capture region — only send to main process if ambient is ON
+    // (Sending the rect when ambient is off used to auto-start capture via IPC race condition)
+    if (ambMode !== 'off' && typeof window.restoreAmbientCapture === 'function') window.restoreAmbientCapture();
 
     // Bonkers pit limiter toggle
     document.body.classList.toggle('bonkers-off', _settings.showBonkers === false);

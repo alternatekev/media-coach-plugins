@@ -3,11 +3,13 @@
 // ═══════════════════════════════════════════════════════════════
 //
 //  1) User draws a capture rectangle via "Draw Region" button.
-//     The rect is sent to main.js via IPC so the Electron
-//     desktopCapturer samples color from that region only.
+//     The rect is sent to the C# plugin via HTTP so the native
+//     ScreenColorSampler captures color from that region only.
 //
 //  2) Settings preview: a colored div + info text showing the
 //     current ambient color (~15fps, only while settings open).
+//     (Screen thumbnail preview is no longer available since
+//     capture moved from Electron to the C# plugin.)
 //
 //  3) When settings re-open, the saved capture rect is re-drawn
 //     so the user can see where they last placed it.
@@ -30,31 +32,8 @@
   // ═════════════════════════════════════════════
 
   window.startCaptureAreaSelection = async function() {
-    // Request screen recording permission (macOS)
-    if (window.k10 && window.k10.ambientRequestPermission) {
-      const btn = document.getElementById('btnSetCaptureArea');
-      if (btn) btn.textContent = 'Requesting...';
-
-      try {
-        const result = await window.k10.ambientRequestPermission();
-        console.log('[AmbientCapture] Permission result:', result);
-
-        if (!result.granted) {
-          if (btn) btn.textContent = 'Draw Region';
-          const info = document.getElementById('ambientPreviewInfo');
-          if (info) {
-            info.textContent = result.platform === 'darwin'
-              ? 'Grant Screen Recording permission in System Preferences, then try again'
-              : 'Screen recording permission denied';
-          }
-          return;
-        }
-      } catch (err) {
-        console.warn('[AmbientCapture] Permission request failed:', err);
-      }
-
-      if (btn) btn.textContent = 'Draw Region';
-    }
+    // No permission needed — capture is done natively by the C# plugin
+    // (Windows GDI+ doesn't require special permissions)
 
     // Show selection overlay (settings stay open for click surface)
     const overlay = document.getElementById('captureAreaOverlay');
@@ -126,10 +105,8 @@
       if (typeof window.saveSettings === 'function') window.saveSettings();
     }
 
-    // Send to main process so desktopCapturer uses this region
-    if (window.k10 && window.k10.ambientSetRect) {
-      window.k10.ambientSetRect(_captureRect);
-    }
+    // Send to C# plugin via HTTP so ScreenColorSampler uses this region
+    sendRectToPlugin(_captureRect);
 
     console.log('[AmbientCapture] Region set:', _captureRect);
     closeSelectionOverlay();
@@ -152,11 +129,27 @@
   }
 
   // ═════════════════════════════════════════════
-  //  SETTINGS PREVIEW — realtime color + thumbnail
-  //  ~15fps, only when settings panel is open.
+  //  SEND RECT TO C# PLUGIN VIA HTTP
   // ═════════════════════════════════════════════
 
-  let _previewImgEl = null;   // <img> for screen thumbnail from main process
+  function sendRectToPlugin(rect) {
+    if (!rect) return;
+    const url = (window._simhubUrlOverride || SIMHUB_URL) +
+      '?action=setrect' +
+      '&x=' + rect.x.toFixed(6) +
+      '&y=' + rect.y.toFixed(6) +
+      '&w=' + rect.w.toFixed(6) +
+      '&h=' + rect.h.toFixed(6);
+    fetch(url).catch(err => {
+      console.warn('[AmbientCapture] Failed to send rect to plugin:', err);
+    });
+  }
+
+  // ═════════════════════════════════════════════
+  //  SETTINGS PREVIEW — realtime color swatch
+  //  ~15fps, only when settings panel is open.
+  //  (No thumbnail preview — that required Electron IPC)
+  // ═════════════════════════════════════════════
 
   window.startAmbientPreview = function() {
     if (_previewInterval) return;
@@ -164,36 +157,9 @@
     // Show saved capture rect overlay outline (non-interactive)
     showSavedRect();
 
-    // Listen for preview frames from main process (screen thumbnails)
-    if (window.k10 && window.k10.onAmbientPreviewFrame && !_previewImgEl) {
-      // Create a thumbnail image element above the swatch
-      const container = document.getElementById('ambientPreviewContainer');
-      if (container) {
-        _previewImgEl = document.createElement('img');
-        _previewImgEl.id = 'ambientPreviewThumbnail';
-        _previewImgEl.style.cssText =
-          'width:100%;height:auto;border-radius:4px;margin-bottom:4px;' +
-          'border:1px solid hsla(0,0%,100%,0.1);display:none;';
-        // Insert before the swatch
-        const swatch = document.getElementById('ambientPreviewSwatch');
-        if (swatch) container.insertBefore(_previewImgEl, swatch);
-      }
-      window.k10.onAmbientPreviewFrame((dataUrl) => {
-        if (_previewImgEl && dataUrl) {
-          _previewImgEl.src = dataUrl;
-          _previewImgEl.style.display = 'block';
-        }
-      });
-    }
-
     // Update color swatch at ~15fps
     _previewInterval = setInterval(updatePreview, 66);
     updatePreview(); // immediate first frame
-
-    // Tell main process to bump capture rate + send thumbnails
-    if (window.k10 && window.k10.ambientPreviewStart) {
-      window.k10.ambientPreviewStart();
-    }
   };
 
   window.stopAmbientPreview = function() {
@@ -201,12 +167,7 @@
       clearInterval(_previewInterval);
       _previewInterval = null;
     }
-    // Hide thumbnail
-    if (_previewImgEl) _previewImgEl.style.display = 'none';
     hideSavedRect();
-    if (window.k10 && window.k10.ambientPreviewStop) {
-      window.k10.ambientPreviewStop();
-    }
   };
 
   function updatePreview() {
@@ -292,15 +253,14 @@
   window.restoreAmbientCapture = function() {
     if (window._settings && window._settings.ambientCaptureRect) {
       _captureRect = window._settings.ambientCaptureRect;
-      if (window.k10 && window.k10.ambientSetRect) {
-        window.k10.ambientSetRect(_captureRect);
-      }
+      // Send to C# plugin via HTTP
+      sendRectToPlugin(_captureRect);
       console.log('[AmbientCapture] Restored saved region:', _captureRect);
     }
   };
 
   window.stopAmbientCapture = function() {
-    // Nothing to stop — Electron main process handles capture lifecycle
+    // Nothing to stop — C# plugin handles capture lifecycle
   };
 
 })();

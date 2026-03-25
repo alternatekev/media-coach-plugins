@@ -68,6 +68,9 @@ namespace K10MediaBroadcaster.Plugin
         // Leaderboard: compact JSON string of nearby drivers, updated each eval cycle
         private volatile string _leaderboardJson = "[]";
 
+        // Screen color sampler — replaces Electron desktopCapturer for ambient light
+        private readonly ScreenColorSampler _screenColorSampler = new ScreenColorSampler();
+
         // ── Track map queries (for settings UI) ─────────────────────────────
 
         /// <summary>Track IDs bundled with the plugin (compiled into git).</summary>
@@ -123,6 +126,10 @@ namespace K10MediaBroadcaster.Plugin
             // Initialise iRacing SDK bridge (direct shared memory via IRSDKSharper)
             TelemetrySnapshot._sdkBridge = _sdkBridge;
             _sdkBridge.Start();
+
+            // Start screen color sampler for ambient lighting
+            // (runs at ~4fps on a background thread — zero impact on main loop)
+            _screenColorSampler.Start();
 
             // Initialise track map provider
             // The DLL is output directly into the SimHub root folder (not a Plugins\ subfolder),
@@ -464,6 +471,7 @@ namespace K10MediaBroadcaster.Plugin
         public void End(PluginManager pluginManager)
         {
             _sdkBridge.Stop();
+            _screenColorSampler.Dispose();
             StopHttpServer();
             _recorder.StopRecording();
             this.SaveCommonSettings("GeneralSettings", Settings);
@@ -807,6 +815,37 @@ namespace K10MediaBroadcaster.Plugin
                     if (rawUrl.Contains("action=restartdemo"))
                     {
                         _engine.DemoTelemetry.Reset();
+                        byte[] okBytes = System.Text.Encoding.UTF8.GetBytes("{\"ok\":true}");
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    // ── Ambient capture rect — dashboard sends the region via query params ──
+                    if (rawUrl.Contains("action=setrect"))
+                    {
+                        try
+                        {
+                            // Parse x, y, w, h from query string (ratios 0-1)
+                            var qs = ctx.Request.QueryString;
+                            double rx = double.Parse(qs["x"] ?? "0", ic);
+                            double ry = double.Parse(qs["y"] ?? "0", ic);
+                            double rw = double.Parse(qs["w"] ?? "0", ic);
+                            double rh = double.Parse(qs["h"] ?? "0", ic);
+                            if (rw > 0.01 && rh > 0.01)
+                            {
+                                _screenColorSampler.SetRect(rx, ry, rw, rh);
+                                SimHub.Logging.Current.Info(
+                                    $"[K10MediaBroadcaster] Ambient rect set: x={rx:F3} y={ry:F3} w={rw:F3} h={rh:F3}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            SimHub.Logging.Current.Warn($"[K10MediaBroadcaster] setrect error: {ex.Message}");
+                        }
                         byte[] okBytes = System.Text.Encoding.UTF8.GetBytes("{\"ok\":true}");
                         ctx.Response.ContentType = "application/json";
                         ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
@@ -1196,6 +1235,12 @@ namespace K10MediaBroadcaster.Plugin
                     // ── Extra (homebridge / legacy) ──
                     Jp(sb, "currentFlagState", Escape(flagState));
                     Jp(sb, "nearestCarDistance", nearestDist, ic);
+
+                    // ── Ambient light — screen color sampled by ScreenColorSampler ──
+                    Jp(sb, "K10MediaBroadcaster.Plugin.DS.AmbientR", _screenColorSampler.HasColor ? _screenColorSampler.R : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.DS.AmbientG", _screenColorSampler.HasColor ? _screenColorSampler.G : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.DS.AmbientB", _screenColorSampler.HasColor ? _screenColorSampler.B : 0);
+                    Jp(sb, "K10MediaBroadcaster.Plugin.DS.AmbientHasData", _screenColorSampler.HasColor ? 1 : 0);
 
                     // Remove trailing comma and close
                     if (sb.Length > 2 && sb[sb.Length - 2] == ',')

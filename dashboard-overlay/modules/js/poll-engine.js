@@ -766,6 +766,17 @@
       window._currentFlagState = flagState;
     }
 
+    // ─── Ambient light — feed screen color from C# plugin ───
+    {
+      const ambHas = +v('K10MediaBroadcaster.Plugin.DS.AmbientHasData') || 0;
+      if (ambHas && typeof window.updateAmbientFromPoll === 'function') {
+        const ambR = +v('K10MediaBroadcaster.Plugin.DS.AmbientR') || 0;
+        const ambG = +v('K10MediaBroadcaster.Plugin.DS.AmbientG') || 0;
+        const ambB = +v('K10MediaBroadcaster.Plugin.DS.AmbientB') || 0;
+        window.updateAmbientFromPoll(ambR, ambG, ambB);
+      }
+    }
+
     // ─── Commentary ───
     const cmVis = +v('K10MediaBroadcaster.Plugin.CommentaryVisible') || 0;
     if (cmVis && !_commentaryWasVisible) {

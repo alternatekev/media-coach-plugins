@@ -51,17 +51,6 @@ contextBridge.exposeInMainWorld('k10', {
   getRemoteServerInfo: () => ipcRenderer.invoke('get-remote-server-info'),
   startRemoteServer: (opts) => ipcRenderer.invoke('start-remote-server', opts),
   stopRemoteServer: () => ipcRenderer.invoke('stop-remote-server'),
-  // Ambient light screen capture
-  ambientStart: () => ipcRenderer.invoke('ambient-start'),
-  ambientStop:  () => ipcRenderer.invoke('ambient-stop'),
-  ambientRequestPermission: () => ipcRenderer.invoke('ambient-request-permission'),
-  ambientPreviewStart: () => ipcRenderer.invoke('ambient-preview-start'),
-  ambientPreviewStop:  () => ipcRenderer.invoke('ambient-preview-stop'),
-  ambientSetRect: (rect) => ipcRenderer.invoke('ambient-set-rect', rect),
-  onAmbientColor: (callback) => {
-    ipcRenderer.on('ambient-color', (_event, color) => callback(color));
-  },
-  onAmbientPreviewFrame: (callback) => {
-    ipcRenderer.on('ambient-preview-frame', (_event, dataUrl) => callback(dataUrl));
-  },
+  // Ambient light — screen capture moved to C# plugin (ScreenColorSampler).
+  // Color data now arrives via poll JSON (DS.AmbientR/G/B), no IPC needed.
 });

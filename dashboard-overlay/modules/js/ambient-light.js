@@ -8,7 +8,8 @@
 //  This JS module handles:
 //    • Smooth LERP interpolation of the ambient color
 //    • Updating --ambient-r / --ambient-g / --ambient-b on :root
-//    • Receiving color from Electron screen capturer (IPC)
+//    • Receiving color from the C# plugin via poll data
+//      (replaces the old Electron desktopCapturer IPC pipeline)
 //    • Falling back to polled flag-state color
 //
 //  The CSS breathing animation runs independently in ambient.css.
@@ -124,36 +125,18 @@
     }
   }
 
-  // ── Receive color from Electron main process ──
-  function onColorUpdate(color) {
+  // ── Receive color from poll data (C# plugin ScreenColorSampler) ──
+  // Called by poll-engine.js each frame when ambient data is present.
+  window.updateAmbientFromPoll = function(r, g, b) {
     if (!_hasReceivedColor) {
-      console.log('[Ambient] First color received from Electron:', JSON.stringify(color));
+      console.log('[Ambient] First color received from poll data:', r, g, b);
     }
     _hasReceivedColor = true;
     _usePolledColor = false;
-    _tgtR = color.r / 255;
-    _tgtG = color.g / 255;
-    _tgtB = color.b / 255;
-
-    // Auto-enable if we get color data but the glow isn't on yet
-    if (!_enabled) {
-      console.log('[Ambient] Auto-enabling from IPC color data');
-      _enabled = true;
-      _curR = _tgtR; _curG = _tgtG; _curB = _tgtB;
-      _rafId = requestAnimationFrame(render);
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════
-  //  REGISTER IPC LISTENER IMMEDIATELY — don't wait for
-  //  startAmbientLight(). The main process auto-starts
-  //  capture 3s after window load, and we need to be
-  //  listening when that data arrives.
-  // ══════════════════════════════════════════════════════════
-  if (window.k10 && window.k10.onAmbientColor) {
-    window.k10.onAmbientColor(onColorUpdate);
-    console.log('[Ambient] IPC listener registered on load (immediate)');
-  }
+    _tgtR = r / 255;
+    _tgtG = g / 255;
+    _tgtB = b / 255;
+  };
 
   // ── Public API ──
 
@@ -163,16 +146,12 @@
     _enabled = true;
     _rafId = requestAnimationFrame(render);
 
-    // Also tell main process to start capturing
-    if (window.k10 && window.k10.ambientStart) {
-      window.k10.ambientStart();
-    }
-
+    // Flag-based color until screen capture data arrives from poll
     _usePolledColor = true;
     console.log('[Ambient] Started (polled until capture data arrives)');
   };
 
-  // External color push
+  // External color push (0-1 range)
   window.setAmbientColor = function(r, g, b) {
     _hasReceivedColor = true;
     _usePolledColor = false;
@@ -184,7 +163,6 @@
   window.stopAmbientLight = function() {
     _enabled = false;
     if (_rafId) { cancelAnimationFrame(_rafId); _rafId = null; }
-    if (window.k10 && window.k10.ambientStop) window.k10.ambientStop();
     clearReflectionColor();
     _usePolledColor = false;
     _hasReceivedColor = false;

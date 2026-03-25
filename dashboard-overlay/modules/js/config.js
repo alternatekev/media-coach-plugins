@@ -170,6 +170,11 @@ const PROP_KEYS = [
   'K10MediaBroadcaster.Plugin.DS.SafetyRatingDisplay',
   'K10MediaBroadcaster.Plugin.DS.GapAheadFormatted',
   'K10MediaBroadcaster.Plugin.DS.GapBehindFormatted',
+  // Ambient light (screen color from C# plugin)
+  'K10MediaBroadcaster.Plugin.DS.AmbientR',
+  'K10MediaBroadcaster.Plugin.DS.AmbientG',
+  'K10MediaBroadcaster.Plugin.DS.AmbientB',
+  'K10MediaBroadcaster.Plugin.DS.AmbientHasData',
   // Demo Datastream
   'K10MediaBroadcaster.Plugin.Demo.DS.LatG',
   'K10MediaBroadcaster.Plugin.Demo.DS.LongG',

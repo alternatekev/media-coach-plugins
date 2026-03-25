@@ -22,3 +22,10 @@ lib/simhub-refs/*.dll
 
 # ── Test results ────────────────────────────────────────────────────
 **/test-results/
+
+# ── Installer build artifacts ──────────────────────────────────────
+installer/output/
+installer/staging/
+
+# ── Electron-builder output (dist/ already covered, but be explicit)
+dashboard-overlay/dist/

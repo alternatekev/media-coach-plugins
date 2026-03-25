@@ -10,64 +10,20 @@
     "dev": "electron . --dev",
     "start:safe": "cross-env K10_FORCE_SOFTWARE=1 electron .",
     "rebuild": "echo 'Dashboard uses vanilla JS — no build step needed'",
-    "build": "npm install electron-builder --save-dev && electron-builder",
-    "build:mac": "npm install electron-builder --save-dev && electron-builder --mac",
-    "build:win": "npm install electron-builder --save-dev && electron-builder --win",
-    "dist": "npm install electron-builder --save-dev && electron-builder --mac --win",
+    "build:win": "electron-builder --win --config electron-builder.yml",
+    "build:mac": "electron-builder --mac --config electron-builder.yml",
+    "build": "electron-builder --config electron-builder.yml",
+    "dist": "electron-builder --mac --win --config electron-builder.yml",
     "test": "npx playwright test --project=unit",
     "test:dashboard": "npx playwright test"
   },
-  "build": {
-    "appId": "org.k10mediabroadcaster.broadcaster",
-    "productName": "K10 Media Broadcaster",
-    "files": [
-      "main.js",
-      "preload.js",
-      "remote-server.js",
-      "dashboard.html",
-      "modules/**/*",
-      "images/**/*"
-    ],
-    "icon": "images/branding/icon.png",
-    "mac": {
-      "category": "public.app-category.utilities",
-      "icon": "images/branding/icon.png",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "darkModeSupport": true
-    },
-    "win": {
-      "icon": "images/branding/icon.ico",
-      "target": "portable"
-    },
-    "dmg": {
-      "title": "K10 Media Broadcaster",
-      "contents": [
-        {
-          "x": 130,
-          "y": 220
-        },
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ]
-    }
-  },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
   },
   "dependencies": {
-    "@playwright/test": "^1.58.2"
+    "@playwright/test": "^1.58.2",
+    "electron-updater": "^6.3.9"
   }
 }

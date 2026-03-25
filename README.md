@@ -58,21 +58,29 @@ Full setup and configuration: **[dashboard-overlay/README.md](dashboard-overlay/
 │   ├── k10-plugin/                       SimHub plugin source inspector
 │   ├── k10-broadcaster/                  Dashboard component inspector
 │   └── claude-mcp-config.json            MCP server configuration
+├── installer/                            Inno Setup combined Windows installer
+│   └── k10-media-broadcaster.iss         Installer script (plugin + overlay)
 ├── scripts/                              Installation + launch scripts
 │   ├── mac/                              macOS install, launch, rebuild
-│   └── windows/                          Windows install, start, export
-└── .github/workflows/                    CI pipelines
+│   └── windows/                          Windows install, start, export, build-installer
+└── .github/workflows/                    CI pipelines + release workflow
 ```
 
 ## Install
 
-### SimHub Plugin
+### Windows Installer (Recommended)
+
+Download **K10-Media-Broadcaster-Setup.exe** from the [latest release](https://github.com/alternatekev/media-coach-simhub-plugin/releases/latest). The installer bundles both the SimHub plugin and the overlay application. You can choose to install either or both during setup. The installer auto-detects your SimHub installation and handles all file placement.
+
+The plugin includes a built-in **Check for updates** button in its SimHub settings panel. When an update is available, it downloads the latest installer and launches it — SimHub will restart automatically.
+
+### Manual Install (SimHub Plugin Only)
 
 Prerequisites: [SimHub](https://www.simhubdash.com/) installed on Windows.
 
 **iRacing users:** Install the **iRacing Extra Properties** plugin by RomainRob to enable iRating, Safety Rating, and licence class display on the dashboard overlay. Without it, these fields will show as empty — all other telemetry works without it. [Download iRacing Extra Properties](https://drive.google.com/drive/folders/1AiIWHviD4j-_D-zgRrjJU1AFhJ_xmass) — copy `RSC.iRacingExtraProperties.dll` into your SimHub installation folder (e.g. `C:\Program Files (x86)\SimHub`) while SimHub is closed. On next launch, SimHub will detect the new plugin — make sure it's enabled (green tab) and press OK.
 
-**Double-click `install.bat`** (in the repository root). The installer finds your SimHub installation, copies the plugin DLL, dataset files, and dashboard template to the correct locations. It checks whether SimHub is running and warns you to close it first if so.
+**Double-click `install.bat`** (in `scripts/windows/`). The installer finds your SimHub installation, copies the plugin DLL, dataset files, and dashboard template to the correct locations. It checks whether SimHub is running and warns you to close it first if so.
 
 After installation:
 

@@ -335,6 +335,7 @@ app.whenReady().then(() => {
     createOverlay();
     logToFile('[K10] Overlay window created OK');
     maybeStartRemoteServer();
+    updater.initAutoUpdater(overlayWindow, logToFile);
   } catch (err) {
     logToFile(`[K10] FATAL: createOverlay() threw: ${err.stack || err.message}`);
     app.quit();
@@ -486,6 +487,25 @@ ipcMain.handle('open-external', async (event, url) => {
   if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
     shell.openExternal(url);
   }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// AUTO-UPDATER (overlay)
+// Checks GitHub Releases for new versions, downloads in background,
+// installs on next restart.
+// ═══════════════════════════════════════════════════════════════
+const updater = require('./modules/js/auto-updater');
+
+ipcMain.handle('check-for-updates', async () => {
+  return updater.checkForUpdates();
+});
+
+ipcMain.handle('download-update', async () => {
+  return updater.downloadUpdate();
+});
+
+ipcMain.handle('install-update', async () => {
+  updater.installAndRestart();
 });
 
 // ═══════════════════════════════════════════════════════════════

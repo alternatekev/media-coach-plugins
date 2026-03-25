@@ -1,0 +1,171 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  # ---------------------------------------------------------------
+  # Build the Electron overlay for Windows and macOS
+  # ---------------------------------------------------------------
+  build-overlay:
+    name: Build Overlay (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+          - os: macos-latest
+            platform: mac
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: dashboard-overlay/package-lock.json
+
+      - name: Install dependencies
+        working-directory: dashboard-overlay
+        run: npm ci
+
+      - name: Build overlay (${{ matrix.platform }})
+        working-directory: dashboard-overlay
+        run: npx electron-builder --${{ matrix.platform }} --config electron-builder.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload overlay artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlay-${{ matrix.platform }}
+          path: |
+            dashboard-overlay/dist/*.exe
+            dashboard-overlay/dist/*.dmg
+            dashboard-overlay/dist/*.yml
+            dashboard-overlay/dist/*.yaml
+          if-no-files-found: warn
+
+      - name: Upload win-unpacked for Inno Setup
+        if: matrix.platform == 'win'
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlay-win-unpacked
+          path: dashboard-overlay/dist/win-unpacked/
+
+  # ---------------------------------------------------------------
+  # Build the SimHub plugin DLL (Windows, .NET Framework 4.8)
+  # ---------------------------------------------------------------
+  build-plugin:
+    name: Build Plugin
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: Build plugin (Release)
+        run: |
+          dotnet build simhub-plugin/plugin/K10MediaBroadcaster.Plugin/K10MediaBroadcaster.Plugin.csproj `
+            -c Release `
+            -p:OutputPath="${{ github.workspace }}/plugin-output" `
+            -p:AppendTargetFrameworkToOutputPath=false `
+            -p:AppendRuntimeIdentifierToOutputPath=false
+        shell: pwsh
+
+      - name: Upload plugin artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-dll
+          path: |
+            plugin-output/K10MediaBroadcaster.Plugin.dll
+            plugin-output/K10MediaBroadcaster.Plugin.pdb
+
+  # ---------------------------------------------------------------
+  # Compile the Inno Setup combined installer
+  # ---------------------------------------------------------------
+  build-installer:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    needs: [build-overlay, build-plugin]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download overlay (win-unpacked)
+        uses: actions/download-artifact@v4
+        with:
+          name: overlay-win-unpacked
+          path: dashboard-overlay/dist/win-unpacked/
+
+      - name: Download plugin DLL
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-dll
+          path: simhub-plugin/
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+        shell: cmd
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=$($env:GITHUB_REF_NAME -replace '^v','')" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Update version in .iss
+        run: |
+          $iss = Get-Content installer/k10-media-broadcaster.iss -Raw
+          $iss = $iss -replace '#define MyAppVersion\s+"[^"]+"', "#define MyAppVersion   `"${{ steps.version.outputs.VERSION }}`""
+          Set-Content installer/k10-media-broadcaster.iss $iss
+        shell: pwsh
+
+      - name: Compile installer
+        run: iscc installer/k10-media-broadcaster.iss
+        shell: cmd
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: installer/output/*.exe
+
+  # ---------------------------------------------------------------
+  # Create GitHub Release with all artifacts
+  # ---------------------------------------------------------------
+  release:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    needs: [build-overlay, build-plugin, build-installer]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            release-artifacts/installer/*.exe
+            release-artifacts/overlay-win/*.exe
+            release-artifacts/overlay-mac/*.dmg
+            release-artifacts/plugin-dll/K10MediaBroadcaster.Plugin.dll
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

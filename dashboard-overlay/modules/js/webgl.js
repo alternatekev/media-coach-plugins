@@ -264,13 +264,13 @@
         const float BAR_GAP   = 1.0;    // 1px gap between bars
         const float BAR_RAD   = 1.5;    // rounded top radius in px
 
-        // LED bar colors — matched to tacho style
-        const vec3 COL_THR_HI  = vec3(0.45, 0.92, 0.40);  // bright green LED
-        const vec3 COL_THR_LO  = vec3(0.12, 0.52, 0.18);  // dark green
-        const vec3 COL_BRK_HI  = vec3(0.95, 0.30, 0.22);  // bright red LED
-        const vec3 COL_BRK_LO  = vec3(0.55, 0.10, 0.08);  // dark red
-        const vec3 COL_CLT_HI  = vec3(0.35, 0.65, 0.95);  // bright blue LED
-        const vec3 COL_CLT_LO  = vec3(0.10, 0.30, 0.60);  // dark blue
+        // LED bar colors — boosted for discernibility
+        const vec3 COL_THR_HI  = vec3(0.55, 1.00, 0.50);  // bright green LED
+        const vec3 COL_THR_LO  = vec3(0.20, 0.65, 0.25);  // dark green
+        const vec3 COL_BRK_HI  = vec3(1.00, 0.38, 0.28);  // bright red LED
+        const vec3 COL_BRK_LO  = vec3(0.68, 0.16, 0.12);  // dark red
+        const vec3 COL_CLT_HI  = vec3(0.45, 0.78, 1.00);  // bright blue LED
+        const vec3 COL_CLT_LO  = vec3(0.18, 0.42, 0.72);  // dark blue
 
         // Noise for shimmer
         float hash(vec2 p) {
@@ -329,13 +329,13 @@
           float yRatio = barY / max(barH, 0.01);
           vec3 barColor = mix(colLo, colHi, smoothstep(0.0, 0.7, yRatio));
 
-          // Subtle top highlight (convex surface reflection)
-          float highlight = smoothstep(0.85, 1.0, yRatio) * 0.3;
+          // Top highlight (convex surface reflection)
+          float highlight = smoothstep(0.80, 1.0, yRatio) * 0.48;
           barColor += highlight;
 
           // Age fade: newest bars (idx 0) bright, older bars dim
           float age = float(barIdx) / float(count);
-          float ageFade = mix(1.0, 0.25, age * age);
+          float ageFade = mix(1.0, 0.40, age * age);
 
           // Spring animation: newest 3 bars have intensity overshoot
           float spring = 1.0;
@@ -366,9 +366,9 @@
 
           // Pulse
           float pulse = 0.85 + 0.15 * sin(uTime * (4.0 + liveVal * 3.0));
-          glow *= pulse * 0.5 * dpr2;
+          glow *= pulse * 0.8 * dpr2;
 
-          return vec4(colHi * glow, glow * 0.35);
+          return vec4(colHi * glow, glow * 0.55);
         }
 
         // ── Edge lights: subtle glow at panel borders when pedals are pressed ──
@@ -387,27 +387,27 @@
           if (uThr > 0.01) {
             float e = rightEdge + bottomEdge * 0.4 + topEdge * 0.15;
             float g = e * uThr * (0.85 + 0.15 * sin(uTime * 5.0));
-            col += COL_THR_HI * g * 0.6 * dpr2;
-            alpha += g * 0.25 * dpr2;
+            col += COL_THR_HI * g * 0.95 * dpr2;
+            alpha += g * 0.40 * dpr2;
           }
 
           // Brake: left + bottom edge (bars originate from left)
           if (uBrk > 0.01) {
             float e = leftEdge + bottomEdge * 0.4 + topEdge * 0.15;
             float g = e * uBrk * (0.85 + 0.15 * sin(uTime * 4.5));
-            col += COL_BRK_HI * g * 0.5 * dpr2;
-            alpha += g * 0.2 * dpr2;
+            col += COL_BRK_HI * g * 0.80 * dpr2;
+            alpha += g * 0.32 * dpr2;
           }
 
-          // Clutch: subtle bottom edge
+          // Clutch: bottom edge
           if (uClt > 0.01 && uClutchHidden == 0) {
             float e = bottomEdge * 0.5 + topEdge * 0.1;
             float g = e * uClt * 0.9;
-            col += COL_CLT_HI * g * 0.25 * dpr2;
-            alpha += g * 0.08 * dpr2;
+            col += COL_CLT_HI * g * 0.40 * dpr2;
+            alpha += g * 0.14 * dpr2;
           }
 
-          alpha = clamp(alpha, 0.0, 0.65);
+          alpha = clamp(alpha, 0.0, 0.85);
           return vec4(col * alpha, alpha);
         }
 
@@ -418,7 +418,7 @@
 
           float pxW = uRes.x;
           float pxH = uRes.y;
-          float lineThick = 2.0;  // line thickness in pixels
+          float lineThick = 2.8;  // line thickness in pixels
 
           // Walk through samples and find the two bracketing the current x
           float px = (direction == 0) ? uv.x * pxW : (1.0 - uv.x) * pxW;
@@ -451,18 +451,18 @@
 
           // Age fade along x: newest edge bright, oldest dim
           float age = float(segIdx) / float(count);
-          float ageFade = mix(1.0, 0.15, age);
+          float ageFade = mix(1.0, 0.30, age);
 
           // Intensity pulse dynamic to recent pedal activity
-          float pulse = 0.7 + 0.3 * liveVal;
+          float pulse = 0.85 + 0.15 * liveVal;
           float glow = aa * ageFade * pulse;
 
-          // Bright neon color with slight bloom halo
-          vec3 lineCol = col * (1.0 + 0.4 * liveVal);
+          // Bright neon color with bloom halo
+          vec3 lineCol = col * (1.0 + 0.6 * liveVal);
 
-          // Softer outer glow
+          // Outer glow halo around trace line
           float outerDist = abs(pixelY - lineY) * pxH;
-          float outerGlow = exp(-outerDist * outerDist / max(16.0 * liveVal, 2.0)) * liveVal * 0.3 * ageFade;
+          float outerGlow = exp(-outerDist * outerDist / max(20.0 * liveVal, 3.0)) * liveVal * 0.48 * ageFade;
 
           vec3 finalCol = lineCol * glow + col * outerGlow;
           float alpha = clamp(glow + outerGlow, 0.0, 1.0);
@@ -497,12 +497,12 @@
 
           // Rolling history bars
           // Throttle scrolls right-to-left (newest at left edge)
-          vec4 thrBar = barLayer(uv, 0, 1, COL_THR_HI, COL_THR_LO, 0.75, uThr);
+          vec4 thrBar = barLayer(uv, 0, 1, COL_THR_HI, COL_THR_LO, 1.0, uThr);
           // Brake scrolls left-to-right (newest at right edge)
-          vec4 brkBar = barLayer(uv, 1, 0, COL_BRK_HI, COL_BRK_LO, 0.85, uBrk);
+          vec4 brkBar = barLayer(uv, 1, 0, COL_BRK_HI, COL_BRK_LO, 1.0, uBrk);
           // Clutch: scroll from right, underneath throttle
           vec4 cltBar = (uClutchHidden == 1) ? vec4(0.0)
-            : barLayer(uv, 2, 0, COL_CLT_HI, COL_CLT_LO, 0.55, uClt);
+            : barLayer(uv, 2, 0, COL_CLT_HI, COL_CLT_LO, 0.88, uClt);
 
           // Overlap heat glow
           vec4 hot = overlapGlow(uv);
@@ -532,8 +532,8 @@
           }
 
           // Clutch underneath
-          col = mix(col, cltBar.rgb, cltBar.a * 0.5);
-          alpha = max(alpha, cltBar.a * 0.5);
+          col = mix(col, cltBar.rgb, cltBar.a * 0.75);
+          alpha = max(alpha, cltBar.a * 0.75);
 
           // Overlap hot glow on top
           col += hot.rgb;
@@ -812,6 +812,8 @@
       yawRate: 0, yawRateTarget: 0,
       steer: 0, steerTarget: 0,
     };
+    // Expose for CSS-only plastic mode (ambient-light.js reads these)
+    window._pfx = _pfx;
     const _pfxLerp = { speed: 3.0, rpm: 8.0, latG: 5.0, longG: 5.0, yawRate: 4.0, steer: 6.0 };
 
     /** Resize a full-screen canvas at half DPR for soft effects */

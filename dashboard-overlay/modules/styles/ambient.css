@@ -9,6 +9,7 @@
    (0-255) set on :root from JS.  A CSS breathing animation
    pulses the glow subtly.
 
+   Modes: reflective (WebGL), matte (WebGL 50%), plastic (CSS-only), off.
    Toggled off via body.ambient-off or body.opaque-mode.
    ═══════════════════════════════════════════════════════════════ */
 
@@ -29,6 +30,10 @@
   --ambient-g: 100;
   --ambient-b: 140;
   --ambient-lum: 0.35;   /* perceptual luminance 0-1, drives panel dimming */
+  /* Plastic mode telemetry vars (set by ambient-light.js render loop) */
+  --plastic-rotate: 0deg;   /* steering → glow rotation (±4°) */
+  --plastic-sweep: 0px;     /* speed → horizontal sweep offset */
+  --plastic-phase: 0.5;     /* time-based sweep position (0-1) */
 }
 
 /* ── Selector list for ALL panel/module types ── */
@@ -48,10 +53,106 @@
   position: fixed;
 }
 
-/* ── ::before — REMOVED ──
-   Ambient illumination now rendered in WebGL postfx shader
-   for better performance (single GPU draw call vs per-panel CSS repaints)
-   and richer visual effects (animated caustics, drifting light). */
+/* ── ::before — PLASTIC MODE ONLY ──
+   CSS-only ambient illumination for the "plastic" mode.
+   Replaces the WebGL postfx glow with layered gradients tinted by
+   the ambient color. Animates via CSS custom properties:
+     --plastic-rotate  → steering rotation (GPU-composited transform)
+     --plastic-sweep   → speed-based horizontal sweep (background-position)
+     --plastic-phase   → time-based breathing (drives box-shadow on panels)
+   Hidden by default; shown only when body.ambient-plastic is set. */
+.panel::before,
+.tacho-block::before,
+.commentary-inner::before,
+.leaderboard-panel::before,
+.datastream-panel::before,
+.pitbox-panel::before,
+.incidents-panel::before,
+.spotter-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+  /* Multi-layer glow — overhead radial + sweep + wash.
+     Ported from the WebGL ambientGlow() center glow + sweep, but
+     using stacked gradients instead of per-pixel exp/sin math.
+     Rotates with steering via --plastic-rotate (GPU-composited transform).
+     Sweep shifts with speed via --plastic-sweep (background-position). */
+  background:
+    /* Layer 1: Overhead radial — main illumination source */
+    radial-gradient(
+      ellipse 140% 90% at 50% 10%,
+      rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b), 0.20) 0%,
+      rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b), 0.09) 30%,
+      rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b), 0.02) 60%,
+      transparent 85%
+    ),
+    /* Layer 2: Diagonal sweep — simulates the WebGL light sweep band.
+       background-position shifts with speed for movement illusion. */
+    linear-gradient(
+      155deg,
+      transparent 5%,
+      rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b), 0.09) 25%,
+      rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b), 0.04) 50%,
+      transparent 70%
+    ),
+    /* Layer 3: Soft full-panel tint wash — base color presence */
+    linear-gradient(
+      180deg,
+      rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b), 0.05) 0%,
+      rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b), 0.015) 100%
+    );
+  /* Sweep layer shifts with speed; other layers stay put */
+  background-position: 0 0, var(--plastic-sweep) 0, 0 0;
+  background-size: 100% 100%;
+  /* Steer rotation (GPU-composited — no layout/paint cost).
+     Inset by -6px so the rotated layer still covers corners without
+     escaping the parent's overflow:hidden clip. */
+  inset: -6px;
+  transform: rotate(var(--plastic-rotate));
+  transform-origin: 50% 40%;
+  will-change: transform, background-position;
+  /* Scale intensity with ambient brightness (50% of original) */
+  opacity: calc(0.25 + var(--ambient-lum) * 0.25);
+  transition: opacity 600ms ease;
+  /* Hidden by default — only plastic mode enables this */
+  display: none;
+}
+
+/* Show ::before glow ONLY in plastic mode */
+body.ambient-plastic .panel::before,
+body.ambient-plastic .tacho-block::before,
+body.ambient-plastic .commentary-inner::before,
+body.ambient-plastic .leaderboard-panel::before,
+body.ambient-plastic .datastream-panel::before,
+body.ambient-plastic .pitbox-panel::before,
+body.ambient-plastic .incidents-panel::before,
+body.ambient-plastic .spotter-panel::before {
+  display: block;
+}
+
+/* Plastic mode: clip ::before to panel bounds + edge bloom.
+   overflow:hidden clips the rotated pseudo-element to the panel's
+   rounded rect. The outer box-shadow is painted outside the overflow
+   clip by the browser, so it remains visible. */
+body.ambient-plastic .panel,
+body.ambient-plastic .tacho-block,
+body.ambient-plastic .commentary-inner,
+body.ambient-plastic .leaderboard-panel,
+body.ambient-plastic .datastream-panel,
+body.ambient-plastic .pitbox-panel,
+body.ambient-plastic .incidents-panel,
+body.ambient-plastic .spotter-panel {
+  overflow: hidden;
+  box-shadow:
+    0 0 18px 4px rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b),
+      calc((0.04 + var(--plastic-phase) * 0.05) * var(--ambient-lum))),
+    inset 0 1px 0 rgba(var(--ambient-r), var(--ambient-g), var(--ambient-b), 0.08);
+  transition: box-shadow 600ms ease;
+}
 
 /* ── ::after — Glass refraction surface ──
    Simulates light refracting across a glass panel surface.
@@ -115,7 +216,10 @@ body.ambient-matte .spotter-panel::after {
   opacity: calc((0.25 + var(--ambient-lum) * 0.35) * 0.5) !important;
 }
 
-/* ── Kill glass reflections when ambient is off ── */
+/* ── Plastic mode: glass reflections at full (same as reflective) ── */
+/* (::after stays as-is — no override needed, inherits default full opacity) */
+
+/* ── Kill glass reflections + glow when ambient is off ── */
 body.ambient-off .panel::after,
 body.ambient-off .tacho-block::after,
 body.ambient-off .commentary-inner::after,
@@ -123,11 +227,19 @@ body.ambient-off .leaderboard-panel::after,
 body.ambient-off .datastream-panel::after,
 body.ambient-off .pitbox-panel::after,
 body.ambient-off .incidents-panel::after,
-body.ambient-off .spotter-panel::after {
+body.ambient-off .spotter-panel::after,
+body.ambient-off .panel::before,
+body.ambient-off .tacho-block::before,
+body.ambient-off .commentary-inner::before,
+body.ambient-off .leaderboard-panel::before,
+body.ambient-off .datastream-panel::before,
+body.ambient-off .pitbox-panel::before,
+body.ambient-off .incidents-panel::before,
+body.ambient-off .spotter-panel::before {
   display: none !important;
 }
 
-/* ── Green-screen mode: also disable reflections ── */
+/* ── Green-screen mode: also disable reflections + glow ── */
 body.opaque-mode .panel::after,
 body.opaque-mode .tacho-block::after,
 body.opaque-mode .commentary-inner::after,
@@ -135,7 +247,15 @@ body.opaque-mode .leaderboard-panel::after,
 body.opaque-mode .datastream-panel::after,
 body.opaque-mode .pitbox-panel::after,
 body.opaque-mode .incidents-panel::after,
-body.opaque-mode .spotter-panel::after {
+body.opaque-mode .spotter-panel::after,
+body.opaque-mode .panel::before,
+body.opaque-mode .tacho-block::before,
+body.opaque-mode .commentary-inner::before,
+body.opaque-mode .leaderboard-panel::before,
+body.opaque-mode .datastream-panel::before,
+body.opaque-mode .pitbox-panel::before,
+body.opaque-mode .incidents-panel::before,
+body.opaque-mode .spotter-panel::before {
   display: none !important;
 }
 

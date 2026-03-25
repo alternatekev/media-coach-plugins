@@ -20,6 +20,10 @@
     const labelEl = banner ? banner.querySelector('.pit-label') : null;
     if (!banner) return;
 
+    // Pit limiter blue glow on tacho module
+    const tacho = document.querySelector('.tacho-block');
+    if (tacho) tacho.classList.toggle('pit-limiter-engaged', inPitLane && pitLimiterOn);
+
     if (inPitLane) {
       banner.classList.add('pit-visible');
       document.body.classList.add('pit-mode');

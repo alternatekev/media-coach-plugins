@@ -302,16 +302,21 @@
 
   function applyAmbientMode(mode) {
     const body = document.body;
-    body.classList.remove('ambient-off', 'ambient-matte');
+    body.classList.remove('ambient-off', 'ambient-matte', 'ambient-plastic');
     if (mode === 'off') {
       body.classList.add('ambient-off');
       if (typeof window.stopAmbientLight === 'function') window.stopAmbientLight();
     } else {
       if (mode === 'matte') body.classList.add('ambient-matte');
+      if (mode === 'plastic') body.classList.add('ambient-plastic');
       if (typeof window.startAmbientLight === 'function') window.startAmbientLight();
     }
     // Expose mode for WebGL shader: 0=off, 1=matte, 2=reflective
-    window._ambientModeInt = mode === 'off' ? 0 : mode === 'matte' ? 1 : 2;
+    // Plastic uses CSS-only glow — tell WebGL ambient is OFF so it skips
+    // the expensive ambientGlow() + glassReflection() shader passes,
+    // freeing GPU time for g-force vignette, RPM redline, and panel glow.
+    window._ambientModeInt = (mode === 'off' || mode === 'plastic') ? 0
+                           : mode === 'matte' ? 1 : 2;
   }
 
   function toggleBonkers(el) {

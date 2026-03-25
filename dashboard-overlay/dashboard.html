@@ -807,10 +807,11 @@
         <select class="settings-select" id="settingsAmbientMode" onchange="updateAmbientMode(this.value)">
           <option value="reflective">Reflective</option>
           <option value="matte">Matte</option>
+          <option value="plastic">Plastic</option>
           <option value="off">Off</option>
         </select>
       </div>
-      <div class="settings-hint">Reflective = full glare, Matte = subtle, Off = none</div>
+      <div class="settings-hint">Reflective/Matte = WebGL glare, Plastic = CSS-only (lightweight), Off = none</div>
       <div class="settings-row"><span class="settings-label">Capture Area</span><button class="settings-btn" id="btnSetCaptureArea" onclick="startCaptureAreaSelection()">Draw Region</button></div>
       <div class="settings-hint">Draw a screen region to sample ambient color from</div>
       <div class="ambient-preview-container" id="ambientPreviewContainer">

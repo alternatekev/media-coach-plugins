@@ -96,6 +96,25 @@
     // Push to CSS vars (drives both ::before glow and ::after reflection)
     updateReflectionColor(_curR, _curG, _curB);
 
+    // Plastic mode: push telemetry to CSS custom properties so the
+    // CSS-only glow can animate with speed + steering rotation.
+    // Only writes when plastic is active to avoid unnecessary DOM work.
+    if (window._ambientModeInt === 0 && document.body.classList.contains('ambient-plastic')) {
+      const pfx = window._pfx;
+      if (pfx) {
+        const root = document.documentElement.style;
+        // steer: -1..+1 → rotation in degrees (inverted, ±4° like WebGL)
+        root.setProperty('--plastic-rotate', (-pfx.steer * 4).toFixed(2) + 'deg');
+        // speed: 0..1 → sweep offset (0px..30px horizontal shift)
+        const spdMul = 0.075 + pfx.speed * 0.425;
+        root.setProperty('--plastic-sweep', (spdMul * 60).toFixed(1) + 'px');
+        // time-based sweep position (slow diagonal drift)
+        const timeSec = timestamp * 0.001;
+        const sweepPhase = Math.sin(timeSec * 0.2 * spdMul) * 0.5 + 0.5;
+        root.setProperty('--plastic-phase', sweepPhase.toFixed(3));
+      }
+    }
+
     // Diagnostic log every 5s
     const t = timestamp * 0.001;
     const sec = Math.floor(t);

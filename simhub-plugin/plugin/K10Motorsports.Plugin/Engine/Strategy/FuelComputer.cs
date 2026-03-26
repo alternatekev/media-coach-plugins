@@ -30,6 +30,14 @@ namespace K10Motorsports.Plugin.Engine.Strategy
         private double _avgBurnEarly;  // average burn from first 5 laps
         private bool _avgBurnEarlySet;
 
+        // ── Validation constants ──────────────────────────────────────────
+        /// <summary>Maximum plausible fuel level in liters (largest GT/prototype tanks).</summary>
+        private const double MaxFuelCapacity = 200.0;
+        /// <summary>Maximum plausible fuel burn per lap in liters (worst-case big-displacement car).</summary>
+        private const double MaxBurnPerLap = 25.0;
+        /// <summary>Previous frame fuel for delta sanity check.</summary>
+        private double _prevFuel = -1;
+
         // ── Public state for dashboard ──────────────────────────────────
 
         /// <summary>Fuel remaining in liters.</summary>
@@ -74,7 +82,14 @@ namespace K10Motorsports.Plugin.Engine.Strategy
 
         public void UpdateFrame(TelemetrySnapshot s)
         {
-            FuelRemaining = s.FuelLevel;
+            // ── Validate fuel level ──────────────────────────────────────
+            double fuel = s.FuelLevel;
+            if (double.IsNaN(fuel) || double.IsInfinity(fuel) || fuel < 0)
+                fuel = _prevFuel >= 0 ? _prevFuel : 0;
+            fuel = Math.Min(fuel, MaxFuelCapacity);
+            _prevFuel = fuel;
+
+            FuelRemaining = fuel;
 
             // Detect pit lane entry/exit for pit time calibration
             if (s.IsInPitLane && !_calibratingPitTime)
@@ -100,6 +115,21 @@ namespace K10Motorsports.Plugin.Engine.Strategy
         public void OnLapCompleted(StintData stint, TelemetrySnapshot s, double fuelUsedThisLap)
         {
             if (stint == null) return;
+
+            // ── Validate fuel burn ───────────────────────────────────────
+            // Reject negative burns (refueling mid-lap shouldn't count as usage),
+            // NaN/Infinity, and impossibly high single-lap burns.
+            if (double.IsNaN(fuelUsedThisLap) || double.IsInfinity(fuelUsedThisLap))
+                fuelUsedThisLap = 0;
+            fuelUsedThisLap = Math.Max(0, Math.Min(MaxBurnPerLap, fuelUsedThisLap));
+
+            // Reject outlier laps: if we have history, reject burns > 3× average
+            if (stint.FuelPerLap.Count >= 3)
+            {
+                double avg = stint.AvgFuelPerLap;
+                if (avg > 0.01 && fuelUsedThisLap > avg * 3.0)
+                    fuelUsedThisLap = avg; // substitute average for the spike
+            }
 
             stint.FuelPerLap.Add(fuelUsedThisLap);
 
@@ -144,6 +174,7 @@ namespace K10Motorsports.Plugin.Engine.Strategy
             _avgBurnEarlySet = false;
             FuelSavingDetected = false;
             FuelSavingLapsGained = 0;
+            _prevFuel = -1; // reset fuel tracking for spike rejection
         }
 
         // ═══════════════════════════════════════════════════════════════

@@ -35,9 +35,12 @@
         iconPath +
       '</svg>' +
       '<div class="sp-content">' +
-        '<div class="sp-header">' + (headerText || 'Spotter') + '</div>' +
-        '<div class="sp-message">' + msg + '</div>' +
+        '<div class="sp-header"></div>' +
+        '<div class="sp-message"></div>' +
       '</div>';
+
+    card.querySelector('.sp-header').textContent = headerText || 'Spotter';
+    card.querySelector('.sp-message').textContent = msg;
 
     return card;
   }

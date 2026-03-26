@@ -63,6 +63,23 @@ const PROP_KEYS = [
   'K10Motorsports.Plugin.CommentaryCategory',
   'K10Motorsports.Plugin.CommentarySentimentColor',
   'K10Motorsports.Plugin.CommentarySeverity',
+  // Strategy engine properties
+  'K10Motorsports.Plugin.Strategy.Visible',
+  'K10Motorsports.Plugin.Strategy.Text',
+  'K10Motorsports.Plugin.Strategy.Label',
+  'K10Motorsports.Plugin.Strategy.Severity',
+  'K10Motorsports.Plugin.Strategy.Color',
+  'K10Motorsports.Plugin.Strategy.TextColor',
+  'K10Motorsports.Plugin.Strategy.FuelLapsRemaining',
+  'K10Motorsports.Plugin.Strategy.FuelHealthState',
+  'K10Motorsports.Plugin.Strategy.CanMakeItToEnd',
+  'K10Motorsports.Plugin.Strategy.PitWindowOpen',
+  'K10Motorsports.Plugin.Strategy.PitWindowClose',
+  'K10Motorsports.Plugin.Strategy.TireHealthState',
+  'K10Motorsports.Plugin.Strategy.TireLapsRemaining',
+  'K10Motorsports.Plugin.Strategy.GripScore',
+  'K10Motorsports.Plugin.Strategy.StintNumber',
+  'K10Motorsports.Plugin.Strategy.StintLaps',
   'K10Motorsports.Plugin.SessionTypeName',
   // Demo mode properties
   'K10Motorsports.Plugin.DemoMode',
@@ -347,6 +364,7 @@ let _raceEndTimer = null;
 let _timerHideTimeout = null;
 let _timerPinned = false;
 let _commentaryWasVisible = false;
+let _strategyWasVisible = false;
 let _tcSeen = false;
 let _absSeen = false;
 let _carAdj = null;  // result from getCarAdjustability() for current car

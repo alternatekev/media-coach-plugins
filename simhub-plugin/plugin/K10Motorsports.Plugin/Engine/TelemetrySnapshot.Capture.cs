@@ -189,7 +189,10 @@ namespace K10Motorsports.Plugin.Engine
                     BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
                 s.PlayerName = nameProp?.GetValue(d) as string ?? "";
             }
-            catch { }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] Player name extraction failed: {ex.Message}");
+            }
 
             // ── Nearest opponents (by race position) ─────────────────────────
             // Also extract: player's own iRating/SR, and gap data for ahead/behind
@@ -232,7 +235,10 @@ namespace K10Motorsports.Plugin.Engine
                                 }
                             }
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            SimHub.Logging.Current.Warn($"[K10Motorsports] Gap data extraction failed: {ex.Message}");
+                        }
 
                         if (pos == s.Position - 1)
                         {
@@ -257,7 +263,10 @@ namespace K10Motorsports.Plugin.Engine
                             else if (!string.IsNullOrEmpty(s.PlayerName) && !string.IsNullOrEmpty(name))
                                 isPlayer = name.Equals(s.PlayerName, StringComparison.OrdinalIgnoreCase);
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            SimHub.Logging.Current.Warn($"[K10Motorsports] IsPlayer detection failed: {ex.Message}");
+                        }
 
                         if (isPlayer && irating > 0)
                         {
@@ -274,12 +283,18 @@ namespace K10Motorsports.Plugin.Engine
                                         _fallbackSR = Convert.ToDouble(sv);
                                 }
                             }
-                            catch { }
+                            catch (Exception ex)
+                            {
+                                SimHub.Logging.Current.Warn($"[K10Motorsports] SafetyRating extraction failed: {ex.Message}");
+                            }
                         }
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] Opponent extraction failed: {ex.Message}");
+            }
 
             // ── World velocity (for track map dead reckoning) ─────────────────
             // iRacing: reads raw directly
@@ -577,7 +592,11 @@ namespace K10Motorsports.Plugin.Engine
                     country = GetRaw<string>(pm, "WeekendInfo.TrackCountry") ?? "";
                 s.TrackCountry = NormalizeCountryCode(country);
             }
-            catch { s.TrackCountry = ""; }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] Track country lookup failed: {ex.Message}");
+                s.TrackCountry = "";
+            }
 
             // Count gridded cars: cars NOT on pit road from CarIdxOnPitRoad array
             if (s.CarIdxOnPitRoad != null && s.CarIdxOnPitRoad.Length > 0)

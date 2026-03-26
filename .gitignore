@@ -32,3 +32,6 @@ installer/staging/
 
 # ── Electron-builder output (dist/ already covered, but be explicit)
 dashboard-overlay/dist/
+
+# ── Claude / MCP config (may contain API tokens) ─────────────────
+.claude/

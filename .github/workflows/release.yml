@@ -158,14 +158,11 @@ jobs:
       - name: Stamp overlay version from tag
         run: |
           $ver = "${{ steps.version.outputs.VERSION }}"
-          # package.json
+          # package.json — Electron reads this via app.getVersion(),
+          # dashboard.html picks it up at runtime through the preload bridge
           $pkg = Get-Content dashboard-overlay/package.json -Raw
           $pkg = $pkg -replace '"version":\s*"[^"]+"', "`"version`": `"$ver`""
           Set-Content dashboard-overlay/package.json $pkg
-          # dashboard.html settings footer
-          $html = Get-Content dashboard-overlay/dashboard.html -Raw
-          $html = $html -replace 'K10 Motorsports v[\d.]+ —', "K10 Motorsports v$ver —"
-          Set-Content dashboard-overlay/dashboard.html $html
           Write-Host "Stamped overlay version: $ver"
         shell: pwsh
 

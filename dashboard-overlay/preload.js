@@ -6,6 +6,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('k10', {
+  // App version (read from package.json by Electron)
+  getVersion: () => ipcRenderer.invoke('get-version'),
   getSettings: () => ipcRenderer.invoke('get-settings'),
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
   onSettingsMode: (callback) => {

@@ -229,7 +229,7 @@
     updateCommentarySetting('category_' + category, !isOn ? '1' : '0');
   }
 
-  // Load K10 logo into settings titlebar
+  // Load K10 logo into settings titlebar + populate version from package.json
   document.addEventListener('DOMContentLoaded', function() {
     var logoEl = document.getElementById('settingsTitlebarLogo');
     if (logoEl) {
@@ -237,6 +237,13 @@
       img.src = 'images/branding/logomark.png';
       img.alt = 'K10';
       logoEl.appendChild(img);
+    }
+    // Version label — read from Electron app.getVersion() (set by package.json)
+    if (window.k10 && window.k10.getVersion) {
+      window.k10.getVersion().then(function(ver) {
+        var el = document.getElementById('settingsVersionLabel');
+        if (el && ver) el.textContent = 'K10 Motorsports v' + ver + ' \u2014 Original Dashboard';
+      });
     }
   });
 

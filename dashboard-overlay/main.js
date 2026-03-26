@@ -623,6 +623,9 @@ ipcMain.handle('save-rating-data', async (event, data) => {
   saveRatingData(data);
 });
 
+// ── IPC: App version (from package.json) ──
+ipcMain.handle('get-version', () => app.getVersion());
+
 // ── IPC: Settings persistence ──
 ipcMain.handle('get-settings', async () => {
   try {

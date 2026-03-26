@@ -34,6 +34,18 @@ namespace K10Motorsports.Plugin.Engine.Strategy
         private double[] _tempAccumFL = new double[0];
         private int _tempSampleCount;
 
+        // ── Validation: previous-frame wear for spike rejection ─────────
+        private double[] _prevWear = new double[4];
+        private bool _prevWearValid;
+        /// <summary>Max wear jump per frame before value is rejected as a spike.
+        /// At 60 FPS the fastest realistic wear is ~0.02/s → 0.00033/frame.
+        /// We allow 15× headroom for physics hiccups and low-FPS scenarios.</summary>
+        private const double MaxWearDeltaPerFrame = 0.005;
+
+        // ── Temperature sanity range ────────────────────────────────────
+        private const double TempAbsoluteMin = 0.0;    // °C
+        private const double TempAbsoluteMax = 300.0;   // °C — above this is sensor garbage
+
         // ── Cooldowns ───────────────────────────────────────────────────
         private DateTime _lastTempCall  = DateTime.MinValue;
         private DateTime _lastWearCall  = DateTime.MinValue;
@@ -81,16 +93,38 @@ namespace K10Motorsports.Plugin.Engine.Strategy
             _absWasActive = s.AbsActive;
             _tcWasActive = s.TcActive;
 
-            // Update current values
-            CurrentWear[0] = s.TyreWearFL;
-            CurrentWear[1] = s.TyreWearFR;
-            CurrentWear[2] = s.TyreWearRL;
-            CurrentWear[3] = s.TyreWearRR;
+            // ── Validate & update wear values ────────────────────────────
+            double[] rawWear = { s.TyreWearFL, s.TyreWearFR, s.TyreWearRL, s.TyreWearRR };
+            for (int i = 0; i < 4; i++)
+            {
+                double w = rawWear[i];
 
-            CurrentTemp[0] = s.TyreTempFL;
-            CurrentTemp[1] = s.TyreTempFR;
-            CurrentTemp[2] = s.TyreTempRL;
-            CurrentTemp[3] = s.TyreTempRR;
+                // Clamp to valid 0-1 range (garbage data or unit mismatch)
+                w = Math.Max(0.0, Math.Min(1.0, w));
+
+                // Spike rejection: if we have a prior frame and the jump is
+                // impossibly large, hold the previous value instead
+                if (_prevWearValid && Math.Abs(w - _prevWear[i]) > MaxWearDeltaPerFrame)
+                {
+                    // Allow the jump if wear DECREASED (pit stop / tire change)
+                    if (w >= _prevWear[i])
+                        w = _prevWear[i]; // reject upward spike, hold previous
+                }
+
+                CurrentWear[i] = w;
+                _prevWear[i] = w;
+            }
+            _prevWearValid = true;
+
+            // ── Validate & update temperature values ─────────────────────
+            double[] rawTemp = { s.TyreTempFL, s.TyreTempFR, s.TyreTempRL, s.TyreTempRR };
+            for (int i = 0; i < 4; i++)
+            {
+                double t = rawTemp[i];
+                // Clamp to physically plausible range
+                t = Math.Max(TempAbsoluteMin, Math.Min(TempAbsoluteMax, t));
+                CurrentTemp[i] = t;
+            }
 
             // Temperature states
             for (int i = 0; i < 4; i++)
@@ -108,6 +142,9 @@ namespace K10Motorsports.Plugin.Engine.Strategy
         {
             if (stint == null) return;
 
+            // Use validated wear from CurrentWear (already clamped & spike-filtered by UpdateFrame)
+            double[] validatedWear = (double[])CurrentWear.Clone();
+
             // Record wear delta this lap
             double[] wearDelta = new double[4];
             if (stint.WearPerLap.Count > 0)
@@ -115,17 +152,17 @@ namespace K10Motorsports.Plugin.Engine.Strategy
                 // Wear delta = current wear minus wear at start of this lap
                 // Since wear accumulates, we track the difference
                 var prevCumulative = stint.CumulativeWear;
-                wearDelta[0] = Math.Max(0, s.TyreWearFL - (stint.StartLap > 0 ? prevCumulative[0] : 0));
-                wearDelta[1] = Math.Max(0, s.TyreWearFR - (stint.StartLap > 0 ? prevCumulative[1] : 0));
-                wearDelta[2] = Math.Max(0, s.TyreWearRL - (stint.StartLap > 0 ? prevCumulative[2] : 0));
-                wearDelta[3] = Math.Max(0, s.TyreWearRR - (stint.StartLap > 0 ? prevCumulative[3] : 0));
+                wearDelta[0] = Math.Max(0, validatedWear[0] - (stint.StartLap > 0 ? prevCumulative[0] : 0));
+                wearDelta[1] = Math.Max(0, validatedWear[1] - (stint.StartLap > 0 ? prevCumulative[1] : 0));
+                wearDelta[2] = Math.Max(0, validatedWear[2] - (stint.StartLap > 0 ? prevCumulative[2] : 0));
+                wearDelta[3] = Math.Max(0, validatedWear[3] - (stint.StartLap > 0 ? prevCumulative[3] : 0));
             }
 
             stint.WearPerLap.Add(wearDelta);
             stint.PeakLatG.Add(_peakLatGThisLap);
             stint.AbsActivationsPerLap.Add(_absCountThisLap);
             stint.TcActivationsPerLap.Add(_tcCountThisLap);
-            stint.TempPerLap.Add(new[] { s.TyreTempFL, s.TyreTempFR, s.TyreTempRL, s.TyreTempRR });
+            stint.TempPerLap.Add((double[])CurrentTemp.Clone());
 
             // Estimate remaining tire life
             EstimatedLapsRemaining = stint.EstimateLapsToWearThreshold(CurrentWear, WearCritical);
@@ -156,6 +193,8 @@ namespace K10Motorsports.Plugin.Engine.Strategy
             GripScore = 0;
             TireHealthState = 0;
             EstimatedLapsRemaining = 99;
+            // Reset spike rejection — new tires will have a large wear jump
+            _prevWearValid = false;
         }
 
         // ═══════════════════════════════════════════════════════════════

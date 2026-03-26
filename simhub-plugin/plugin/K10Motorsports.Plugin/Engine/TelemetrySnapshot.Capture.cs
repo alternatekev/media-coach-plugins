@@ -101,34 +101,36 @@ namespace K10Motorsports.Plugin.Engine
             // Fallback for iRacing: GameData.TyreWear* is only updated after a
             // full lap, so the bars stay at 0 until then. Fall back to the raw
             // per-zone wear telemetry values (LFwearL/M/R etc.) which ARE live.
-            // Convention: 0.0=new, 1.0=fully worn (same as GameData scale).
+            // IMPORTANT: iRacing raw wear values use 1.0=new, 0.0=worn convention
+            // but our internal convention is 0.0=new, 1.0=fully worn. We must
+            // invert when using the raw telemetry fallback.
             if (s.TyreWearFL == 0)
             {
                 float wL = GetRaw<float>(pm, "LFwearL");
                 float wM = GetRaw<float>(pm, "LFwearM");
                 float wR = GetRaw<float>(pm, "LFwearR");
-                if (wL > 0 || wM > 0 || wR > 0) s.TyreWearFL = (wL + wM + wR) / 3f;
+                if (wL > 0 || wM > 0 || wR > 0) s.TyreWearFL = 1.0 - ((wL + wM + wR) / 3f);
             }
             if (s.TyreWearFR == 0)
             {
                 float wL = GetRaw<float>(pm, "RFwearL");
                 float wM = GetRaw<float>(pm, "RFwearM");
                 float wR = GetRaw<float>(pm, "RFwearR");
-                if (wL > 0 || wM > 0 || wR > 0) s.TyreWearFR = (wL + wM + wR) / 3f;
+                if (wL > 0 || wM > 0 || wR > 0) s.TyreWearFR = 1.0 - ((wL + wM + wR) / 3f);
             }
             if (s.TyreWearRL == 0)
             {
                 float wL = GetRaw<float>(pm, "LRwearL");
                 float wM = GetRaw<float>(pm, "LRwearM");
                 float wR = GetRaw<float>(pm, "LRwearR");
-                if (wL > 0 || wM > 0 || wR > 0) s.TyreWearRL = (wL + wM + wR) / 3f;
+                if (wL > 0 || wM > 0 || wR > 0) s.TyreWearRL = 1.0 - ((wL + wM + wR) / 3f);
             }
             if (s.TyreWearRR == 0)
             {
                 float wL = GetRaw<float>(pm, "RRwearL");
                 float wM = GetRaw<float>(pm, "RRwearM");
                 float wR = GetRaw<float>(pm, "RRwearR");
-                if (wL > 0 || wM > 0 || wR > 0) s.TyreWearRR = (wL + wM + wR) / 3f;
+                if (wL > 0 || wM > 0 || wR > 0) s.TyreWearRR = 1.0 - ((wL + wM + wR) / 3f);
             }
 
             // ── Physics: iRacing raw → normalized fallback ───────────────────

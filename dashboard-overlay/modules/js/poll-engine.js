@@ -647,15 +647,29 @@
           }
         } else if (splits[si - 1] > 0) {
           // Completed sector: show sector time + delta to my best.
-          // Sanity check: a single sector time must never be >= the sum of
-          // all other known sector splits — that would mean the plugin
-          // accidentally sent the cumulative lap time here instead.
+          // Multi-layered sanity check: iRacing sometimes sends the
+          // cumulative lap time as the final sector split. We must
+          // never display a full lap time inside a sector cell.
           const split = splits[si - 1];
           let sumOtherSplits = 0;
+          let otherSplitCount = 0;
           for (let k = 0; k < sectorCount; k++) {
-            if (k !== si - 1 && splits[k] > 0) sumOtherSplits += splits[k];
+            if (k !== si - 1 && splits[k] > 0) {
+              sumOtherSplits += splits[k];
+              otherSplitCount++;
+            }
           }
-          const looksLikeFullLap = sumOtherSplits > 0 && split >= sumOtherSplits;
+          // Check 1: split >= sum of all other known sectors (original check)
+          const exceedsOthers = sumOtherSplits > 0 && split >= sumOtherSplits;
+          // Check 2: split >= 85% of best lap — no single sector should be
+          // that large relative to the full lap
+          const exceedsBestLap = bestLap > 0 && split >= bestLap * 0.85;
+          // Check 3: last sector with no other splits populated yet —
+          // this is the classic case where iRacing sends cumulative time
+          // before the earlier sectors are filled in
+          const lastSectorNoContext = si === sectorCount && sectorCount >= 2
+            && otherSplitCount === 0;
+          const looksLikeFullLap = exceedsOthers || exceedsBestLap || lastSectorNoContext;
           if (looksLikeFullLap) {
             // Suppress — never show a full lap time inside a sector cell
             timeEl.textContent = '—';

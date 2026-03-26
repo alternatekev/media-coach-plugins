@@ -156,6 +156,19 @@
         }
       } else if (splits[si - 1] > 0) {
         var split = splits[si - 1];
+        // Sanity check: iRacing sometimes sends cumulative lap time as
+        // the final sector split. Never display a full lap time here.
+        var sumOther = 0, otherCount = 0;
+        for (var sc = 0; sc < sectorCount; sc++) {
+          if (sc !== si - 1 && splits[sc] > 0) { sumOther += splits[sc]; otherCount++; }
+        }
+        var exceedsOthers = sumOther > 0 && split >= sumOther;
+        var exceedsBest = bestLap > 0 && split >= bestLap * 0.85;
+        var lastNoCtx = si === sectorCount && sectorCount >= 2 && otherCount === 0;
+        if (exceedsOthers || exceedsBest || lastNoCtx) {
+          timeEl.textContent = '—';
+          if (sDeltaEl) sDeltaEl.textContent = '';
+        } else {
         var m = Math.floor(split / 60);
         var s = split % 60;
         timeEl.textContent = (m > 0 ? m + ':' : '') + (m > 0 && s < 10 ? '0' : '') + s.toFixed(1);
@@ -165,6 +178,7 @@
           if (states[si - 1] === 1) sDeltaEl.textContent = 'PB';
           else if (d !== 0) sDeltaEl.textContent = (d >= 0 ? '+' : '') + d.toFixed(2);
           else sDeltaEl.textContent = '';
+        }
         }
       } else {
         timeEl.textContent = '—';

@@ -78,16 +78,18 @@ namespace K10Motorsports.Plugin.Engine
                         ? Regex.Unescape(bodyMatch.Groups[1].Value)
                         : "";
 
-                    // Find the first Setup*.exe asset's browser_download_url
+                    // Find the first Setup*.exe asset's browser_download_url.
+                    // GitHub's asset JSON has nested objects (e.g. "uploader": {...})
+                    // between "name" and "browser_download_url", so we match the
+                    // download URL directly — it contains the filename.
                     DownloadUrl = null;
-                    var assetPattern = new Regex(
-                        @"""name""\s*:\s*""([^""]*Setup[^""]*\.exe)""[^}]*?" +
-                        @"""browser_download_url""\s*:\s*""([^""]+)""",
-                        RegexOptions.Singleline | RegexOptions.IgnoreCase);
-                    var assetMatch = assetPattern.Match(json);
-                    if (assetMatch.Success)
+                    var dlUrlPattern = new Regex(
+                        @"""browser_download_url""\s*:\s*""([^""]*Setup[^""]*\.exe)""",
+                        RegexOptions.IgnoreCase);
+                    var dlMatch = dlUrlPattern.Match(json);
+                    if (dlMatch.Success)
                     {
-                        DownloadUrl = assetMatch.Groups[2].Value;
+                        DownloadUrl = dlMatch.Groups[1].Value;
                     }
 
                     UpdateAvailable = IsNewerVersion(LatestVersion, CurrentVersion) && DownloadUrl != null;

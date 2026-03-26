@@ -205,6 +205,37 @@
     opacity: 0.85;
   }
 
+  /* ── Pedal curve overlay (response curve from profile) ── */
+  .pedal-curve-canvas {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 64px;
+    height: 64px;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.55;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.25);
+    transition: opacity 300ms ease;
+  }
+  .pedals-area:hover .pedal-curve-canvas {
+    opacity: 0.9;
+  }
+  .pedal-profile-label {
+    position: absolute;
+    bottom: 1px;
+    right: 68px;
+    font-size: 8px;
+    font-weight: 600;
+    color: hsla(0, 0%, 100%, 0.3);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 5;
+    pointer-events: none;
+  }
+
   /* ═══════════════════════════════════════════════
      FUEL + TYRES (separate stacked panels)
      ═══════════════════════════════════════════════ */

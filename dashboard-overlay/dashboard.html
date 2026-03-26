@@ -185,6 +185,9 @@
           <div class="pedal-viz-layer clutch-layer" id="clutchHist"></div>
           <canvas class="pedal-trace-canvas" id="pedalTraceCanvas" width="240" height="80"></canvas>
         </div>
+        <!-- Pedal curve overlay: shows response curves from active profile -->
+        <canvas class="pedal-curve-canvas" id="pedalCurveCanvas" width="80" height="80"></canvas>
+        <div class="pedal-profile-label" id="pedalProfileLabel"></div>
       </div>
     </div>
 
@@ -797,6 +800,7 @@
         <div class="settings-sidebar-item" data-tab="commentary" onclick="switchSettingsTab(this)">Commentary</div>
         <div class="settings-sidebar-item" data-tab="connections" onclick="switchSettingsTab(this)">Connections</div>
         <div class="settings-sidebar-item disabled" data-tab="iracing" id="iracingTab" onclick="switchSettingsTab(this)">iRacing</div>
+        <div class="settings-sidebar-item" data-tab="pedals" onclick="switchSettingsTab(this)">Pedals</div>
         <div class="settings-sidebar-item" data-tab="keys" onclick="switchSettingsTab(this)">Keys</div>
         <div class="settings-sidebar-item" data-tab="system" onclick="switchSettingsTab(this)">System</div>
       </div>
@@ -1079,6 +1083,40 @@
 
     </div>
 
+    <!-- ── Tab: Pedals & Wheel ── -->
+    <div class="settings-tab-content" id="settingsTabPedals">
+      <div class="settings-group-label">Active Profile</div>
+      <div class="settings-row">
+        <span class="settings-label">Profile</span>
+        <select class="settings-select" id="settingsPedalProfile" onchange="switchPedalProfile(this.value)">
+          <option value="">Loading...</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Bind to this car</span>
+        <button class="settings-btn" id="pedalBindCarBtn" onclick="bindPedalProfileToCar()">Bind</button>
+      </div>
+
+      <div class="settings-group-label">Response Curves</div>
+      <div class="pedal-settings-curve-preview">
+        <canvas id="pedalSettingsCurveCanvas" width="200" height="200"></canvas>
+        <div class="pedal-curve-legend">
+          <span class="curve-legend-item" style="color: #4CAF50">■ Throttle</span>
+          <span class="curve-legend-item" style="color: #F44336">■ Brake</span>
+          <span class="curve-legend-item" style="color: #42A5F5">■ Clutch</span>
+        </div>
+      </div>
+
+      <div class="settings-group-label">Moza Pithouse</div>
+      <div class="settings-row">
+        <span class="settings-label" id="mozaStatusLabel">Detecting...</span>
+        <button class="settings-btn" id="mozaImportBtn" onclick="importMozaPedals()" disabled>Import from Moza</button>
+      </div>
+      <div class="settings-info-text" id="mozaInfoText">
+        Moza Pithouse integration lets you save pedal curves per car and auto-load them when you switch cars.
+      </div>
+    </div>
+
     <!-- ── Tab: Key Commands ── -->
     <div class="settings-tab-content" id="settingsTabKeys">
       <div class="settings-group-label">Window</div>
@@ -1197,6 +1235,7 @@
 <script src="modules/js/car-logos.js"></script>
 <script src="modules/js/game-detect.js"></script>
 <script src="modules/js/webgl-helpers.js"></script>
+<script src="modules/js/pedal-curves.js"></script>
 <script src="modules/js/settings.js"></script>
 <script src="modules/js/qr-code.js"></script>
 <script src="modules/js/connections.js"></script>

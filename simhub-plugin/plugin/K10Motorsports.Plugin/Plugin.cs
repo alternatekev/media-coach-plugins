@@ -37,6 +37,10 @@ namespace K10Motorsports.Plugin
         private readonly Engine.IRacingSdkBridge _sdkBridge = new Engine.IRacingSdkBridge();
         private readonly Engine.Strategy.StrategyCoordinator _strategy = new Engine.Strategy.StrategyCoordinator();
         private FeedbackEngine _feedback;
+        private PedalProfileManager _pedalProfiles;
+
+        // Car change detection for pedal profile auto-switch
+        private string _lastCarModel = "";
 
         // Telemetry frames (current + previous for delta calculations)
         private TelemetrySnapshot _current  = new TelemetrySnapshot();
@@ -140,6 +144,14 @@ namespace K10Motorsports.Plugin
             // Start screen color sampler for ambient lighting
             // (runs at ~4fps on a background thread — zero impact on main loop)
             _screenColorSampler.Start();
+
+            // Initialise pedal profile manager (per-car curves + Moza integration)
+            string pedalDataDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "SimHub", "PluginsData", "K10Motorsports");
+            _pedalProfiles = new PedalProfileManager(pedalDataDir);
+            _pedalProfiles.Load();
+            SimHub.Logging.Current.Info($"[K10Motorsports] Pedal profiles loaded — Moza detected: {_pedalProfiles.MozaDetected}");
 
             // Initialise track map provider
             // The DLL is output directly into the SimHub root folder (not a Plugins\ subfolder),
@@ -414,6 +426,13 @@ namespace K10Motorsports.Plugin
                 _strategy.Reset();
             }
             _current.StartPosition = _startPosition;
+
+            // Detect car changes — switch pedal profile when car model changes
+            if (!string.IsNullOrEmpty(_current.CarModel) && _current.CarModel != _lastCarModel)
+            {
+                _lastCarModel = _current.CarModel;
+                _pedalProfiles?.OnCarChanged(_current.CarModel, _current.CarModel);
+            }
 
             // Detect track changes — reload map when track ID changes
             if (_current.GameRunning)
@@ -894,6 +913,67 @@ namespace K10Motorsports.Plugin
                         continue;
                     }
 
+                    // ── Pedal profile actions ──────────────────────────────────
+                    if (action == "listPedalProfiles" && _pedalProfiles != null)
+                    {
+                        string json = _pedalProfiles.GetProfileListJson();
+                        byte[] listBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(listBytes, 0, listBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "setPedalProfile" && _pedalProfiles != null)
+                    {
+                        var qs = ctx.Request.QueryString;
+                        string profileId = qs["id"] ?? "";
+                        if (!string.IsNullOrEmpty(profileId))
+                            _pedalProfiles.SetActiveProfile(profileId);
+                        byte[] okBytes = System.Text.Encoding.UTF8.GetBytes("{\"ok\":true}");
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "bindPedalProfile" && _pedalProfiles != null)
+                    {
+                        var qs = ctx.Request.QueryString;
+                        string profileId = qs["id"] ?? "";
+                        string carModel = qs["car"] ?? _lastCarModel;
+                        if (!string.IsNullOrEmpty(profileId) && !string.IsNullOrEmpty(carModel))
+                            _pedalProfiles.BindProfileToCar(profileId, carModel, carModel);
+                        byte[] okBytes = System.Text.Encoding.UTF8.GetBytes("{\"ok\":true}");
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "importMozaPedals" && _pedalProfiles != null)
+                    {
+                        var imported = _pedalProfiles.ImportFromMoza();
+                        string json = imported != null
+                            ? "{\"ok\":true,\"name\":\"" + (imported.Name ?? "").Replace("\"", "\\\"") + "\"}"
+                            : "{\"ok\":false,\"error\":\"Moza Pithouse not detected or no config found\"}";
+                        if (imported != null)
+                            _pedalProfiles.SaveProfile(imported);
+                        byte[] resultBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(resultBytes, 0, resultBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
                     // ── Build complete state snapshot ────────────────────────
                     var s = _current; // snapshot reference (safe — replaced atomically in DataUpdate)
                     var dt = _engine.DemoTelemetry;
@@ -1311,6 +1391,13 @@ namespace K10Motorsports.Plugin
                     Jp(sb, "K10Motorsports.Plugin.DS.AmbientG", _screenColorSampler.HasColor ? _screenColorSampler.G : 0);
                     Jp(sb, "K10Motorsports.Plugin.DS.AmbientB", _screenColorSampler.HasColor ? _screenColorSampler.B : 0);
                     Jp(sb, "K10Motorsports.Plugin.DS.AmbientHasData", _screenColorSampler.HasColor ? 1 : 0);
+
+                    // ── Pedal profile curves (for dashboard visualization) ──
+                    if (_pedalProfiles != null)
+                    {
+                        sb.AppendFormat("\"K10Motorsports.Plugin.DS.PedalProfile\":{0},\n",
+                            _pedalProfiles.GetDashboardJson());
+                    }
 
                     // Remove trailing comma and close
                     if (sb.Length > 2 && sb[sb.Length - 2] == ',')

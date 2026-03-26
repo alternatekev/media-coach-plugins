@@ -670,6 +670,36 @@
     font-size: 15px;
   }
 
+  /* ── Pedal settings tab ── */
+  .pedal-settings-curve-preview {
+    margin: 8px 0;
+    text-align: center;
+  }
+  .pedal-settings-curve-preview canvas {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+  }
+  .pedal-curve-legend {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .curve-legend-item { opacity: 0.6; }
+  .settings-info-text {
+    font-size: 11px;
+    color: hsla(0, 0%, 100%, 0.3);
+    padding: 4px 0;
+    line-height: 1.5;
+  }
+
   /* Hidden sections */
   .section-hidden { display: none !important; }
 

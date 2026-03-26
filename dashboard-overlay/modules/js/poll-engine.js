@@ -184,6 +184,9 @@
       renderPedalTrace(thr, brk, _clutchHidden ? 0 : clt);
     }
 
+    // ─── Pedal curve overlay (response curves from active profile) ───
+    if (window.updatePedalCurves) window.updatePedalCurves(p);
+
     // ─── WebGL FX update ───
     if (window.updateGLFX) window.updateGLFX(rpmRatio, thr, brk, clt);
     // Post-processing pipeline — feed smoothed telemetry for screen effects

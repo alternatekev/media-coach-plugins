@@ -9,6 +9,7 @@
 
   let _active = false;
   let _dhHeadingSmooth = 0; // LERP-smoothed heading (degrees) to reduce judder
+  let _dhLastMapTime = 0;   // timestamp for time-based LERP
 
   function toggleDriveMode() {
     _active = !_active;
@@ -249,25 +250,33 @@
         dhPlayer.setAttribute('cy', py.toFixed(1));
       }
 
-      // Zoom viewBox: always centered on player, no edge clamping
-      // Use a wider view (±22 units) and rotate so driving direction is up
+      // Zoom viewBox: centered on player with expanded radius to accommodate
+      // rotation. A 22-unit visible radius needs ~31 units (22 × √2) so the
+      // rotated track content isn't clipped by the viewBox rectangle.
       var dhSvg = document.getElementById('dhMapSvg');
       if (dhSvg) {
-        var zr = 22; // wider zoom — less claustrophobic
-        // Center on player without clamping — no premature cropping
+        var zrVisible = 22; // visible zoom radius
+        var zr = Math.ceil(zrVisible * 1.42); // ×√2 for rotation headroom
         var vx = px - zr;
         var vy = py - zr;
         dhSvg.setAttribute('viewBox', vx.toFixed(1) + ' ' + vy.toFixed(1) + ' ' + (zr * 2) + ' ' + (zr * 2));
 
         // Rotate map so driving direction always points up.
-        // Apply LERP smoothing to eliminate heading judder, with correct
-        // wrap-around handling at the 0°/360° boundary.
+        // Time-based LERP smoothing eliminates heading judder regardless
+        // of poll rate. Dead-zone ignores sub-degree noise.
         var rawHeading = +(p['K10Motorsports.Plugin.TrackMap.PlayerHeading']) || 0;
         var diff = rawHeading - _dhHeadingSmooth;
         // Normalise diff to [-180, 180] to pick the shortest rotation arc
         while (diff > 180) diff -= 360;
         while (diff < -180) diff += 360;
-        _dhHeadingSmooth += diff * 0.18; // LERP factor — tweak for more/less lag
+        // Dead-zone: ignore tiny heading jitter (< 0.5°)
+        if (Math.abs(diff) < 0.5) diff = 0;
+        // Time-based LERP: smooth factor ~0.10 per 33ms (30 FPS baseline)
+        var now = performance.now();
+        var dt = Math.min(100, now - (_dhLastMapTime || now)); // cap at 100ms
+        _dhLastMapTime = now;
+        var alpha = 1 - Math.pow(1 - 0.10, dt / 33);
+        _dhHeadingSmooth += diff * alpha;
         _dhHeadingSmooth = ((_dhHeadingSmooth % 360) + 360) % 360;
 
         // Rotate the inner group around the player's SVG coordinate, NOT the

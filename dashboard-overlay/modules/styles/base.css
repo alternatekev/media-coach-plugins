@@ -175,7 +175,11 @@
     justify-content: center;
     background: hsla(0,0%,100%,0.02);
     position: relative;
-    overflow: hidden;
+    /* overflow:visible allows the SVG to extend slightly during rotation
+       without rectangular clipping. A circular clip-path gives a clean
+       edge while accommodating the rotated content. */
+    overflow: visible;
+    clip-path: inset(0 round var(--corner-r));
     border-radius: var(--corner-r);
   }
   .dh-map-name {

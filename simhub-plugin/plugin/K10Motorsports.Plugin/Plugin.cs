@@ -33,8 +33,9 @@ namespace K10Motorsports.Plugin
 
         // Engine
         private readonly CommentaryEngine  _engine   = new CommentaryEngine();
-private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
+        private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
         private readonly Engine.IRacingSdkBridge _sdkBridge = new Engine.IRacingSdkBridge();
+        private readonly Engine.Strategy.StrategyCoordinator _strategy = new Engine.Strategy.StrategyCoordinator();
         private FeedbackEngine _feedback;
 
         // Telemetry frames (current + previous for delta calculations)
@@ -409,6 +410,7 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
             {
                 _startPositionCaptured = false;
                 _startPosition = 0;
+                _strategy.Reset();
             }
             _current.StartPosition = _startPosition;
 
@@ -457,7 +459,11 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                 else
                     _leaderboardJson = "[]";
             }
-            catch { _leaderboardJson = "[]"; }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] Leaderboard build failed: {ex.Message}");
+                _leaderboardJson = "[]";
+            }
 
             // Push live driver name from iRacing into commentary engine
             if (!string.IsNullOrEmpty(_current.PlayerName))
@@ -473,7 +479,10 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
             bool wasVisible = _engine.IsVisible;
             _engine.Update(_current, _previous);
 
-// Fire event when a new prompt appears
+            // Strategy coordinator — runs per-frame, manages stint lifecycle
+            _strategy.Update(_current, _previous);
+
+            // Fire event when a new prompt appears
             if (_engine.IsVisible && !wasVisible)
                 this.TriggerEvent("NewCommentaryPrompt");
         }
@@ -613,7 +622,10 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                     if (!string.IsNullOrEmpty(id)) return id;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] Track ID lookup failed: {ex.Message}");
+            }
             return _current.GameName ?? "";
         }
 
@@ -685,7 +697,11 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
 
                 return "[" + string.Join(",", window) + "]";
             }
-            catch { return "[]"; }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] Opponent parsing failed: {ex.Message}");
+                return "[]";
+            }
         }
 
         /// <summary>Build demo leaderboard with fake data around the player.</summary>
@@ -748,7 +764,11 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                 catch (Exception ex)
                 {
                     SimHub.Logging.Current.Warn($"[K10Motorsports] HTTP server failed with prefix {prefix}: {ex.Message}");
-                    try { _httpListener?.Close(); } catch { }
+                    try { _httpListener?.Close(); }
+                    catch (Exception closeEx)
+                    {
+                        SimHub.Logging.Current.Warn($"[K10Motorsports] HTTP listener close failed: {closeEx.Message}");
+                    }
                     _httpListener = null;
                 }
             }
@@ -758,7 +778,11 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
 
         private void StopHttpServer()
         {
-            try { _httpListener?.Stop(); } catch { }
+            try { _httpListener?.Stop(); }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] HTTP listener stop failed: {ex.Message}");
+            }
         }
 
         private void HttpServerLoop()
@@ -769,7 +793,11 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
             {
                 HttpListenerContext ctx;
                 try { ctx = _httpListener.GetContext(); }
-                catch { break; }
+                catch (Exception ex)
+                {
+                    SimHub.Logging.Current.Warn($"[K10Motorsports] HTTP context get failed: {ex.Message}");
+                    break;
+                }
 
                 try
                 {
@@ -786,7 +814,18 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
 
                     // ── Handle action endpoints ──────────────────────────────
                     string rawUrl = ctx.Request.RawUrl ?? "";
-                    if (rawUrl.Contains("action=resetmap"))
+
+                    // Extract action from query string
+                    string action = "";
+                    int qIdx = rawUrl.IndexOf("action=");
+                    if (qIdx >= 0)
+                    {
+                        int start = qIdx + 7; // "action=".Length
+                        int end = rawUrl.IndexOf('&', start);
+                        action = end >= 0 ? rawUrl.Substring(start, end - start) : rawUrl.Substring(start);
+                    }
+
+                    if (action == "resetmap")
                     {
                         _trackMap.ResetTrackMap();
                         byte[] okBytes = System.Text.Encoding.UTF8.GetBytes("{\"ok\":true}");
@@ -798,7 +837,7 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                         continue;
                     }
 
-                    if (rawUrl.Contains("action=listtracks"))
+                    if (action == "listtracks")
                     {
                         var ids = _trackMap.GetBundledTrackIds();
                         string json = "[" + string.Join(",", ids.ConvertAll(id => "\"" + id.Replace("\"", "\\\"") + "\"")) + "]";
@@ -811,7 +850,7 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                         continue;
                     }
 
-                    if (rawUrl.Contains("action=restartdemo"))
+                    if (action == "restartdemo")
                     {
                         _engine.DemoTelemetry.Reset();
                         byte[] okBytes = System.Text.Encoding.UTF8.GetBytes("{\"ok\":true}");
@@ -824,7 +863,7 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                     }
 
                     // ── Ambient capture rect — dashboard sends the region via query params ──
-                    if (rawUrl.Contains("action=setrect"))
+                    if (action == "setrect")
                     {
                         try
                         {
@@ -917,7 +956,8 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                     Jp(sb, "DataCorePlugin.GameData.Brake", s.Brake * 100, ic);
                     Jp(sb, "DataCorePlugin.GameData.Clutch", 0.0, ic); // not in snapshot currently
                     Jp(sb, "DataCorePlugin.GameData.Fuel", s.FuelLevel, ic);
-                    Jp(sb, "DataCorePlugin.GameData.MaxFuel", s.FuelLevel > 0 ? s.FuelLevel / Math.Max(s.FuelPercent, 0.01) : 0, ic);
+                    double fuelPct = Math.Max(0.01, Math.Min(1.0, s.FuelPercent));
+                    Jp(sb, "DataCorePlugin.GameData.MaxFuel", s.FuelLevel > 0 ? s.FuelLevel / fuelPct : 0, ic);
                     Jp(sb, "DataCorePlugin.Computed.Fuel_LitersPerLap", s.FuelPerLap, ic);
                     Jp(sb, "DataCorePlugin.GameData.RemainingLaps", s.RemainingLaps, ic);
                     Jp(sb, "DataCorePlugin.GameData.TyreTempFrontLeft", s.TyreTempFL, ic);
@@ -1107,6 +1147,24 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                     Jp(sb, "K10Motorsports.Plugin.CommentarySentimentColor", Escape(_engine.CurrentSentimentColor ?? "#FF000000"));
                     Jp(sb, "K10Motorsports.Plugin.CommentarySeverity", _engine.IsVisible ? _engine.CurrentSeverity : 0);
 
+                    // ── Strategy ──
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.Visible", _strategy.IsVisible ? 1 : 0);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.Text", Escape(_strategy.CurrentText ?? ""));
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.Label", Escape(_strategy.CurrentLabel ?? ""));
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.Severity", _strategy.CurrentSeverity);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.Color", Escape(Engine.Strategy.StrategyCoordinator.StrategyColor));
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.TextColor", Escape(Engine.Strategy.StrategyCoordinator.StrategyTextColor));
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.FuelLapsRemaining", _strategy.Fuel.FuelLapsRemaining, ic);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.FuelHealthState", _strategy.Fuel.FuelHealthState);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.CanMakeItToEnd", _strategy.Fuel.CanMakeItToEnd ? 1 : 0);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.PitWindowOpen", _strategy.Fuel.PitWindowOpen);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.PitWindowClose", _strategy.Fuel.PitWindowClose);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.TireHealthState", _strategy.Tires.TireHealthState);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.TireLapsRemaining", _strategy.Tires.EstimatedLapsRemaining, ic);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.GripScore", _strategy.Tires.GripScore, ic);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.StintNumber", _strategy.StintCount);
+                    Jp(sb, "K10Motorsports.Plugin.Strategy.StintLaps", _strategy.CurrentStint != null ? _strategy.CurrentStint.LapsCompleted : 0);
+
                     // ── Demo mode ──
                     Jp(sb, "K10Motorsports.Plugin.DemoMode", demo ? 1 : 0);
                     Jp(sb, "K10Motorsports.Plugin.Demo.Gear", Escape(dt.Gear ?? "N"));
@@ -1269,7 +1327,11 @@ private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
                 }
                 finally
                 {
-                    try { ctx.Response.OutputStream.Close(); } catch { }
+                    try { ctx.Response.OutputStream.Close(); }
+                    catch (Exception ex)
+                    {
+                        SimHub.Logging.Current.Warn($"[K10Motorsports] Response output stream close failed: {ex.Message}");
+                    }
                 }
             }
         }

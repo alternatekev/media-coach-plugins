@@ -522,9 +522,9 @@
       let splits, deltas, states;
       const splitsStr = p[dsPre + 'SectorSplits'];
       if (splitsStr) {
-        splits = splitsStr.split(',').map(Number);
-        deltas = (p[dsPre + 'SectorDeltas'] || '').split(',').map(Number);
-        states = (p[dsPre + 'SectorStates'] || '').split(',').map(Number);
+        splits = splitsStr.split(',').map(Number).map(v => isNaN(v) ? 0 : v);
+        deltas = (p[dsPre + 'SectorDeltas'] || '').split(',').map(Number).map(v => isNaN(v) ? 0 : v);
+        states = (p[dsPre + 'SectorStates'] || '').split(',').map(Number).map(v => isNaN(v) ? 0 : v);
       } else {
         splits = [+(p[dsPre + 'SectorSplitS1']) || 0, +(p[dsPre + 'SectorSplitS2']) || 0, +(p[dsPre + 'SectorSplitS3']) || 0];
         deltas = [+(p[dsPre + 'SectorDeltaS1']) || 0, +(p[dsPre + 'SectorDeltaS2']) || 0, +(p[dsPre + 'SectorDeltaS3']) || 0];
@@ -798,6 +798,21 @@
     }
     _commentaryWasVisible = !!cmVis;
 
+    // ─── Strategy calls (displayed via commentary panel with amber hue) ───
+    var stVis = +v('K10Motorsports.Plugin.Strategy.Visible') || 0;
+    if (stVis && !_strategyWasVisible && !cmVis) {
+      // Show strategy call through the commentary panel with amber hue (45)
+      var stLabel = vs('K10Motorsports.Plugin.Strategy.Label') || 'STRATEGY';
+      var stText  = vs('K10Motorsports.Plugin.Strategy.Text') || '';
+      var stSev   = +v('K10Motorsports.Plugin.Strategy.Severity') || 1;
+      if (stText) {
+        showCommentary(45, stLabel, stText, 'strategy', 'strategy_call', stSev);
+      }
+    } else if (!stVis && _strategyWasVisible && !cmVis) {
+      hideCommentary();
+    }
+    _strategyWasVisible = !!stVis;
+
     // ─── Commentary visualization data feed ───
     if (cmVis && window.updateCommentaryVizData) {
       window.updateCommentaryVizData({
@@ -938,7 +953,10 @@
     // Settings and Discord state are loaded by connections.js on script load
 
     // Start polling
-    setInterval(pollUpdate, POLL_MS);
+    const _pollIntervalId = setInterval(pollUpdate, POLL_MS);
+    window.addEventListener('beforeunload', function() {
+      clearInterval(_pollIntervalId);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════

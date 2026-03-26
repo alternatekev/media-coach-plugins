@@ -235,6 +235,9 @@
     incident_spike:    _s('<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>'),
     black_flag:        _s('<path d="M5 2v20"/><path d="M5 4h14v8H5"/><path d="M5 4h7v4H5" fill="currentColor" opacity="0.4"/><path d="M12 8h7v4h-7" fill="currentColor" opacity="0.4"/>'),
 
+    // strategy engine
+    strategy_call:     _s('<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>'),
+
     // fallback
     _default:          _s('<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/>')
   };
@@ -287,6 +290,7 @@
     hardware:           _commentaryIcons['abs_activation'],
     game_feel:          _commentaryIcons['qualifying_push'],
     racing_experience:  _commentaryIcons['close_battle'],
+    strategy:           _s('<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>'),
   };
 
   function _resolveCommentaryIcon(topicId, title, category) {

@@ -70,7 +70,8 @@ function proxyToSimhub(req, res) {
 function serveFile(filePath, res) {
   const resolved = path.resolve(filePath);
   const resolvedBase = path.resolve(_appDir);
-  if (!resolved.startsWith(resolvedBase)) {
+  const relative = path.relative(resolvedBase, resolved);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
     res.writeHead(403); res.end('Forbidden'); return;
   }
 

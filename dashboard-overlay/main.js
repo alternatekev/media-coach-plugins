@@ -119,6 +119,7 @@ let overlayWindow = null;
 let settingsWindow = null;   // detached settings on secondary display
 let settingsMode = false;
 let greenScreenMode = false;
+let rendererCrashCount = 0;
 // Single dashboard: vanilla TypeScript build (Vite-bundled, single-file HTML)
 const DASHBOARD_FILE = 'dashboard.html';
 
@@ -186,6 +187,7 @@ async function createOverlay() {
 
     // Inject opaque-mode class after page loads
     overlayWindow.webContents.on('did-finish-load', () => {
+      rendererCrashCount = 0;
       overlayWindow.webContents.executeJavaScript(`
         document.body.classList.add('opaque-mode');
       `);
@@ -219,16 +221,8 @@ async function createOverlay() {
     loadDashboard();
     overlayWindow.setAlwaysOnTop(true, 'screen-saver');
 
-    // Auto-start ambient capture once the page has loaded.
-    // The renderer SHOULD request this via IPC, but as a fallback
-    // we start it here after a short delay to ensure the page is ready.
     overlayWindow.webContents.on('did-finish-load', () => {
-      setTimeout(() => {
-        if (!_ambientTimer) {
-          logToFile('[K10] Auto-starting ambient capture (fallback — renderer did not request it)');
-          startAmbientCapture();
-        }
-      }, 3000);
+      rendererCrashCount = 0;
     });
   }
 
@@ -250,6 +244,11 @@ async function createOverlay() {
   overlayWindow.webContents.on('render-process-gone', (_event, details) => {
     logToFile(`[K10] Renderer crashed: ${details.reason}`);
     if (details.reason === 'crashed' || details.reason === 'killed') {
+      rendererCrashCount++;
+      if (rendererCrashCount > 3) {
+        logToFile('[K10] Renderer crash limit reached (3) — giving up');
+        return;
+      }
       setTimeout(() => {
         if (overlayWindow && !overlayWindow.isDestroyed()) {
           loadDashboard();
@@ -467,7 +466,10 @@ function openSettingsWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: true,
+      sandbox: true,
+      allowRunningInsecureContent: false,
     }
   });
 
@@ -476,7 +478,20 @@ function openSettingsWindow() {
     query: { settingsPopout: '1' }
   });
 
+  const onDisplayRemoved = (display) => {
+    if (settingsWindow && !settingsWindow.isDestroyed() && settingsWindow.webContents.getURL().includes(getDashboardFile())) {
+      const displays = screen.getAllDisplays();
+      const settingsDisplay = displays.find(d => d.id === secondary.id);
+      if (!settingsDisplay) {
+        closeSettingsWindow();
+      }
+    }
+  };
+
+  screen.on('display-removed', onDisplayRemoved);
+
   settingsWindow.on('closed', () => {
+    screen.removeListener('display-removed', onDisplayRemoved);
     settingsWindow = null;
     // Tell main overlay that the popout closed
     if (overlayWindow && !overlayWindow.isDestroyed()) {
@@ -507,6 +522,10 @@ ipcMain.handle('close-settings-popout', async () => {
 
 // Relay settings changes from either window to the other
 ipcMain.handle('settings-changed', async (event, settings) => {
+  if (typeof settings !== 'object' || settings === null) {
+    logToFile('[K10] Warning: settings-changed received invalid data');
+    return;
+  }
   // Persist
   saveSettingsSync(settings);
   // Forward to the OTHER window
@@ -526,6 +545,10 @@ ipcMain.handle('get-profile-data', async () => {
 });
 
 ipcMain.handle('save-profile-data', async (event, data) => {
+  if (typeof data !== 'object' || data === null) {
+    logToFile('[K10] Warning: save-profile-data received invalid data');
+    return;
+  }
   saveProfileData(data);
 });
 
@@ -535,6 +558,10 @@ ipcMain.handle('get-rating-data', async () => {
 });
 
 ipcMain.handle('save-rating-data', async (event, data) => {
+  if (typeof data !== 'object' || data === null) {
+    logToFile('[K10] Warning: save-rating-data received invalid data');
+    return;
+  }
   saveRatingData(data);
 });
 
@@ -569,9 +596,14 @@ ipcMain.handle('restart-app', async () => {
 });
 
 // ── IPC: Open external URL in user's default browser ──
-ipcMain.handle('open-external', async (event, url) => {
-  if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
-    shell.openExternal(url);
+ipcMain.handle('open-external', async (event, urlStr) => {
+  try {
+    const url = new URL(urlStr);
+    if (url.protocol === 'http:' || url.protocol === 'https:') {
+      await shell.openExternal(urlStr);
+    }
+  } catch (e) {
+    // invalid URL — silently reject
   }
 });
 

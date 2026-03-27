@@ -584,6 +584,26 @@
   let _mapSmoothedHeading = 0;
 
   function updateTrackMap(svgPath, playerX, playerY, opponentStr, speedMph, headingDeg) {
+    // No track map available — clear outline, hide markers, center dots
+    if (!svgPath && _mapLastPath !== '') {
+      _mapLastPath = '';
+      _mapHasInit = false;
+      const fullTrack = document.getElementById('fullMapTrack');
+      const zoomTrack = document.getElementById('zoomMapTrack');
+      if (fullTrack) fullTrack.setAttribute('d', '');
+      if (zoomTrack) zoomTrack.setAttribute('d', '');
+
+      // Remove sector sub-paths
+      const fullSvg = document.getElementById('fullMapSvg');
+      if (fullSvg) fullSvg.querySelectorAll('.map-sector').forEach(el => el.remove());
+
+      // Hide start/finish markers
+      const fullSF = document.getElementById('fullMapSF');
+      const zoomSF = document.getElementById('zoomMapSF');
+      if (fullSF) fullSF.style.display = 'none';
+      if (zoomSF) zoomSF.style.display = 'none';
+    }
+
     // Update track outline (only when path changes — new track or first load)
     if (svgPath && svgPath !== _mapLastPath) {
       _mapLastPath = svgPath;

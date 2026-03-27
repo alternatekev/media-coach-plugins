@@ -774,6 +774,8 @@
     gap: 1px;
     margin-left: auto;
     padding-top: 2px;
+    min-width: 0;
+    overflow: hidden;
   }
   .pos-meta-row {
     font-size: var(--fs-sm);
@@ -782,11 +784,14 @@
     text-align: right;
   }
   .pos-meta-row:first-child {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: var(--fw-semi);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .pos-meta-row:first-child .val {
-    font-size: 27px;
+    font-size: 22px;
   }
   .pos-meta-row .val {
     font-weight: var(--fw-bold);
@@ -802,12 +807,35 @@
   }
   .pos-meta-row.current-row .val {
     font-family: var(--ff-mono);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
     letter-spacing: -0.02em;
     display: block;
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+  .pos-meta-row.delta-row {
+    text-align: center;
+    width: 100%;
+    min-height: 14px;
+  }
+  .pos-meta-row.delta-row .val {
+    font-family: var(--ff-mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    display: block;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s ease;
+  }
+  .pos-meta-row.delta-row .val.delta-faster { color: var(--green); }
+  .pos-meta-row.delta-row .val.delta-slower { color: hsl(0, 60%, 55%); }
+  .pos-meta-row.delta-row .val.delta-pb     { color: var(--purple); }
 
   /* Gaps — side-by-side */
   .gaps-block {

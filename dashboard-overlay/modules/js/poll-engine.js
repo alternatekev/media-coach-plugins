@@ -204,9 +204,11 @@
       steer: Math.max(-1, Math.min(1, +(p['DataCorePlugin.GameRawData.Telemetry.SteeringWheelAngle']) || 0))
     });
 
-    // ─── Fuel — server-computed (DS.FuelPct, DS.FuelLapsRemaining) ───
+    // ─── Fuel — bar shows current fuel vs full tank capacity ───
     const fuel = +d('DataCorePlugin.GameData.Fuel', 'Demo.Fuel') || 0;
-    const fuelPct = +(p[dsPre + 'FuelPct']) || 0;
+    const maxFuel = +d('DataCorePlugin.GameData.MaxFuel', 'Demo.MaxFuel') || 0;
+    // Bar percentage: current fuel / full tank capacity (not starting fuel)
+    const fuelPct = maxFuel > 0 ? (fuel / maxFuel) * 100 : 0;
     const fuelRem = document.querySelector('.fuel-remaining');
     // Respect DisplayUnits for fuel label (0=imperial/gal, 1=metric/L)
     const _rawFuelUnits = p[dsPre + 'DisplayUnits'];
@@ -288,7 +290,7 @@
       const tcBox = document.getElementById('ctrlTC');
       if (el) {
         if (+tc === 0) {
-          el.textContent = 'fixed';
+          el.textContent = 'Off';
           el.classList.add('ctrl-value-fixed');
           tcBox.style.setProperty('--ctrl-pct', '0%');
         } else {
@@ -314,7 +316,7 @@
             absBox.style.setProperty('--ctrl-pct', '0%');
           }
         } else if (+abs === 0) {
-          el.textContent = 'fixed';
+          el.textContent = 'Off';
           el.classList.add('ctrl-value-fixed');
           absBox.style.setProperty('--ctrl-pct', '0%');
         } else {
@@ -359,18 +361,28 @@
       const sp = el.querySelector('.skew-accent');
       if (sp) sp.textContent = pos > 0 ? 'P' + pos : 'P—';
     });
+    // Use server-computed LapDelta (cumulative sector delta at current track position)
+    const lapDelta = +(p[dsPre + 'LapDelta']) || 0;
     document.querySelectorAll('.pos-meta-row .val').forEach(el => {
-      if (el.closest('.current-row')) {
-        // Show current lap time; when running, also show differential vs best
+      const row = el.closest('.pos-meta-row');
+      if (row.classList.contains('delta-row')) {
+        // Delta row: show cumulative lap delta vs best lap
+        if (curLapTime > 0.5 && bestLap > 0) {
+          el.textContent = (lapDelta >= 0 ? '+' : '') + lapDelta.toFixed(3);
+          el.classList.remove('delta-faster', 'delta-slower', 'delta-pb');
+          if (lapDelta <= -0.5) el.classList.add('delta-pb');
+          else if (lapDelta < 0) el.classList.add('delta-faster');
+          else if (lapDelta > 0) el.classList.add('delta-slower');
+        } else {
+          el.textContent = '';
+          el.classList.remove('delta-faster', 'delta-slower', 'delta-pb');
+        }
+      } else if (row.classList.contains('current-row')) {
+        // Current lap time (no delta appended — that's in the delta row now)
         if (curLapTime > 0.5) {
-          const diff = bestLap > 0 ? curLapTime - bestLap : null;
-          let label = fmtLap(curLapTime);
-          if (diff !== null) {
-            label += '  ' + (diff >= 0 ? '+' : '') + diff.toFixed(3);
-          }
-          el.textContent = label;
+          el.textContent = fmtLap(curLapTime);
           el.classList.remove('purple', 'green');
-          if (diff !== null && diff < 0) el.classList.add('green');
+          if (bestLap > 0 && lapDelta < 0) el.classList.add('green');
         } else {
           // Between laps: show best lap for reference
           el.textContent = bestLap > 0 ? fmtLap(bestLap) : '—:——.———';
@@ -379,8 +391,7 @@
           el.classList.remove('purple', 'green');
           if (bestLap > 0) el.classList.add(isSessionBest ? 'purple' : 'green');
         }
-        // Centre-align this row
-        el.closest('.pos-meta-row').style.textAlign = 'left';
+        row.style.textAlign = 'left';
       }
       else el.textContent = lap > 0 ? lap : '—';
     });
@@ -962,9 +973,8 @@
     const mapPY   = +v('K10Motorsports.Plugin.TrackMap.PlayerY') || 50;
     const mapOpp  = vs('K10Motorsports.Plugin.TrackMap.Opponents') || '';
     const mapHeading = +v('K10Motorsports.Plugin.TrackMap.PlayerHeading') || 0;
-    // Use plugin path if available; fall back to built-in demo circuit
-    const effectivePath = mapPath || _DEMO_FALLBACK_MAP;
-    updateTrackMap(effectivePath, mapPX, mapPY, mapOpp, speed, mapHeading);
+    // Use plugin path if available; show no track when map isn't ready
+    updateTrackMap(mapPath, mapPX, mapPY, mapOpp, speed, mapHeading);
     const mapNameEl = document.getElementById('mapTrackName');
     if (mapNameEl) {
       // Prefer the plugin's TrackMap.TrackName (always matches the saved map file),

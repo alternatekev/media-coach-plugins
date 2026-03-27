@@ -2367,6 +2367,197 @@
        Three flag colors drift as aurora-like wisps,
        with particle sparks at the periphery.
        ════════════════════════════════════════════ */
+    // ═══════════════════════════════════════════════════════════════
+    // MANUFACTURER COUNTRY FLAG — aurora wisps WebGL effect
+    // Shows for 5 seconds on: practice pit exit, quali first timed lap,
+    // race green lights. Fades out over 1s via CSS transition.
+    // ═══════════════════════════════════════════════════════════════
+    const mfrFlagCtx = initGL('mfrFlagCanvas');
+    let _mfrFlagActive = false;
+    let _mfrFlagTime = 0;
+    let _mfrFlagDuration = 5.0; // seconds before fade-out starts
+    let _mfrFlagInten = 0;
+    let _mfrFlagCol1 = [0.5, 0.5, 0.5];
+    let _mfrFlagCol2 = [0.5, 0.5, 0.5];
+    let _mfrFlagCol3 = [0.5, 0.5, 0.5];
+
+    if (mfrFlagCtx) {
+      const { canvas: mfC, gl: mfGL } = mfrFlagCtx;
+
+      const mfVS = `#version 300 es
+        in vec2 aPos;
+        out vec2 vUV;
+        void main() {
+          vUV = aPos * 0.5 + 0.5;
+          gl_Position = vec4(aPos, 0.0, 1.0);
+        }`;
+
+      // Aurora wisps — same style as grid flag, adapted for logo square
+      const mfFS = `#version 300 es
+        precision highp float;
+        in vec2 vUV;
+        out vec4 fragColor;
+
+        uniform float uTime;
+        uniform float uIntensity;
+        uniform vec2  uRes;
+        uniform vec3  uCol1;
+        uniform vec3  uCol2;
+        uniform vec3  uCol3;
+
+        float hash(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+        }
+        float noise(vec2 p) {
+          vec2 i = floor(p), f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          return mix(mix(hash(i), hash(i+vec2(1,0)), f.x),
+                     mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y);
+        }
+        float fbm(vec2 p) {
+          float v = 0.0, a = 0.5;
+          for (int i = 0; i < 4; i++) {
+            v += a * noise(p);
+            p = p * 2.1 + 0.3;
+            a *= 0.5;
+          }
+          return v;
+        }
+
+        void main() {
+          vec2 uv = vUV;
+          float aspect = uRes.x / uRes.y;
+          vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
+          float t = uTime;
+
+          // ── Aurora wisps: fbm-driven flowing tendrils ──
+          float angle = atan(p.y, p.x);
+          float dist = length(p);
+
+          // Three color channels at different speeds/offsets
+          float n1 = fbm(vec2(angle * 1.2 - t * 0.4, dist * 3.0 + t * 0.2));
+          float n2 = fbm(vec2(angle * 1.2 + t * 0.5 + 2.094, dist * 3.0 - t * 0.15));
+          float n3 = fbm(vec2(angle * 1.2 - t * 0.35 + 4.189, dist * 3.0 + t * 0.25));
+
+          // Shape each wisp
+          float falloff = exp(-dist * 2.5);
+          float w1 = pow(n1, 2.5) * falloff;
+          float w2 = pow(n2, 2.5) * falloff;
+          float w3 = pow(n3, 2.5) * falloff;
+
+          // Boost flag colors for vibrancy
+          vec3 c1 = uCol1 * 0.8 + 0.2;
+          vec3 c2 = uCol2 * 0.8 + 0.2;
+          vec3 c3 = uCol3 * 0.8 + 0.2;
+
+          vec3 col = c1 * w1 + c2 * w2 + c3 * w3;
+
+          // ── Edge glow ──
+          float edgeGlow = exp(-dist * 6.0) * 0.35;
+          float wTotal = w1 + w2 + w3 + 0.001;
+          vec3 edgeCol = (c1 * w1 + c2 * w2 + c3 * w3) / wTotal;
+          col += edgeCol * edgeGlow;
+
+          // ── Spark particles ──
+          float sparkNoise = noise(uv * 40.0 + t * vec2(1.3, 0.7));
+          float sparkMask = smoothstep(0.92, 0.96, sparkNoise) * falloff * 1.5;
+          col += edgeCol * sparkMask;
+
+          // ── Breathing pulse ──
+          float pulse = 0.85 + 0.15 * sin(t * 1.5);
+
+          float alpha = (w1 + w2 + w3 + edgeGlow + sparkMask * 0.5) * uIntensity * pulse;
+          alpha = clamp(alpha, 0.0, 0.7);
+
+          // Soft fade at canvas edges
+          float canvasEdge = min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y));
+          alpha *= smoothstep(0.0, 0.08, canvasEdge);
+
+          fragColor = vec4(col * alpha, alpha);
+        }`;
+
+      const mfvs = createShader(mfGL, mfGL.VERTEX_SHADER, mfVS);
+      const mffs = createShader(mfGL, mfGL.FRAGMENT_SHADER, mfFS);
+      const mfProg = (mfvs && mffs) ? createProgram(mfGL, mfvs, mffs) : null;
+
+      if (mfProg) {
+        const mfPosLoc  = mfGL.getAttribLocation(mfProg, 'aPos');
+        const mfUTime   = mfGL.getUniformLocation(mfProg, 'uTime');
+        const mfUInten  = mfGL.getUniformLocation(mfProg, 'uIntensity');
+        const mfURes    = mfGL.getUniformLocation(mfProg, 'uRes');
+        const mfUCol1   = mfGL.getUniformLocation(mfProg, 'uCol1');
+        const mfUCol2   = mfGL.getUniformLocation(mfProg, 'uCol2');
+        const mfUCol3   = mfGL.getUniformLocation(mfProg, 'uCol3');
+
+        const mfBuf = mfGL.createBuffer();
+        mfGL.bindBuffer(mfGL.ARRAY_BUFFER, mfBuf);
+        mfGL.bufferData(mfGL.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), mfGL.STATIC_DRAW);
+
+        window._mfrFlagFXFrame = function(dt) {
+          if (_mfrFlagActive) {
+            _mfrFlagInten = Math.min(1, _mfrFlagInten + dt * 2.0);
+            _mfrFlagTime += dt;
+            // Auto-stop after duration
+            if (_mfrFlagTime >= _mfrFlagDuration) {
+              _mfrFlagActive = false;
+              // Trigger CSS fade-out
+              const cvs = document.getElementById('mfrFlagCanvas');
+              if (cvs) cvs.classList.remove('flag-visible');
+            }
+          } else {
+            _mfrFlagInten = Math.max(0, _mfrFlagInten - dt * 1.5);
+            if (_mfrFlagInten <= 0) return;
+          }
+
+          resizeCanvas(mfC, mfGL);
+          mfGL.enable(mfGL.BLEND);
+          mfGL.blendFunc(mfGL.SRC_ALPHA, mfGL.ONE);
+          mfGL.clearColor(0, 0, 0, 0);
+          mfGL.clear(mfGL.COLOR_BUFFER_BIT);
+
+          mfGL.useProgram(mfProg);
+          mfGL.uniform1f(mfUTime, _mfrFlagTime);
+          mfGL.uniform1f(mfUInten, _mfrFlagInten);
+          mfGL.uniform2f(mfURes, mfC.width, mfC.height);
+          mfGL.uniform3fv(mfUCol1, _mfrFlagCol1);
+          mfGL.uniform3fv(mfUCol2, _mfrFlagCol2);
+          mfGL.uniform3fv(mfUCol3, _mfrFlagCol3);
+
+          mfGL.bindBuffer(mfGL.ARRAY_BUFFER, mfBuf);
+          mfGL.enableVertexAttribArray(mfPosLoc);
+          mfGL.vertexAttribPointer(mfPosLoc, 2, mfGL.FLOAT, false, 0, 0);
+          mfGL.drawArrays(mfGL.TRIANGLE_STRIP, 0, 4);
+        };
+      }
+    }
+
+    // Public API: trigger the manufacturer flag animation
+    window.showMfrFlag = function(hex1, hex2, hex3) {
+      function hexToGL(hex) {
+        hex = hex.replace('#', '');
+        return [
+          parseInt(hex.substring(0, 2), 16) / 255,
+          parseInt(hex.substring(2, 4), 16) / 255,
+          parseInt(hex.substring(4, 6), 16) / 255
+        ];
+      }
+      _mfrFlagCol1 = hexToGL(hex1);
+      _mfrFlagCol2 = hexToGL(hex2);
+      _mfrFlagCol3 = hexToGL(hex3);
+      _mfrFlagActive = true;
+      _mfrFlagTime = 0;
+      _mfrFlagInten = 0;
+      const cvs = document.getElementById('mfrFlagCanvas');
+      if (cvs) cvs.classList.add('flag-visible');
+    };
+
+    // Public API: cancel early if needed
+    window.hideMfrFlag = function() {
+      _mfrFlagActive = false;
+      const cvs = document.getElementById('mfrFlagCanvas');
+      if (cvs) cvs.classList.remove('flag-visible');
+    };
+
     const flagGLCtx = initGL('gridFlagGlCanvas');
     let _flagGLActive = false;
     let _flagGLTime = 0;
@@ -2575,6 +2766,7 @@
       if (window._bonkersFXFrame) window._bonkersFXFrame(dt);
       if (window._incidentsFXFrame) window._incidentsFXFrame(dt);
       if (window._commTrailFXFrame) window._commTrailFXFrame(dt);
+      if (window._mfrFlagFXFrame) window._mfrFlagFXFrame(dt);
       if (window._gridFlagFXFrame) window._gridFlagFXFrame(dt);
       if (window._glareFXFrame) window._glareFXFrame(dt);
       requestAnimationFrame(fxLoop);

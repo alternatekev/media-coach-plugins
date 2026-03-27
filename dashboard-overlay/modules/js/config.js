@@ -349,6 +349,12 @@ let _prevBB = -1, _prevTC = -1, _prevABS = -1;
 let _clutchSeenActive = false;
 let _clutchHidden = false;
 
+// Manufacturer country flag trigger state
+let _mfrFlagShownThisSession = false;  // prevent re-trigger within same session
+let _mfrFlagPrevSessState = 0;         // previous grid SessionState
+let _mfrFlagPrevInPit = true;          // previous pit lane state
+let _mfrFlagPrevCompletedLaps = 0;     // previous completed laps
+
 // Flag & race control
 let _lastFlagState = 'none';
 let _greenFlagTimeout = null;
@@ -423,6 +429,15 @@ const _mfrBrandColors = {
   ligier:      'hsla(204, 78%, 40%, 0.65)',
   fia:         'hsla(228, 73%, 21%, 0.65)',
   radical:     'hsla(43, 82%, 57%, 0.65)'
+};
+
+// Manufacturer → ISO 3166-1 alpha-2 country code (used for flag display)
+const _mfrCountry = {
+  bmw: 'DE', mclaren: 'GB', mazda: 'JP', nissan: 'JP',
+  dallara: 'IT', ferrari: 'IT', porsche: 'DE', audi: 'DE',
+  mercedes: 'DE', lamborghini: 'IT', chevrolet: 'US', ford: 'US',
+  toyota: 'JP', hyundai: 'KR', cadillac: 'US', astonmartin: 'GB',
+  lotus: 'GB', honda: 'JP', ligier: 'FR', fia: 'FR', radical: 'GB'
 };
 
 const _mfrMap = {

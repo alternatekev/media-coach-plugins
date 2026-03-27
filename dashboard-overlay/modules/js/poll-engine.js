@@ -349,6 +349,52 @@
     if (tcOk) _prevTC = +tc;
     if (absOk) _prevABS = +abs;
 
+    // ─── Manufacturer country flag trigger ───
+    // Shows 5-second aurora wisps in manufacturer's country colors on:
+    //   Practice: leaving pit lane (entering the car)
+    //   Qualifying: first timed lap (completedLaps 0 → 1)
+    //   Race: green lights (Grid.SessionState transitions to 4)
+    if (window.showMfrFlag && _currentCarLogo && _currentCarLogo !== 'generic' && _currentCarLogo !== 'none') {
+      const sessType = (_demo ? (p['K10Motorsports.Plugin.Demo.SessionTypeName'] || '')
+                              : (p['K10Motorsports.Plugin.SessionTypeName'] || '')).toLowerCase();
+      const isPractice = sessType.includes('practice') || sessType.includes('test') || sessType.includes('warmup');
+      const isQuali = sessType.includes('qualify') || sessType.includes('qual');
+      const isRace = !isPractice && !isQuali && sessType.length > 0;
+
+      let shouldFire = false;
+
+      // Practice: pit → track transition
+      if (isPractice && _mfrFlagPrevInPit && !_inPitLane) {
+        shouldFire = true;
+      }
+      // Qualifying: first completed lap (outlap done, first timed lap begins)
+      if (isQuali && _mfrFlagPrevCompletedLaps === 0 && completedLaps === 1) {
+        shouldFire = true;
+      }
+      // Race: green lights — Grid.SessionState transitions from parade (3) to racing (4)
+      if (isRace && _mfrFlagPrevSessState === 3 && sessNum === 4) {
+        shouldFire = true;
+      }
+
+      // Reset flag when session changes (new practice/quali/race)
+      if (sessNum !== _mfrFlagPrevSessState && (sessNum === 1 || sessNum === 2 || sessNum === 3)) {
+        _mfrFlagShownThisSession = false;
+      }
+
+      if (shouldFire && !_mfrFlagShownThisSession) {
+        _mfrFlagShownThisSession = true;
+        const countryCode = _mfrCountry[_currentCarLogo];
+        if (countryCode && _countryFlags[countryCode]) {
+          const fc = _countryFlags[countryCode];
+          window.showMfrFlag(fc[0], fc[1], fc[2]);
+        }
+      }
+
+      _mfrFlagPrevSessState = sessNum;
+      _mfrFlagPrevInPit = _inPitLane;
+      _mfrFlagPrevCompletedLaps = completedLaps;
+    }
+
     // ─── Position / Lap / Current Lap Time ───
     // Snapshot previous position BEFORE it gets overwritten (used by grid viz)
     const _vizSnapPrevPos = _lastPosition;

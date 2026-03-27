@@ -1254,10 +1254,12 @@
         }
       ],
       "commentaryPrompts": [
-        "{manufacturer} has a long history in motorsport. Driving {car} connects you to that legacy — every lap is part of the story.",
-        "The engineering behind {car} represents the cutting edge of {class} development. The balance of performance in this class is razor-thin.",
-        "What makes {car} distinctive is how it communicates. The feedback through the wheel, the brake pedal, the seat — {manufacturer} put serious development into this.",
-        "In the hands of a capable driver, {car} is a precision instrument. The margins in {class} racing are measured in hundredths."
+        "{carFact} — that's what makes {carNickname} special in {class} competition. {carCharacter}.",
+        "Powered by {engineSpec}, {carNickname} delivers a driving experience that's all about {carCharacter}.",
+        "{manufacturerFact}. That heritage is built into every component of {car}. {racingPhilosophy}.",
+        "The story behind {carNickname}: {carFact}. On track, {carCharacter}.",
+        "{car} is more than just a chassis and engine — {carFact}. The {engineSpec} powertrain is central to that character.",
+        "What the data doesn't show is {carCharacter}. {manufacturerFact} — and you feel that pedigree in {carNickname}."
       ],
       "cooldownMinutes": 15
     },
@@ -1304,12 +1306,12 @@
         }
       ],
       "commentaryPrompts": [
-        "{driver} strapped into {car}. {manufacturer} built this machine for exactly this — door-to-door {class} racing where tenths matter.",
-        "A closer look at {car} as {driver} prepares. The balance of this car rewards a smooth, progressive driving style — force it and it pushes back.",
-        "{manufacturer} has poured decades of motorsport knowledge into {car}. Under braking and on turn-in is where you feel that heritage most.",
-        "{driver} in {car} for today's race. The {class} field is tight — the differences between these cars come down to how each manufacturer interprets the regulations.",
-        "On the grid in {car}. What sets {manufacturer} apart in {class} is the mid-corner stability — it lets {driver} carry speed where others lift.",
-        "Race prep for {driver} in {car}. The engineering in this {class} machine is built for exactly these conditions — long stints, close racing, every tenth on the table."
+        "{driver} strapped into {carNickname} for today's race. {carFact} — and with {engineSpec} under the bonnet, this {class} machine is ready.",
+        "A closer look at {car} as {driver} prepares. {carCharacter} — that's the key to extracting pace in {class}.",
+        "{carNickname} on the grid. {carFact}. The {engineSpec} powerplant gives {driver} exactly what they need for close racing.",
+        "{driver} in {car} today. {manufacturerFact}. Under braking and on turn-in is where {carNickname} really shows its breeding.",
+        "On the grid in {carNickname}. {carFact}. When {driver} gets this {class} car in the zone, {carCharacter}.",
+        "Race prep for {driver} in {car}. {engineSpec} — that's the heart of this {class} machine. {carCharacter}."
       ],
       "cooldownMinutes": 2
     },
@@ -1356,12 +1358,12 @@
         }
       ],
       "commentaryPrompts": [
-        "{manufacturer} has been racing since before most of us were born. That institutional knowledge — how to build a car that's fast AND reliable — is embedded in {car}.",
-        "The {manufacturer} racing program is one of the most respected in motorsport. Their approach to {class} has always been about engineering precision over brute force.",
-        "{manufacturer} brings a philosophy to {class} that's distinct from the competition. You can feel it in how {car} responds — it has a character.",
-        "When you see {manufacturer} on a grid, you know they're not here to make up numbers. Their commitment to motorsport runs through every component of {car}.",
-        "The story of {manufacturer} in racing is one of evolution — from their earliest competition cars to {car}, the DNA carries through.",
-        "{manufacturer}'s approach to {class} has always prioritized driver feedback. {car} is a car that talks to you — and rewards those who listen."
+        "{manufacturerFact}. That institutional knowledge is embedded in every component of {carNickname}. {racingPhilosophy}.",
+        "The {manufacturer} racing program: {racingPhilosophy}. In {car}, you feel that commitment on every lap.",
+        "{manufacturerFact}. Their approach to {class} is reflected in how {carNickname} communicates — {carCharacter}.",
+        "When you see {manufacturer} on a grid, {racingPhilosophy}. {manufacturerFact} — and {car} carries that DNA.",
+        "The story of {manufacturer}: {manufacturerFact}. From their earliest competition cars to {carNickname}, {racingPhilosophy}.",
+        "{manufacturer}'s philosophy in {class}: {racingPhilosophy}. {carNickname} is a car that talks to you — {carCharacter}."
       ],
       "cooldownMinutes": 3
     }

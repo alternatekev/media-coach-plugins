@@ -1231,6 +1231,93 @@
           ""
         ]
       }
+    },
+    {
+      "topicId": "car_context",
+      "fragments": {
+        "openers": [
+          "Here's a bit of background on {carNickname}.",
+          "Let's talk about what makes {car} tick.",
+          "Some context on {driver}'s machinery.",
+          "A word about {carNickname} and its heritage.",
+          "What's special about this particular {class} car?",
+          "Time for some car talk."
+        ],
+        "bodies": [
+          "{carFact}. Powered by {engineSpec}, {carCharacter}.",
+          "{manufacturerFact} — and that DNA runs through {carNickname}. {racingPhilosophy}.",
+          "Under the skin, {engineSpec} does the heavy lifting. {carFact}.",
+          "{carCharacter}. That's the {manufacturer} way — {racingPhilosophy}.",
+          "The engineers at {manufacturer} designed this car around one principle: {racingPhilosophy}. {carFact}.",
+          "{carFact}. On track, {carCharacter} — and that's what separates the good laps from the great ones."
+        ],
+        "closers": [
+          "Every car has a story — this one's worth knowing.",
+          "Understanding the car helps you read {driver}'s decisions on track.",
+          "That's {carNickname} in a nutshell — a fascinating piece of engineering.",
+          "Knowledge like this is what makes watching {class} racing so rewarding.",
+          "Keep that in mind as {driver} works through the field.",
+          "A machine with real pedigree."
+        ]
+      }
+    },
+    {
+      "topicId": "prerace_car",
+      "fragments": {
+        "openers": [
+          "Eyes on {carNickname} as {driver} settles in on the grid.",
+          "Let's preview {driver}'s weapon of choice today — {car}.",
+          "Before lights out, a closer look at {carNickname}.",
+          "Pre-race spotlight: {driver} and the {car}.",
+          "On the grid now, {driver} in {carNickname}.",
+          "Final preparations for {driver} in {car}."
+        ],
+        "bodies": [
+          "{carFact}. With {engineSpec}, this {class} machine is built for exactly this kind of racing.",
+          "{carCharacter} — that's what {driver} will be managing over the course of this race. {engineSpec} provides the soundtrack.",
+          "{manufacturerFact}. {carNickname} carries that legacy — {engineSpec} and a chassis that rewards precision.",
+          "The key to {carNickname}: {carCharacter}. {carFact} — and that shows in the data.",
+          "{engineSpec} under the bonnet. {carFact}. A proper {class} racing car through and through.",
+          "{carFact}. {manufacturer} built {carNickname} with {racingPhilosophy} — and it shows."
+        ],
+        "closers": [
+          "A fascinating car to watch in action — let's see what {driver} can do.",
+          "When the lights go out, all that engineering has to deliver. Race time.",
+          "The grid is set, the cars are ready — it's nearly time.",
+          "That's the car — now it's down to the driver and the strategy.",
+          "Keep an eye on how {driver} manages {carNickname} through the opening laps.",
+          "Lights out shortly. Let's go racing."
+        ]
+      }
+    },
+    {
+      "topicId": "prerace_manufacturer",
+      "fragments": {
+        "openers": [
+          "A word on the {manufacturer} racing programme.",
+          "Before we go green — the {manufacturer} story.",
+          "Let's talk {manufacturer} and their commitment to {class}.",
+          "Behind {carNickname} sits the {manufacturer} motorsport operation.",
+          "The manufacturer angle: what {manufacturer} brings to {class}.",
+          "Pre-race insight — the {manufacturer} philosophy."
+        ],
+        "bodies": [
+          "{manufacturerFact}. {racingPhilosophy} — and you feel that in every input through {carNickname}.",
+          "{racingPhilosophy}. {manufacturerFact} — it's that depth of experience that makes the difference in close racing.",
+          "The {manufacturer} approach: {racingPhilosophy}. In {carNickname}, that translates to {carCharacter}.",
+          "{manufacturerFact}. From road car to race car, {manufacturer} has always understood that {racingPhilosophy}.",
+          "What sets {manufacturer} apart in {class}? {racingPhilosophy}. {manufacturerFact} — and {carNickname} is the latest expression of that.",
+          "{manufacturerFact}. In the hands of {driver}, {carNickname} shows exactly why {racingPhilosophy}."
+        ],
+        "closers": [
+          "Fascinating heritage from {manufacturer} — let's see it translate on track.",
+          "That's the legacy. Now it's about execution.",
+          "Manufacturer expertise meets driver skill — the recipe for great racing.",
+          "Understanding the manufacturer context adds a whole new dimension to watching {class}.",
+          "{manufacturer} at the top level. There's a reason they keep coming back.",
+          "Race time approaches — and {manufacturer} is ready."
+        ]
+      }
     }
   ]
 }

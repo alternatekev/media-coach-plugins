@@ -84,6 +84,58 @@ namespace K10Motorsports.Plugin.Models
         public int BuiltYear { get; set; }
     }
 
+    /// <summary>
+    /// Root object for commentary_cars.json deserialization.
+    /// Maps car model substrings to their commentary metadata.
+    /// </summary>
+    public class CommentaryCarsFile
+    {
+        public string Version { get; set; }
+        public Dictionary<string, CarCommentaryData> Cars { get; set; } = new Dictionary<string, CarCommentaryData>();
+        public Dictionary<string, ManufacturerCommentaryData> Manufacturers { get; set; } = new Dictionary<string, ManufacturerCommentaryData>();
+    }
+
+    /// <summary>
+    /// Car-specific commentary data for placeholder resolution.
+    /// Provides {carFact}, {carCharacter}, {engineSpec}, {carNickname} values.
+    /// </summary>
+    public class CarCommentaryData
+    {
+        public string DisplayName { get; set; } = "";
+        public string Manufacturer { get; set; } = "";
+        public string Class { get; set; } = "";
+        public string EngineLayout { get; set; } = "";
+        public string EngineSpec { get; set; } = "";
+        public string Nickname { get; set; } = "";
+
+        /// <summary>Lead designer or chief engineer behind this car.</summary>
+        public string Designer { get; set; } = "";
+
+        public List<string> TalkingPoints { get; set; } = new List<string>();
+        public List<string> DrivingCharacter { get; set; } = new List<string>();
+
+        /// <summary>Notable drivers associated with this car (real-world, not sim).</summary>
+        public List<string> NotableDrivers { get; set; } = new List<string>();
+    }
+
+    /// <summary>
+    /// Manufacturer-specific commentary data for placeholder resolution.
+    /// Provides {manufacturerFact}, {racingPhilosophy} values.
+    /// </summary>
+    public class ManufacturerCommentaryData
+    {
+        public string DisplayName { get; set; } = "";
+
+        /// <summary>ISO 3166-1 alpha-2 country code for flag display (e.g. "GB", "DE", "JP").</summary>
+        public string CountryCode { get; set; } = "";
+
+        /// <summary>Founder(s) of the company.</summary>
+        public string Founder { get; set; } = "";
+
+        public string RacingPhilosophy { get; set; } = "";
+        public List<string> TalkingPoints { get; set; } = new List<string>();
+    }
+
     public class TriggerCondition
     {
         /// <summary>

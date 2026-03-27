@@ -83,6 +83,13 @@ namespace K10Motorsports.Plugin.Engine
         private TrackCommentaryData _currentTrackData;
         private string _resolvedTrackId = "";
 
+        // ── Car & manufacturer commentary data ─────────────────────────────
+        private Dictionary<string, CarCommentaryData> _carData = new Dictionary<string, CarCommentaryData>();
+        private Dictionary<string, ManufacturerCommentaryData> _manufacturerData = new Dictionary<string, ManufacturerCommentaryData>();
+        private CarCommentaryData _currentCarData;
+        private ManufacturerCommentaryData _currentManufacturerData;
+        private string _resolvedCarModel = "";
+
         // Per-topic last trigger time
         private readonly Dictionary<string, DateTime> _topicLastTrigger = new Dictionary<string, DateTime>();
         // Anti-spam: minimum seconds between any two prompts (only for same-or-lower severity)
@@ -279,6 +286,37 @@ namespace K10Motorsports.Plugin.Engine
             catch (Exception ex)
             {
                 SimHub.Logging.Current.Error($"[K10Motorsports] Failed to load track data: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Loads car and manufacturer commentary data from commentary_cars.json.
+        /// Provides {carFact}, {carCharacter}, {engineSpec}, {carNickname},
+        /// {manufacturerFact}, {racingPhilosophy} placeholders.
+        /// </summary>
+        public void LoadCarData(string jsonPath)
+        {
+            if (!File.Exists(jsonPath))
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] Car commentary file not found: {jsonPath}");
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(jsonPath);
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                var file = JsonConvert.DeserializeObject<CommentaryCarsFile>(json, settings);
+                _carData = file?.Cars ?? new Dictionary<string, CarCommentaryData>();
+                _manufacturerData = file?.Manufacturers ?? new Dictionary<string, ManufacturerCommentaryData>();
+                SimHub.Logging.Current.Info($"[K10Motorsports] Loaded {_carData.Count} car + {_manufacturerData.Count} manufacturer commentary entries from {jsonPath}");
+            }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Error($"[K10Motorsports] Failed to load car data: {ex.Message}");
             }
         }
 
@@ -613,6 +651,9 @@ namespace K10Motorsports.Plugin.Engine
             // Substitute track-specific placeholders
             prompt = ResolveTrackPlaceholders(prompt, context);
 
+            // Substitute car/manufacturer-specific placeholders
+            prompt = ResolveCarPlaceholders(prompt, context);
+
             // Build event exposition text (used in event-only mode)
             string exposition = BuildEventExposition(topic, context);
 
@@ -681,6 +722,9 @@ namespace K10Motorsports.Plugin.Engine
 
             // Substitute track-specific placeholders
             template = ResolveTrackPlaceholders(template, context);
+
+            // Substitute car/manufacturer-specific placeholders
+            template = ResolveCarPlaceholders(template, context);
 
             return template;
         }
@@ -873,6 +917,210 @@ namespace K10Motorsports.Plugin.Engine
                 text = text.Replace("{trackNickname}", trackName);
                 text = text.Replace("{corner}", "the next corner");
                 text = text.Replace("{trackFact}", "this circuit has a fascinating history in motorsport");
+            }
+
+            return text;
+        }
+
+        /// <summary>
+        /// Resolves the current car's commentary data from the car database.
+        /// Uses fuzzy matching: normalizes the car model to lowercase and checks
+        /// for substring matches against the database keys.
+        /// </summary>
+        private void ResolveCurrentCar(TelemetrySnapshot context)
+        {
+            if (context == null || string.IsNullOrEmpty(context.CarModel)) return;
+
+            string carModel = context.CarModel.Trim();
+            if (carModel == _resolvedCarModel) return; // already resolved
+
+            _resolvedCarModel = carModel;
+            _currentCarData = null;
+            _currentManufacturerData = null;
+
+            string lower = carModel.ToLowerInvariant();
+
+            // Exact match first
+            if (_carData.TryGetValue(lower, out var exact))
+            {
+                _currentCarData = exact;
+                ResolveManufacturer(exact.Manufacturer);
+                return;
+            }
+
+            // Substring match: find the best match where the key is contained in
+            // the car model or vice versa. Prefer longer keys (more specific matches).
+            string bestKey = null;
+            int bestLen = 0;
+            foreach (var kvp in _carData)
+            {
+                if (lower.Contains(kvp.Key) || kvp.Key.Contains(lower))
+                {
+                    if (kvp.Key.Length > bestLen)
+                    {
+                        bestKey = kvp.Key;
+                        bestLen = kvp.Key.Length;
+                    }
+                }
+            }
+
+            if (bestKey != null)
+            {
+                _currentCarData = _carData[bestKey];
+                ResolveManufacturer(_currentCarData.Manufacturer);
+                return;
+            }
+
+            // Partial word match: try matching significant parts of the name
+            string[] words = lower.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var kvp in _carData)
+            {
+                foreach (var word in words)
+                {
+                    if (word.Length >= 3 && kvp.Key.Contains(word))
+                    {
+                        _currentCarData = kvp.Value;
+                        ResolveManufacturer(_currentCarData.Manufacturer);
+                        return;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolves the manufacturer data by looking up the manufacturer name in the database.
+        /// </summary>
+        private void ResolveManufacturer(string manufacturer)
+        {
+            if (string.IsNullOrEmpty(manufacturer)) return;
+
+            string lower = manufacturer.ToLowerInvariant();
+            if (_manufacturerData.TryGetValue(lower, out var mfr))
+            {
+                _currentManufacturerData = mfr;
+                return;
+            }
+
+            // Substring fallback
+            foreach (var kvp in _manufacturerData)
+            {
+                if (lower.Contains(kvp.Key) || kvp.Key.Contains(lower))
+                {
+                    _currentManufacturerData = kvp.Value;
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolves car-specific placeholders in a text string:
+        /// {carFact} → random talking point, {carCharacter} → driving character trait,
+        /// {engineSpec} → engine specification, {carNickname} → nickname or display name,
+        /// {manufacturerFact} → manufacturer talking point, {racingPhilosophy} → racing philosophy.
+        /// </summary>
+        private string ResolveCarPlaceholders(string text, TelemetrySnapshot context)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            // Fast path: skip if no car/manufacturer placeholders present
+            if (!text.Contains("{car") && !text.Contains("{engine") && !text.Contains("{manufacturer") && !text.Contains("{racing")
+                && !text.Contains("{carDesigner}") && !text.Contains("{carDriver}"))
+                return text;
+
+            ResolveCurrentCar(context);
+
+            if (_currentCarData != null)
+            {
+                if (text.Contains("{carNickname}"))
+                {
+                    text = text.Replace("{carNickname}",
+                        !string.IsNullOrEmpty(_currentCarData.Nickname)
+                            ? _currentCarData.Nickname
+                            : _currentCarData.DisplayName);
+                }
+
+                if (text.Contains("{carFact}"))
+                {
+                    string fact = _currentCarData.TalkingPoints?.Count > 0
+                        ? _currentCarData.TalkingPoints[_rng.Next(_currentCarData.TalkingPoints.Count)]
+                        : "this is a competitive machine in its class";
+                    text = text.Replace("{carFact}", fact);
+                }
+
+                if (text.Contains("{carCharacter}"))
+                {
+                    string character = _currentCarData.DrivingCharacter?.Count > 0
+                        ? _currentCarData.DrivingCharacter[_rng.Next(_currentCarData.DrivingCharacter.Count)]
+                        : "it has its own unique character on track";
+                    text = text.Replace("{carCharacter}", character);
+                }
+
+                if (text.Contains("{engineSpec}"))
+                {
+                    text = text.Replace("{engineSpec}",
+                        !string.IsNullOrEmpty(_currentCarData.EngineSpec)
+                            ? _currentCarData.EngineSpec
+                            : "a potent powertrain");
+                }
+
+                if (text.Contains("{carDesigner}"))
+                {
+                    text = text.Replace("{carDesigner}",
+                        !string.IsNullOrEmpty(_currentCarData.Designer)
+                            ? _currentCarData.Designer
+                            : "the engineering team");
+                }
+
+                if (text.Contains("{carDriver}"))
+                {
+                    string driver = _currentCarData.NotableDrivers?.Count > 0
+                        ? _currentCarData.NotableDrivers[_rng.Next(_currentCarData.NotableDrivers.Count)]
+                        : "some of the best drivers in the business";
+                    text = text.Replace("{carDriver}", driver);
+                }
+            }
+            else
+            {
+                // Fallbacks when car data isn't available
+                text = text.Replace("{carNickname}", context?.CarModel ?? "this car");
+                text = text.Replace("{carFact}", "this is a competitive machine in its class");
+                text = text.Replace("{carCharacter}", "it has its own unique character on track");
+                text = text.Replace("{engineSpec}", "a potent powertrain");
+                text = text.Replace("{carDesigner}", "the engineering team");
+                text = text.Replace("{carDriver}", "some of the best drivers in the business");
+            }
+
+            // Manufacturer placeholders
+            if (_currentManufacturerData != null)
+            {
+                if (text.Contains("{manufacturerFact}"))
+                {
+                    string fact = _currentManufacturerData.TalkingPoints?.Count > 0
+                        ? _currentManufacturerData.TalkingPoints[_rng.Next(_currentManufacturerData.TalkingPoints.Count)]
+                        : "a manufacturer with a proud racing heritage";
+                    text = text.Replace("{manufacturerFact}", fact);
+                }
+
+                if (text.Contains("{racingPhilosophy}"))
+                {
+                    text = text.Replace("{racingPhilosophy}",
+                        !string.IsNullOrEmpty(_currentManufacturerData.RacingPhilosophy)
+                            ? _currentManufacturerData.RacingPhilosophy
+                            : "a philosophy built around performance and competition");
+                }
+
+                if (text.Contains("{manufacturerFounder}"))
+                {
+                    text = text.Replace("{manufacturerFounder}",
+                        !string.IsNullOrEmpty(_currentManufacturerData.Founder)
+                            ? _currentManufacturerData.Founder
+                            : "its founders");
+                }
+            }
+            else
+            {
+                text = text.Replace("{manufacturerFact}", "a manufacturer with a proud racing heritage");
+                text = text.Replace("{racingPhilosophy}", "a philosophy built around performance and competition");
+                text = text.Replace("{manufacturerFounder}", "its founders");
             }
 
             return text;

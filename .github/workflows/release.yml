@@ -13,14 +13,72 @@ env:
 
 jobs:
   # ---------------------------------------------------------------
+  # Stamp version from git tag into all source files and push back
+  # to main so the repo always reflects the latest release.
+  # Runs on Ubuntu (fast) before any build jobs.
+  # ---------------------------------------------------------------
+  stamp-version:
+    name: Stamp Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Stamp all version files
+        run: |
+          VER="${{ steps.version.outputs.VERSION }}"
+
+          # Pad to 4-part for AssemblyVersion
+          IFS='.' read -ra PARTS <<< "$VER"
+          while [[ ${#PARTS[@]} -lt 4 ]]; do PARTS+=("0"); done
+          ASM_VER="${PARTS[0]}.${PARTS[1]}.${PARTS[2]}.${PARTS[3]}"
+
+          echo "Version: $VER  Assembly: $ASM_VER"
+
+          # package.json
+          sed -i -E "s/\"version\": *\"[^\"]+\"/\"version\": \"$VER\"/" \
+            dashboard-overlay/package.json
+
+          # Inno Setup .iss
+          sed -i -E "s/#define MyAppVersion +\"[^\"]+\"/#define MyAppVersion   \"$VER\"/" \
+            installer/k10-motorsports.iss
+
+          # AssemblyInfo.cs
+          ASMFILE="simhub-plugin/plugin/K10Motorsports.Plugin/Properties/AssemblyInfo.cs"
+          sed -i -E "s/AssemblyVersion\(\"[^\"]+\"\)/AssemblyVersion(\"$ASM_VER\")/" "$ASMFILE"
+          sed -i -E "s/AssemblyFileVersion\(\"[^\"]+\"\)/AssemblyFileVersion(\"$ASM_VER\")/" "$ASMFILE"
+
+          git diff
+
+      - name: Commit version bump to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dashboard-overlay/package.json installer/k10-motorsports.iss \
+                 simhub-plugin/plugin/K10Motorsports.Plugin/Properties/AssemblyInfo.cs
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }} [skip ci]"
+          git push origin main
+
+  # ---------------------------------------------------------------
   # Build the Electron overlay for Windows
   # ---------------------------------------------------------------
   build-overlay-win:
     name: Build Overlay (Windows)
     runs-on: windows-latest
+    needs: [stamp-version]
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-node@v4
         with:
@@ -62,6 +120,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Download overlay (win x64)
         uses: actions/download-artifact@v4
@@ -80,26 +140,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=$($env:GITHUB_REF_NAME -replace '^v','')" >> $env:GITHUB_OUTPUT
-        shell: pwsh
-
-      - name: Stamp plugin version from tag
-        run: |
-          $ver = "${{ steps.version.outputs.VERSION }}"
-          # Pad to 4-part version for AssemblyVersion (e.g. 0.0.8 → 0.0.8.0)
-          $parts = $ver.Split('.')
-          while ($parts.Count -lt 4) { $parts += '0' }
-          $asmVer = $parts -join '.'
-          $file = "simhub-plugin/plugin/K10Motorsports.Plugin/Properties/AssemblyInfo.cs"
-          $content = Get-Content $file -Raw
-          $content = $content -replace 'AssemblyVersion\("[^"]+"\)', "AssemblyVersion(`"$asmVer`")"
-          $content = $content -replace 'AssemblyFileVersion\("[^"]+"\)', "AssemblyFileVersion(`"$asmVer`")"
-          Set-Content $file $content
-          Write-Host "Stamped plugin version: $asmVer"
-        shell: pwsh
-
       - name: Build plugin
         run: |
           dotnet build simhub-plugin/plugin/K10Motorsports.Plugin/K10Motorsports.Plugin.csproj -c Release
@@ -113,28 +153,6 @@ jobs:
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
         shell: cmd
-
-      - name: Stamp overlay version from tag
-        run: |
-          $ver = "${{ steps.version.outputs.VERSION }}"
-          # package.json — Electron reads this via app.getVersion(),
-          # dashboard.html picks it up at runtime through the preload bridge
-          $pkg = Get-Content dashboard-overlay/package.json -Raw
-          $pkg = $pkg -replace '"version":\s*"[^"]+"', "`"version`": `"$ver`""
-          Set-Content dashboard-overlay/package.json $pkg
-          # dashboard.html settings footer
-          $html = Get-Content dashboard-overlay/dashboard.html -Raw
-          $html = $html -replace 'K10 Motorsports[^<]*—[^<]*', "K10 Motorsports v$ver — Media Overlay"
-          Set-Content dashboard-overlay/dashboard.html $html
-          Write-Host "Stamped overlay version: $ver"
-        shell: pwsh
-
-      - name: Update version in .iss
-        run: |
-          $iss = Get-Content installer/k10-motorsports.iss -Raw
-          $iss = $iss -replace '#define MyAppVersion\s+"[^"]+"', "#define MyAppVersion   `"${{ steps.version.outputs.VERSION }}`""
-          Set-Content installer/k10-motorsports.iss $iss
-        shell: pwsh
 
       - name: Compile installer
         run: |

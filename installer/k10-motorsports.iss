@@ -18,7 +18,7 @@
 ; Paths are relative to this .iss file's directory (installer/).
 
 #define MyAppName      "K10 Motorsports"
-#define MyAppVersion   "0.0.8"
+#define MyAppVersion   "0.1.4"
 #define MyAppPublisher "Kevin Conboy"
 #define MyAppURL       "https://github.com/alternatekev/media-coach-simhub-plugin"
 #define MyAppExeName   "K10 Motorsports.exe"

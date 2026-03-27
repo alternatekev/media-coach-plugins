@@ -60,6 +60,30 @@ namespace K10Motorsports.Plugin.Models
         public List<TopicFragments> Fragments { get; set; } = new List<TopicFragments>();
     }
 
+    /// <summary>
+    /// Root object for commentary_tracks.json deserialization.
+    /// Maps track IDs to their commentary metadata (nicknames, corners, talking points).
+    /// </summary>
+    public class CommentaryTracksFile
+    {
+        public string Version { get; set; }
+        public Dictionary<string, TrackCommentaryData> Tracks { get; set; } = new Dictionary<string, TrackCommentaryData>();
+    }
+
+    /// <summary>
+    /// Track-specific commentary data for placeholder resolution.
+    /// Provides {track}, {trackNickname}, {corner}, and {trackFact} values.
+    /// </summary>
+    public class TrackCommentaryData
+    {
+        public string DisplayName { get; set; } = "";
+        public string Nickname { get; set; } = "";
+        public List<string> FamousCorners { get; set; } = new List<string>();
+        public List<string> TalkingPoints { get; set; } = new List<string>();
+        public List<string> NotableRaces { get; set; } = new List<string>();
+        public int BuiltYear { get; set; }
+    }
+
     public class TriggerCondition
     {
         /// <summary>

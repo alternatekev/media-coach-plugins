@@ -32,6 +32,7 @@ namespace K10Motorsports.Plugin.Engine
         public double PitSpeedLimitKmh  { get; set; }
         public string SessionTypeName   { get; set; }
         public string CarModel          { get; set; } = "";
+        public string TrackName         { get; set; } = "";
         public double TyreWearFL        { get; set; }
         public double TyreWearFR        { get; set; }
         public double TyreWearRL        { get; set; }

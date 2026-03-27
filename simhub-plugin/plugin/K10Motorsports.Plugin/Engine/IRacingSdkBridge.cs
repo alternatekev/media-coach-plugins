@@ -347,33 +347,17 @@ namespace K10Motorsports.Plugin.Engine
                 TrackCountry = TelemetrySnapshot.NormalizeCountryCode(si.WeekendInfo.TrackCountry ?? "");
             }
 
-            // ── Sector boundaries from SplitTimeInfo ──
-            if (si.SplitTimeInfo?.Sectors != null && si.SplitTimeInfo.Sectors.Count >= 2)
-            {
-                // Store all sector boundaries (skip sector 0 which starts at 0.0)
-                var boundaries = new List<double>();
-                for (int i = 1; i < si.SplitTimeInfo.Sectors.Count; i++)
-                {
-                    var pct = si.SplitTimeInfo.Sectors[i].SectorStartPct;
-                    if (pct > 0 && pct < 1) boundaries.Add(pct);
-                }
-                SectorBoundaries = boundaries.ToArray();
-                SectorCount = si.SplitTimeInfo.Sectors.Count;
-
-                // Backward compat: populate S2/S3 start for legacy 3-sector code paths
-                if (boundaries.Count >= 2)
-                {
-                    SectorS2StartPct = boundaries[0];
-                    SectorS3StartPct = boundaries[1];
-                    HasSectorBoundaries = SectorS2StartPct > 0 && SectorS3StartPct > SectorS2StartPct;
-                }
-                else if (boundaries.Count == 1)
-                {
-                    SectorS2StartPct = boundaries[0];
-                    SectorS3StartPct = 0;
-                    HasSectorBoundaries = false;
-                }
-            }
+            // ── Sector boundaries ──
+            // Always use equal thirds (0.333, 0.667) to match CrewChief's
+            // sector definitions. CrewChief divides every track into 3 equal
+            // sectors by lap distance — if we used iRacing's native
+            // SplitTimeInfo boundaries instead, our sector times would
+            // disagree with what CrewChief calls out over voice.
+            SectorBoundaries = new[] { 1.0 / 3.0, 2.0 / 3.0 };
+            SectorCount = 3;
+            SectorS2StartPct = 1.0 / 3.0;
+            SectorS3StartPct = 2.0 / 3.0;
+            HasSectorBoundaries = true;
         }
 
         // ═══════════════════════════════════════════════════════════════

@@ -1,0 +1,2197 @@
+{
+  "version": "1.0",
+  "description": "Track-specific commentary data for the Media Broadcaster. Keyed by track ID for lookup when a session starts. Provides {track}, {trackNickname}, {corner}, and {trackFact} placeholder values.",
+  "tracks": {
+    "adelaide-street-circuit": {
+      "displayName": "Adelaide Street Circuit",
+      "famousCorners": [
+        "Cathedral Turn",
+        "Ramp Turn"
+      ],
+      "talkingPoints": [
+        "High-speed street circuit through Adelaide Park",
+        "Challenging turns at speed with minimal run-off",
+        "Popular in Australian motorsport"
+      ],
+      "notableRaces": [
+        "Australian Grand Prix",
+        "AUSCAR Championship"
+      ],
+      "builtYear": 1985
+    },
+    "miami-gp": {
+      "displayName": "Miami International Autodrome",
+      "nickname": "Miami GP",
+      "famousCorners": [
+        "Turn 1",
+        "Hard Braking Zone",
+        "Maggotts-like section"
+      ],
+      "talkingPoints": [
+        "Modern street circuit with long straights",
+        "High-speed challenge with tight sections",
+        "Newest F1 venue, fast-paced racing"
+      ],
+      "notableRaces": [
+        "Formula 1 Miami Grand Prix"
+      ],
+      "builtYear": 2022
+    },
+    "autodromo-hermanos-rodriguez": {
+      "displayName": "Autódromo Hermanos Rodríguez",
+      "nickname": "Mexico City GP",
+      "famousCorners": [
+        "Foro Turn",
+        "Parabolica",
+        "Esses"
+      ],
+      "talkingPoints": [
+        "High altitude affects engine performance significantly",
+        "Fast corners and tight technical sections",
+        "Historic venue with passionate crowds"
+      ],
+      "notableRaces": [
+        "Formula 1 Mexican Grand Prix",
+        "CART races"
+      ],
+      "builtYear": 1962
+    },
+    "the-bend": {
+      "displayName": "Shell V-Power Motorsports Park at The Bend",
+      "nickname": "The Bend",
+      "famousCorners": [
+        "The Esses",
+        "Turn 1",
+        "Turn 16"
+      ],
+      "talkingPoints": [
+        "Modern Australian circuit built on aircraft test facility",
+        "Multiple layout options for variety",
+        "Smooth asphalt and good grip characteristics"
+      ],
+      "notableRaces": [
+        "Supercars Championship",
+        "Porsche Carrera Cup"
+      ],
+      "builtYear": 2017
+    },
+    "portland-international-raceway": {
+      "displayName": "Portland International Raceway",
+      "nickname": "PIR",
+      "famousCorners": [
+        "Turn 1",
+        "Riverside Turn",
+        "Turn 10"
+      ],
+      "talkingPoints": [
+        "Tight technical circuit with minimal run-off",
+        "Challenging elevation changes",
+        "Historic venue with passionate crowds"
+      ],
+      "notableRaces": [
+        "IndyCar",
+        "IMSA",
+        "historic road racing"
+      ],
+      "builtYear": 1960
+    },
+    "husets-speedway": {
+      "displayName": "Huset's Speedway",
+      "talkingPoints": [
+        "One of the fastest dirt tracks in America",
+        "Premium bankings at 14 degrees",
+        "Home of legendary sprint car racing"
+      ],
+      "notableRaces": [
+        "World of Outlaws Sprint Cars"
+      ],
+      "builtYear": 1952
+    },
+    "thruxton-circuit": {
+      "displayName": "Thruxton Circuit",
+      "famousCorners": [
+        "Allard Corner",
+        "Senna's Corner",
+        "Goodwood Corner"
+      ],
+      "talkingPoints": [
+        "High-speed circuit with high-speed corners",
+        "Fast lap times with minimal chicanes",
+        "Historic British racing venue"
+      ],
+      "notableRaces": [
+        "BTCC Championship",
+        "British GT Championship"
+      ],
+      "builtYear": 1975
+    },
+    "cadwell-park": {
+      "displayName": "Cadwell Park",
+      "nickname": "Britain's Nordschleife",
+      "famousCorners": [
+        "Mountain",
+        "Barn",
+        "Hairpin"
+      ],
+      "talkingPoints": [
+        "Challenging elevation changes throughout",
+        "Technical corners requiring finesse",
+        "Historic UK circuit with passionate fans"
+      ],
+      "notableRaces": [
+        "BTCC, British GT",
+        "Historic racing"
+      ],
+      "builtYear": 1934
+    },
+    "circuito-de-navarra": {
+      "displayName": "Circuito de Navarra",
+      "famousCorners": [
+        "Turn 1",
+        "Dry Sack",
+        "Michelin"
+      ],
+      "talkingPoints": [
+        "Modern circuit with varied technical sections",
+        "Good racing facility with multiple layouts",
+        "Popular for testing and championship racing"
+      ],
+      "notableRaces": [
+        "European Le Mans Series",
+        "Spanish GT Championship"
+      ],
+      "builtYear": 1989
+    },
+    "oswego-speedway": {
+      "displayName": "Oswego Speedway",
+      "talkingPoints": [
+        "Historic oval with passionate fan base",
+        "High-banked turns for exciting racing",
+        "Legendary venue for dirt racing"
+      ],
+      "notableRaces": [
+        "Sprint car racing",
+        "Modifieds"
+      ],
+      "builtYear": 1947
+    },
+    "sachsenring": {
+      "displayName": "Sachsenring",
+      "famousCorners": [
+        "Turn 1",
+        "Sachsenring Esses",
+        "Turn 13"
+      ],
+      "talkingPoints": [
+        "Historic German racing venue",
+        "Technical corners with unique characteristics",
+        "Hosted motorcycle championships"
+      ],
+      "notableRaces": [
+        "MotoGP",
+        "German Touring Car Championship"
+      ],
+      "builtYear": 1927
+    },
+    "autodromo-algarve": {
+      "displayName": "Autódromo Internacional do Algarve",
+      "famousCorners": [
+        "Turn 1",
+        "Dry Sack Turn",
+        "Technical section"
+      ],
+      "talkingPoints": [
+        "Modern Portuguese racing facility",
+        "Good for car development and racing",
+        "Varied technical challenges"
+      ],
+      "notableRaces": [
+        "European Le Mans Series",
+        "World Touring Car Championship"
+      ],
+      "builtYear": 2008
+    },
+    "millbridge-speedway": {
+      "displayName": "Millbridge Speedway",
+      "talkingPoints": [
+        "Small dirt oval for local racing",
+        "Tight racing on compact layout",
+        "Community motorsports venue"
+      ],
+      "notableRaces": [
+        "Local dirt racing"
+      ],
+      "builtYear": 1985
+    },
+    "misano-world-circuit": {
+      "displayName": "Misano World Circuit Marco Simoncelli",
+      "nickname": "Misano",
+      "famousCorners": [
+        "Turns 8-9",
+        "Carro Turn",
+        "Quercia"
+      ],
+      "talkingPoints": [
+        "Home of motorcycle racing history",
+        "Named after Marco Simoncelli",
+        "Two configurations available for variety"
+      ],
+      "notableRaces": [
+        "MotoGP World Championship",
+        "World Superbike Championship"
+      ],
+      "builtYear": 1972
+    },
+    "mugello-circuit": {
+      "displayName": "Mugello Circuit",
+      "famousCorners": [
+        "Arrabbiata",
+        "Scarperia",
+        "Giannone"
+      ],
+      "talkingPoints": [
+        "Fast technical Italian circuit",
+        "Home to Ferrari testing",
+        "Challenging combination of corners"
+      ],
+      "notableRaces": [
+        "MotoGP, Ferrari Challenge",
+        "Italian racing events"
+      ],
+      "builtYear": 1974
+    },
+    "circuit-zandvoort": {
+      "displayName": "Circuit Zandvoort",
+      "nickname": "Zandvoort",
+      "famousCorners": [
+        "Tarzan",
+        "Scheivlak",
+        "Hugenholtz"
+      ],
+      "talkingPoints": [
+        "Rebuilt F1 circuit with modern banking",
+        "High-speed corners flow beautifully",
+        "Home of Dutch motorsport tradition"
+      ],
+      "notableRaces": [
+        "Formula 1 Dutch Grand Prix",
+        "historic racing"
+      ],
+      "builtYear": 1948
+    },
+    "circuit-ledenon": {
+      "displayName": "Circuit de Ledenon",
+      "famousCorners": [
+        "Turn 1",
+        "Chicane",
+        "Fast section"
+      ],
+      "talkingPoints": [
+        "Technical French circuit",
+        "Multiple configurations",
+        "Historic racing venue"
+      ],
+      "notableRaces": [
+        "Formula 3, French GT Championship"
+      ],
+      "builtYear": 1969
+    },
+    "kern-raceway": {
+      "displayName": "Kern Raceway",
+      "talkingPoints": [
+        "Small local racing venue",
+        "Tight oval layout",
+        "Community motorsports"
+      ],
+      "notableRaces": [
+        "Local dirt oval racing"
+      ],
+      "builtYear": 1990
+    },
+    "circuito-jerez": {
+      "displayName": "Circuito de Jerez",
+      "nickname": "Jerez",
+      "famousCorners": [
+        "Turn 1",
+        "Dry Sack",
+        "Curva Dry Sack"
+      ],
+      "talkingPoints": [
+        "Historic Spanish racing venue",
+        "Passionate fans and intense racing",
+        "Historic championship battles"
+      ],
+      "notableRaces": [
+        "Formula 1, MotoGP, WSB Championship"
+      ],
+      "builtYear": 1986
+    },
+    "virginia-international-raceway": {
+      "displayName": "VIRginia International Raceway",
+      "nickname": "VIR",
+      "famousCorners": [
+        "Roller Coaster",
+        "Oak Tree",
+        "Climbing Esses"
+      ],
+      "talkingPoints": [
+        "Elevation changes throughout add challenge",
+        "Three distinct layouts available",
+        "Historic American racing circuit"
+      ],
+      "notableRaces": [
+        "IMSA, GRAND-AM racing",
+        "American Le Mans"
+      ],
+      "builtYear": 1964
+    },
+    "circuit-nevers-magny-cours": {
+      "displayName": "Circuit de Nevers Magny-Cours",
+      "nickname": "Magny-Cours",
+      "famousCorners": [
+        "Château d'eau",
+        "Grand Virage",
+        "Lycée"
+      ],
+      "talkingPoints": [
+        "Historic F1 venue with technical challenges",
+        "Fast flowing French circuit",
+        "Passionate racing culture"
+      ],
+      "notableRaces": [
+        "Formula 1 French Grand Prix (1991-2008)",
+        "Formula 3"
+      ],
+      "builtYear": 1960
+    },
+    "lincoln-speedway": {
+      "displayName": "Lincoln Speedway",
+      "talkingPoints": [
+        "Historic dirt oval venue",
+        "Sprint car racing tradition",
+        "Challenging tight racing"
+      ],
+      "notableRaces": [
+        "Sprint cars, modifieds"
+      ],
+      "builtYear": 1954
+    },
+    "lucas-oil-speedway": {
+      "displayName": "Lucas Oil Speedway",
+      "talkingPoints": [
+        "Midwest dirt racing tradition",
+        "High-banked oval",
+        "Competitive racing venue"
+      ],
+      "notableRaces": [
+        "MLRA sprint cars",
+        "Late model racing"
+      ],
+      "builtYear": 1984
+    },
+    "motorsport-arena-oschersleben": {
+      "displayName": "Motorsport Arena Oschersleben",
+      "nickname": "Oschersleben",
+      "famousCorners": [
+        "Turn 1",
+        "Technical chicane",
+        "Fast section"
+      ],
+      "talkingPoints": [
+        "Modern German racing facility",
+        "Two racing configurations",
+        "Technical and flowing sections"
+      ],
+      "notableRaces": [
+        "German Touring Car Championship",
+        "Formula 3"
+      ],
+      "builtYear": 2000
+    },
+    "rudskogen-motorsenter": {
+      "displayName": "Rudskogen Motorsenter",
+      "famousCorners": [
+        "Turn 1",
+        "Technical section",
+        "Fast corners"
+      ],
+      "talkingPoints": [
+        "Nordic racing venue",
+        "Challenging weather conditions",
+        "Technical circuit design"
+      ],
+      "notableRaces": [
+        "Norwegian racing events"
+      ],
+      "builtYear": 2005
+    },
+    "fuji-speedway": {
+      "displayName": "Fuji Speedway",
+      "nickname": "Fuji",
+      "famousCorners": [
+        "100R",
+        "Spoon Curve",
+        "Final Turn"
+      ],
+      "talkingPoints": [
+        "Fast flowing Japanese circuit",
+        "Iconic 100R corner",
+        "Modern facilities for championship racing"
+      ],
+      "notableRaces": [
+        "Formula 1 Japanese Grand Prix",
+        "Super Formula",
+        "Super GT"
+      ],
+      "builtYear": 1965
+    },
+    "port-royal-speedway": {
+      "displayName": "Port Royal Speedway",
+      "talkingPoints": [
+        "High-banked Pennsylvania dirt oval",
+        "Historic sprint car venue",
+        "Challenging tight racing"
+      ],
+      "notableRaces": [
+        "Sprint cars",
+        "World of Outlaws"
+      ],
+      "builtYear": 1972
+    },
+    "sandown-international": {
+      "displayName": "Sandown International Motor Raceway",
+      "nickname": "Sandown",
+      "famousCorners": [
+        "Turn 1",
+        "Dandenong Road",
+        "Boomerang"
+      ],
+      "talkingPoints": [
+        "Historic Australian circuit near Melbourne",
+        "Multiple configurations for variety",
+        "Strong racing heritage"
+      ],
+      "notableRaces": [
+        "Australian Touring Car Championship",
+        "Supercars Championship"
+      ],
+      "builtYear": 1962
+    },
+    "winton-motor-raceway": {
+      "displayName": "Winton Motor Raceway",
+      "nickname": "Winton",
+      "famousCorners": [
+        "Turn 1",
+        "Final Turn"
+      ],
+      "talkingPoints": [
+        "Compact Australian circuit",
+        "Good for learners and testing",
+        "Modern facilities"
+      ],
+      "notableRaces": [
+        "Supercars testing",
+        "Australian GT Championship"
+      ],
+      "builtYear": 1984
+    },
+    "federated-auto-parts-i55": {
+      "displayName": "Federated Auto Parts Raceway at I-55",
+      "nickname": "Gateway",
+      "talkingPoints": [
+        "High-speed one-mile oval",
+        "Modern facility with good banking",
+        "Exciting oval racing action"
+      ],
+      "notableRaces": [
+        "IndyCar oval racing"
+      ],
+      "builtYear": 2001
+    },
+    "la-coliseum": {
+      "displayName": "LA Coliseum",
+      "nickname": "Coliseum",
+      "famousCorners": [
+        "Turn 1",
+        "Turn 9"
+      ],
+      "talkingPoints": [
+        "Unique parking lot street circuit in Los Angeles",
+        "Modern iconic venue",
+        "Tight technical racing"
+      ],
+      "notableRaces": [
+        "Inaugural IndyCar street course"
+      ],
+      "builtYear": 2023
+    },
+    "bark-river-international": {
+      "displayName": "Bark River International Raceway",
+      "famousCorners": [
+        "Turn 1",
+        "Technical sections",
+        "Fast corners"
+      ],
+      "talkingPoints": [
+        "Northern Michigan road course",
+        "Two layouts for variety",
+        "Quality racing facility"
+      ],
+      "notableRaces": [
+        "Road racing in Michigan"
+      ],
+      "builtYear": 1992
+    },
+    "knockhill-racing-circuit": {
+      "displayName": "Knockhill Racing Circuit",
+      "nickname": "Knockhill",
+      "famousCorners": [
+        "First Lap Turn",
+        "Duffus Turn",
+        "East Bents"
+      ],
+      "talkingPoints": [
+        "Historic Scottish circuit",
+        "Exciting overtaking opportunities",
+        "Technical elevation changes"
+      ],
+      "notableRaces": [
+        "BTCC Championship",
+        "British Touring Car Championship"
+      ],
+      "builtYear": 1974
+    },
+    "cedar-lake-speedway": {
+      "displayName": "Cedar Lake Speedway",
+      "talkingPoints": [
+        "Small dirt oval track",
+        "Local racing community",
+        "Tight oval racing"
+      ],
+      "notableRaces": [
+        "Local dirt oval racing"
+      ],
+      "builtYear": 1955
+    },
+    "chicago-street-course": {
+      "displayName": "Chicago Street Course",
+      "nickname": "Chicago",
+      "famousCorners": [
+        "Turn 1",
+        "Hairpin",
+        "Final Section"
+      ],
+      "talkingPoints": [
+        "Modern downtown Chicago street circuit",
+        "Historic street racing venue",
+        "Exciting urban motorsport"
+      ],
+      "notableRaces": [
+        "Inaugural IndyCar street course"
+      ],
+      "builtYear": 2023
+    },
+    "circuit-barcelona-catalunya": {
+      "displayName": "Circuit de Barcelona-Catalunya",
+      "nickname": "Barcelona",
+      "famousCorners": [
+        "Turn 1",
+        "Turns 3-4",
+        "Turn 16"
+      ],
+      "talkingPoints": [
+        "Primary F1 testing venue",
+        "Technical high-speed corners",
+        "World championship tradition"
+      ],
+      "notableRaces": [
+        "Formula 1 Spanish Grand Prix",
+        "testing venue for F1 teams"
+      ],
+      "builtYear": 1991
+    },
+    "crandon-international": {
+      "displayName": "Crandon International Raceway",
+      "talkingPoints": [
+        "Wisconsin-based off-road venue",
+        "High-speed dirt oval",
+        "Racing tradition"
+      ],
+      "notableRaces": [
+        "Off-road racing",
+        "SCORE racing"
+      ],
+      "builtYear": 1970
+    },
+    "fairbury-speedway": {
+      "displayName": "Fairbury Speedway",
+      "talkingPoints": [
+        "Illinois sprint car oval",
+        "Historic racing venue",
+        "Competitive dirt oval racing"
+      ],
+      "notableRaces": [
+        "Sprint cars",
+        "World of Outlaws"
+      ],
+      "builtYear": 1961
+    },
+    "hickory-motor-speedway": {
+      "displayName": "Hickory Motor Speedway",
+      "nickname": "The Paperclip",
+      "talkingPoints": [
+        "Historic North Carolina dirt oval",
+        "Called 'The Paperclip' for its shape",
+        "Competitive racing tradition"
+      ],
+      "notableRaces": [
+        "Modifieds",
+        "Late models",
+        "Historic racing"
+      ],
+      "builtYear": 1951
+    },
+    "hockenheimring": {
+      "displayName": "Hockenheimring",
+      "nickname": "Hockenheim",
+      "famousCorners": [
+        "Turns 1-2",
+        "Spitzkurve",
+        "Stadium section"
+      ],
+      "talkingPoints": [
+        "Historic German circuit in forest",
+        "Modern stadium section for fans",
+        "High-speed forest section adds challenge"
+      ],
+      "notableRaces": [
+        "Formula 1 German Grand Prix",
+        "DTM Championship"
+      ],
+      "builtYear": 1932
+    },
+    "hungaroring": {
+      "displayName": "Hungaroring",
+      "nickname": "Budapest",
+      "famousCorners": [
+        "Turn 1",
+        "Hairpin",
+        "Turns 8-9"
+      ],
+      "talkingPoints": [
+        "Technical tight Hungarian circuit",
+        "Hard on tires and brakes",
+        "Overtaking opportunity at Turn 1"
+      ],
+      "notableRaces": [
+        "Formula 1 Hungarian Grand Prix"
+      ],
+      "builtYear": 1986
+    },
+    "lankebanen-hellrx": {
+      "displayName": "Lånkebanen (HellRX)",
+      "nickname": "HellRX",
+      "famousCorners": [
+        "Jumps",
+        "Tight sections"
+      ],
+      "talkingPoints": [
+        "Norwegian rallycross venue",
+        "Unique jump sections",
+        "World championship racing"
+      ],
+      "notableRaces": [
+        "FIA World Rallycross Championship"
+      ],
+      "builtYear": 2018
+    },
+    "mount-washington-auto-road": {
+      "displayName": "Mount Washington Auto Road",
+      "nickname": "Mount Washington",
+      "famousCorners": [
+        "Various elevation sections"
+      ],
+      "talkingPoints": [
+        "Iconic New Hampshire hillclimb",
+        "Significant elevation gain",
+        "Historic motorsport challenge"
+      ],
+      "notableRaces": [
+        "Mount Washington Hillclimb"
+      ],
+      "builtYear": 1861
+    },
+    "iracing-superspeedway": {
+      "displayName": "iRacing Superspeedway",
+      "nickname": "iRacing Superspeedway",
+      "talkingPoints": [
+        "Dedicated iRacing simulation superspeedway",
+        "High-speed drafting racing",
+        "Multiple configurations for variety"
+      ],
+      "notableRaces": [
+        "iRacing sim racing events"
+      ],
+      "builtYear": 2008
+    },
+    "nashville-fairgrounds": {
+      "displayName": "Nashville Fairgrounds Speedway",
+      "nickname": "Nashville Fairgrounds",
+      "talkingPoints": [
+        "Historic Nashville racing venue",
+        "Tight oval racing",
+        "Exciting high-speed action"
+      ],
+      "notableRaces": [
+        "Nashville Superspeedway predecessor",
+        "Indycar racing"
+      ],
+      "builtYear": 1958
+    },
+    "nashville-superspeedway": {
+      "displayName": "Nashville Superspeedway",
+      "nickname": "Nashville",
+      "talkingPoints": [
+        "Modern Nashville D-shaped oval",
+        "Formula 1 venue becoming",
+        "High-speed oval racing"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "Formula 1 (future)"
+      ],
+      "builtYear": 2001
+    },
+    "north-wilkesboro-speedway": {
+      "displayName": "North Wilkesboro Speedway",
+      "nickname": "North Wilkesboro",
+      "talkingPoints": [
+        "Historic North Carolina oval",
+        "NASCAR heritage",
+        "Returned to Cup Series in 2022"
+      ],
+      "notableRaces": [
+        "Historic NASCAR oval",
+        "IndyCar racing"
+      ],
+      "builtYear": 1949
+    },
+    "red-bull-ring": {
+      "displayName": "Red Bull Ring",
+      "nickname": "Red Bull Ring",
+      "famousCorners": [
+        "Turn 1",
+        "Turn 3",
+        "Turn 10"
+      ],
+      "talkingPoints": [
+        "Fast flowing Alpine circuit",
+        "Modern high-speed racing",
+        "Beautiful Austrian setting"
+      ],
+      "notableRaces": [
+        "Formula 1 Austrian Grand Prix"
+      ],
+      "builtYear": 1969
+    },
+    "st-petersburg": {
+      "displayName": "St. Petersburg",
+      "nickname": "St. Pete",
+      "famousCorners": [
+        "Turn 1",
+        "Hairpin",
+        "Chicane"
+      ],
+      "talkingPoints": [
+        "Historic Florida street circuit",
+        "Challenging technical corners",
+        "Long-running racing tradition"
+      ],
+      "notableRaces": [
+        "IndyCar street race",
+        "historic venue"
+      ],
+      "builtYear": 1985
+    },
+    "texas-motor-speedway": {
+      "displayName": "Texas Motor Speedway",
+      "nickname": "Texas",
+      "talkingPoints": [
+        "High-banked two-mile oval",
+        "Fast racing with high speeds",
+        "Modern facility near Dallas"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar racing"
+      ],
+      "builtYear": 1997
+    },
+    "weedsport-speedway": {
+      "displayName": "Weedsport Speedway",
+      "talkingPoints": [
+        "Historic New York dirt oval",
+        "Sprint car racing",
+        "Community motorsports"
+      ],
+      "notableRaces": [
+        "Local dirt racing"
+      ],
+      "builtYear": 1955
+    },
+    "world-wide-technology-raceway": {
+      "displayName": "World Wide Technology Raceway",
+      "nickname": "Gateway",
+      "talkingPoints": [
+        "Modern Illinois oval",
+        "High-speed oval racing",
+        "Gateway to the West"
+      ],
+      "notableRaces": [
+        "IndyCar oval racing",
+        "NASCAR"
+      ],
+      "builtYear": 2000
+    },
+    "lime-rock-park": {
+      "displayName": "Lime Rock Park",
+      "nickname": "Lime Rock",
+      "famousCorners": [
+        "Downhill",
+        "Chicane",
+        "Turn 1"
+      ],
+      "talkingPoints": [
+        "Compact Connecticut road course",
+        "Historic racing venue",
+        "Popular for sports car racing"
+      ],
+      "notableRaces": [
+        "IMSA, GRAND-AM",
+        "American Le Mans"
+      ],
+      "builtYear": 1957
+    },
+    "lernerville-speedway": {
+      "displayName": "Lernerville Speedway",
+      "talkingPoints": [
+        "Pennsylvania sprint car oval",
+        "Historic racing tradition",
+        "Competitive dirt oval racing"
+      ],
+      "notableRaces": [
+        "Sprint cars",
+        "World of Outlaws"
+      ],
+      "builtYear": 1969
+    },
+    "silverstone-circuit": {
+      "displayName": "Silverstone Circuit",
+      "nickname": "Silverstone",
+      "famousCorners": [
+        "Copse",
+        "Maggotts",
+        "Becketts",
+        "Chapel Curve"
+      ],
+      "talkingPoints": [
+        "Historic British racing circuit",
+        "High-speed flowing corners",
+        "Championship racing tradition"
+      ],
+      "notableRaces": [
+        "Formula 1 British Grand Prix",
+        "iconic championship venue"
+      ],
+      "builtYear": 1948
+    },
+    "firebird-motorsports-park": {
+      "displayName": "Firebird Motorsports Park",
+      "nickname": "Firebird",
+      "famousCorners": [
+        "Turn 1",
+        "Technical sections"
+      ],
+      "talkingPoints": [
+        "Arizona road course",
+        "Good for testing and development",
+        "Technical racing layout"
+      ],
+      "notableRaces": [
+        "IMSA, GRAND-AM racing",
+        "American motorsport events"
+      ],
+      "builtYear": 1988
+    },
+    "wild-west-motorsports-park": {
+      "displayName": "Wild West Motorsports Park",
+      "talkingPoints": [
+        "Desert dirt oval",
+        "Local racing tradition",
+        "High-speed dirt racing"
+      ],
+      "notableRaces": [
+        "Local New Mexico dirt racing"
+      ],
+      "builtYear": 1967
+    },
+    "circuit-24-heures-mans": {
+      "displayName": "Circuit des 24 Heures du Mans",
+      "nickname": "Le Mans",
+      "famousCorners": [
+        "Mulsanne",
+        "Maggotts",
+        "Ford Chicane",
+        "Hunaudières"
+      ],
+      "talkingPoints": [
+        "Legendary endurance racing circuit",
+        "Iconic Mulsanne straight",
+        "World's most famous long-distance race"
+      ],
+      "notableRaces": [
+        "24 Hours of Le Mans - iconic endurance race"
+      ],
+      "builtYear": 1923
+    },
+    "daytona-international-speedway": {
+      "displayName": "Daytona International Speedway",
+      "nickname": "Daytona",
+      "talkingPoints": [
+        "Iconic high-banked superspeedway",
+        "Drafting and slipstreaming crucial",
+        "Home of legendary Daytona 500"
+      ],
+      "notableRaces": [
+        "Daytona 500 - most prestigious NASCAR race"
+      ],
+      "builtYear": 1959
+    },
+    "nurburgring-nordschleife": {
+      "displayName": "Nürburgring Nordschleife",
+      "nickname": "The Green Hell",
+      "famousCorners": [
+        "Hatzenbach",
+        "Flugplatz",
+        "Adenauer Forst",
+        "Karussell",
+        "Pflanzgarten",
+        "Schwalbenschwanz",
+        "Brünnchen"
+      ],
+      "talkingPoints": [
+        "Jackie Stewart named it \"The Green Hell\" in 1968",
+        "Nearly 13 miles and 154 corners — longer than some airports",
+        "Almost 300m of elevation change per lap through the Eifel mountains",
+        "The Karussell is a banked concrete bowl originally formed by drivers cutting the corner",
+        "Niki Lauda's near-fatal 1976 crash led to F1 leaving the Nordschleife permanently"
+      ],
+      "notableRaces": [
+        "Historic endurance races",
+        "automotive testing ground"
+      ],
+      "builtYear": 1927
+    },
+    "weathertech-raceway-laguna-seca": {
+      "displayName": "WeatherTech Raceway Laguna Seca",
+      "nickname": "Laguna Seca",
+      "famousCorners": [
+        "The Corkscrew",
+        "Turn 1",
+        "Hairpin"
+      ],
+      "talkingPoints": [
+        "Iconic Corkscrew corner downhill",
+        "California racing tradition",
+        "Technical challenging circuit"
+      ],
+      "notableRaces": [
+        "IMSA, GRAND-AM",
+        "motorcycle racing"
+      ],
+      "builtYear": 1957
+    },
+    "indianapolis-motor-speedway": {
+      "displayName": "Indianapolis Motor Speedway",
+      "nickname": "The Brickyard",
+      "talkingPoints": [
+        "A yard of the original bricks remains at the start-finish line",
+        "Winners traditionally kiss the bricks after winning",
+        "The largest single-day sporting event in the world by attendance",
+        "Originally surfaced entirely with 3.2 million bricks in 1909"
+      ],
+      "notableRaces": [
+        "Indianapolis 500 - most prestigious oval race"
+      ],
+      "builtYear": 1909
+    },
+    "autodromo-imola": {
+      "displayName": "Autodromo Enzo e Dino Ferrari (Imola)",
+      "nickname": "Imola",
+      "famousCorners": [
+        "Tamburello",
+        "Rivazza",
+        "Tosa",
+        "Piratella"
+      ],
+      "talkingPoints": [
+        "Historic Italian circuit named after Ferrari founder",
+        "Technical high-speed turns",
+        "Modern safety improvements"
+      ],
+      "notableRaces": [
+        "Formula 1 Emilia Romagna Grand Prix"
+      ],
+      "builtYear": 1953
+    },
+    "tsukuba-circuit": {
+      "displayName": "Tsukuba Circuit",
+      "nickname": "Tsukuba",
+      "famousCorners": [
+        "Turn 1",
+        "Hairpin",
+        "Final section"
+      ],
+      "talkingPoints": [
+        "Japanese technical circuit",
+        "Two configurations available",
+        "Popular testing venue"
+      ],
+      "notableRaces": [
+        "Japanese touring car racing",
+        "Super Formula"
+      ],
+      "builtYear": 1970
+    },
+    "chilli-bowl": {
+      "displayName": "Chilli Bowl",
+      "nickname": "Chilli Bowl",
+      "talkingPoints": [
+        "Unique indoor dirt oval racing",
+        "Special event venue",
+        "Unique racing format"
+      ],
+      "notableRaces": [
+        "Indoor dirt racing event"
+      ],
+      "builtYear": 2007
+    },
+    "mount-panorama-bathurst": {
+      "displayName": "Mount Panorama Circuit (Bathurst)",
+      "nickname": "The Mountain",
+      "famousCorners": [
+        "Hell Corner",
+        "The Cutting",
+        "Skyline",
+        "The Esses",
+        "The Dipper",
+        "Conrod Straight",
+        "The Chase",
+        "Murray's Corner"
+      ],
+      "talkingPoints": [
+        "174m elevation change — the mountain section uses narrow public roads",
+        "Conrod Straight drops 53m over 1.1km — cars hit 300+ km/h going downhill",
+        "The top of the mountain is so narrow that two GT cars barely fit side by side",
+        "The Bathurst 1000 is effectively Australia's motorsport national holiday"
+      ],
+      "notableRaces": [
+        "Bathurst 1000 - iconic endurance race"
+      ],
+      "builtYear": 1938
+    },
+    "charlotte-motor-speedway": {
+      "displayName": "Charlotte Motor Speedway",
+      "nickname": "Charlotte",
+      "talkingPoints": [
+        "High-speed D-shaped oval",
+        "Modern banking for close racing",
+        "Home of NASCAR All-Star Race"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar",
+        "All-Star Race"
+      ],
+      "builtYear": 1960
+    },
+    "kokomo-speedway": {
+      "displayName": "Kokomo Speedway",
+      "talkingPoints": [
+        "Midwest dirt oval",
+        "Local racing tradition",
+        "Competitive racing venue"
+      ],
+      "notableRaces": [
+        "Local Indiana dirt racing"
+      ],
+      "builtYear": 1984
+    },
+    "snetterton": {
+      "displayName": "Snetterton",
+      "nickname": "Snetterton",
+      "famousCorners": [
+        "The Riverbend",
+        "Turn 1",
+        "Coram Curve"
+      ],
+      "talkingPoints": [
+        "Historic Norfolk circuit",
+        "Technical corners throughout",
+        "British racing tradition"
+      ],
+      "notableRaces": [
+        "BTCC, British GT Championship"
+      ],
+      "builtYear": 1975
+    },
+    "eldora-speedway": {
+      "displayName": "Eldora Speedway",
+      "nickname": "Eldora",
+      "talkingPoints": [
+        "Historic Ohio dirt oval",
+        "High-banked dirt racing",
+        "Home of sprint car racing"
+      ],
+      "notableRaces": [
+        "World of Outlaws",
+        "sprint cars",
+        "Eldora Million"
+      ],
+      "builtYear": 1954
+    },
+    "knoxville-raceway": {
+      "displayName": "Knoxville Raceway",
+      "nickname": "Knoxville",
+      "talkingPoints": [
+        "Historic Iowa sprint car track",
+        "Highly competitive racing",
+        "Home of Knoxville Nationals"
+      ],
+      "notableRaces": [
+        "World of Outlaws",
+        "Knoxville Nationals"
+      ],
+      "builtYear": 1961
+    },
+    "circuit-americas": {
+      "displayName": "Circuit of the Americas",
+      "nickname": "COTA",
+      "famousCorners": [
+        "Turn 1",
+        "Turns 11-13 Esses",
+        "Turn 20"
+      ],
+      "talkingPoints": [
+        "Modern Texas circuit inspired by F1 classics",
+        "Elevation changes throughout",
+        "World-class racing facility"
+      ],
+      "notableRaces": [
+        "Formula 1 United States Grand Prix"
+      ],
+      "builtYear": 2012
+    },
+    "detroit-belle-isle": {
+      "displayName": "Detroit Grand Prix at Belle Isle",
+      "nickname": "Detroit",
+      "famousCorners": [
+        "Turn 1",
+        "Wall Turn",
+        "Chicane"
+      ],
+      "talkingPoints": [
+        "Detroit island street circuit",
+        "Challenging barrier-lined corners",
+        "Indoor/outdoor racing format"
+      ],
+      "notableRaces": [
+        "IndyCar street race"
+      ],
+      "builtYear": 1989
+    },
+    "bristol-motor-speedway": {
+      "displayName": "Bristol Motor Speedway",
+      "nickname": "Bristol",
+      "talkingPoints": [
+        "Tight high-banked .533-mile oval",
+        "Exciting close racing",
+        "Historic NASCAR venue"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "legendary Bristol Bash races"
+      ],
+      "builtYear": 1961
+    },
+    "myrtle-beach-speedway": {
+      "displayName": "Myrtle Beach Speedway",
+      "talkingPoints": [
+        "South Carolina short track",
+        "Oval racing venue",
+        "Community motorsports"
+      ],
+      "notableRaces": [
+        "Racing series racing"
+      ],
+      "builtYear": 1958
+    },
+    "pocono-raceway": {
+      "displayName": "Pocono Raceway",
+      "nickname": "The Tricky Triangle",
+      "talkingPoints": [
+        "Unique triangular 2.5-mile shape",
+        "Three very different turns",
+        "Challenging geometry"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 1971
+    },
+    "southern-national-motorsports": {
+      "displayName": "Southern National Motorsports Park",
+      "talkingPoints": [
+        "Modern North Carolina oval",
+        "Clean facility",
+        "Quality racing venue"
+      ],
+      "notableRaces": [
+        "Racing series events"
+      ],
+      "builtYear": 2010
+    },
+    "circuit-spa-francorchamps": {
+      "displayName": "Circuit de Spa-Francorchamps",
+      "nickname": "The Ardennes Rollercoaster",
+      "famousCorners": [
+        "La Source",
+        "Eau Rouge/Raidillon",
+        "Pouhon",
+        "Blanchimont",
+        "Bus Stop Chicane"
+      ],
+      "talkingPoints": [
+        "Originally 15km using public roads through the Ardennes forest",
+        "Eau Rouge is the stream at the bottom — the famous uphill is actually called Raidillon",
+        "Weather can differ between sectors due to the 7km length",
+        "Pouhon is a blind double-left taken at over 250 km/h in F1",
+        "One of only a handful of circuits that runs counter-clockwise"
+      ],
+      "notableRaces": [
+        "F1 Belgian GP",
+        "Spa 24 Hours",
+        "WEC 6 Hours of Spa"
+      ],
+      "builtYear": 1920
+    },
+    "williams-grove-speedway": {
+      "displayName": "Williams Grove Speedway",
+      "talkingPoints": [
+        "Historic Pennsylvania dirt oval",
+        "Sprint car tradition",
+        "Competitive racing venue"
+      ],
+      "notableRaces": [
+        "World of Outlaws",
+        "sprint cars"
+      ],
+      "builtYear": 1939
+    },
+    "talladega-superspeedway": {
+      "displayName": "Talladega Superspeedway",
+      "nickname": "Talladega",
+      "talkingPoints": [
+        "Fastest NASCAR superspeedway",
+        "Drafting crucial for success",
+        "Historic racing venue"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "highly competitive superspeedway racing"
+      ],
+      "builtYear": 1969
+    },
+    "the-bullring-lvms": {
+      "displayName": "The Bullring at LVMS",
+      "nickname": "The Bullring",
+      "talkingPoints": [
+        "Tight Las Vegas short track",
+        "Exciting racing action",
+        "Community motorsports"
+      ],
+      "notableRaces": [
+        "Short track racing"
+      ],
+      "builtYear": 1996
+    },
+    "volusia-speedway-park": {
+      "displayName": "Volusia Speedway Park",
+      "talkingPoints": [
+        "Historic Florida dirt oval",
+        "Sprint car tradition",
+        "Legendary racing venue"
+      ],
+      "notableRaces": [
+        "World of Outlaws",
+        "Local racing"
+      ],
+      "builtYear": 1957
+    },
+    "watkins-glen-international": {
+      "displayName": "Watkins Glen International",
+      "nickname": "The Glen",
+      "famousCorners": [
+        "Turn 1",
+        "The Esses",
+        "Big Bend"
+      ],
+      "talkingPoints": [
+        "Historic New York road course",
+        "Technical esses section",
+        "Championship racing tradition"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IMSA, GRAND-AM"
+      ],
+      "builtYear": 1956
+    },
+    "road-america": {
+      "displayName": "Road America",
+      "nickname": "Road America",
+      "famousCorners": [
+        "The Carousel",
+        "Canada Corner",
+        "Turn 6"
+      ],
+      "talkingPoints": [
+        "Classic American road course",
+        "Fast flowing layout",
+        "Historic racing venue"
+      ],
+      "notableRaces": [
+        "IMSA, GRAND-AM",
+        "motorcycle racing"
+      ],
+      "builtYear": 1955
+    },
+    "autodromo-monza": {
+      "displayName": "Autodromo Nazionale Monza",
+      "nickname": "The Cathedral of Speed",
+      "famousCorners": [
+        "Parabolica",
+        "Parly",
+        "Ascari"
+      ],
+      "talkingPoints": [
+        "Fastest average speed of any F1 circuit — cars are flat out for 80% of the lap",
+        "The old banked oval is still visible in the park and occasionally used for events",
+        "Has hosted more F1 races than any other circuit",
+        "Tifosi (Ferrari fans) create one of the most electric atmospheres in motorsport"
+      ],
+      "notableRaces": [
+        "Formula 1 Italian Grand Prix"
+      ],
+      "builtYear": 1922
+    },
+    "nurburgring-gp": {
+      "displayName": "Nürburgring Grand-Prix-Strecke",
+      "nickname": "Nürburgring GP",
+      "famousCorners": [
+        "Turn 1",
+        "Technical sections",
+        "Fast corners"
+      ],
+      "talkingPoints": [
+        "Modern F1-standard circuit",
+        "Historic location",
+        "Technical racing venue"
+      ],
+      "notableRaces": [
+        "Formula 1 German Grand Prix",
+        "motorsport testing"
+      ],
+      "builtYear": 1984
+    },
+    "autodromo-interlagos": {
+      "displayName": "Autódromo José Carlos Pace (Interlagos)",
+      "nickname": "Interlagos",
+      "famousCorners": [
+        "Senna's S",
+        "Parabolica",
+        "Turns 1-2"
+      ],
+      "talkingPoints": [
+        "Historic Brazilian circuit",
+        "Challenging weather conditions",
+        "World championship racing tradition"
+      ],
+      "notableRaces": [
+        "Formula 1 Brazilian Grand Prix"
+      ],
+      "builtYear": 1940
+    },
+    "limaland-motorsports-park": {
+      "displayName": "Limaland Motorsports Park",
+      "talkingPoints": [
+        "Midwest dirt oval",
+        "Local racing tradition",
+        "Competitive racing venue"
+      ],
+      "notableRaces": [
+        "Local Ohio dirt racing"
+      ],
+      "builtYear": 1987
+    },
+    "michigan-international-speedway": {
+      "displayName": "Michigan International Speedway",
+      "nickname": "Michigan",
+      "talkingPoints": [
+        "High-banked two-mile oval",
+        "Fast racing action",
+        "Modern facility in Michigan"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 1968
+    },
+    "circuit-gilles-villeneuve": {
+      "displayName": "Circuit Gilles-Villeneuve",
+      "nickname": "Montreal",
+      "famousCorners": [
+        "Turn 1",
+        "Turns 6-7",
+        "Wall of Champions"
+      ],
+      "talkingPoints": [
+        "Historic Montreal street circuit",
+        "Challenging barrier sections",
+        "Championship racing tradition"
+      ],
+      "notableRaces": [
+        "Formula 1 Canadian Grand Prix"
+      ],
+      "builtYear": 1978
+    },
+    "brands-hatch-circuit": {
+      "displayName": "Brands Hatch Circuit",
+      "nickname": "Brands Hatch",
+      "famousCorners": [
+        "Paddock Hill",
+        "Druids",
+        "Cooper Straight"
+      ],
+      "talkingPoints": [
+        "Historic British circuit with elevation",
+        "Challenging turns throughout",
+        "Tight racing venue"
+      ],
+      "notableRaces": [
+        "BTCC, British GT Championship"
+      ],
+      "builtYear": 1950
+    },
+    "south-boston-speedway": {
+      "displayName": "South Boston Speedway",
+      "talkingPoints": [
+        "Virginia short track",
+        "Community motorsports",
+        "Tight oval racing"
+      ],
+      "notableRaces": [
+        "Local racing"
+      ],
+      "builtYear": 1957
+    },
+    "dirt-track-charlotte": {
+      "displayName": "The Dirt Track at Charlotte",
+      "talkingPoints": [
+        "Historic North Carolina dirt oval",
+        "Sprint car tradition",
+        "Exciting dirt racing"
+      ],
+      "notableRaces": [
+        "World of Outlaws",
+        "dirt racing"
+      ],
+      "builtYear": 1924
+    },
+    "kansas-speedway": {
+      "displayName": "Kansas Speedway",
+      "nickname": "Kansas",
+      "talkingPoints": [
+        "Modern high-banked 1.5-mile oval",
+        "Competitive racing action",
+        "Midwest facility"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 2001
+    },
+    "mid-ohio-sports-car-course": {
+      "displayName": "Mid-Ohio Sports Car Course",
+      "nickname": "Mid-Ohio",
+      "famousCorners": [
+        "Turn 1",
+        "The Keyhole",
+        "Turn 13"
+      ],
+      "talkingPoints": [
+        "Historic Ohio road course",
+        "Technical corners throughout",
+        "Popular racing facility"
+      ],
+      "notableRaces": [
+        "IMSA, GRAND-AM",
+        "motorsport events"
+      ],
+      "builtYear": 1962
+    },
+    "phillip-island-circuit": {
+      "displayName": "Phillip Island Circuit",
+      "nickname": "Phillip Island",
+      "famousCorners": [
+        "Sibine Curve",
+        "Stoner Corner",
+        "McPhillamy Park"
+      ],
+      "talkingPoints": [
+        "Fast flowing Australian circuit",
+        "MotoGP venue",
+        "Ocean view racing"
+      ],
+      "notableRaces": [
+        "MotoGP, Australian Superbike Championship"
+      ],
+      "builtYear": 1956
+    },
+    "suzuka-international": {
+      "displayName": "Suzuka International Racing Course",
+      "nickname": "Suzuka",
+      "famousCorners": [
+        "Spoon Curve",
+        "130R",
+        "First Sector Esses"
+      ],
+      "talkingPoints": [
+        "Iconic figure-eight Japanese circuit",
+        "Technical high-speed corners",
+        "World championship tradition"
+      ],
+      "notableRaces": [
+        "Formula 1 Japanese Grand Prix"
+      ],
+      "builtYear": 1962
+    },
+    "canadian-tire-motorsport-park": {
+      "displayName": "Canadian Tire Motorsport Park (Mosport)",
+      "nickname": "Mosport",
+      "famousCorners": [
+        "The Schonfeld Chicane",
+        "Turn 2",
+        "Turn 10"
+      ],
+      "talkingPoints": [
+        "Historic Canadian road course",
+        "Fast flowing layout",
+        "Technical racing venue"
+      ],
+      "notableRaces": [
+        "Can-Am racing",
+        "IMSA, GRAND-AM"
+      ],
+      "builtYear": 1961
+    },
+    "dover-motor-speedway": {
+      "displayName": "Dover Motor Speedway",
+      "nickname": "Dover",
+      "talkingPoints": [
+        "One-mile high-banked oval",
+        "Challenging racing on tight oval",
+        "Championship racing tradition"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "historic venue"
+      ],
+      "builtYear": 1969
+    },
+    "sebring-international": {
+      "displayName": "Sebring International Raceway",
+      "nickname": "Sebring",
+      "famousCorners": [
+        "Turns 1-2",
+        "Hairpin",
+        "Turn 17"
+      ],
+      "talkingPoints": [
+        "Historic Florida airfield circuit",
+        "Bumpy technical layout",
+        "Legendary endurance racing tradition"
+      ],
+      "notableRaces": [
+        "12 Hours of Sebring - iconic endurance race"
+      ],
+      "builtYear": 1950
+    },
+    "mobility-resort-motegi": {
+      "displayName": "Mobility Resort Motegi",
+      "nickname": "Motegi",
+      "famousCorners": [
+        "Turn 1",
+        "Technical sections",
+        "Fast corners"
+      ],
+      "talkingPoints": [
+        "Modern Japanese circuit",
+        "Multiple configurations",
+        "Racing facility"
+      ],
+      "notableRaces": [
+        "IndyCar, Super Formula"
+      ],
+      "builtYear": 1997
+    },
+    "indianapolis-raceway-park": {
+      "displayName": "Indianapolis Raceway Park",
+      "nickname": "IRP",
+      "talkingPoints": [
+        "Indianapolis-area oval",
+        "Tight oval racing",
+        "Local motorsports facility"
+      ],
+      "notableRaces": [
+        "Local oval racing"
+      ],
+      "builtYear": 1969
+    },
+    "darlington-raceway": {
+      "displayName": "Darlington Raceway",
+      "nickname": "Darlington",
+      "talkingPoints": [
+        "Historic egg-shaped South Carolina oval",
+        "Unique D-shaped layout",
+        "Racing tradition"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "historic venue"
+      ],
+      "builtYear": 1950
+    },
+    "iowa-speedway": {
+      "displayName": "Iowa Speedway",
+      "nickname": "Iowa",
+      "talkingPoints": [
+        "Modern Iowa oval",
+        "Three-quarter mile banking",
+        "Midwest racing facility"
+      ],
+      "notableRaces": [
+        "IndyCar, NASCAR"
+      ],
+      "builtYear": 2006
+    },
+    "auto-club-speedway": {
+      "displayName": "Auto Club Speedway",
+      "nickname": "Fontana",
+      "talkingPoints": [
+        "Southern California two-mile oval",
+        "High-speed racing",
+        "Modern facility"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 1997
+    },
+    "kentucky-speedway": {
+      "displayName": "Kentucky Speedway",
+      "nickname": "Kentucky",
+      "talkingPoints": [
+        "Modern Kentucky 1.5-mile oval",
+        "Competitive racing action",
+        "Midwest facility"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 2000
+    },
+    "oran-park-raceway": {
+      "displayName": "Oran Park Raceway",
+      "nickname": "Oran Park",
+      "famousCorners": [
+        "Turn 1",
+        "Turns 8-9",
+        "Final section"
+      ],
+      "talkingPoints": [
+        "Former Sydney-area circuit",
+        "Closed to racing in 2010",
+        "Multiple configurations"
+      ],
+      "notableRaces": [
+        "Australian Touring Car Championship"
+      ],
+      "builtYear": 1989
+    },
+    "new-smyrna-speedway": {
+      "displayName": "New Smyrna Speedway",
+      "talkingPoints": [
+        "Historic Florida dirt oval",
+        "Modified racing tradition",
+        "Competitive racing venue"
+      ],
+      "notableRaces": [
+        "Modifieds, local racing"
+      ],
+      "builtYear": 1954
+    },
+    "donington-park": {
+      "displayName": "Donington Park",
+      "nickname": "Donington",
+      "famousCorners": [
+        "Craner Curves",
+        "Redgate",
+        "McLeans"
+      ],
+      "talkingPoints": [
+        "Historic British circuit with elevation",
+        "Technical Craner Curves",
+        "Racing heritage"
+      ],
+      "notableRaces": [
+        "British Touring Car Championship",
+        "British GT"
+      ],
+      "builtYear": 1931
+    },
+    "thompson-speedway": {
+      "displayName": "Thompson Speedway",
+      "talkingPoints": [
+        "New England motorsports",
+        "One-mile oval",
+        "Community racing venue"
+      ],
+      "notableRaces": [
+        "Local Connecticut racing"
+      ],
+      "builtYear": 1967
+    },
+    "phoenix-raceway": {
+      "displayName": "Phoenix Raceway",
+      "nickname": "Phoenix",
+      "talkingPoints": [
+        "Arizona one-mile oval",
+        "Hot racing conditions",
+        "Championship venue"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 1964
+    },
+    "oulton-park": {
+      "displayName": "Oulton Park",
+      "nickname": "Oulton Park",
+      "famousCorners": [
+        "Cascades",
+        "Old Hall",
+        "Island Chicane"
+      ],
+      "talkingPoints": [
+        "Historic Cheshire circuit with elevation",
+        "Three configurations available",
+        "Technical racing venue"
+      ],
+      "notableRaces": [
+        "BTCC, British GT Championship"
+      ],
+      "builtYear": 1953
+    },
+    "rockingham-speedway": {
+      "displayName": "Rockingham Speedway",
+      "nickname": "Rockingham",
+      "talkingPoints": [
+        "British 1.5-mile banked oval",
+        "UK oval racing tradition",
+        "Modern facility"
+      ],
+      "notableRaces": [
+        "British oval racing"
+      ],
+      "builtYear": 2001
+    },
+    "okayama-international": {
+      "displayName": "Okayama International Circuit",
+      "nickname": "Okayama",
+      "famousCorners": [
+        "Turn 1",
+        "Technical sections",
+        "Fast corners"
+      ],
+      "talkingPoints": [
+        "Japanese racing circuit",
+        "Multiple configurations",
+        "Technical layout"
+      ],
+      "notableRaces": [
+        "Super Formula, Super GT"
+      ],
+      "builtYear": 1990
+    },
+    "echo-park-speedway": {
+      "displayName": "Echo Park Speedway",
+      "talkingPoints": [
+        "Small dirt oval",
+        "Local racing community",
+        "Tight racing"
+      ],
+      "notableRaces": [
+        "Local dirt oval racing"
+      ],
+      "builtYear": 1999
+    },
+    "the-milwaukee-mile": {
+      "displayName": "The Milwaukee Mile",
+      "nickname": "Milwaukee",
+      "talkingPoints": [
+        "Oldest continuously-operating motor speedway",
+        "One-mile oval with history",
+        "Historic racing venue"
+      ],
+      "notableRaces": [
+        "IndyCar, historic racing"
+      ],
+      "builtYear": 1953
+    },
+    "richmond-raceway": {
+      "displayName": "Richmond Raceway",
+      "nickname": "Richmond",
+      "talkingPoints": [
+        "Historic Virginia three-quarter-mile oval",
+        "Tight racing",
+        "Championship tradition"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "historic venue"
+      ],
+      "builtYear": 1946
+    },
+    "las-vegas-motor-speedway": {
+      "displayName": "Las Vegas Motor Speedway",
+      "nickname": "Las Vegas",
+      "talkingPoints": [
+        "Modern Las Vegas 1.5-mile oval",
+        "Desert racing conditions",
+        "High-speed action"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 1996
+    },
+    "martinsville-speedway": {
+      "displayName": "Martinsville Speedway",
+      "nickname": "Martinsville",
+      "talkingPoints": [
+        "Historic Virginia half-mile oval",
+        "Tightest NASCAR oval",
+        "Exciting contact racing"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "historic venue"
+      ],
+      "builtYear": 1947
+    },
+    "new-hampshire-motor-speedway": {
+      "displayName": "New Hampshire Motor Speedway",
+      "nickname": "New Hampshire",
+      "talkingPoints": [
+        "New England one-mile oval",
+        "Modern facility",
+        "Championship racing"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 1990
+    },
+    "concord-speedway": {
+      "displayName": "Concord Speedway",
+      "talkingPoints": [
+        "New England dirt oval",
+        "Local racing tradition",
+        "Community motorsports"
+      ],
+      "notableRaces": [
+        "Local New Hampshire dirt racing"
+      ],
+      "builtYear": 1967
+    },
+    "chicagoland-speedway": {
+      "displayName": "Chicagoland Speedway",
+      "nickname": "Chicagoland",
+      "talkingPoints": [
+        "Illinois 1.5-mile D-shaped oval",
+        "High-banked racing",
+        "Midwest facility"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "IndyCar"
+      ],
+      "builtYear": 2001
+    },
+    "stafford-motor-speedway": {
+      "displayName": "Stafford Motor Speedway",
+      "talkingPoints": [
+        "New England half-mile oval",
+        "Historic racing venue",
+        "Community motorsports"
+      ],
+      "notableRaces": [
+        "Local Connecticut racing"
+      ],
+      "builtYear": 1955
+    },
+    "homestead-miami-speedway": {
+      "displayName": "Homestead-Miami Speedway",
+      "nickname": "Homestead",
+      "talkingPoints": [
+        "Florida 1.5-mile D-shaped oval",
+        "Modern facility",
+        "Season-ending racing"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "season finales"
+      ],
+      "builtYear": 1995
+    },
+    "oxford-plains-speedway": {
+      "displayName": "Oxford Plains Speedway",
+      "talkingPoints": [
+        "New England dirt oval",
+        "Historic racing tradition",
+        "Community motorsports"
+      ],
+      "notableRaces": [
+        "Local Maine dirt racing"
+      ],
+      "builtYear": 1949
+    },
+    "usa-international-speedway": {
+      "displayName": "USA International Speedway",
+      "talkingPoints": [
+        "Western US oval venue",
+        "Two-thirds mile oval",
+        "Racing facility"
+      ],
+      "notableRaces": [
+        "Local Utah racing"
+      ],
+      "builtYear": 1968
+    },
+    "irwindale-speedway": {
+      "displayName": "Irwindale Speedway",
+      "talkingPoints": [
+        "California half-mile oval",
+        "Modern facility",
+        "West Coast motorsports"
+      ],
+      "notableRaces": [
+        "Southern California racing"
+      ],
+      "builtYear": 1999
+    },
+    "sonoma-raceway": {
+      "displayName": "Sonoma Raceway",
+      "nickname": "Sonoma",
+      "famousCorners": [
+        "The Carousel",
+        "Turn 11",
+        "Hairpin"
+      ],
+      "talkingPoints": [
+        "California wine country circuit",
+        "Only left-hand turns",
+        "Modern facilities"
+      ],
+      "notableRaces": [
+        "NASCAR Cup Series",
+        "road course racing"
+      ],
+      "builtYear": 1968
+    },
+    "michelin-raceway-road-atlanta": {
+      "displayName": "Michelin Raceway Road Atlanta",
+      "nickname": "Road Atlanta",
+      "famousCorners": [
+        "Turn 1",
+        "The Esses",
+        "Turn 10"
+      ],
+      "talkingPoints": [
+        "Georgia road course",
+        "Fast flowing layout",
+        "Technical racing venue"
+      ],
+      "notableRaces": [
+        "IMSA, GRAND-AM",
+        "sports car racing"
+      ],
+      "builtYear": 1968
+    },
+    "summit-point-motorsports-park": {
+      "displayName": "Summit Point Motorsports Park",
+      "nickname": "Summit Point",
+      "famousCorners": [
+        "Turn 1",
+        "Technical sections",
+        "Turn 10"
+      ],
+      "talkingPoints": [
+        "West Virginia racing facility",
+        "Technical road course",
+        "Two configurations"
+      ],
+      "notableRaces": [
+        "Road racing events"
+      ],
+      "builtYear": 1990
+    },
+    "barber-motorsports-park": {
+      "displayName": "Barber Motorsports Park",
+      "nickname": "Barber",
+      "famousCorners": [
+        "Turn 1",
+        "The Esses",
+        "Turn 12"
+      ],
+      "talkingPoints": [
+        "Modern Alabama road course",
+        "Technical layout with elevation",
+        "Racing facility with museum"
+      ],
+      "notableRaces": [
+        "IMSA, IndyCar",
+        "road racing events"
+      ],
+      "builtYear": 2003
+    },
+    "langley-speedway": {
+      "displayName": "Langley Speedway",
+      "talkingPoints": [
+        "Historic Virginia oval",
+        "Community racing venue",
+        "Short track tradition"
+      ],
+      "notableRaces": [
+        "Local Virginia racing"
+      ],
+      "builtYear": 1946
+    },
+    "circuit-zolder": {
+      "displayName": "Circuit Zolder",
+      "nickname": "Zolder",
+      "famousCorners": [
+        "Turn 1",
+        "The Esses",
+        "Technical sections"
+      ],
+      "talkingPoints": [
+        "Belgian road course",
+        "Technical layout",
+        "Racing facility"
+      ],
+      "notableRaces": [
+        "WTCC, Formula 3",
+        "touring car racing"
+      ],
+      "builtYear": 1963
+    },
+    "five-flags-speedway": {
+      "displayName": "Five Flags Speedway",
+      "talkingPoints": [
+        "Florida five-eighths-mile oval",
+        "Historic racing venue",
+        "Community motorsports"
+      ],
+      "notableRaces": [
+        "Local Florida racing"
+      ],
+      "builtYear": 1957
+    },
+    "long-beach-street-circuit": {
+      "displayName": "Long Beach Street Circuit",
+      "nickname": "Long Beach",
+      "famousCorners": [
+        "Turn 1",
+        "Turns 3-4",
+        "Hairpin"
+      ],
+      "talkingPoints": [
+        "Historic California street circuit",
+        "Challenging barriers and walls",
+        "Long-running racing tradition"
+      ],
+      "notableRaces": [
+        "IndyCar, historic street racing"
+      ],
+      "builtYear": 1976
+    },
+    "new-jersey-motorsports-park": {
+      "displayName": "New Jersey Motorsports Park",
+      "nickname": "NJMP",
+      "famousCorners": [
+        "Turn 1",
+        "Technical sections",
+        "Turn 10"
+      ],
+      "talkingPoints": [
+        "New Jersey road course",
+        "Multiple configurations",
+        "Technical racing facility"
+      ],
+      "notableRaces": [
+        "Road racing events",
+        "motorsport facility"
+      ],
+      "builtYear": 1998
+    },
+    "nurburgring-combined": {
+      "displayName": "Nürburgring Combined",
+      "nickname": "Green Hell Extended",
+      "famousCorners": [
+        "Flugplatz",
+        "Parabolica",
+        "All Nordschleife corners"
+      ],
+      "talkingPoints": [
+        "Legendary 25+ km combined layout",
+        "Ultimate test of car and driver",
+        "Most challenging circuit available"
+      ],
+      "notableRaces": [
+        "Historic combined circuit",
+        "testing ground for development"
+      ],
+      "builtYear": 1927
+    }
+  }
+}

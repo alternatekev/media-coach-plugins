@@ -2,7 +2,6 @@
   "version": "3.0",
   "description": "Pre-generated commentary fragments for sentence composition at runtime. Each topic contains openers, bodies, and closers that assemble into complete sentences. 3rd-person broadcast commentary style — uses {driver} placeholder (randomly resolved to first or last name). Incorporates vocabulary from broadcast commentary, team radio transcripts, and coaching channels.",
   "fragments": [
-
     {
       "topicId": "spin_catch",
       "fragments": {
@@ -33,7 +32,6 @@
         ]
       }
     },
-
     {
       "topicId": "wall_contact",
       "fragments": {
@@ -64,7 +62,6 @@
         ]
       }
     },
-
     {
       "topicId": "off_track",
       "fragments": {
@@ -95,7 +92,6 @@
         ]
       }
     },
-
     {
       "topicId": "kerb_hit",
       "fragments": {
@@ -126,7 +122,6 @@
         ]
       }
     },
-
     {
       "topicId": "abs_activation",
       "fragments": {
@@ -157,7 +152,6 @@
         ]
       }
     },
-
     {
       "topicId": "tc_intervention",
       "fragments": {
@@ -188,7 +182,6 @@
         ]
       }
     },
-
     {
       "topicId": "close_battle",
       "fragments": {
@@ -219,7 +212,6 @@
         ]
       }
     },
-
     {
       "topicId": "position_gained",
       "fragments": {
@@ -250,7 +242,6 @@
         ]
       }
     },
-
     {
       "topicId": "position_lost",
       "fragments": {
@@ -281,7 +272,6 @@
         ]
       }
     },
-
     {
       "topicId": "yellow_flag",
       "fragments": {
@@ -312,7 +302,6 @@
         ]
       }
     },
-
     {
       "topicId": "debris_on_track",
       "fragments": {
@@ -343,7 +332,6 @@
         ]
       }
     },
-
     {
       "topicId": "race_start",
       "fragments": {
@@ -374,7 +362,6 @@
         ]
       }
     },
-
     {
       "topicId": "formation_lap",
       "fragments": {
@@ -405,7 +392,6 @@
         ]
       }
     },
-
     {
       "topicId": "personal_best",
       "fragments": {
@@ -436,7 +422,6 @@
         ]
       }
     },
-
     {
       "topicId": "pit_entry",
       "fragments": {
@@ -467,7 +452,6 @@
         ]
       }
     },
-
     {
       "topicId": "high_cornering_load",
       "fragments": {
@@ -498,7 +482,6 @@
         ]
       }
     },
-
     {
       "topicId": "ffb_torque_spike",
       "fragments": {
@@ -529,7 +512,6 @@
         ]
       }
     },
-
     {
       "topicId": "low_fuel",
       "fragments": {
@@ -560,7 +542,6 @@
         ]
       }
     },
-
     {
       "topicId": "wet_track",
       "fragments": {
@@ -591,7 +572,6 @@
         ]
       }
     },
-
     {
       "topicId": "track_temp_cold",
       "fragments": {
@@ -622,7 +602,6 @@
         ]
       }
     },
-
     {
       "topicId": "tyre_wear_high",
       "fragments": {
@@ -653,7 +632,6 @@
         ]
       }
     },
-
     {
       "topicId": "hot_tyres",
       "fragments": {
@@ -684,7 +662,6 @@
         ]
       }
     },
-
     {
       "topicId": "heavy_braking",
       "fragments": {
@@ -715,7 +692,6 @@
         ]
       }
     },
-
     {
       "topicId": "qualifying_push",
       "fragments": {
@@ -746,7 +722,6 @@
         ]
       }
     },
-
     {
       "topicId": "incident_spike",
       "fragments": {
@@ -777,7 +752,6 @@
         ]
       }
     },
-
     {
       "topicId": "ers_low",
       "fragments": {
@@ -808,7 +782,6 @@
         ]
       }
     },
-
     {
       "topicId": "track_temp_hot",
       "fragments": {
@@ -839,7 +812,6 @@
         ]
       }
     },
-
     {
       "topicId": "drs_active",
       "fragments": {
@@ -870,7 +842,6 @@
         ]
       }
     },
-
     {
       "topicId": "car_balance_sustained",
       "fragments": {
@@ -901,7 +872,6 @@
         ]
       }
     },
-
     {
       "topicId": "black_flag",
       "fragments": {
@@ -932,7 +902,6 @@
         ]
       }
     },
-
     {
       "topicId": "rapid_gear_change",
       "fragments": {
@@ -963,7 +932,6 @@
         ]
       }
     },
-
     {
       "topicId": "long_stint",
       "fragments": {
@@ -994,7 +962,6 @@
         ]
       }
     },
-
     {
       "topicId": "session_time_low",
       "fragments": {
@@ -1025,7 +992,6 @@
         ]
       }
     },
-
     {
       "topicId": "brake_bias_change",
       "fragments": {
@@ -1056,7 +1022,6 @@
         ]
       }
     },
-
     {
       "topicId": "tc_setting_change",
       "fragments": {
@@ -1087,7 +1052,6 @@
         ]
       }
     },
-
     {
       "topicId": "abs_setting_change",
       "fragments": {
@@ -1118,7 +1082,6 @@
         ]
       }
     },
-
     {
       "topicId": "arb_front_change",
       "fragments": {
@@ -1149,7 +1112,6 @@
         ]
       }
     },
-
     {
       "topicId": "arb_rear_change",
       "fragments": {
@@ -1179,7 +1141,96 @@
           ""
         ]
       }
+    },
+    {
+      "topicId": "track_context",
+      "fragments": {
+        "openers": [
+          "Here at {track}.",
+          "A note about {trackNickname}.",
+          "Coming through {corner}.",
+          "This is {track}.",
+          "{driver} at {trackNickname}.",
+          "Interesting one about this circuit."
+        ],
+        "bodies": [
+          "{trackFact} — the kind of detail that shapes how {driver} approaches every lap here.",
+          "{trackFact}. Understanding this place is half the battle.",
+          "Every driver who's raced here knows {corner} — it's what makes this circuit special.",
+          "{trackFact}. That's what separates {track} from every other venue on the calendar.",
+          "Through {corner}, the circuit demands respect from {driver} — and rewards those who give it.",
+          "{trackFact}. The history here adds weight to every lap {driver} turns.",
+          "The approach through {corner} defines the whole rhythm of this place for {driver}.",
+          "{trackFact} — broadcast-worthy detail about a world-class venue."
+        ],
+        "closers": [
+          "Fascinating circuit.",
+          "History matters here.",
+          "Special place.",
+          "Worth knowing.",
+          ""
+        ]
+      }
+    },
+    {
+      "topicId": "prerace_track",
+      "fragments": {
+        "openers": [
+          "Welcome to {track}.",
+          "Grid forming at {trackNickname}.",
+          "{driver} on the grid at {track}.",
+          "Pre-race at {trackNickname}.",
+          "Approaching race start at {track}.",
+          "The grid at {track}."
+        ],
+        "bodies": [
+          "{trackFact}. {driver} will need to respect the history and challenge of this circuit.",
+          "The approach through {corner} will be critical on the opening lap for {driver}.",
+          "{trackFact} — the kind of knowledge that changes how {driver} attacks every corner here.",
+          "Watch for {corner} — it's where this track separates the committed from the cautious.",
+          "{trackFact}. Every circuit has its secrets and {trackNickname} has plenty.",
+          "The character of this place is defined by {corner} and {driver} needs to know it inside out.",
+          "{trackFact}. That context matters when the lights go out for {driver}.",
+          "This venue rewards preparation and {driver} needs to respect what {trackNickname} demands."
+        ],
+        "closers": [
+          "Race time.",
+          "Know the track.",
+          "Respect the venue.",
+          "Here we go.",
+          ""
+        ]
+      }
+    },
+    {
+      "topicId": "prerace_circuit_detail",
+      "fragments": {
+        "openers": [
+          "A closer look at {corner}.",
+          "{corner} is the talking point.",
+          "Watch {driver} through {corner}.",
+          "The approach into {corner}.",
+          "At {trackNickname}, {corner}.",
+          "Key section at {track}."
+        ],
+        "bodies": [
+          "{trackFact}. The line through here defines the whole lap for {driver}.",
+          "How {driver} handles this section will set the pace for the entire stint.",
+          "{trackFact} — that's the character of {trackNickname} and what makes it unique.",
+          "This is where the lap comes together or falls apart for {driver} at {track}.",
+          "{trackFact}. That's what makes this one of the most talked-about venues on the calendar.",
+          "At {trackNickname}, this is where the real racing happens and {driver} knows it.",
+          "The circuit demands precision here and {trackFact} adds context to every attempt.",
+          "{driver} has to get this section right — it defines everything else at {track}."
+        ],
+        "closers": [
+          "Lap-defining.",
+          "Key section.",
+          "Critical point.",
+          "Watch this.",
+          ""
+        ]
+      }
     }
-
   ]
 }

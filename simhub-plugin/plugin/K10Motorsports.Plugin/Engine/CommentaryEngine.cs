@@ -78,6 +78,11 @@ namespace K10Motorsports.Plugin.Engine
         private readonly Random _rng = new Random();
         private readonly FragmentAssembler _fragmentAssembler = new FragmentAssembler();
 
+        // ── Track commentary data ───────────────────────────────────────────
+        private Dictionary<string, TrackCommentaryData> _trackData = new Dictionary<string, TrackCommentaryData>();
+        private TrackCommentaryData _currentTrackData;
+        private string _resolvedTrackId = "";
+
         // Per-topic last trigger time
         private readonly Dictionary<string, DateTime> _topicLastTrigger = new Dictionary<string, DateTime>();
         // Anti-spam: minimum seconds between any two prompts (only for same-or-lower severity)
@@ -246,6 +251,35 @@ namespace K10Motorsports.Plugin.Engine
         {
             _fragmentAssembler.ResolveDriverName = () => ResolveDriverName();
             _fragmentAssembler.LoadFragments(jsonPath);
+        }
+
+        /// <summary>
+        /// Loads track-specific commentary data from commentary_tracks.json.
+        /// Provides {track}, {trackNickname}, {corner}, and {trackFact} placeholders.
+        /// </summary>
+        public void LoadTrackData(string jsonPath)
+        {
+            if (!File.Exists(jsonPath))
+            {
+                SimHub.Logging.Current.Warn($"[K10Motorsports] Track commentary file not found: {jsonPath}");
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(jsonPath);
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                var file = JsonConvert.DeserializeObject<CommentaryTracksFile>(json, settings);
+                _trackData = file?.Tracks ?? new Dictionary<string, TrackCommentaryData>();
+                SimHub.Logging.Current.Info($"[K10Motorsports] Loaded {_trackData.Count} track commentary entries from {jsonPath}");
+            }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Error($"[K10Motorsports] Failed to load track data: {ex.Message}");
+            }
         }
 
         private void LoadBuiltinTopics()
@@ -576,6 +610,9 @@ namespace K10Motorsports.Plugin.Engine
             prompt = prompt.Replace("{manufacturer}", ResolveCar("{manufacturer}", context));
             prompt = prompt.Replace("{class}", ResolveCar("{class}", context));
 
+            // Substitute track-specific placeholders
+            prompt = ResolveTrackPlaceholders(prompt, context);
+
             // Build event exposition text (used in event-only mode)
             string exposition = BuildEventExposition(topic, context);
 
@@ -641,6 +678,9 @@ namespace K10Motorsports.Plugin.Engine
             template = template.Replace("{car}", ResolveCar("{car}", context));
             template = template.Replace("{manufacturer}", ResolveCar("{manufacturer}", context));
             template = template.Replace("{class}", ResolveCar("{class}", context));
+
+            // Substitute track-specific placeholders
+            template = ResolveTrackPlaceholders(template, context);
 
             return template;
         }
@@ -735,6 +775,107 @@ namespace K10Motorsports.Plugin.Engine
             }
 
             return "the car";
+        }
+
+        /// <summary>
+        /// Resolves the current track's commentary data from the track database.
+        /// Uses fuzzy matching: normalizes the track name to lowercase and checks
+        /// for substring matches against the database keys.
+        /// </summary>
+        private void ResolveCurrentTrack(TelemetrySnapshot context)
+        {
+            if (context == null || string.IsNullOrEmpty(context.TrackName)) return;
+
+            string trackName = context.TrackName.Trim();
+            if (trackName == _resolvedTrackId) return; // already resolved
+
+            _resolvedTrackId = trackName;
+            _currentTrackData = null;
+
+            string lower = trackName.ToLowerInvariant()
+                .Replace(" ", "-")
+                .Replace("_", "-");
+
+            // Exact match first
+            if (_trackData.TryGetValue(lower, out var exact))
+            {
+                _currentTrackData = exact;
+                return;
+            }
+
+            // Substring match: find the best match where the key is contained in
+            // the track name or vice versa
+            foreach (var kvp in _trackData)
+            {
+                if (lower.Contains(kvp.Key) || kvp.Key.Contains(lower))
+                {
+                    _currentTrackData = kvp.Value;
+                    return;
+                }
+            }
+
+            // Partial word match: try matching significant parts of the name
+            string[] words = lower.Split(new[] { '-', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var kvp in _trackData)
+            {
+                foreach (var word in words)
+                {
+                    if (word.Length >= 4 && kvp.Key.Contains(word))
+                    {
+                        _currentTrackData = kvp.Value;
+                        return;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolves track-specific placeholders in a text string:
+        /// {track} → display name, {trackNickname} → nickname or display name,
+        /// {corner} → random famous corner, {trackFact} → random talking point.
+        /// </summary>
+        private string ResolveTrackPlaceholders(string text, TelemetrySnapshot context)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            if (!text.Contains("{track")) return text; // fast path: no track placeholders
+
+            ResolveCurrentTrack(context);
+
+            if (_currentTrackData != null)
+            {
+                text = text.Replace("{track}", _currentTrackData.DisplayName);
+                text = text.Replace("{trackNickname}",
+                    !string.IsNullOrEmpty(_currentTrackData.Nickname)
+                        ? _currentTrackData.Nickname
+                        : _currentTrackData.DisplayName);
+
+                if (text.Contains("{corner}"))
+                {
+                    string corner = _currentTrackData.FamousCorners?.Count > 0
+                        ? _currentTrackData.FamousCorners[_rng.Next(_currentTrackData.FamousCorners.Count)]
+                        : "the next corner";
+                    text = text.Replace("{corner}", corner);
+                }
+
+                if (text.Contains("{trackFact}"))
+                {
+                    string fact = _currentTrackData.TalkingPoints?.Count > 0
+                        ? _currentTrackData.TalkingPoints[_rng.Next(_currentTrackData.TalkingPoints.Count)]
+                        : "this circuit has a fascinating history in motorsport";
+                    text = text.Replace("{trackFact}", fact);
+                }
+            }
+            else
+            {
+                // Fallback when track data isn't available
+                string trackName = !string.IsNullOrEmpty(context?.TrackName) ? context.TrackName : "this circuit";
+                text = text.Replace("{track}", trackName);
+                text = text.Replace("{trackNickname}", trackName);
+                text = text.Replace("{corner}", "the next corner");
+                text = text.Replace("{trackFact}", "this circuit has a fascinating history in motorsport");
+            }
+
+            return text;
         }
 
         /// <summary>

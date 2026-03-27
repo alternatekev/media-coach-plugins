@@ -137,6 +137,10 @@ namespace K10Motorsports.Plugin
             string fragmentsPath = ResolveDatasetFile("commentary_fragments.json");
             _engine.LoadFragments(fragmentsPath);
 
+            // Load track-specific commentary data (for {track}, {corner}, {trackFact} placeholders)
+            string trackDataPath = ResolveDatasetFile("commentary_tracks.json");
+            _engine.LoadTrackData(trackDataPath);
+
             // Initialise iRacing SDK bridge (direct shared memory via IRSDKSharper)
             TelemetrySnapshot._sdkBridge = _sdkBridge;
             _sdkBridge.Start();

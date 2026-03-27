@@ -93,6 +93,7 @@ namespace K10Motorsports.Plugin.Engine
             s.IsInPitLane      = d.IsInPitLane != 0;
             s.SessionTypeName  = d.SessionTypeName ?? "";
             s.CarModel         = d.CarModel ?? "";
+            s.TrackName        = GetPluginProp<string>(pm, "DataCorePlugin.GameData.TrackName") ?? "";
             s.TyreWearFL       = d.TyreWearFrontLeft;
             s.TyreWearFR       = d.TyreWearFrontRight;
             s.TyreWearRL       = d.TyreWearRearLeft;
@@ -182,9 +183,8 @@ namespace K10Motorsports.Plugin.Engine
             if (s.SessionLapsTotal == 0)
                 s.SessionLapsTotal = (int)GetPluginProp<double>(pm, "DataCorePlugin.GameData.TotalLaps");
 
-            // ── Sector splits (using iRacing native boundaries from session YAML) ──
-            // Reset sector tracker when the track changes (prevents stale N-sector data
-            // from previous track bleeding into new track, e.g. Sebring 7→Daytona 3)
+            // ── Sector splits (equal thirds — matches CrewChief) ──
+            // Reset sector tracker when the track changes
             string trackIdForSectors = GetPluginProp<string>(pm, "DataCorePlugin.GameData.TrackName") ?? "";
             if (!string.IsNullOrEmpty(trackIdForSectors) && trackIdForSectors != _lastSectorTrackId)
             {
@@ -192,15 +192,12 @@ namespace K10Motorsports.Plugin.Engine
                 _sectorTracker.Reset();
             }
 
-            // Feed iRacing's SplitTimeInfo sector boundaries to the tracker if available
-            // Prefer IRacingSdkBridge (full N-sector support) over legacy IRatingEstimator
-            if (_sdkBridge != null && _sdkBridge.SectorBoundaries.Length > 0 && !_sectorTracker.HasNativeBoundaries)
+            // Always use equal thirds (0.333, 0.667) for sector boundaries.
+            // This matches CrewChief's sector definitions so that our HUD
+            // sector times agree with CrewChief's voice callouts.
+            if (!_sectorTracker.HasNativeBoundaries)
             {
-                _sectorTracker.SetBoundaries(_sdkBridge.SectorBoundaries, _sdkBridge.SectorCount);
-            }
-            else if (_irEstimator != null && _irEstimator.HasSectorBoundaries && !_sectorTracker.HasNativeBoundaries)
-            {
-                _sectorTracker.SetBoundaries(_irEstimator.SectorS2Start, _irEstimator.SectorS3Start);
+                _sectorTracker.SetBoundaries(1.0 / 3.0, 2.0 / 3.0);
             }
             _sectorTracker.Update(s.TrackPositionPct, s.LapCurrentTime, s.CompletedLaps);
             s.CurrentSector  = _sectorTracker.CurrentSector;

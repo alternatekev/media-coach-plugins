@@ -589,35 +589,19 @@
 
       const curSector = +(p[dsPre + 'CurrentSector']) || 1;
       const lapDelta = +(p[dsPre + 'LapDelta']) || 0;
-      const sectorCount = +(p[dsPre + 'SectorCount']) || 3;
+      const sectorCount = 3; // Always 3 sectors, equal thirds — matches CrewChief
 
-      // Build sector arrays: always use N-sector arrays if available, fallback to legacy 3-sector
-      let splits, deltas, states;
-      const splitsStr = p[dsPre + 'SectorSplits'];
-      if (splitsStr) {
-        splits = splitsStr.split(',').map(Number).map(v => isNaN(v) ? 0 : v);
-        deltas = (p[dsPre + 'SectorDeltas'] || '').split(',').map(Number).map(v => isNaN(v) ? 0 : v);
-        states = (p[dsPre + 'SectorStates'] || '').split(',').map(Number).map(v => isNaN(v) ? 0 : v);
-      } else {
-        splits = [+(p[dsPre + 'SectorSplitS1']) || 0, +(p[dsPre + 'SectorSplitS2']) || 0, +(p[dsPre + 'SectorSplitS3']) || 0];
-        deltas = [+(p[dsPre + 'SectorDeltaS1']) || 0, +(p[dsPre + 'SectorDeltaS2']) || 0, +(p[dsPre + 'SectorDeltaS3']) || 0];
-        states = [+(p[dsPre + 'SectorStateS1']) || 0, +(p[dsPre + 'SectorStateS2']) || 0, +(p[dsPre + 'SectorStateS3']) || 0];
-      }
+      // Build sector arrays from plugin data
+      const splits = [+(p[dsPre + 'SectorSplitS1']) || 0, +(p[dsPre + 'SectorSplitS2']) || 0, +(p[dsPre + 'SectorSplitS3']) || 0];
+      const deltas = [+(p[dsPre + 'SectorDeltaS1']) || 0, +(p[dsPre + 'SectorDeltaS2']) || 0, +(p[dsPre + 'SectorDeltaS3']) || 0];
+      const states = [+(p[dsPre + 'SectorStateS1']) || 0, +(p[dsPre + 'SectorStateS2']) || 0, +(p[dsPre + 'SectorStateS3']) || 0];
       // state: 0=none, 1=pb (session best / purple), 2=faster (green), 3=slower (yellow)
       const stateClass = ['', 'sector-pb', 'sector-faster', 'sector-slower'];
 
       // Store for track map sector coloring + boundaries for path splitting
       window._sectorData = { curSector, splits, deltas, states, sectorCount };
-      // Read N-sector boundary pcts (comma-separated) or fall back to legacy S2/S3
-      const boundaryStr = p[dsPre + 'SectorBoundaryPcts'] || '';
-      if (boundaryStr) {
-        const pcts = boundaryStr.split(',').map(Number).filter(v => v > 0 && v < 1);
-        if (pcts.length >= 1) window._sectorBoundaries = pcts;
-      } else {
-        const s2Pct = +(p[dsPre + 'SectorS2StartPct']) || 0;
-        const s3Pct = +(p[dsPre + 'SectorS3StartPct']) || 0;
-        if (s2Pct > 0 && s3Pct > s2Pct) window._sectorBoundaries = [s2Pct, s3Pct];
-      }
+      // Equal thirds boundaries for track map
+      window._sectorBoundaries = [1/3, 2/3];
 
       // Read current lap time for live sector elapsed
       const currentLapTime = _demo
@@ -642,10 +626,6 @@
         }
       }
 
-      // Determine if too many sectors to show values (would clip)
-      // Threshold: if >6 sectors, omit the time/delta values to avoid clipping
-      const omitValues = sectorCount > 6;
-
       for (let si = 1; si <= sectorCount; si++) {
         const cell = document.getElementById('sector' + si);
         const timeEl = document.getElementById('sector' + si + 'Time');
@@ -657,15 +637,6 @@
         // If lap is invalid (incident occurred), mark all sectors red
         if (_lapInvalid) {
           cell.classList.add('sector-invalid');
-        }
-
-        if (omitValues) {
-          // Too many sectors: just show color state, no text values
-          timeEl.textContent = '';
-          if (deltaEl) deltaEl.textContent = '';
-          if (si === curSector) cell.classList.add('sector-active');
-          else if (!_lapInvalid && splits[si - 1] > 0 && stateClass[states[si - 1]]) cell.classList.add(stateClass[states[si - 1]]);
-          continue;
         }
 
         if (si === curSector) {

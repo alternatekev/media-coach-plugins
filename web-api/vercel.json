@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    { "source": "/k10mediabroadcaster", "destination": "/api/k10mediabroadcaster" },
+    { "source": "/k10mediabroadcaster/", "destination": "/api/k10mediabroadcaster" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ]
+}

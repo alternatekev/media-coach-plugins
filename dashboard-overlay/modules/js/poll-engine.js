@@ -118,6 +118,8 @@
       } else {
         document.body.classList.remove('idle-state');
         if (idleLogo) idleLogo.classList.remove('idle-visible');
+        // Session going active — reveal HUD from logo-only startup
+        if (typeof revealFromLogoOnly === 'function') revealFromLogoOnly();
       }
     }
     // Skip rest of update in idle (except settings remain responsive)

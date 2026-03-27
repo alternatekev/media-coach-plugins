@@ -315,6 +315,51 @@
   }
 
   /* ═══════════════════════════════════════════════
+     LOGO-ONLY STARTUP — clean broadcast intro
+     Only logos visible until session goes active
+     ═══════════════════════════════════════════════ */
+  body.logo-only #dashboard .panel:not(.k10-logo-square):not(.car-logo-square),
+  body.logo-only .leaderboard-panel,
+  body.logo-only .datastream-panel,
+  body.logo-only .pitbox-panel,
+  body.logo-only .incidents-panel,
+  body.logo-only .spotter-panel,
+  body.logo-only .pit-banner,
+  body.logo-only .rc-banner,
+  body.logo-only .grid-module,
+  body.logo-only .commentary-col,
+  body.logo-only .fuel-tyres-col,
+  body.logo-only .controls-pedals-block,
+  body.logo-only .tacho-block,
+  body.logo-only .pos-gaps-col,
+  body.logo-only .maps-col,
+  body.logo-only .pedals-area {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  /* Reveal transition: panels fade in when session starts */
+  body.logo-only-reveal #dashboard .panel,
+  body.logo-only-reveal .leaderboard-panel,
+  body.logo-only-reveal .datastream-panel,
+  body.logo-only-reveal .pitbox-panel,
+  body.logo-only-reveal .incidents-panel,
+  body.logo-only-reveal .spotter-panel,
+  body.logo-only-reveal .commentary-col,
+  body.logo-only-reveal .fuel-tyres-col,
+  body.logo-only-reveal .controls-pedals-block,
+  body.logo-only-reveal .tacho-block,
+  body.logo-only-reveal .pos-gaps-col,
+  body.logo-only-reveal .maps-col,
+  body.logo-only-reveal .pedals-area {
+    transition: opacity 1s ease-out;
+  }
+  /* Settings always accessible */
+  body.logo-only .settings-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ═══════════════════════════════════════════════
      PIT LIMITER — WARNING FLASH (limiter OFF in pit)
      ═══════════════════════════════════════════════ */
   .pit-banner.pit-warning .pit-inner {

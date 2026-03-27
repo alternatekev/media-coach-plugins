@@ -549,6 +549,7 @@ function getCarAdjustability(model) {
 // ═══════════════════════════════════════════════════════════════
 
 const _defaultSettings = {
+  logoOnlyStart: true, // Start in logo-only mode; HUD reveals when session goes active
   showFuel: true, showTyres: true, showControls: true, showPedals: true,
   showMaps: true, showPosition: true, showTacho: true, showCommentary: true,
   showK10Logo: true, showCarLogo: true, showGameLogo: true, simhubUrl: 'http://localhost:8889/k10mediabroadcaster/',

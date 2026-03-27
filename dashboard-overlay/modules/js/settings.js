@@ -98,6 +98,23 @@
 
     // Datastream field toggles
     applyDsFieldToggles();
+
+    // Logo-only startup: apply body class so CSS hides everything except logos
+    if (_settings.logoOnlyStart !== false) {
+      document.body.classList.add('logo-only');
+    }
+  }
+
+  // Called by poll-engine when session goes active (game running + session state > 0).
+  // Removes logo-only mode with a reveal transition.
+  let _logoOnlyRevealed = false;
+  function revealFromLogoOnly() {
+    if (_logoOnlyRevealed) return;
+    _logoOnlyRevealed = true;
+    document.body.classList.add('logo-only-reveal');
+    document.body.classList.remove('logo-only');
+    // Clean up the reveal class after transition completes
+    setTimeout(() => document.body.classList.remove('logo-only-reveal'), 1200);
   }
 
   function _collapseParentColumns() {

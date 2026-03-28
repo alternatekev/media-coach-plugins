@@ -987,10 +987,10 @@
     if (dfn || dln) {
       _driverDisplayName = (dfn && dln) ? dfn.charAt(0) + '. ' + dln : (dfn || dln);
     }
-    // Zoom map label: first 3 letters of driver's last name (uppercase), fallback "Local"
+    // Zoom map label: first initial + last name, fallback "Local"
     const _zoomLbl = document.getElementById('zoomMapLabel');
     if (_zoomLbl) {
-      _zoomLbl.textContent = dln.length >= 3 ? dln.substring(0, 3).toUpperCase() : (dln || 'Local');
+      _zoomLbl.textContent = (dfn && dln) ? dfn.charAt(0) + '. ' + dln : (dln || 'Local');
     }
 
     // ─── Track map ───
@@ -1002,14 +1002,13 @@
     const mapHeading = +v('K10Motorsports.Plugin.TrackMap.PlayerHeading') || 0;
     // Use plugin path if available; show no track when map isn't ready
     updateTrackMap(mapPath, mapPX, mapPY, mapOpp, speed, mapHeading);
-    const mapNameEl = document.getElementById('mapTrackName');
-    if (mapNameEl) {
-      // Prefer the plugin's TrackMap.TrackName (always matches the saved map file),
-      // fall back to GameData.TrackName from SimHub.
+    // Full map label: show track name instead of "Full"
+    const fullMapLbl = document.getElementById('fullMapLabel');
+    if (fullMapLbl) {
       const trackName = vs('K10Motorsports.Plugin.TrackMap.TrackName')
                      || vs('DataCorePlugin.GameData.TrackName')
                      || '';
-      if (trackName && trackName !== mapNameEl.textContent) mapNameEl.textContent = trackName;
+      if (trackName && trackName !== fullMapLbl.textContent) fullMapLbl.textContent = trackName;
     }
 
     // ─── Datastream ───

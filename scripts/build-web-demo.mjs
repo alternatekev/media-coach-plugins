@@ -36,6 +36,11 @@ function read(rel) {
 const CSS_FILES = [
   'modules/styles/base.css',
   'modules/styles/dashboard.css',
+  'modules/styles/leaderboard.css',
+  'modules/styles/connections.css',
+  'modules/styles/datastream.css',
+  'modules/styles/pitbox.css',
+  'modules/styles/settings.css',
   'modules/styles/effects.css',
   'modules/styles/ambient.css',
 ];
@@ -211,6 +216,11 @@ html, body {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* Timer row defaults to max-height:0 — force it open */
+.timer-row {
+  max-height: 80px !important;
 }
 
 /* Suppress Electron-specific hover states and click targets */

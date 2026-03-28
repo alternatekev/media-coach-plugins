@@ -226,6 +226,13 @@ html, body {
 /* Timer row defaults to max-height:0 — force it open */
 .timer-row {
   max-height: 80px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+.race-timer-block {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Suppress Electron-specific hover states and click targets */
@@ -320,7 +327,8 @@ ${allJS}
     var area = document.querySelector('.main-area');
     var dash = document.querySelector('.dashboard');
     if (!area || !dash) return false;
-    var w = area.scrollWidth;
+    // scrollWidth rounds down; add 1px buffer for sub-pixel rounding
+    var w = area.scrollWidth + 1;
     // Height: use dashboard's scrollHeight (main-row + gap + timer-row)
     // Remove transform momentarily so scrollHeight isn't affected
     var prevT = dash.style.transform;

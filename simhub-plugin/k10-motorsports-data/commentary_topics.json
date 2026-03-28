@@ -1235,7 +1235,7 @@
         "This is {track}. {trackFact}. Understanding the circuit is half the battle for {driver}.",
         "A note about {track} — {trackFact}. That's what makes this place special in the motorsport world."
       ],
-      "cooldownMinutes": 20
+      "cooldownMinutes": 8
     },
     {
       "id": "car_context",
@@ -1261,7 +1261,7 @@
         "{car} is more than just a chassis and engine — {carFact}. The {engineSpec} powertrain is central to that character.",
         "What the data doesn't show is {carCharacter}. {manufacturerFact} — and you feel that pedigree in {carNickname}."
       ],
-      "cooldownMinutes": 15
+      "cooldownMinutes": 8
     },
     {
       "id": "prerace_track",

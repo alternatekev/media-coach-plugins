@@ -1274,9 +1274,9 @@
       "description": "Track context during pre-race formation. Only fires during grid/formation state.",
       "triggers": [
         {
-          "dataPoint": "LapCurrentTime",
+          "dataPoint": "Position",
           "condition": "sustained",
-          "context": "Pre-race period — formation lap or grid wait"
+          "context": "Pre-race period — Position is always > 0 on the grid"
         }
       ],
       "commentaryPrompts": [
@@ -1300,9 +1300,9 @@
       "description": "Car and manufacturer context during pre-race. Only fires during grid/formation state.",
       "triggers": [
         {
-          "dataPoint": "SpeedKmh",
+          "dataPoint": "Position",
           "condition": "sustained",
-          "context": "Pre-race period"
+          "context": "Pre-race period — Position is always > 0 on the grid"
         }
       ],
       "commentaryPrompts": [
@@ -1326,9 +1326,9 @@
       "description": "Detailed circuit notes during pre-race. Corner-specific information.",
       "triggers": [
         {
-          "dataPoint": "LapCurrentTime",
+          "dataPoint": "Position",
           "condition": "sustained",
-          "context": "Pre-race — detailed circuit commentary"
+          "context": "Pre-race — Position is always > 0 on the grid"
         }
       ],
       "commentaryPrompts": [
@@ -1352,9 +1352,9 @@
       "description": "Manufacturer racing heritage during pre-race.",
       "triggers": [
         {
-          "dataPoint": "SpeedKmh",
+          "dataPoint": "Position",
           "condition": "sustained",
-          "context": "Pre-race — manufacturer background"
+          "context": "Pre-race — Position is always > 0 on the grid"
         }
       ],
       "commentaryPrompts": [

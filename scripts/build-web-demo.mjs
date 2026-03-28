@@ -190,11 +190,13 @@ html, body {
   display: none !important;
 }
 
-/* Center the main dashboard in the iframe viewport */
+/* Position dashboard at bottom of iframe, full width */
 .dashboard {
-  position: absolute;
-  /* Let the parent iframe control scaling via CSS transforms */
-  transform-origin: top left;
+  position: absolute !important;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100% !important;
 }
 
 /* Ensure panels are visible (some toggled via settings) */

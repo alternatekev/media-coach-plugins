@@ -164,6 +164,49 @@
   .commentary-col.visible .commentary-gl-canvas {
     opacity: 1;
   }
+  /* ── Track Image (shown during track-related commentary) ── */
+  .commentary-track-img {
+    width: calc(100% + 28px);   /* bleed into padding */
+    margin: -14px -14px 10px;   /* pull into parent padding, gap below */
+    height: 0;
+    overflow: hidden;
+    border-radius: var(--corner-r) var(--corner-r) 0 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    opacity: 0;
+    transition: height 0.5s cubic-bezier(.4,0,.2,1),
+                opacity 0.6s ease 0.15s;
+  }
+  .commentary-track-img.active {
+    height: 120px;
+    opacity: 1;
+  }
+  /* dark gradient overlay for text below */
+  .commentary-track-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 30%,
+      hsla(var(--commentary-h, 0), 50%, 13%, 0.85) 100%
+    );
+    pointer-events: none;
+  }
+  /* attribution badge */
+  .commentary-track-img .img-attr {
+    position: absolute;
+    bottom: 4px;
+    right: 6px;
+    font-size: 8px;
+    font-weight: var(--fw-medium);
+    color: rgba(255,255,255,0.45);
+    z-index: 1;
+    letter-spacing: 0.3px;
+  }
+
   .commentary-title {
     font-size: 20px;
     font-weight: var(--fw-black);

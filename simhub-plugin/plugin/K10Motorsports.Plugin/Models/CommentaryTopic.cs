@@ -81,6 +81,7 @@ namespace K10Motorsports.Plugin.Models
         public List<string> FamousCorners { get; set; } = new List<string>();
         public List<string> TalkingPoints { get; set; } = new List<string>();
         public List<string> NotableRaces { get; set; } = new List<string>();
+        public List<string> Images { get; set; } = new List<string>();
         public int BuiltYear { get; set; }
     }
 

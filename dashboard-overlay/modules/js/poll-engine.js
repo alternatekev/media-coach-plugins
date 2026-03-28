@@ -923,7 +923,8 @@
       if (!suppressInPit) {
         const hue = colorToHue(vs('K10Motorsports.Plugin.CommentarySentimentColor'));
         const severity = +v('K10Motorsports.Plugin.CommentarySeverity') || 0;
-        showCommentary(hue, vs('K10Motorsports.Plugin.CommentaryTopicTitle'), vs('K10Motorsports.Plugin.CommentaryText'), vs('K10Motorsports.Plugin.CommentaryCategory'), cmTopicId, severity);
+        const trackImg = vs('K10Motorsports.Plugin.CommentaryTrackImage') || '';
+        showCommentary(hue, vs('K10Motorsports.Plugin.CommentaryTopicTitle'), vs('K10Motorsports.Plugin.CommentaryText'), vs('K10Motorsports.Plugin.CommentaryCategory'), cmTopicId, severity, trackImg);
       }
     } else if (!cmVis && _commentaryWasVisible) {
       hideCommentary();

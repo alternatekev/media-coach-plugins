@@ -210,6 +210,9 @@ namespace K10Motorsports.Plugin
             // Dashboard uses this to toggle per-severity background elements.
             this.AttachDelegate("CommentarySeverity", () => _engine.IsVisible ? _engine.CurrentSeverity : 0);
 
+            // Track image URL (Creative Commons) — set when track-related commentary fires
+            this.AttachDelegate("CommentaryTrackImage", () => _engine.CurrentTrackImage);
+
             // Flag state for Homebridge and dashboard — priority order, most urgent first.
             // All iRacing flags are now exposed so lights respond correctly.
             // "meatball" = repair required (iRacing 0x100000)
@@ -1240,6 +1243,7 @@ namespace K10Motorsports.Plugin
                     Jp(sb, "K10Motorsports.Plugin.CommentaryCategory", Escape(category));
                     Jp(sb, "K10Motorsports.Plugin.CommentarySentimentColor", Escape(_engine.CurrentSentimentColor ?? "#FF000000"));
                     Jp(sb, "K10Motorsports.Plugin.CommentarySeverity", _engine.IsVisible ? _engine.CurrentSeverity : 0);
+                    Jp(sb, "K10Motorsports.Plugin.CommentaryTrackImage", Escape(_engine.CurrentTrackImage ?? ""));
 
                     // ── Strategy ──
                     Jp(sb, "K10Motorsports.Plugin.Strategy.Visible", _strategy.IsVisible ? 1 : 0);

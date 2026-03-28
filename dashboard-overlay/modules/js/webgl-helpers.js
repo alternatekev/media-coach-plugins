@@ -411,7 +411,7 @@
   // Best / achievement topics → force green color scheme
   const _bestTopics = { personal_best: true, position_gained: true };
 
-  function showCommentary(hue, title, text, meta, topicId, severity) {
+  function showCommentary(hue, title, text, meta, topicId, severity, trackImage) {
     // Resolve topic early so we can override hue for heat, wear & best topics
     const resolvedTopic = topicId || _titleToTopicId[title] || '';
     if (_heatTopics[resolvedTopic]) {
@@ -439,6 +439,16 @@
     textEl.classList.remove('scrolling');
     scrollEl.classList.remove('no-overflow');
     document.getElementById('commentaryMeta').textContent = meta;
+
+    // Track image — show when URL provided by track-related commentary
+    const imgEl = document.getElementById('commentaryTrackImg');
+    if (trackImage) {
+      imgEl.style.backgroundImage = `url(${trackImage})`;
+      imgEl.innerHTML = '<span class="img-attr">Wikimedia Commons \u00B7 CC</span>';
+      imgEl.classList.add('active');
+    } else {
+      imgEl.classList.remove('active');
+    }
 
     col.classList.add('visible');
     dash.style.setProperty('--sentiment-h', hue);
@@ -472,6 +482,9 @@
     dash.style.setProperty('--sentiment-alpha', '0');
     if (window.hideCommentaryViz) window.hideCommentaryViz();
     if (window.setCommentaryTrailGL) window.setCommentaryTrailGL(false);
+    // Clear track image
+    const imgEl = document.getElementById('commentaryTrackImg');
+    if (imgEl) imgEl.classList.remove('active');
   }
 
   // ═══ CYCLING PANELS (rating/position only — fuel/tyres no longer cycle) ═══

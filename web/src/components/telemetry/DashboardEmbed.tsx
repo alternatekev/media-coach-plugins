@@ -106,12 +106,11 @@ export function DashboardEmbed() {
   }, [data, carIndex])
 
   return (
-    <div ref={containerRef} className="w-full" style={{ background: '#000' }}>
+    <div ref={containerRef} className="w-full">
       <div className="relative w-full overflow-hidden" style={{ height }}>
         {status !== 'live' && (
           <div
             className="absolute inset-0 flex items-center justify-center z-10"
-            style={{ background: '#000' }}
           >
             <span className="text-sm text-[var(--text-dim)] animate-pulse">
               Connecting to telemetry…
@@ -125,7 +124,7 @@ export function DashboardEmbed() {
           className="border-0 block"
           sandbox="allow-scripts allow-same-origin"
           style={{
-            background: '#000',
+            background: 'transparent',
             width: '100%',
             height: '100%',
             opacity: status === 'live' ? 1 : 0,

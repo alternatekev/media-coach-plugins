@@ -290,37 +290,57 @@ ${allJS}
 
 <script>
 // ─── Zoom-to-fit: scale dashboard to fill iframe viewport ───
-// Measures .dashboard's natural width, applies CSS zoom so it
-// fills window.innerWidth, then tells the parent the final height.
+// Parent sends container width via postMessage. We measure the
+// dashboard's natural width ONCE (at zoom=1), cache it, then
+// zoom = containerWidth / naturalWidth. No resize listener inside
+// the iframe — that would loop because zoom changes trigger resize.
 (function() {
-  function applyZoom() {
+  var _naturalW = 0;
+
+  function measureNatural() {
     var dash = document.querySelector('.dashboard');
-    if (!dash) return;
-    // Natural width of the dashboard at zoom=1
+    if (!dash) return 0;
     document.body.style.zoom = 1;
-    var nw = dash.scrollWidth;
-    if (nw < 100) return; // not laid out yet
-    var z = window.innerWidth / nw;
+    var w = dash.scrollWidth;
+    return w > 100 ? w : 0;
+  }
+
+  function applyZoom(containerW) {
+    if (!_naturalW) _naturalW = measureNatural();
+    if (!_naturalW || !containerW) return;
+    var z = containerW / _naturalW;
     document.body.style.zoom = z;
-    // Tell parent the zoomed height so it can size the iframe container
+    // Tell parent the zoomed height so it can size the container
     var h = document.documentElement.scrollHeight * z;
     window.parent.postMessage({ type: 'k10-resize', height: h }, '*');
   }
-  // Run after layout settles, then on every resize
-  window.addEventListener('resize', applyZoom);
-  // Initial: wait for fonts + layout
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function() { setTimeout(applyZoom, 50); });
-  } else {
-    setTimeout(applyZoom, 200);
+
+  // Listen for container width from parent
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'k10-container-width') {
+      applyZoom(e.data.width);
+    }
+  });
+
+  // Initial: measure natural width, request parent to send its width
+  function init() {
+    _naturalW = measureNatural();
+    if (_naturalW) {
+      window.parent.postMessage({ type: 'k10-ready', naturalWidth: _naturalW }, '*');
+    }
   }
-  // Re-run periodically for the first 2s in case layout shifts
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function() { setTimeout(init, 50); });
+  } else {
+    setTimeout(init, 200);
+  }
+  // Retry init a few times in case layout isn't settled
   var t = 0;
   var iv = setInterval(function() {
-    applyZoom();
-    t += 200;
-    if (t >= 2000) clearInterval(iv);
-  }, 200);
+    init();
+    t += 300;
+    if (t >= 1800) clearInterval(iv);
+  }, 300);
 })();
 </script>
 

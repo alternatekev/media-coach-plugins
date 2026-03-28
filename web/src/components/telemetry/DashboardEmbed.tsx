@@ -1,29 +1,61 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTelemetry } from './TelemetryProvider'
 
 /**
- * Full-bleed dashboard embed. The iframe loads the real HUD at 100% width;
- * a zoom-to-fit script inside the iframe scales the ~904px dashboard to
- * fill whatever width the browser gives it, then posts its final pixel
- * height back so we can size the container correctly.
+ * Full-bleed dashboard embed. The iframe loads the real HUD; a zoom-to-fit
+ * script inside it scales the ~904px dashboard to fill whatever width we
+ * give it. The parent (this component) owns the resize loop — the iframe
+ * never listens to its own resize event (that would loop, since zoom
+ * changes trigger resize).
+ *
+ * Protocol:
+ *   parent → iframe: { type: 'k10-container-width', width }
+ *   iframe → parent: { type: 'k10-ready', naturalWidth }
+ *   iframe → parent: { type: 'k10-resize', height }
  */
 export function DashboardEmbed() {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const { data, status } = useTelemetry()
-  const [height, setHeight] = useState(280) // sensible initial guess
+  const [height, setHeight] = useState(280)
 
-  // ── Listen for height reports from the iframe's zoom-to-fit script ──
+  // Send current container width to the iframe
+  const sendWidth = useCallback(() => {
+    const el = containerRef.current
+    const iframe = iframeRef.current
+    if (!el || !iframe?.contentWindow) return
+    iframe.contentWindow.postMessage(
+      { type: 'k10-container-width', width: el.clientWidth },
+      '*',
+    )
+  }, [])
+
+  // ── Listen for messages from iframe ──
   useEffect(() => {
     function onMessage(e: MessageEvent) {
-      if (e.data?.type === 'k10-resize' && typeof e.data.height === 'number') {
+      if (!e.data?.type) return
+      if (e.data.type === 'k10-resize' && typeof e.data.height === 'number') {
         setHeight(e.data.height)
+      }
+      // iframe measured its natural width and is ready — send ours
+      if (e.data.type === 'k10-ready') {
+        sendWidth()
       }
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
-  }, [])
+  }, [sendWidth])
+
+  // ── ResizeObserver: when container width changes, tell iframe ──
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => sendWidth())
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [sendWidth])
 
   // ── Post telemetry data to iframe on every update ──
   useEffect(() => {
@@ -36,7 +68,7 @@ export function DashboardEmbed() {
   }, [data])
 
   return (
-    <div className="w-full" style={{ background: '#000' }}>
+    <div ref={containerRef} className="w-full" style={{ background: '#000' }}>
       <div className="relative w-full overflow-hidden" style={{ height }}>
         {status !== 'live' && (
           <div

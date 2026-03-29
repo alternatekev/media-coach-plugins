@@ -1291,7 +1291,8 @@
     transition: stroke 0.3s;
   }
   .map-player {
-    fill: var(--cyan);
+    fill: var(--map-player-color, var(--cyan));
+    transition: fill 0.4s ease;
   }
   .map-opponent { fill: hsla(0,0%,100%,0.35); }
   .map-opponent.close { fill: var(--orange); }

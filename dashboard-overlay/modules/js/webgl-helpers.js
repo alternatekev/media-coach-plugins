@@ -666,6 +666,10 @@
   let _fullMapTrailEl = null;
   let _zoomMapTrailEl = null;
 
+  // Parsed track path coordinates for snapping and off-track detection
+  let _trackPathCoords = []; // [{x, y}, ...]
+  const _OFF_TRACK_DIST = 4.0; // SVG units — beyond this, player is off-track
+
   function _ensureTrailElement(parentId, refElId) {
     const parent = document.getElementById(parentId);
     if (!parent) return null;
@@ -710,15 +714,46 @@
     trailEl.setAttribute('stroke-width', String(strokeWidth));
   }
 
+  // Parse SVG path string into an array of {x, y} coordinates
+  function _parsePathCoords(svgPath) {
+    const raw = svgPath.match(/[\d.]+[,\s]+[\d.]+/g);
+    if (!raw) return [];
+    return raw.map(function(pair) {
+      var parts = pair.split(/[,\s]+/);
+      return { x: +parts[0], y: +parts[1] };
+    });
+  }
+
+  // Find the nearest point on the parsed track path to (px, py)
+  // Returns {x, y, dist} of the closest path coordinate
+  function _nearestTrackPoint(px, py) {
+    var best = { x: px, y: py, dist: Infinity };
+    for (var i = 0; i < _trackPathCoords.length; i++) {
+      var c = _trackPathCoords[i];
+      var dx = px - c.x, dy = py - c.y;
+      var d = dx * dx + dy * dy;
+      if (d < best.dist) { best.x = c.x; best.y = c.y; best.dist = d; }
+    }
+    best.dist = Math.sqrt(best.dist);
+    return best;
+  }
+
   // Reset track map — clears recorded data and restarts capture
   function resetTrackMap() {
     fetch((window._simhubUrlOverride || SIMHUB_URL) + '?action=resetmap').catch(() => {});
     _mapLastPath = '';
     _mapHasInit = false;
-    const fullTrack = document.getElementById('fullMapTrack');
-    const zoomTrack = document.getElementById('zoomMapTrack');
-    if (fullTrack) fullTrack.setAttribute('d', '');
-    if (zoomTrack) zoomTrack.setAttribute('d', '');
+    _trackPathCoords = [];
+    _mapTrailCount = 0;
+    _mapTrailIdx = 0;
+    ['fullMapTrack', 'fullMapTrackOuter', 'fullMapTrackInner',
+     'zoomMapTrack', 'zoomMapTrackOuter', 'zoomMapTrackInner'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.setAttribute('d', '');
+    });
+    // Clear trail polylines
+    if (_fullMapTrailEl) _fullMapTrailEl.setAttribute('points', '');
+    if (_zoomMapTrailEl) _zoomMapTrailEl.setAttribute('points', '');
     // Clear opponent dots
     const fg = document.getElementById('fullMapOpponents');
     const zg = document.getElementById('zoomMapOpponents');
@@ -772,10 +807,12 @@
     if (!svgPath && _mapLastPath !== '') {
       _mapLastPath = '';
       _mapHasInit = false;
-      const fullTrack = document.getElementById('fullMapTrack');
-      const zoomTrack = document.getElementById('zoomMapTrack');
-      if (fullTrack) fullTrack.setAttribute('d', '');
-      if (zoomTrack) zoomTrack.setAttribute('d', '');
+      _trackPathCoords = [];
+      ['fullMapTrack', 'fullMapTrackOuter', 'fullMapTrackInner',
+       'zoomMapTrack', 'zoomMapTrackOuter', 'zoomMapTrackInner'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.setAttribute('d', '');
+      });
 
       // Remove sector sub-paths
       const fullSvg = document.getElementById('fullMapSvg');
@@ -792,10 +829,14 @@
     if (svgPath && svgPath !== _mapLastPath) {
       _mapLastPath = svgPath;
       _mapHasInit = false;
-      const fullTrack = document.getElementById('fullMapTrack');
-      const zoomTrack = document.getElementById('zoomMapTrack');
-      if (fullTrack) fullTrack.setAttribute('d', svgPath);
-      if (zoomTrack) zoomTrack.setAttribute('d', svgPath);
+      // Parse coordinates for snapping and off-track detection
+      _trackPathCoords = _parsePathCoords(svgPath);
+      // Set path on all three layers (outer, gap, inner) for both maps
+      ['fullMapTrack', 'fullMapTrackOuter', 'fullMapTrackInner',
+       'zoomMapTrack', 'zoomMapTrackOuter', 'zoomMapTrackInner'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.setAttribute('d', svgPath);
+      });
 
       // Split path into N sector sub-paths using native iRacing boundaries
       const boundaryPcts = Array.isArray(window._sectorBoundaries) ? window._sectorBoundaries : null;
@@ -854,6 +895,18 @@
     playerX = Math.max(0, Math.min(100, playerX));
     playerY = Math.max(0, Math.min(100, playerY));
 
+    // Snap player position to nearest track point when path is available
+    // This keeps the demo car (and live car) visually on the track
+    if (_trackPathCoords.length > 10) {
+      var snap = _nearestTrackPoint(playerX, playerY);
+      // Only snap if reasonably close (within ~6 SVG units) — prevents
+      // warping from completely wrong coordinates
+      if (snap.dist < 6) {
+        playerX = snap.x;
+        playerY = snap.y;
+      }
+    }
+
     // Smoothing: reject large jumps, low-pass filter coordinates
     if (!_mapHasInit) {
       _mapSmoothedX = playerX;
@@ -871,6 +924,21 @@
 
     const sx = _mapSmoothedX;
     const sy = _mapSmoothedY;
+
+    // Off-track detection: check distance from smoothed position to track path
+    let isOffTrack = false;
+    if (_trackPathCoords.length > 10) {
+      var nearest = _nearestTrackPoint(sx, sy);
+      isOffTrack = nearest.dist > _OFF_TRACK_DIST;
+    }
+
+    // Update track line highlighting based on on/off-track state
+    document.querySelectorAll('.map-track-outer').forEach(function(el) {
+      el.classList.toggle('off-track', isOffTrack);
+    });
+    document.querySelectorAll('.map-track-inner').forEach(function(el) {
+      el.classList.toggle('on-track', !isOffTrack);
+    });
 
     // Update player dot
     const fullPlayer = document.getElementById('fullMapPlayer');
@@ -903,20 +971,23 @@
     _mapTrailCount++;
 
     // Ensure trail SVG elements exist and render
+    // Full map: trail as sibling before player dot
     if (!_fullMapTrailEl)  _fullMapTrailEl  = _ensureTrailElement('fullMapSvg', 'fullMapPlayer');
-    if (!_zoomMapTrailEl) _zoomMapTrailEl = _ensureTrailElement('zoomMapSvg', 'zoomMapPlayer');
+    // Zoom map: trail INSIDE the rotate group so it rotates with the track
+    if (!_zoomMapTrailEl) _zoomMapTrailEl = _ensureTrailElement('zoomMapRotateGroup', 'zoomMapOpponents');
     _renderMapTrail(_fullMapTrailEl, 3);
     _renderMapTrail(_zoomMapTrailEl, 1.8);
 
     // Update zoom map — player always centered, track rotates so
-    // driving direction always points UP. Zoom out when slow to
-    // reveal nearby opponents; zoom in when fast for detail.
+    // driving direction always points UP. Zoom in when slow (corners),
+    // zoom out when fast (straights) for a dynamic camera effect.
     const zoomSvg = document.getElementById('zoomMapSvg');
     if (zoomSvg) {
       const spd = typeof speedMph === 'number' ? speedMph : 0;
-      // Zoom: slow → wider view (radius 24) to see nearby/oncoming cars,
-      //        fast → still fairly wide (radius 16) so you see oncoming traffic
-      const targetZR = 24 - Math.min(spd / 150, 1.0) * 8;
+      // Dynamic zoom: slow → tight (radius 16) for corner detail,
+      //               fast → wide (radius 38) to see track ahead.
+      // Creates a natural zoom-in effect when braking into corners.
+      const targetZR = 16 + Math.min(spd / 150, 1.0) * 22;
       _mapZoomRadius += (targetZR - _mapZoomRadius) * 0.15;
       const zr = _mapZoomRadius;
 
@@ -1052,7 +1123,7 @@
       // Create glow circle overlay — tight radius, pulsing via CSS
       glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       glow.id = 'trackPlayerGlow';
-      glow.setAttribute('r', '10');
+      glow.setAttribute('r', '7');
       glow.setAttribute('fill', 'url(#trackGlowGrad)');
       glow.style.pointerEvents = 'none';
       glow.style.mixBlendMode = 'screen';

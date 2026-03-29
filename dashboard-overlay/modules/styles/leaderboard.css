@@ -332,10 +332,10 @@
     text-align: center;
   }
   .tyre-wear-bar {
-    height: 2px;
-    border-radius: 2px;
-    background: hsla(0,0%,100%,0.06);
-    margin-top: 1px;
+    height: 5px;
+    border-radius: 3px;
+    background: hsla(0,0%,100%,0.08);
+    margin-top: 2px;
   }
   .tyre-wear-fill {
     height: 100%;

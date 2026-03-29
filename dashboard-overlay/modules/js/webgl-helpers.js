@@ -600,12 +600,25 @@
   }
 
   // Update a single tyre cell: temp value + color class + wear bar.
-  // wearPct is REMAINING life: 100 = brand new, 0 = destroyed.
+  // wearPct is REMAINING life: 100 = brand new, 0 = destroyed, -1 = no data.
   function updateTyreCell(index, tempF, wearPct) {
     const cells = document.querySelectorAll('.tyre-cell');
     const wearFills = document.querySelectorAll('.tyre-wear-fill');
     if (index >= cells.length) return;
     const cell = cells[index];
+
+    // No wear data — show empty bar with dim indicator
+    if (wearPct < 0) {
+      if (index < wearFills.length) {
+        wearFills[index].style.width = '0%';
+        wearFills[index].style.background = 'hsla(0,0%,100%,0.1)';
+      }
+      // Still update temp
+      cell.textContent = tempF > 0 ? Math.round(tempF) + '°' : '—';
+      cell.className = 'tyre-cell ' + getTyreTempClass(tempF);
+      return;
+    }
+
     cell.textContent = tempF > 0 ? Math.round(tempF) + '°' : '—';
     cell.className = 'tyre-cell ' + getTyreTempClass(tempF);
     if (index < wearFills.length) {

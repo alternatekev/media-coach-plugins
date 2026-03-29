@@ -36,7 +36,7 @@
     // Detect transition from ParadeLaps (3) to Racing (4): this is when lights should show.
     // If plugin doesn't send LightsPhase, we generate a synthetic green sequence
     // and hold it for 3 seconds so it's actually visible.
-    const transitioningToRace = _gridPrevSessionState === 3 && sessionState === 4;
+    const transitioningToRace = _gridPrevSessionState >= 1 && _gridPrevSessionState <= 3 && sessionState === 4;
     if (transitioningToRace && lightsPhase === 0 && _simLightsPhase === 0) {
       _simLightsPhase = 7;
       clearTimeout(_simLightsTimer);

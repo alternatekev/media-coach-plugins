@@ -600,6 +600,18 @@ namespace K10Motorsports.Plugin
                 {
                     _lightsPhase = 6; // jump to all red
                 }
+                // Final fallback: in formation with pace mode >= 3 but somehow never started
+                else if (ss == 3 && pm >= 3 && _lightsPrevPaceMode >= 3)
+                {
+                    _lightsPhase = 6;
+                }
+                // Catch-all: if session just went to Racing and we never fired lights,
+                // show a quick green flash so the driver sees something
+                else if (ss == 4 && _lightsPrevSessionState <= 3 && _lightsPrevSessionState >= 1 && _lightsPhase == 0)
+                {
+                    _lightsPhase = 7; // GREEN!
+                    _lightsHoldFrames = 15;
+                }
             }
 
             // If session goes back to non-formation unexpectedly, reset

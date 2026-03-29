@@ -431,7 +431,8 @@ const _mfrBrandColors = {
   lotus:       'hsla(57, 100%, 50%, 0.65)',
   ligier:      'hsla(204, 78%, 40%, 0.65)',
   fia:         'hsla(228, 73%, 21%, 0.65)',
-  radical:     'hsla(43, 82%, 57%, 0.65)'
+  radical:     'hsla(43, 82%, 57%, 0.65)',
+  honda:       'hsla(0, 90%, 42%, 0.65)'
 };
 
 // Manufacturer → ISO 3166-1 alpha-2 country code (used for flag display)

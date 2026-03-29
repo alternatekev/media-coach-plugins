@@ -308,3 +308,51 @@
   };
 
   // ═══════════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════════
+  //  TIRE / TRACK CONDITION MISMATCH DETECTION
+  // ═══════════════════════════════════════════════════════════════
+  let _tyreMismatchLastAlert = 0;
+  const _tyreMismatchCooldown = 60000; // Only alert once per minute
+
+  window.checkTyreMismatch = function(p, isDemo) {
+    const pre = isDemo ? 'K10Motorsports.Plugin.Demo.DS.' : 'K10Motorsports.Plugin.DS.';
+    const isWet = +(p[pre + 'WeatherWet']) === 1;
+    const trackWetness = +(p[pre + 'TrackWetness']) || 0;
+
+    // Tire compound: try multiple possible property paths
+    // Some SimHub plugins expose TireCompound directly; others use raw telemetry indices
+    let onWetTires = false;
+
+    // Try K10 plugin custom property first
+    const compound = +(p[pre + 'TireCompound']);
+    if (!isNaN(compound)) {
+      // 1 = wet tires, 0 = dry tires
+      onWetTires = compound === 1;
+    } else {
+      // Fallback: we don't have reliable tire compound data
+      return;
+    }
+
+    const now = Date.now();
+    if (now - _tyreMismatchLastAlert < _tyreMismatchCooldown) return;
+
+    let msg = '';
+    let severity = '';
+
+    // Wet weather but on dry tires — critical alert
+    if (isWet && !onWetTires && trackWetness > 0.3) {
+      msg = 'Dry tires on wet track — consider pitting for wets';
+      severity = 'sp-warn';
+    }
+    // Dry weather but on wet tires — performance warning
+    else if (!isWet && onWetTires && trackWetness < 0.1) {
+      msg = 'Wet tires on dry track — losing grip to compound';
+      severity = 'sp-warn';
+    }
+
+    if (msg) {
+      _tyreMismatchLastAlert = now;
+      _showSpotterMsg(msg, severity, 'Conditions');
+    }
+  };

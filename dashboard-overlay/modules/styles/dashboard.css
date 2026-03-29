@@ -706,7 +706,8 @@
     flex-direction: column;
     gap: var(--gap);
     flex-shrink: 0;
-    width: 150px;
+    min-width: 150px;
+    width: max-content;
   }
   .rating-pos-block {
     width: 100%;
@@ -1004,6 +1005,7 @@
     font-variant-numeric: tabular-nums;
     line-height: 1.1;
     letter-spacing: -0.02em;
+    white-space: nowrap;
   }
   .gap-time.ahead { color: var(--green); }
   .gap-time.behind { color: var(--red); }

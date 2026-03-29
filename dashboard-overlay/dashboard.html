@@ -195,16 +195,14 @@
     <div class="maps-col">
       <div class="panel map-panel">
         <svg class="map-svg" id="fullMapSvg" viewBox="0 0 100 100">
+          <path class="map-track-outer" id="fullMapTrackOuter" d="" />
           <path class="map-track" id="fullMapTrack" d="" />
+          <path class="map-track-inner on-track" id="fullMapTrackInner" d="" />
           <path class="map-sector" id="mapSector1" d="" />
           <path class="map-sector" id="mapSector2" d="" />
           <path class="map-sector" id="mapSector3" d="" />
           <g id="fullMapSF" class="map-sf" style="display:none;">
-            <line x1="0" y1="-3.5" x2="0" y2="3.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
-            <rect x="-5" y="-2.5" width="5" height="2.5" fill="#fff" opacity="0.9"/>
-            <rect x="0" y="-2.5" width="5" height="2.5" fill="#111" stroke="#fff" stroke-width="0.3"/>
-            <rect x="-5" y="0" width="5" height="2.5" fill="#111" stroke="#fff" stroke-width="0.3"/>
-            <rect x="0" y="0" width="5" height="2.5" fill="#fff" opacity="0.9"/>
+            <line x1="0" y1="-3.5" x2="0" y2="3.5" stroke="hsla(0,0%,100%,0.6)" stroke-width="1.5" stroke-linecap="round"/>
           </g>
           <g id="fullMapOpponents"></g>
           <circle class="map-player" id="fullMapPlayer" cx="50" cy="50" r="4" />
@@ -217,13 +215,11 @@
                driving direction always points up. Player dot is OUTSIDE
                this group so it stays upright and visually centered. -->
           <g id="zoomMapRotateGroup">
-            <path class="map-track" id="zoomMapTrack" d="" style="stroke-width:1.5;" />
+            <path class="map-track-outer" id="zoomMapTrackOuter" d="" />
+            <path class="map-track" id="zoomMapTrack" d="" />
+            <path class="map-track-inner on-track" id="zoomMapTrackInner" d="" />
             <g id="zoomMapSF" class="map-sf" style="display:none;">
-              <line x1="0" y1="-2" x2="0" y2="2" stroke="#fff" stroke-width="0.6" stroke-linecap="round"/>
-              <rect x="-2.5" y="-1.25" width="2.5" height="1.25" fill="#fff" opacity="0.9"/>
-              <rect x="0" y="-1.25" width="2.5" height="1.25" fill="#111" stroke="#fff" stroke-width="0.15"/>
-              <rect x="-2.5" y="0" width="2.5" height="1.25" fill="#111" stroke="#fff" stroke-width="0.15"/>
-              <rect x="0" y="0" width="2.5" height="1.25" fill="#fff" opacity="0.9"/>
+              <line x1="0" y1="-2" x2="0" y2="2" stroke="hsla(0,0%,100%,0.6)" stroke-width="0.8" stroke-linecap="round"/>
             </g>
             <g id="zoomMapOpponents"></g>
           </g>
@@ -807,9 +803,9 @@
         <div class="settings-sidebar-item active" data-tab="sections" onclick="switchSettingsTab(this)">Dashboard</div>
         <div class="settings-sidebar-item" data-tab="branding" onclick="switchSettingsTab(this)">Branding</div>
         <div class="settings-sidebar-item" data-tab="layout" onclick="switchSettingsTab(this)">Layout</div>
-        <div class="settings-sidebar-item" data-tab="commentary" onclick="switchSettingsTab(this)">Commentary</div>
+        <div class="settings-sidebar-item" data-tab="commentary" data-pro-tab="commentary" onclick="switchSettingsTab(this)">Commentary</div>
         <div class="settings-sidebar-item" data-tab="connections" onclick="switchSettingsTab(this)">Connections</div>
-        <div class="settings-sidebar-item disabled" data-tab="iracing" id="iracingTab" onclick="switchSettingsTab(this)">iRacing</div>
+        <div class="settings-sidebar-item disabled" data-tab="iracing" id="iracingTab" data-pro-tab="modules" onclick="switchSettingsTab(this)">iRacing</div>
         <div class="settings-sidebar-item" data-tab="pedals" onclick="switchSettingsTab(this)">Pedals</div>
         <div class="settings-sidebar-item" data-tab="keys" onclick="switchSettingsTab(this)">Keys</div>
         <div class="settings-sidebar-item" data-tab="system" onclick="switchSettingsTab(this)">System</div>
@@ -847,14 +843,14 @@
         <div class="settings-row"><span class="settings-label">Tyres</span><div class="settings-toggle on" data-section="tyres-block" data-key="showTyres" onclick="toggleSetting(this)"></div></div>
         <div class="settings-row"><span class="settings-label">Controls (BB/TC/ABS)</span><div class="settings-toggle on" data-section="car-controls" data-key="showControls" onclick="toggleSetting(this)"></div></div>
         <div class="settings-row"><span class="settings-label">Pedals</span><div class="settings-toggle on" data-section="pedals-area" data-key="showPedals" onclick="toggleSetting(this)"></div></div>
-        <div class="settings-row"><span class="settings-label">Commentary</span><div class="settings-toggle on" data-section="commentary-col" data-key="showCommentary" onclick="toggleSetting(this)"></div></div>
+        <div class="settings-row"><span class="settings-label">Commentary</span><div class="settings-toggle on" data-section="commentary-col" data-key="showCommentary" data-pro-feature="commentary" onclick="toggleSetting(this)"></div></div>
         </div>
       </div>
 
       <!-- Subtab: Leaderboard -->
       <div class="settings-subtab-page" data-subtab-page="leaderboard">
         <div class="settings-two-col">
-        <div class="settings-row"><span class="settings-label">Show</span><div class="settings-toggle on" data-section="leaderboardPanel" data-key="showLeaderboard" onclick="toggleSetting(this)"></div></div>
+        <div class="settings-row"><span class="settings-label">Show</span><div class="settings-toggle on" data-section="leaderboardPanel" data-key="showLeaderboard" data-pro-feature="leaderboard" onclick="toggleSetting(this)"></div></div>
         <div class="settings-row settings-sub"><span class="settings-label">Focus</span>
           <select class="settings-select" id="settingsLbFocus" onchange="updateLbFocus(this.value)">
             <option value="me">Focus on Me</option>
@@ -885,7 +881,7 @@
       <!-- Subtab: Datastream -->
       <div class="settings-subtab-page" data-subtab-page="datastream">
         <div class="settings-two-col">
-        <div class="settings-row"><span class="settings-label">Show</span><div class="settings-toggle on" data-section="datastreamPanel" data-key="showDatastream" onclick="toggleSetting(this)"></div></div>
+        <div class="settings-row"><span class="settings-label">Show</span><div class="settings-toggle on" data-section="datastreamPanel" data-key="showDatastream" data-pro-feature="datastream" onclick="toggleSetting(this)"></div></div>
         <div class="settings-row settings-sub"><span class="settings-label">G-Force</span><div class="settings-toggle on" data-key="dsShowGforce" onclick="toggleDsSetting(this)"></div></div>
         <div class="settings-row settings-sub"><span class="settings-label">Yaw Rate</span><div class="settings-toggle on" data-key="dsShowYaw" onclick="toggleDsSetting(this)"></div></div>
         <div class="settings-row settings-sub"><span class="settings-label">FFB / Steer</span><div class="settings-toggle on" data-key="dsShowFfb" onclick="toggleDsSetting(this)"></div></div>
@@ -898,8 +894,8 @@
       <!-- Subtab: Overlays -->
       <div class="settings-subtab-page" data-subtab-page="overlays">
         <div class="settings-two-col">
-        <div class="settings-row"><span class="settings-label">Incidents</span><div class="settings-toggle on" data-section="incidentsPanel" data-key="showIncidents" onclick="toggleSetting(this)"></div></div>
-        <div class="settings-row"><span class="settings-label">Spotter</span><div class="settings-toggle on" data-section="spotterPanel" data-key="showSpotter" onclick="toggleSetting(this)"></div></div>
+        <div class="settings-row"><span class="settings-label">Incidents</span><div class="settings-toggle on" data-section="incidentsPanel" data-key="showIncidents" data-pro-feature="incidents" onclick="toggleSetting(this)"></div></div>
+        <div class="settings-row"><span class="settings-label">Spotter</span><div class="settings-toggle on" data-section="spotterPanel" data-key="showSpotter" data-pro-feature="spotter" onclick="toggleSetting(this)"></div></div>
         <div class="settings-row"><span class="settings-label">Pit Limiter Animation</span><div class="settings-toggle on" data-key="showBonkers" id="bonkersToggle" onclick="toggleBonkers(this)"></div></div>
         </div>
       </div>
@@ -912,9 +908,9 @@
       <div class="settings-row"><span class="settings-label">K10 Logo</span><div class="settings-toggle on" data-section="k10LogoSquare" data-key="showK10Logo" onclick="toggleSetting(this)"></div></div>
       <div class="settings-row"><span class="settings-label">Car Manufacturer</span><div class="settings-toggle on" data-section="carLogoSquare" data-key="showCarLogo" onclick="toggleSetting(this)"></div></div>
       <div class="settings-row"><span class="settings-label">Game Logo</span><div class="settings-toggle on" data-key="showGameLogo" onclick="toggleGameLogo(this)"></div></div>
-      <div class="settings-row"><span class="settings-label">WebGL Effects</span><div class="settings-toggle on" data-key="showWebGL" onclick="toggleWebGL(this)"></div></div>
+      <div class="settings-row"><span class="settings-label">WebGL Effects</span><div class="settings-toggle on" data-key="showWebGL" data-pro-feature="webgl" onclick="toggleWebGL(this)"></div></div>
       <div class="settings-row"><span class="settings-label">Ambient Light</span>
-        <select class="settings-select" id="settingsAmbientMode" onchange="updateAmbientMode(this.value)">
+        <select class="settings-select" id="settingsAmbientMode" data-pro-feature="reflections" onchange="updateAmbientMode(this.value)">
           <option value="reflective">Reflective</option>
           <option value="matte">Matte</option>
           <option value="plastic">Plastic</option>
@@ -964,7 +960,7 @@
         <span class="settings-label">Rally Mode</span>
         <div class="settings-toggle disabled" id="layoutRallyToggle" data-key="rallyMode" onclick="toggleLayoutRally(this)"></div>
       </div>
-      <div class="settings-hint" id="layoutRallyHint">Connect Discord to enable</div>
+      <div class="settings-hint" id="layoutRallyHint">Connect K10 Pro to enable</div>
 
       </div><!-- /settings-two-col -->
     </div>
@@ -972,80 +968,73 @@
     <!-- ── Tab: Connections ── -->
     <div class="settings-tab-content" id="settingsTabConnections">
 
-      <!-- SimHub Connection Card -->
-      <div class="conn-card">
+      <!-- ═══ K10 Pro Drive Connection Card (primary) ═══ -->
+      <div class="conn-card conn-card-primary" id="k10ProCard">
         <div class="conn-card-header">
-          <div class="conn-card-icon simhub">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(210,60%,55%)"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2"/><path d="M15 8h2"/><path d="M7 12h10"/></svg>
+          <div class="conn-card-icon k10pro">
+            <img src="images/branding/logomark.png" alt="K10" style="width:20px;height:20px;object-fit:contain;" />
           </div>
           <div>
-            <div class="conn-card-title">SimHub Plugin</div>
-            <div class="conn-card-subtitle">K10 Motorsports telemetry server</div>
-          </div>
-        </div>
-        <div class="conn-card-status">
-          <div class="conn-dot orange" id="connSimhubDot"></div>
-          <div class="conn-status-text" id="connSimhubText">Connecting...</div>
-        </div>
-        <div class="conn-card-detail" id="connSimhubDetail">
-          URL: <span id="connSimhubUrl">http://localhost:8889/k10mediabroadcaster/</span>
-        </div>
-        <div class="conn-card-actions">
-          <input class="settings-input" id="settingsSimhubUrl" type="text" value="http://localhost:8889/k10mediabroadcaster/" onchange="updateSimhubUrl(this.value)" style="flex:1;"/>
-        </div>
-      </div>
-
-      <!-- Discord Connection Card -->
-      <div class="conn-card">
-        <div class="conn-card-header">
-          <div class="conn-card-icon discord">
-            <svg viewBox="0 0 24 24" fill="currentColor" style="color:#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.947 2.418-2.157 2.418z"/></svg>
-          </div>
-          <div>
-            <div class="conn-card-title">Discord</div>
-            <div class="conn-card-subtitle">Connect to the K10 community server</div>
+            <div class="conn-card-title">K10 Pro Drive</div>
+            <div class="conn-card-subtitle">Connect to unlock all Pro features</div>
           </div>
         </div>
 
         <!-- Not connected state -->
-        <div id="discordNotConnected">
+        <div id="k10NotConnected">
           <div class="conn-card-status">
-            <div class="conn-dot red" id="connDiscordDot"></div>
-            <div class="conn-status-text" id="connDiscordText">Not connected</div>
+            <div class="conn-dot red" id="connK10Dot"></div>
+            <div class="conn-status-text" id="connK10Text">Not connected</div>
           </div>
           <div class="conn-card-detail">
-            Connect your Discord account to join the K10 Motorsports community and unlock future features for authenticated users.
+            Sign in with your K10 Pro Drive account to enable Commentary, Incidents, Spotter, Leaderboard, Datastream, WebGL effects, Reflections, and module customization.
           </div>
           <div class="conn-card-actions">
-            <button class="conn-btn discord-btn" id="discordConnectBtn" onclick="connectDiscord()">
-              <svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.947 2.418-2.157 2.418z"/></svg>
-              Connect Discord
+            <button class="conn-btn k10-btn" id="k10ConnectBtn" onclick="connectK10Pro()">
+              <img src="images/branding/logomark.png" alt="" style="width:12px;height:12px;vertical-align:-2px;margin-right:4px;filter:brightness(10);" />
+              Connect to K10 Pro Drive
             </button>
-            <button class="conn-btn invite-btn" onclick="openDiscordInvite()">Join Server</button>
           </div>
         </div>
 
         <!-- Connected state -->
-        <div id="discordConnected" style="display:none;">
+        <div id="k10Connected" style="display:none;">
           <div class="conn-card-status">
             <div class="conn-dot green"></div>
-            <div class="conn-status-text"><strong>Connected</strong></div>
+            <div class="conn-status-text"><strong>Connected</strong> — all Pro features enabled</div>
           </div>
           <div class="conn-user-info">
-            <div class="conn-user-avatar" id="discordAvatarWrap">
-              <img id="discordAvatar" src="" alt="" />
+            <div class="conn-user-avatar" id="k10AvatarWrap">
+              <img id="k10Avatar" src="" alt="" />
             </div>
             <div>
-              <div class="conn-user-name" id="discordDisplayName"></div>
-              <div class="conn-user-id" id="discordUserId"></div>
+              <div class="conn-user-name" id="k10DisplayName"></div>
+              <div class="conn-user-id" id="k10UserId"></div>
             </div>
           </div>
+          <div class="conn-pro-features" id="k10FeatureList"></div>
           <div class="conn-card-actions">
-            <button class="conn-btn invite-btn" onclick="openDiscordInvite()">Join Server</button>
-            <button class="conn-btn disconnect-btn" onclick="disconnectDiscord()">Disconnect</button>
+            <button class="conn-btn disconnect-btn" onclick="disconnectK10Pro()">Disconnect</button>
           </div>
         </div>
       </div>
+
+      <!-- Pro features info (shown when not connected) -->
+      <div class="conn-pro-info" id="k10ProInfo">
+        <div class="conn-pro-info-title">Pro Features</div>
+        <div class="conn-pro-info-text">Connect your K10 Pro Drive account to enable all premium features. Visit <strong>drive.k10motorsports.racing</strong> to create your account.</div>
+        <div class="conn-pro-feature-grid">
+          <div class="conn-pro-feature-item"><span class="conn-pro-feature-icon">🎙️</span> Commentary</div>
+          <div class="conn-pro-feature-item"><span class="conn-pro-feature-icon">⚠️</span> Incidents</div>
+          <div class="conn-pro-feature-item"><span class="conn-pro-feature-icon">👁️</span> Spotter</div>
+          <div class="conn-pro-feature-item"><span class="conn-pro-feature-icon">🏆</span> Leaderboard</div>
+          <div class="conn-pro-feature-item"><span class="conn-pro-feature-icon">📊</span> Datastream</div>
+          <div class="conn-pro-feature-item"><span class="conn-pro-feature-icon">✨</span> WebGL Effects</div>
+          <div class="conn-pro-feature-item"><span class="conn-pro-feature-icon">🔮</span> Reflections</div>
+          <div class="conn-pro-feature-item"><span class="conn-pro-feature-icon">⚙️</span> Module Config</div>
+        </div>
+      </div>
+
       <!-- Remote Dashboard (stream to iPad / any browser on LAN) -->
       <div id="remoteDashSection" style="display:none;">
         <div class="settings-group-label" style="margin-top:12px;">Remote Dashboard</div>
@@ -1080,6 +1069,56 @@
       <div class="settings-row" style="margin-top:12px;">
         <span class="settings-label">Rally Mode</span>
         <div class="settings-toggle" data-key="rallyMode" onclick="toggleLayoutRally(this)"></div>
+      </div>
+
+      <!-- ═══ SimHub Connection (secondary, less prominent) ═══ -->
+      <div class="settings-group-label" style="margin-top:16px;font-size:10px;color:hsla(0,0%,100%,0.3);">Telemetry Source</div>
+      <div class="conn-card conn-card-secondary">
+        <div class="conn-card-header" style="margin-bottom:6px;">
+          <div class="conn-card-icon simhub" style="width:24px;height:24px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(210,60%,55%);width:14px;height:14px;"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2"/><path d="M15 8h2"/><path d="M7 12h10"/></svg>
+          </div>
+          <div>
+            <div class="conn-card-title" style="font-size:11px;">SimHub Plugin</div>
+            <div class="conn-card-subtitle" style="font-size:9px;">Telemetry server</div>
+          </div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+            <div class="conn-dot orange" id="connSimhubDot" style="width:6px;height:6px;"></div>
+            <div class="conn-status-text" id="connSimhubText" style="font-size:10px;">Connecting...</div>
+          </div>
+        </div>
+        <div class="conn-card-actions" style="margin-top:4px;">
+          <input class="settings-input" id="settingsSimhubUrl" type="text" value="http://localhost:8889/k10mediabroadcaster/" onchange="updateSimhubUrl(this.value)" style="flex:1;font-size:10px;padding:4px 8px;"/>
+        </div>
+      </div>
+
+      <!-- Discord (secondary, community only) -->
+      <div class="conn-card conn-card-secondary" style="margin-top:6px;">
+        <div class="conn-card-header" style="margin-bottom:6px;">
+          <div class="conn-card-icon discord" style="width:24px;height:24px;">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="color:#5865F2;width:14px;height:14px;"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.947 2.418-2.157 2.418z"/></svg>
+          </div>
+          <div>
+            <div class="conn-card-title" style="font-size:11px;">Discord</div>
+            <div class="conn-card-subtitle" style="font-size:9px;">Community server</div>
+          </div>
+          <div style="margin-left:auto;" id="discordStatusInline">
+            <!-- Not connected state (inline) -->
+            <div id="discordNotConnected">
+              <button class="conn-btn discord-btn" id="discordConnectBtn" onclick="connectDiscord()" style="font-size:10px;padding:4px 10px;">
+                Connect
+              </button>
+            </div>
+            <!-- Connected state (inline) -->
+            <div id="discordConnected" style="display:none;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="conn-dot green" style="width:6px;height:6px;"></div>
+                <span class="conn-user-name" id="discordDisplayName" style="font-size:10px;"></span>
+                <button class="conn-btn disconnect-btn" onclick="disconnectDiscord()" style="font-size:9px;padding:2px 8px;">×</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>

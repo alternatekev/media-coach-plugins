@@ -25,13 +25,14 @@
     'sp-lap': '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M10 2h4"/><path d="M12 2v3"/>'
   };
 
-  function _createSpotterCard(msg, severity, headerText, iconOverride) {
+  function _createSpotterCard(msg, severity, headerText, iconOverride, adjType) {
     const card = document.createElement('div');
     card.className = 'sp-inner ' + severity;
 
     const iconPath = _spotterIcons[iconOverride || severity] || _spotterIcons.default;
+    const iconAttr = adjType ? ` data-adj="${adjType}"` : '';
     card.innerHTML =
-      '<svg class="sp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      `<svg class="sp-icon"${iconAttr} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">` +
         iconPath +
       '</svg>' +
       '<div class="sp-content">' +
@@ -42,15 +43,19 @@
     card.querySelector('.sp-header').textContent = headerText || 'Spotter';
     card.querySelector('.sp-message').textContent = msg;
 
+    if (adjType) {
+      card.setAttribute('data-adj-type', adjType);
+    }
+
     return card;
   }
 
-  function _pushSpotterMsg(msg, severity, headerOverride, iconOverride) {
+  function _pushSpotterMsg(msg, severity, headerOverride, iconOverride, adjType) {
     const stack = document.getElementById('spotterStack');
     if (!stack || !msg) return;
 
     // Create and insert the new card
-    const card = _createSpotterCard(msg, severity, headerOverride, iconOverride);
+    const card = _createSpotterCard(msg, severity, headerOverride, iconOverride, adjType);
     stack.prepend(card);
 
     // Trigger WebGL glow for the newest message
@@ -248,6 +253,7 @@
   //  IN-CAR ADJUSTMENT ANNOUNCEMENTS
   //  Called from poll-engine when BB / TC / ABS values change.
   //  Shows a brief spotter-style callout with the new value.
+  //  Reuses existing adjustment card instead of stacking new ones.
   // ═══════════════════════════════════════════════════════════════
   window.announceAdjustment = function(type, value, direction) {
     const stack = document.getElementById('spotterStack');
@@ -273,10 +279,32 @@
         icon = 'default';
     }
 
-    // Force-push even if same text (adjustments should always confirm)
-    _spotterLastMsg = '';
-    _spotterMemo.clear();
-    _pushSpotterMsg(label, 'sp-clear', 'Adjustment', icon);
+    // Check if an adjustment card of this type already exists in the stack
+    const existingCard = stack.querySelector(`[data-adj-type="${type}"]`);
+    if (existingCard) {
+      // Update existing card text
+      const msgEl = existingCard.querySelector('.sp-message');
+      if (msgEl) {
+        msgEl.textContent = label;
+      }
+      // Reset auto-dismiss timer
+      if (existingCard._spotterTimer) {
+        clearTimeout(existingCard._spotterTimer);
+      }
+      const timer = setTimeout(() => {
+        _fadeOutCard(existingCard);
+      }, _spotterMsgDuration);
+      existingCard._spotterTimer = timer;
+
+      // Flash the card to provide visual feedback
+      existingCard.classList.remove('sp-active');
+      requestAnimationFrame(() => {
+        existingCard.classList.add('sp-active');
+      });
+    } else {
+      // No existing adjustment card — create a new one
+      _pushSpotterMsg(label, 'sp-clear', 'Adjustment', icon, type);
+    }
   };
 
   // ═══════════════════════════════════════════════════════════════

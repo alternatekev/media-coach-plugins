@@ -766,7 +766,7 @@
     margin-bottom: 2px;
   }
   .sp-message {
-    font-size: 48px;
+    font-size: 24px;
     font-weight: var(--fw-semi);
     color: hsla(220, 50%, 80%, 0.90);
     line-height: 1.3;

@@ -4,6 +4,7 @@ import { ChannelBanner } from '@/components/youtube/ChannelBanner'
 import { VideoGrid } from '@/components/youtube/VideoGrid'
 import { TelemetryStatus } from '@/components/telemetry/TelemetryStatus'
 import { DashboardEmbed } from '@/components/telemetry/DashboardEmbed'
+import { FeatureShowcase } from '@/components/telemetry/FeatureShowcase'
 
 export default async function HomePage() {
   // Fetch YouTube data at build time / ISR (revalidates every 30 min)
@@ -50,56 +51,8 @@ export default async function HomePage() {
       {/* Live dashboard demo — full bleed, no margins */}
       <DashboardEmbed />
 
-      {/* Features grid */}
-      <section id="features" className="px-6 py-20 max-w-6xl mx-auto w-full">
-        <h2 className="text-3xl font-black mb-10 text-center">What&apos;s Inside</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            {
-              title: 'Live Telemetry HUD',
-              desc: 'Gear, speed, RPM with color-coded tachometer. Pedal traces. Fuel with pit window estimates. Four-corner tyre temps. BB/TC/ABS. Live lap timer with delta-to-best. All at 30fps.',
-              accent: 'var(--k10-red)',
-            },
-            {
-              title: 'Race Strategy Engine',
-              desc: 'Real-time tire lifecycle tracking with composite grip scoring, fuel burn analysis with pit window calculation, stint-aware evaluation, and severity-graded coaching calls.',
-              accent: 'var(--amber)',
-            },
-            {
-              title: 'AI Commentary',
-              desc: '33 telemetry-driven triggers with 240+ prompt combinations. Composable sentence fragments. Severity-based interruption with cooldowns. Contextual to your car and circuit.',
-              accent: 'var(--green)',
-            },
-            {
-              title: 'Track Map & Sectors',
-              desc: 'SVG minimap with heading-up rotation. Per-sector timing with native iRacing boundaries (up to 7+ sectors). Live delta, split times, PB tracking.',
-              accent: 'var(--blue)',
-            },
-            {
-              title: 'WebGL Visual Effects',
-              desc: 'Fragment shader post-processing: glare, bloom, light sweep, g-force vignette, RPM redline. Ambient light engine samples your screen and drives glass refraction effects.',
-              accent: 'var(--cyan)',
-            },
-            {
-              title: 'Smart Lighting & Drive Mode',
-              desc: 'HomeKit integration maps flags, proximity, and strategy calls to smart light colors. Fullscreen Drive HUD mode for focused racing without production elements.',
-              accent: 'var(--purple)',
-            },
-          ].map((f) => (
-            <div
-              key={f.title}
-              className="group p-6 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--border)] transition"
-            >
-              <div
-                className="w-1 h-6 rounded-full mb-4"
-                style={{ background: f.accent }}
-              />
-              <h3 className="text-lg font-bold mb-2">{f.title}</h3>
-              <p className="text-base text-[var(--text-dim)] leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Features — live dashboard modules, one at a time */}
+      <FeatureShowcase />
 
       {/* Installation */}
       <section id="install" className="px-6 py-20 max-w-4xl mx-auto w-full">

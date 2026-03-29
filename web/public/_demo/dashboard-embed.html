@@ -6639,6 +6639,18 @@ function _fmtLapTime(secs) {
   var _pmData = null;
   var _pmAmbient = null;
 
+  // Module isolation map — CSS class for each named module
+  var _moduleMap = {
+    'tacho':    '.tacho-block',
+    'pedals':   '.controls-pedals-block',
+    'fuel':     '.fuel-tyres-col',
+    'maps':     '.maps-col',
+    'position': '.pos-gaps-col',
+    'logo':     '.logo-col',
+    'timer':    '.timer-row'
+  };
+  var _isolateStyle = null;
+
   window.addEventListener('message', function(e) {
     if (!e.data || !e.data.type) return;
     if (e.data.type === 'k10-telemetry') {
@@ -6646,6 +6658,25 @@ function _fmtLapTime(secs) {
     }
     if (e.data.type === 'k10-ambient') {
       _pmAmbient = e.data;
+    }
+    if (e.data.type === 'k10-isolate') {
+      // Show only the specified module, hide everything else
+      if (_isolateStyle) _isolateStyle.remove();
+      var mod = e.data.module;
+      if (!mod || mod === 'all') return; // 'all' = restore full dashboard
+      var sel = _moduleMap[mod];
+      if (!sel) return;
+      // Build CSS: hide all columns, show only the target
+      var allCols = Object.values(_moduleMap).join(',\n');
+      var css = allCols + ' { display: none !important; }\n' +
+        sel + ' { display: flex !important; visibility: visible !important; opacity: 1 !important; }\n' +
+        // Center the isolated module
+        '.main-area { justify-content: center !important; }\n' +
+        // Hide timer row in isolation mode (unless explicitly shown)
+        '.timer-row { display: ' + (mod === 'timer' ? 'flex' : 'none') + ' !important; }';
+      _isolateStyle = document.createElement('style');
+      _isolateStyle.textContent = css;
+      document.head.appendChild(_isolateStyle);
     }
   });
 

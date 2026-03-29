@@ -1,7 +1,22 @@
 import { SITE_URL, SITE_NAME } from '@/lib/constants'
-import { signIn } from '@/lib/auth'
+import { signIn, auth } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
-export default function DrivePage() {
+export default async function DrivePage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+  const session = await auth()
+  const params = await searchParams
+  const callbackUrl = params.callbackUrl
+
+  // If user is already logged in and there's a plugin auth callback, redirect there
+  if (session?.user && callbackUrl?.includes('/api/plugin-auth/')) {
+    redirect(callbackUrl)
+  }
+
+  // If user is logged in, redirect to the members dashboard
+  if (session?.user) {
+    redirect('/drive/dashboard')
+  }
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen px-6 text-center relative overflow-hidden">
       {/* Subtle brand glow */}
@@ -20,7 +35,7 @@ export default function DrivePage() {
       <form
         action={async () => {
           'use server'
-          await signIn('discord')
+          await signIn('discord', { redirectTo: callbackUrl || '/drive/dashboard' })
         }}
       >
         <button
@@ -34,7 +49,7 @@ export default function DrivePage() {
         </button>
       </form>
       <p className="mt-6 text-xs text-[var(--text-muted)] relative z-10">
-        <a href={SITE_URL} className="hover:text-[var(--text-dim)] transition-colors">← Back to {SITE_NAME}</a>
+        <a href={SITE_URL} className="hover:text-[var(--text-dim)] transition-colors">&larr; Back to {SITE_NAME}</a>
       </p>
     </main>
   )

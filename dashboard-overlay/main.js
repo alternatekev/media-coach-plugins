@@ -953,6 +953,223 @@ ipcMain.handle('get-discord-user', async () => {
   };
 });
 
+// ═══════════════════════════════════════════════════════════════
+// K10 PRO DRIVE OAUTH2 INTEGRATION
+// Opens the user's browser to the K10 website for authorization,
+// reuses the same localhost callback server (port 18492),
+// exchanges the auth code for a K10 access token.
+// ═══════════════════════════════════════════════════════════════
+
+const K10_API_BASE = process.env.K10_API_BASE || 'https://drive.k10motorsports.racing';
+
+function getK10Path() {
+  return path.join(app.getPath('userData'), 'k10-pro-user.json');
+}
+
+function loadK10User() {
+  try {
+    return JSON.parse(fs.readFileSync(getK10Path(), 'utf8'));
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveK10User(data) {
+  fs.writeFileSync(getK10Path(), JSON.stringify(data, null, 2));
+}
+
+function clearK10User() {
+  try { fs.unlinkSync(getK10Path()); } catch (e) { /* ok */ }
+}
+
+async function httpsPostJson(url, body) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const postData = JSON.stringify(body);
+    const options = {
+      hostname: urlObj.hostname,
+      port: urlObj.port || 443,
+      path: urlObj.pathname,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData),
+      },
+    };
+    // Use http for localhost dev, https for production
+    const lib = urlObj.protocol === 'http:' ? http : https;
+    const req = lib.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch (e) { reject(new Error('Invalid JSON: ' + data.slice(0, 200))); }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(15000, () => { req.destroy(); reject(new Error('Timeout')); });
+    req.write(postData);
+    req.end();
+  });
+}
+
+async function httpsGetWithAuth(url, token) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const lib = urlObj.protocol === 'http:' ? http : https;
+    const req = lib.get(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
+        catch (e) { reject(new Error('Invalid JSON: ' + data.slice(0, 200))); }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(15000, () => { req.destroy(); reject(new Error('Timeout')); });
+  });
+}
+
+ipcMain.handle('k10-connect', async () => {
+  try {
+    // Generate PKCE verifier + challenge
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = generateCodeChallenge(codeVerifier);
+    const state = crypto.randomBytes(16).toString('hex');
+
+    // Start listening for the callback BEFORE opening the browser
+    const callbackPromise = startCallbackServer();
+
+    // Build the K10 Pro Drive authorization URL
+    const authUrl = `${K10_API_BASE}/api/plugin-auth/authorize?code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}`;
+
+    // Temporarily lower z-level so the browser window is visible above the overlay
+    if (overlayWindow && !overlayWindow.isDestroyed()) {
+      overlayWindow.setAlwaysOnTop(false);
+    }
+
+    await shell.openExternal(authUrl);
+    console.log('[K10] K10 Pro OAuth2: opened browser for authorization');
+
+    // Wait for the callback
+    const result = await callbackPromise;
+
+    // Restore z-level
+    if (overlayWindow && !overlayWindow.isDestroyed()) {
+      overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
+
+    if (result.error) {
+      return { success: false, error: result.error };
+    }
+
+    // Exchange code for K10 access token
+    const tokenData = await httpsPostJson(`${K10_API_BASE}/api/plugin-auth/token`, {
+      grant_type: 'authorization_code',
+      code: result.code,
+      code_verifier: codeVerifier,
+    });
+
+    if (tokenData.error) {
+      return { success: false, error: tokenData.error };
+    }
+
+    // Verify token and get user profile + features
+    const verifyResult = await httpsGetWithAuth(`${K10_API_BASE}/api/plugin-auth/verify`, tokenData.access_token);
+    if (verifyResult.status !== 200 || !verifyResult.data.user) {
+      return { success: false, error: 'Token verification failed' };
+    }
+
+    const userData = {
+      ...verifyResult.data.user,
+      features: verifyResult.data.features || [],
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token,
+      expiresAt: tokenData.expires_at,
+      connectedAt: new Date().toISOString(),
+    };
+
+    saveK10User(userData);
+    console.log(`[K10] K10 Pro connected: ${userData.discordDisplayName || userData.discordUsername} (${userData.discordId})`);
+
+    return {
+      success: true,
+      user: {
+        id: userData.id,
+        discordId: userData.discordId,
+        discordUsername: userData.discordUsername,
+        discordDisplayName: userData.discordDisplayName,
+        discordAvatar: userData.discordAvatar,
+        features: userData.features,
+      },
+    };
+  } catch (err) {
+    console.error('[K10] K10 Pro connect error:', err);
+    if (overlayWindow && !overlayWindow.isDestroyed() && !overlayWindow.isAlwaysOnTop()) {
+      overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('k10-disconnect', async () => {
+  clearK10User();
+  console.log('[K10] K10 Pro disconnected');
+  return { success: true };
+});
+
+ipcMain.handle('get-k10-user', async () => {
+  const user = loadK10User();
+  if (!user) return null;
+  // Return only safe fields (no tokens)
+  return {
+    id: user.id,
+    discordId: user.discordId,
+    discordUsername: user.discordUsername,
+    discordDisplayName: user.discordDisplayName,
+    discordAvatar: user.discordAvatar,
+    features: user.features || [],
+    connectedAt: user.connectedAt,
+  };
+});
+
+ipcMain.handle('verify-k10-token', async () => {
+  const user = loadK10User();
+  if (!user || !user.accessToken) return { valid: false };
+
+  try {
+    const result = await httpsGetWithAuth(`${K10_API_BASE}/api/plugin-auth/verify`, user.accessToken);
+    if (result.status === 200 && result.data.user) {
+      // Update stored features
+      user.features = result.data.features || [];
+      saveK10User(user);
+      return { valid: true, features: user.features };
+    }
+
+    // Try refresh
+    if (user.refreshToken) {
+      const refreshResult = await httpsPostJson(`${K10_API_BASE}/api/plugin-auth/token`, {
+        grant_type: 'refresh_token',
+        refresh_token: user.refreshToken,
+      });
+      if (refreshResult.access_token) {
+        user.accessToken = refreshResult.access_token;
+        user.refreshToken = refreshResult.refresh_token;
+        user.expiresAt = refreshResult.expires_at;
+        saveK10User(user);
+        return { valid: true, features: user.features };
+      }
+    }
+
+    return { valid: false };
+  } catch (err) {
+    console.warn('[K10] Token verification failed:', err.message);
+    return { valid: false };
+  }
+});
+
 // ── IPC: Remote Dashboard Server ──
 ipcMain.handle('get-remote-server-info', async () => {
   return remoteServer.getInfo();

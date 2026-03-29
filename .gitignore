@@ -35,3 +35,5 @@ dashboard-overlay/dist/
 
 # ── Claude / MCP config (may contain API tokens) ─────────────────
 .claude/
+.vercel
+.env*.local

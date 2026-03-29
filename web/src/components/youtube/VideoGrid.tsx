@@ -10,12 +10,12 @@ interface VideoGridProps {
 }
 
 const TYPE_LABELS = { video: 'Videos', short: 'Shorts', live: 'Live' } as const
-const TYPE_FILTERS = ['all', 'video', 'short', 'live'] as const
+const TYPE_FILTERS = ['video', 'short', 'live'] as const
 
 export function VideoGrid({ videos, title = 'Latest Content' }: VideoGridProps) {
-  const [filter, setFilter] = useState<string>('all')
+  const [filter, setFilter] = useState<string>('video')
 
-  const filtered = filter === 'all' ? videos : videos.filter(v => v.type === filter)
+  const filtered = videos.filter(v => v.type === filter)
   const availableTypes = new Set(videos.map(v => v.type))
 
   return (
@@ -23,7 +23,7 @@ export function VideoGrid({ videos, title = 'Latest Content' }: VideoGridProps) 
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-black">{title}</h2>
         <div className="flex gap-2">
-          {TYPE_FILTERS.filter(t => t === 'all' || availableTypes.has(t as any)).map(t => (
+          {TYPE_FILTERS.filter(t => availableTypes.has(t as any)).map(t => (
             <button
               key={t}
               onClick={() => setFilter(t)}
@@ -33,7 +33,7 @@ export function VideoGrid({ videos, title = 'Latest Content' }: VideoGridProps) 
                   : 'bg-white/5 text-[var(--text-dim)] hover:bg-white/10'
               }`}
             >
-              {t === 'all' ? 'All' : TYPE_LABELS[t as keyof typeof TYPE_LABELS]}
+              {TYPE_LABELS[t as keyof typeof TYPE_LABELS]}
             </button>
           ))}
         </div>

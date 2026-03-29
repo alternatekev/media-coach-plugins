@@ -128,4 +128,136 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* ── K10 Pro Drive Card (primary) ─────────────────────────── */
+  .conn-card-primary {
+    background: hsla(0, 60%, 40%, 0.08);
+    border: 1px solid hsla(0, 60%, 50%, 0.18);
+  }
+  .conn-card-icon.k10pro {
+    background: hsla(0, 60%, 40%, 0.25);
+    border-radius: 8px;
+  }
+  .conn-btn.k10-btn {
+    background: #e53935;
+    color: #fff;
+    font-weight: 700;
+  }
+  .conn-btn.k10-btn:disabled {
+    background: hsla(0, 50%, 35%, 0.5);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .conn-pro-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 6px 0;
+  }
+  .conn-pro-feature-badge {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: hsla(0, 60%, 45%, 0.2);
+    color: hsla(0, 60%, 70%, 0.9);
+    border: 1px solid hsla(0, 60%, 50%, 0.15);
+  }
+
+  /* Pro feature info panel (when not connected) */
+  .conn-pro-info {
+    background: hsla(0,0%,100%,0.02);
+    border: 1px solid hsla(0,0%,100%,0.06);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .conn-pro-info-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: hsla(0,0%,100%,0.6);
+    margin-bottom: 4px;
+  }
+  .conn-pro-info-text {
+    font-size: 10px;
+    color: hsla(0,0%,100%,0.35);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .conn-pro-info-text strong { color: hsla(0,0%,100%,0.5); }
+  .conn-pro-feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .conn-pro-feature-item {
+    font-size: 10px;
+    color: hsla(0,0%,100%,0.45);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .conn-pro-feature-icon { font-size: 11px; }
+
+  /* Secondary cards (SimHub, Discord) — less prominent */
+  .conn-card-secondary {
+    background: hsla(0,0%,100%,0.02);
+    border: 1px solid hsla(0,0%,100%,0.05);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 0;
+  }
+  .conn-card-secondary .conn-card-header {
+    margin-bottom: 0;
+  }
+
+  /* ── Pro Feature Gating — locked toggles ─────────────────── */
+  .settings-toggle.pro-locked {
+    opacity: 0.3;
+    cursor: pointer;
+    position: relative;
+  }
+  .settings-toggle.pro-locked::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .pro-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .pro-badge:hover { opacity: 1; }
+  .pro-badge img {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+  }
+
+  /* Disabled sidebar item (pro-gated tab) */
+  .settings-sidebar-item.disabled {
+    opacity: 0.35;
+    cursor: pointer;
+  }
+  .settings-sidebar-item.disabled::after {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: url('../../images/branding/logomark.png') center/contain no-repeat;
+    margin-left: 4px;
+    opacity: 0.5;
+    vertical-align: -1px;
+  }
+
   /* ── Rally Mode ─────────────────────────────────────────────── */

@@ -31,10 +31,10 @@
     return GAME_FEATURES[_currentGameId] || GAME_FEATURES.iracing;
   }
 
-  // Returns true if the current game is allowed (iRacing always allowed; others require Discord)
+  // Returns true if the current game is allowed (iRacing always allowed; others require K10 Pro)
   function isGameAllowed() {
     if (_currentGameId === 'iracing') return true;
-    return !!_discordUser;
+    return !!_k10User;
   }
 
   function isRallyGame() {

@@ -79,7 +79,7 @@
     _rallyModeEnabled = _settings.rallyMode || false;
     _isRally = isRallyGame() || _rallyModeEnabled;
 
-    // Sync layout rally toggle (will be updated again when Discord state loads)
+    // Sync layout rally toggle (will be updated again when K10 state loads)
     const layoutRallyToggle = document.getElementById('layoutRallyToggle');
     if (layoutRallyToggle) layoutRallyToggle.classList.toggle('on', _rallyModeEnabled);
 
@@ -143,6 +143,11 @@
 
   function switchSettingsTab(tab) {
     const tabName = tab.dataset.tab;
+    // Check if this tab requires pro and is disabled
+    if (tab.classList.contains('disabled') && tab.dataset.proTab) {
+      navigateToConnections();
+      return;
+    }
     // Update both sidebar items and legacy tab bar
     document.querySelectorAll('.settings-sidebar-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
     document.querySelectorAll('.settings-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));

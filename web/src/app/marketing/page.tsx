@@ -54,38 +54,38 @@ export default async function HomePage() {
       {/* Features — live dashboard modules, one at a time */}
       <FeatureShowcase />
 
-      {/* Installation */}
+      {/* Get Started */}
       <section id="install" className="px-6 py-20 max-w-4xl mx-auto w-full">
-        <h2 className="text-3xl font-black mb-10">Install</h2>
+        <h2 className="text-3xl font-black mb-10">Get Started</h2>
 
         <div className="space-y-8">
           <div>
-            <h3 className="text-xl font-bold mb-3 text-[var(--k10-red)]">1. Download the Installer</h3>
+            <h3 className="text-xl font-bold mb-3 text-[var(--k10-red)]">1. Create Your Account</h3>
             <p className="text-lg text-[var(--text-dim)] mb-3">
-              The Windows installer bundles the SimHub plugin and the dashboard overlay. It auto-detects your SimHub installation and handles all file placement.
+              Sign in with Discord to access K10 Pro Drive — your personal sim racing performance dashboard and download portal.
             </p>
             <a
-              href="https://github.com/alternatekev/media-coach-simhub-plugin/releases/latest"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wider bg-[var(--k10-red)] text-white hover:brightness-110 transition-all"
+              href={DRIVE_URL}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wider bg-[#5865F2] text-white hover:brightness-110 hover:no-underline transition-all"
             >
-              Download K10-Motorsports-Setup.exe →
+              Sign in to Pro Drive &rarr;
             </a>
           </div>
 
           <div>
-            <h3 className="text-xl font-bold mb-3 text-[var(--k10-red)]">2. Enable in SimHub</h3>
+            <h3 className="text-xl font-bold mb-3 text-[var(--k10-red)]">2. Download & Install</h3>
             <p className="text-lg text-[var(--text-dim)] mb-3">
-              Launch SimHub, enable &ldquo;K10 Motorsports&rdquo; in the plugin list, and configure display timing, commentary categories, and strategy options in the settings panel.
+              The Windows installer is available in your Pro Drive dashboard. It bundles the SimHub plugin and the dashboard overlay, auto-detects your SimHub installation, and handles all file placement.
             </p>
           </div>
 
           <div>
-            <h3 className="text-xl font-bold mb-3 text-[var(--k10-red)]">3. Launch & Connect</h3>
+            <h3 className="text-xl font-bold mb-3 text-[var(--k10-red)]">3. Connect & Race</h3>
             <p className="text-lg text-[var(--text-dim)] mb-3">
-              The overlay runs as a transparent window on top of your sim. Stream it to any browser on your network for multi-screen setups.
+              Open the overlay settings (Ctrl+Shift+S), go to Connections, and click &ldquo;Connect to K10 Pro Drive&rdquo; to unlock all Pro features — AI commentary, incidents, spotter, leaderboard, datastream, WebGL effects, and ambient reflections.
             </p>
             <div className="bg-[var(--bg-surface)] rounded-lg p-4 font-mono text-base text-[var(--text-dim)] border border-[var(--border-subtle)]">
-              Built-in auto-updater keeps you current — check for updates from the SimHub settings panel
+              Your race data syncs automatically — performance charts appear after a few sessions
             </div>
           </div>
         </div>

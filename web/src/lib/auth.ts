@@ -14,6 +14,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: '/drive',
   },
   callbacks: {
+    // Expose Discord ID + avatar in the JWT and session
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
+        token.discordId = profile.id
+        token.discordUsername = profile.username
+        token.discordDisplayName = profile.global_name ?? profile.username
+        token.discordAvatar = profile.avatar
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        const user = session.user as unknown as Record<string, unknown>
+        user.discordId = token.discordId
+        user.discordUsername = token.discordUsername
+        user.discordDisplayName = token.discordDisplayName
+        user.discordAvatar = token.discordAvatar
+      }
+      return session
+    },
     authorized({ auth: session, request: { nextUrl } }) {
       const isOnDrive = nextUrl.pathname.startsWith('/drive')
       const isSignedIn = !!session?.user

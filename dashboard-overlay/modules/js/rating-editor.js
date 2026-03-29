@@ -68,13 +68,13 @@
     if (licSelect) licSelect.value = _manualLicense || 'R';
   }
 
-  // ── Enable/disable iRacing tab based on Discord connection ──
+  // ── Enable/disable iRacing tab based on K10 Pro connection ──
   function updateIRacingTabState() {
     const tab = document.getElementById('iracingTab');
     if (!tab) return;
-    const connected = !!_discordUser;
+    const connected = !!_k10User;
     tab.classList.toggle('disabled', !connected);
-    tab.title = connected ? '' : 'Connect Discord to enable';
+    tab.title = connected ? '' : 'Connect K10 Pro to enable';
   }
   window.updateIRacingTabState = updateIRacingTabState;
 

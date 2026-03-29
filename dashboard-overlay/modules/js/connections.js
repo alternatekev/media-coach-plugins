@@ -1,27 +1,198 @@
 // Connections tab
 
   // ═══════════════════════════════════════════════════════════════
-  //  CONNECTIONS TAB — SimHub & Discord status
+  //  CONNECTIONS TAB — K10 Pro, SimHub, Discord
   // ═══════════════════════════════════════════════════════════════
 
   const DISCORD_GUILD_INVITE = 'https://discord.gg/k10mediabroadcaster';
   // _discordUser declared in config.js
   let _discordConnecting = false;
 
+  // K10 Pro Drive connection state (_k10User, _k10Features declared in config.js)
+  let _k10Connecting = false;
+
+  // Pro features — keys map to setting toggles and sidebar items
+  const PRO_FEATURE_KEYS = ['commentary','incidents','spotter','leaderboard','datastream','webgl','reflections','modules'];
+
+  function isProFeature(key) {
+    const map = {
+      'showCommentary': 'commentary',
+      'showIncidents': 'incidents',
+      'showSpotter': 'spotter',
+      'showLeaderboard': 'leaderboard',
+      'showDatastream': 'datastream',
+      'showWebGL': 'webgl',
+      'ambientMode': 'reflections',
+    };
+    return map[key] || null;
+  }
+
+  function isProEnabled(featureKey) {
+    return _k10User && _k10Features.includes(featureKey);
+  }
+
   function updateConnectionsTab() {
     updateSimhubConnectionCard();
     updateDiscordConnectionCard();
+    updateK10ConnectionCard();
+  }
+
+  // ── K10 Pro Drive connection card ──
+  function updateK10ConnectionCard() {
+    const notConn = document.getElementById('k10NotConnected');
+    const conn = document.getElementById('k10Connected');
+    const info = document.getElementById('k10ProInfo');
+    if (!notConn || !conn) return;
+
+    if (_k10User) {
+      notConn.style.display = 'none';
+      conn.style.display = '';
+      if (info) info.style.display = 'none';
+
+      const nameEl = document.getElementById('k10DisplayName');
+      const idEl = document.getElementById('k10UserId');
+      const avatarEl = document.getElementById('k10Avatar');
+      if (nameEl) nameEl.textContent = _k10User.discordDisplayName || _k10User.discordUsername || 'Connected';
+      if (idEl) idEl.textContent = _k10User.discordId || '';
+      if (avatarEl && _k10User.discordAvatar && _k10User.discordId) {
+        avatarEl.src = `https://cdn.discordapp.com/avatars/${_k10User.discordId}/${_k10User.discordAvatar}.png?size=64`;
+        avatarEl.alt = _k10User.discordDisplayName || '';
+      }
+
+      // Show feature list
+      const featureList = document.getElementById('k10FeatureList');
+      if (featureList) {
+        featureList.innerHTML = _k10Features.map(f =>
+          '<span class="conn-pro-feature-badge">' + f + '</span>'
+        ).join('');
+      }
+    } else {
+      notConn.style.display = '';
+      conn.style.display = 'none';
+      if (info) info.style.display = '';
+    }
+
+    // Update pro feature gating across all settings
+    updateProFeatureGating();
+
+    // Remote dashboard — visible when K10 connected (was Discord)
+    updateRemoteDashVisibility();
+
+    // iRacing tab — enabled when K10 connected (was Discord)
+    if (typeof updateIRacingTabState === 'function') updateIRacingTabState();
+  }
+
+  async function connectK10Pro() {
+    if (_k10Connecting) return;
+    if (!window.k10 || !window.k10.k10Connect) {
+      // Fallback: open website in browser
+      if (window.k10 && window.k10.openExternal) {
+        window.k10.openExternal('https://drive.k10motorsports.racing');
+      }
+      return;
+    }
+
+    _k10Connecting = true;
+    const btn = document.getElementById('k10ConnectBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Connecting...'; }
+
+    try {
+      const result = await window.k10.k10Connect();
+      if (result && result.success && result.user) {
+        _k10User = result.user;
+        _k10Features = result.user.features || [];
+        _settings.k10User = result.user;
+        _settings.k10Features = result.user.features || [];
+        saveSettings();
+        updateK10ConnectionCard();
+      } else {
+        const errMsg = result?.error || 'Connection failed';
+        console.warn('[K10] Pro connect failed:', errMsg);
+        const text = document.getElementById('connK10Text');
+        if (text) text.innerHTML = '<strong style="color:hsl(0,75%,60%)">Failed</strong> — ' + errMsg;
+        setTimeout(() => {
+          if (text) text.innerHTML = 'Not connected';
+        }, 3000);
+      }
+    } catch (err) {
+      console.error('[K10] Pro connect error:', err);
+    } finally {
+      _k10Connecting = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<img src="images/branding/logomark.png" alt="" style="width:12px;height:12px;vertical-align:-2px;margin-right:4px;filter:brightness(10);" /> Connect to K10 Pro Drive';
+      }
+    }
+  }
+
+  async function disconnectK10Pro() {
+    if (window.k10 && window.k10.k10Disconnect) {
+      await window.k10.k10Disconnect();
+    }
+    _k10User = null;
+    _k10Features = [];
+    delete _settings.k10User;
+    delete _settings.k10Features;
+    saveSettings();
+    updateK10ConnectionCard();
+  }
+
+  // ── Pro Feature Gating ──
+  // Add disabled state + K10 badge to toggles that require Pro
+  function updateProFeatureGating() {
+    const isPro = !!_k10User;
+
+    // Toggle elements with pro gating
+    document.querySelectorAll('[data-pro-feature]').forEach(el => {
+      const featureKey = el.dataset.proFeature;
+      const enabled = isPro && _k10Features.includes(featureKey);
+
+      if (enabled) {
+        el.classList.remove('pro-locked');
+        // Remove pro badge if present
+        const badge = el.parentElement?.querySelector('.pro-badge');
+        if (badge) badge.style.display = 'none';
+      } else {
+        el.classList.add('pro-locked');
+        // Show pro badge
+        let badge = el.parentElement?.querySelector('.pro-badge');
+        if (!badge && el.parentElement) {
+          badge = document.createElement('span');
+          badge.className = 'pro-badge';
+          badge.innerHTML = '<img src="images/branding/logomark.png" alt="Pro" />';
+          badge.title = 'K10 Pro feature — connect to enable';
+          badge.onclick = function(e) { e.stopPropagation(); navigateToConnections(); };
+          el.parentElement.appendChild(badge);
+        }
+        if (badge) badge.style.display = '';
+      }
+    });
+
+    // Sidebar items gating
+    document.querySelectorAll('[data-pro-tab]').forEach(tab => {
+      const featureKey = tab.dataset.proTab;
+      const enabled = isPro && _k10Features.includes(featureKey);
+      tab.classList.toggle('disabled', !enabled);
+      tab.title = enabled ? '' : 'K10 Pro feature — connect to enable';
+    });
+
+    // Update layout rally toggle (now based on K10 Pro, not Discord)
+    updateLayoutRallyToggle();
+    syncRallyToggles();
+  }
+
+  function navigateToConnections() {
+    const tab = document.querySelector('.settings-sidebar-item[data-tab="connections"]');
+    if (tab) switchSettingsTab(tab);
   }
 
   // ── SimHub connection card ──
   function updateSimhubConnectionCard() {
     const dot = document.getElementById('connSimhubDot');
     const text = document.getElementById('connSimhubText');
-    const urlEl = document.getElementById('connSimhubUrl');
     const urlInput = document.getElementById('settingsSimhubUrl');
     const currentUrl = window._simhubUrlOverride || SIMHUB_URL;
 
-    if (urlEl) urlEl.textContent = currentUrl;
     if (urlInput) urlInput.value = currentUrl;
 
     // Derive state from the existing connection status
@@ -33,8 +204,8 @@
       dot.className = 'conn-dot ' + (state === 'connected' ? 'green' : state === 'disconnected' ? 'red' : 'orange');
     }
     if (text) {
-      if (state === 'connected') text.innerHTML = '<strong>Connected</strong> — receiving telemetry';
-      else if (state === 'disconnected') text.innerHTML = '<strong>Disconnected</strong> — check SimHub is running';
+      if (state === 'connected') text.innerHTML = '<strong>Connected</strong>';
+      else if (state === 'disconnected') text.innerHTML = '<strong>Disconnected</strong>';
       else text.innerHTML = 'Connecting...';
     }
   }
@@ -49,32 +220,15 @@
       notConn.style.display = 'none';
       conn.style.display = '';
       const nameEl = document.getElementById('discordDisplayName');
-      const idEl = document.getElementById('discordUserId');
-      const avatarEl = document.getElementById('discordAvatar');
       if (nameEl) nameEl.textContent = _discordUser.globalName || _discordUser.username;
-      if (idEl) idEl.textContent = _discordUser.id;
-      if (avatarEl && _discordUser.avatar) {
-        avatarEl.src = `https://cdn.discordapp.com/avatars/${_discordUser.id}/${_discordUser.avatar}.png?size=64`;
-        avatarEl.alt = _discordUser.globalName || _discordUser.username;
-      }
     } else {
       notConn.style.display = '';
       conn.style.display = 'none';
     }
 
-    // Show game features card when Discord is connected
+    // Show game features card when Discord is connected (legacy)
     const gameCard = document.getElementById('gameFeatureCard');
     if (gameCard) gameCard.style.display = _discordUser ? '' : 'none';
-
-    // Update layout section rally toggle
-    updateLayoutRallyToggle();
-    syncRallyToggles();
-
-    // Remote dashboard — visible when Discord connected
-    updateRemoteDashVisibility();
-
-    // iRacing tab — enabled when Discord connected
-    if (typeof updateIRacingTabState === 'function') updateIRacingTabState();
   }
 
   async function connectDiscord() {
@@ -99,18 +253,12 @@
       } else {
         const errMsg = result?.error || 'Connection failed';
         console.warn('[K10] Discord connect failed:', errMsg);
-        const text = document.getElementById('connDiscordText');
-        if (text) text.innerHTML = '<strong style="color:hsl(0,75%,60%)">Failed</strong> — ' + errMsg;
-        // Reset after 3s
-        setTimeout(() => {
-          if (text) text.innerHTML = 'Not connected';
-        }, 3000);
       }
     } catch (err) {
       console.error('[K10] Discord connect error:', err);
     } finally {
       _discordConnecting = false;
-      if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.947 2.418-2.157 2.418z"/></svg> Connect Discord'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Connect'; }
     }
   }
 
@@ -145,7 +293,7 @@
   }
 
   function toggleLayoutRally(el) {
-    // Ignore clicks when disabled (no Discord connection)
+    // Ignore clicks when disabled (no K10 Pro connection)
     if (el.classList.contains('disabled')) return;
     const isOn = el.classList.contains('on');
     el.classList.toggle('on', !isOn);
@@ -166,19 +314,19 @@
     if (connToggle) connToggle.classList.toggle('on', _rallyModeEnabled);
   }
 
-  /** Enable/disable the layout rally toggle based on Discord state */
+  /** Enable/disable the layout rally toggle based on K10 Pro state */
   function updateLayoutRallyToggle() {
     const el = document.getElementById('layoutRallyToggle');
     const hint = document.getElementById('layoutRallyHint');
     if (!el) return;
-    if (_discordUser) {
+    if (_k10User) {
       el.classList.remove('disabled');
       if (hint) hint.style.display = 'none';
     } else {
       el.classList.add('disabled');
       el.classList.remove('on');
       if (hint) hint.style.display = '';
-      // Force rally off when Discord disconnects
+      // Force rally off when disconnected
       _rallyModeEnabled = false;
       _settings.rallyMode = false;
       _isRally = isRallyGame();
@@ -220,7 +368,7 @@
     const section = document.getElementById('remoteDashSection');
     if (!section) return;
     if (window._k10RemoteMode) { section.style.display = 'none'; return; }
-    section.style.display = _discordUser ? '' : 'none';
+    section.style.display = _k10User ? '' : 'none';
   }
 
   async function initRemoteDashState() {
@@ -263,7 +411,52 @@
     }
   }
 
+  // Load K10 Pro user on startup
+  async function initK10State() {
+    // Try loading from Electron's persisted file first
+    if (window.k10 && window.k10.getK10User) {
+      try {
+        const user = await window.k10.getK10User();
+        if (user && user.id) {
+          _k10User = user;
+          _k10Features = user.features || [];
+          updateK10ConnectionCard();
+
+          // Verify token in background
+          if (window.k10.verifyK10Token) {
+            window.k10.verifyK10Token().then(result => {
+              if (result && !result.valid) {
+                console.warn('[K10] Pro token invalid — clearing session');
+                _k10User = null;
+                _k10Features = [];
+                delete _settings.k10User;
+                delete _settings.k10Features;
+                saveSettings();
+                updateK10ConnectionCard();
+              } else if (result && result.features) {
+                _k10Features = result.features;
+                updateK10ConnectionCard();
+              }
+            }).catch(() => {});
+          }
+          return;
+        }
+      } catch (e) { /* ok */ }
+    }
+    // Fallback: check settings
+    if (_settings.k10User && _settings.k10User.id) {
+      _k10User = _settings.k10User;
+      _k10Features = _settings.k10Features || [];
+      updateK10ConnectionCard();
+    }
+  }
+
   function toggleSetting(el) {
+    // Check if this is a pro-locked toggle
+    if (el.classList.contains('pro-locked')) {
+      navigateToConnections();
+      return;
+    }
     const key = el.dataset.key;
     const isOn = el.classList.contains('on');
     _settings[key] = !isOn;
@@ -281,6 +474,11 @@
   }
 
   function toggleWebGL(el) {
+    // Check if this is a pro-locked toggle
+    if (el.classList.contains('pro-locked')) {
+      navigateToConnections();
+      return;
+    }
     const isOn = el.classList.contains('on');
     const newVal = !isOn;
     el.classList.toggle('on', newVal);
@@ -603,6 +801,7 @@
   // Load settings on startup
   loadSettings();
   initDiscordState();
+  initK10State();
   initRemoteDashState();
 
   // ═══════════════════════════════════════════════════════════════

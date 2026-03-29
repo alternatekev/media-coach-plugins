@@ -316,6 +316,8 @@ const PROP_KEYS = [
 // Polling & connection
 let _pollFrame = 0;
 let _pollActive = false;
+let _latestSnapshot = null;
+let _snapshotDirty = false;
 let _connFails = 0;
 let _backoffUntil = 0;
 let _hasEverConnected = false;
@@ -328,6 +330,7 @@ let _isRally = false;
 let _rallyModeEnabled = false;
 let _isIdle = true;
 let _cycleFrameCount = 0;
+let _cycleLastSwitch = 0;
 let _prevLap = 0;
 
 // Driver & car state

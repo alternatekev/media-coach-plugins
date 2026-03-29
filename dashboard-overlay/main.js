@@ -37,6 +37,9 @@ app.setName('K10 Motorsports');
 // ── GPU / sandbox flags ─────────────────────────────────────
 app.commandLine.appendSwitch('disable-gpu-sandbox');
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+app.commandLine.appendSwitch('disable-software-rasterizer');
 
 if (process.env.K10_FORCE_SOFTWARE === '1') {
   app.disableHardwareAcceleration();

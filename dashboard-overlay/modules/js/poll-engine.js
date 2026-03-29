@@ -41,17 +41,37 @@
     return 0;
   }
 
-  // ─── Main update loop ───
+  // ─── Data fetch loop (runs on setInterval — decoupled from display) ───
   async function pollUpdate() {
     if (_pollActive) return;
     _pollActive = true;
     try {
+      const p = await fetchProps();
+      if (p) {
+        _latestSnapshot = p;
+        _snapshotDirty = true;
+      }
+    } catch (err) {
+      console.error('[K10 poll] Fetch error:', err);
+    } finally {
+      _pollActive = false;
+    }
+  }
 
-    const p = await fetchProps();
-    if (!p) { _pollActive = false; return; }
+  // ─── rAF render loop — DOM writes synchronized to display refresh rate ───
+  function _rafLoop() {
+    requestAnimationFrame(_rafLoop);
+    if (!_snapshotDirty || !_latestSnapshot) return;
+    _snapshotDirty = false;
+    _renderFrame(_latestSnapshot);
+  }
+  requestAnimationFrame(_rafLoop);
 
+  // ─── Render frame — all DOM reads/writes happen here, once per display frame ───
+  function _renderFrame(p) {
     _pollFrame++;
     _cycleFrameCount++;
+    try {
 
     // Diagnostic logging (first 3 frames + every 300 frames ~10s)
     if (_pollFrame <= 3 || _pollFrame % 300 === 0) {
@@ -1069,15 +1089,15 @@
       updateRaceTimeline(pos, lap, flagState, rtIncidents, rtInPit);
     } catch(e) { console.error('[K10] Timeline error:', e); }
 
-    // ─── Cycling timer ───
+    // ─── Cycling timer (wall-clock, independent of render rate) ───
     // Suppress cycling while timer row is visible — keep position page showing
     const _timerShowing = timerRow && timerRow.classList.contains('timer-visible');
     // Asymmetric cycle: 60s on position page, 15s on rating page
-    const _posFrames = Math.round(60000 / POLL_MS);   // 60s
-    const _ratFrames = Math.round(15000 / POLL_MS);    // 15s
+    const _now = Date.now();
+    if (!_cycleLastSwitch) _cycleLastSwitch = _now;
     const _onRatingPage = window._isRatingPageActive ? window._isRatingPageActive() : false;
-    const _cycleTarget = _onRatingPage ? _ratFrames : _posFrames;
-    if (_cycleFrameCount >= _cycleTarget) { _cycleFrameCount = 0; if (!_timerShowing) cycleRatingPos(); }
+    const _cycleTargetMs = _onRatingPage ? 15000 : 60000;
+    if (_now - _cycleLastSwitch >= _cycleTargetMs) { _cycleLastSwitch = _now; if (!_timerShowing) cycleRatingPos(); }
 
     // ─── FPS counter (game API framerate, not browser) ───
     setApiFps(+v('DataCorePlugin.GameRawData.Telemetry.FrameRate') || 0);
@@ -1087,9 +1107,7 @@
     try { if (window.updateDriveHud) window.updateDriveHud(p, !!_demo); } catch(e) { console.error('[K10] Drive HUD error:', e); }
 
     } catch (err) {
-      console.error('[K10 poll] Error in poll frame #' + _pollFrame + ':', err);
-    } finally {
-      _pollActive = false;
+      console.error('[K10 render] Error in frame #' + _pollFrame + ':', err);
     }
   }
 

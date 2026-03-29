@@ -87,6 +87,16 @@
     const sessNum = parseInt(vs(sessionPre + 'SessionState')) || 0;
     const _inPitLane = +(p[dsPre + 'IsInPitLane']) > 0;
 
+    // ─── Session change detection — reset per-session state ───
+    const _currSessionTypeName = _demo
+      ? vs('K10Motorsports.Plugin.Demo.SessionTypeName')
+      : vs('K10Motorsports.Plugin.SessionTypeName');
+    if (_currSessionTypeName && _currSessionTypeName !== _prevSessionTypeName && _prevSessionTypeName) {
+      console.log('[K10] Session changed:', _prevSessionTypeName, '→', _currSessionTypeName);
+      if (typeof resetTimeline === 'function') resetTimeline();
+    }
+    if (_currSessionTypeName) _prevSessionTypeName = _currSessionTypeName;
+
     // Detect game and apply feature gating
     const rawGameId = v('K10Motorsports.Plugin.GameId') || '';
     const newGameId = detectGameId(rawGameId);

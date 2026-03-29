@@ -349,6 +349,9 @@ let _prevBB = -1, _prevTC = -1, _prevABS = -1;
 let _clutchSeenActive = false;
 let _clutchHidden = false;
 
+// Session change detection (resets event history, timeline, etc.)
+let _prevSessionTypeName = '';
+
 // Manufacturer country flag trigger state
 let _mfrFlagShownThisSession = false;  // prevent re-trigger within same session
 let _mfrFlagPrevSessState = 0;         // previous grid SessionState

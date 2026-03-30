@@ -23,7 +23,7 @@ source of truth. It:
 3. Stamps three files using `sed`:
    - `racecor-overlay/package.json` → `"version": "0.2.0"`
    - `installer/k10-motorsports.iss` → `#define MyAppVersion "0.2.0"`
-   - `racecor-plugin/.../Properties/AssemblyInfo.cs` → `AssemblyVersion("0.2.0.0")`
+   - `racecor-plugin/simhub-plugin/.../Properties/AssemblyInfo.cs` → `AssemblyVersion("0.2.0.0")`
 4. Commits and pushes back to `main` with `[skip ci]`
 
 All downstream build jobs `needs: [stamp-version]` and check out `main`,
@@ -52,7 +52,7 @@ so they always build with the correct version already in place.
 ## Plugin Build
 
 The C# plugin builds with `dotnet build` targeting .NET Framework 4.8.
-SimHub SDK DLLs are committed in `lib/simhub-refs/` so the plugin compiles
+SimHub SDK DLLs are committed in `racecor-plugin/simhub-plugin/lib/simhub-refs/` so the plugin compiles
 on CI without a SimHub installation. The output DLL lands at
 `racecor-plugin/K10Motorsports.Plugin.dll`.
 

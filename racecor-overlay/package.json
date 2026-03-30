@@ -1,7 +1,7 @@
 {
-  "name": "k10-motorsports",
+  "name": "racecor-overlay",
   "version": "0.3.0",
-  "description": "K10 Motorsports — broadcast-grade transparent HUD overlay for sim racing with WebGL effects, real-time strategy, and AI commentary",
+  "description": "RaceCor.io — broadcast-grade transparent HUD overlay for sim racing with WebGL effects, real-time strategy, and AI commentary",
   "main": "main.js",
   "author": "Kevin Conboy",
   "license": "MIT",

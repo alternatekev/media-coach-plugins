@@ -2,7 +2,7 @@
 
 A standalone Electron overlay that renders real-time sim racing telemetry as a transparent HUD on top of your sim. Designed for stream overlays and broadcast production — it composites directly over the game window with no capture card or secondary monitor required. Also functions as a dedicated driving display in fullscreen Drive HUD mode.
 
-![Dashboard Screenshot](../simhub-plugin/docs/dashboard-screenshot.png)
+![Dashboard Screenshot](../racecor-plugin/docs/dashboard-screenshot.png)
 
 ## Overview
 
@@ -22,7 +22,7 @@ The `dashboard.html` file powers three deployment modes: the Electron overlay (t
 ### Install and Run
 
 ```bash
-cd dashboard-overlay
+cd racecor-overlay
 npm install
 npm start
 ```

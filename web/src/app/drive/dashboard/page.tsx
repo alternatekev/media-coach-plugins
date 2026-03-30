@@ -57,14 +57,14 @@ export default async function DashboardPage() {
         <section className="mb-12">
           <h1 className="text-3xl font-black mb-2">Welcome, {displayName}</h1>
           <p className="text-[var(--text-dim)] mb-6">
-            Download the K10 overlay, connect it to your Pro Drive account, and start racing. Your performance data will appear here automatically.
+            Download the RaceCor overlay, connect it to your Pro Drive account, and start racing. Your performance data will appear here automatically.
           </p>
           <a
             href="/api/download/latest"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--k10-red)] text-white font-bold text-sm uppercase tracking-wider hover:brightness-110 transition"
           >
             <Download size={16} />
-            Download K10 Overlay
+            Download RaceCor Overlay
           </a>
           <p className="mt-2 text-xs text-[var(--text-muted)]">
             Windows installer &mdash; includes SimHub plugin and dashboard overlay
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
           <ol className="space-y-3 text-sm text-[var(--text-dim)]">
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--k10-red)] text-white text-xs font-bold flex items-center justify-center">1</span>
-              <span>Install the K10 overlay using the download above</span>
+              <span>Install the RaceCor overlay using the download above</span>
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--k10-red)] text-white text-xs font-bold flex items-center justify-center">2</span>
@@ -85,7 +85,7 @@ export default async function DashboardPage() {
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--k10-red)] text-white text-xs font-bold flex items-center justify-center">3</span>
-              <span>Go to the <strong>Connections</strong> tab and click <strong>Connect to K10 Pro Drive</strong></span>
+              <span>Go to the <strong>Connections</strong> tab and click <strong>Connect to Pro Drive</strong></span>
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--k10-red)] text-white text-xs font-bold flex items-center justify-center">4</span>
@@ -155,7 +155,7 @@ export default async function DashboardPage() {
             ))}
           </div>
           <p className="mt-3 text-xs text-[var(--text-muted)]">
-            All Pro features are unlocked when your overlay is connected to your K10 Pro Drive account.
+            All Pro features are unlocked when your overlay is connected to your Pro Drive account.
           </p>
         </section>
 

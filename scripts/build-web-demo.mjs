@@ -22,7 +22,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const OVERLAY = join(ROOT, 'dashboard-overlay');
+const OVERLAY = join(ROOT, 'racecor-overlay');
 const OUT_DIR = join(ROOT, 'web', 'public', '_demo');
 
 // ── Helpers ──────────────────────────────────────────────────────

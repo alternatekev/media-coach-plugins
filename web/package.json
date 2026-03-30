@@ -1,7 +1,7 @@
 {
-  "name": "@k10/web",
+  "name": "@racecor/web",
   "version": "0.1.0",
-  "description": "K10 Motorsports marketing site and Pro Drive members area — Next.js 16, React 19, Discord auth, Strapi CMS",
+  "description": "RaceCor.io marketing site and Pro Drive members area — Next.js 16, React 19, Discord auth, Strapi CMS",
   "private": true,
   "scripts": {
     "prebuild": "node ../scripts/build-web-demo.mjs",

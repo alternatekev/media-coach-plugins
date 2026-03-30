@@ -1,5 +1,5 @@
-appId: org.k10motorsports.broadcaster
-productName: K10 Motorsports
+appId: org.racecor.broadcaster
+productName: RaceCor.io
 copyright: Copyright (c) 2026 Kevin Conboy
 
 files:
@@ -40,8 +40,8 @@ mac:
         - arm64
 
 dmg:
-  title: K10Motorsports
-  artifactName: K10-Motorsports-${version}-${arch}.${ext}
+  title: RaceCor
+  artifactName: RaceCor-${version}-${arch}.${ext}
   # Explicit window config avoids electron-builder trying to apply a
   # background image, which triggers the hdiutil APFS race condition
   # on arm64 macOS runners ("Above command failed, retrying N times").
@@ -61,5 +61,5 @@ dmg:
 publish:
   provider: github
   owner: alternatekev
-  repo: media-coach-simhub-plugin
+  repo: racecor
   releaseType: release

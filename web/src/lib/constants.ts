@@ -1,18 +1,30 @@
-// K10 Motorsports — Shared constants
+// K10 Motorsports / RaceCor.io — Shared constants
 
-export const SITE_NAME = 'K10 Motorsports'
-export const SITE_DESCRIPTION = 'Broadcast-grade sim racing HUD with real-time telemetry, race strategy, AI commentary, WebGL visual effects, and HomeKit smart lighting. Built for iRacing.'
+// Product brand (plugin + overlay + product site)
+export const RACECOR_NAME = 'RaceCor.io'
+export const RACECOR_DESCRIPTION = 'Broadcast-grade sim racing HUD with real-time telemetry, race strategy, AI commentary, WebGL visual effects, and HomeKit smart lighting. Built for iRacing.'
 
-// Domain config — derived from environment so dev/prod URLs are automatic.
-// Production: https://k10motorsports.racing / https://drive.k10motorsports.racing
-// Dev:        http://dev.k10motorsports.racing:3000 / http://dev.drive.k10motorsports.racing:3000
+// Organization brand (parent company / YouTube channel)
+export const K10_NAME = 'K10 Motorsports'
+export const K10_DESCRIPTION = 'Sim racing content, tools, and technology from K10 Motorsports.'
+
+// Legacy alias — existing code references SITE_NAME
+export const SITE_NAME = RACECOR_NAME
+export const SITE_DESCRIPTION = RACECOR_DESCRIPTION
+
+// Domain config — derived from environment so dev/prod URLs are automatic
 const isDev = process.env.NODE_ENV === 'development'
 const protocol = isDev ? 'http' : 'https'
-const domain = isDev ? 'dev.k10motorsports.racing' : 'k10motorsports.racing'
 const port = isDev ? ':3000' : ''
 
-export const SITE_URL = `${protocol}://${domain}${port}`
-export const DRIVE_URL = `${protocol}://drive.${domain}${port}`
+// RaceCor.io domains
+const racecorDomain = isDev ? 'dev.racecor.io' : 'racecor.io'
+export const SITE_URL = `${protocol}://${racecorDomain}${port}`
+export const DRIVE_URL = `${protocol}://drive.${racecorDomain}${port}`
+
+// K10 Motorsports domains
+const k10Domain = isDev ? 'dev.k10motorsports.racing' : 'k10motorsports.racing'
+export const K10_URL = `${protocol}://${k10Domain}${port}`
 
 // iRacing license classes and their rating categories
 export const LICENSE_CLASSES = ['R', 'D', 'C', 'B', 'A', 'P'] as const

@@ -4,7 +4,7 @@
 
 # K10 Motorsports
 
-![Dashboard](simhub-plugin/docs/dashboard-screenshot.png)
+![Dashboard](racecor-plugin/simhub-plugin/docs/dashboard-screenshot.png)
 
 A broadcast-grade sim racing HUD and telemetry platform. K10 Motorsports replaces your in-sim dashboard with a transparent overlay that displays real-time telemetry, race strategy, AI-generated commentary, and ambient smart lighting — all from a single SimHub plugin.
 
@@ -82,14 +82,14 @@ Prerequisites: [SimHub](https://www.simhubdash.com/) installed on Windows.
 
 The plugin exposes all data as SimHub properties (prefixed `K10Motorsports.Plugin.*`), so you can build your own dashboard layout or integrate the properties into an existing one.
 
-Build from source: **[simhub-plugin/docs/DEVELOPMENT.md](simhub-plugin/docs/DEVELOPMENT.md)**
+Build from source: **[racecor-plugin/simhub-plugin/docs/DEVELOPMENT.md](racecor-plugin/simhub-plugin/docs/DEVELOPMENT.md)**
 
 ### Homebridge HomeKit Lights
 
 Prerequisites: [Homebridge](https://homebridge.io/) (v1.6+), Node.js 18+, SimHub web server enabled, at least one color-capable smart light.
 
 ```bash
-cd homebridge-plugin && npm install && npm run build && npm link
+cd racecor-plugin/homebridge-plugin && npm install && npm run build && npm link
 ```
 
 Add the `K10MotorsportsLights` platform to your Homebridge `config.json`:
@@ -105,12 +105,12 @@ Add the `K10MotorsportsLights` platform to your Homebridge `config.json`:
 }
 ```
 
-Full setup walkthrough with multi-light configuration and automation scripts: **[homebridge-plugin/docs/HOMEKIT.md](homebridge-plugin/docs/HOMEKIT.md)**
+Full setup walkthrough with multi-light configuration and automation scripts: **[racecor-plugin/homebridge-plugin/docs/HOMEKIT.md](racecor-plugin/homebridge-plugin/docs/HOMEKIT.md)**
 
 ## Repository Structure
 
 ```
-├── dashboard-overlay/                    Electron overlay app + dashboard HUD
+├── racecor-overlay/                      Electron overlay app + dashboard HUD
 │   ├── main.js                           Electron main process (transparency, hotkeys, IPC, screen capture)
 │   ├── preload.js                        IPC bridge
 │   ├── remote-server.js                  LAN HTTP server for remote access
@@ -132,29 +132,30 @@ Full setup walkthrough with multi-light configuration and automation scripts: **
 │   ├── data/                             Track + car research data
 │   ├── streamdeck/                       Elgato Stream Deck profile + icons
 │   └── images/                           Branding, car logos, country flags
-├── simhub-plugin/                        SimHub C# plugin + data
-│   ├── plugin/K10Motorsports.Plugin/     C# source (.NET Framework 4.8, WPF)
-│   │   ├── Plugin.cs                     Entry point, HTTP server, action registration
-│   │   └── Engine/                       Core systems
-│   │       ├── CommentaryEngine.cs       Trigger evaluation + prompt assembly
-│   │       ├── TelemetrySnapshot.cs      Cross-game telemetry normalization
-│   │       ├── SectorTracker.cs          Native + fallback sector boundary detection
-│   │       ├── IRacingSdkBridge.cs       Direct iRacing SDK integration
-│   │       ├── IRatingEstimator.cs       Pre-qualifying iRating estimation
-│   │       ├── TrackMapProvider.cs       SVG track map generation
-│   │       ├── PluginUpdater.cs          GitHub Release auto-updater
-│   │       └── Strategy/                 Real-time race strategy engine
-│   │           ├── StrategyCoordinator.cs  Stint lifecycle + call orchestration
-│   │           ├── TireTracker.cs          Grip scoring, wear estimation, temp monitoring
-│   │           ├── FuelComputer.cs         Burn stats, pit window, fuel saving detection
-│   │           └── StintData.cs            Per-stint telemetry history
-│   ├── k10-motorsports-data/             Commentary topics, fragments, sentiments (JSON)
-│   ├── tests/                            C# unit tests + Python dataset validation
-│   ├── tools/                            Telemetry replay, fragment generation
-│   └── DashTemplates/                    SimHub dashboard templates
-├── homebridge-plugin/                    Homebridge platform plugin (TypeScript)
-│   ├── src/__tests__/                    Jest test suite (133 tests)
-│   └── docs/                             Homebridge-specific documentation
+├── racecor-plugin/                       SimHub C# plugin + homebridge plugin
+│   ├── simhub-plugin/                    SimHub plugin + data
+│   │   ├── plugin/K10Motorsports.Plugin/ C# source (.NET Framework 4.8, WPF)
+│   │   │   ├── Plugin.cs                 Entry point, HTTP server, action registration
+│   │   │   └── Engine/                   Core systems
+│   │   │       ├── CommentaryEngine.cs   Trigger evaluation + prompt assembly
+│   │   │       ├── TelemetrySnapshot.cs  Cross-game telemetry normalization
+│   │   │       ├── SectorTracker.cs      Native + fallback sector boundary detection
+│   │   │       ├── IRacingSdkBridge.cs   Direct iRacing SDK integration
+│   │   │       ├── IRatingEstimator.cs   Pre-qualifying iRating estimation
+│   │   │       ├── TrackMapProvider.cs   SVG track map generation
+│   │   │       ├── PluginUpdater.cs      GitHub Release auto-updater
+│   │   │       └── Strategy/             Real-time race strategy engine
+│   │   │           ├── StrategyCoordinator.cs  Stint lifecycle + call orchestration
+│   │   │           ├── TireTracker.cs          Grip scoring, wear estimation, temp monitoring
+│   │   │           ├── FuelComputer.cs         Burn stats, pit window, fuel saving detection
+│   │   │           └── StintData.cs            Per-stint telemetry history
+│   │   ├── k10-motorsports-data/         Commentary topics, fragments, sentiments (JSON)
+│   │   ├── tests/                        C# unit tests + Python dataset validation
+│   │   ├── tools/                        Telemetry replay, fragment generation
+│   │   └── DashTemplates/                SimHub dashboard templates
+│   └── homebridge-plugin/                Homebridge platform plugin (TypeScript)
+│       ├── src/__tests__/                Jest test suite (133 tests)
+│       └── docs/                         Homebridge-specific documentation
 ├── web/                                  Next.js 16 marketing site + Pro Drive members area
 │   └── src/                              React 19, Tailwind CSS 4, NextAuth 5, Strapi CMS
 ├── src/agents/                           MCP servers (Model Context Protocol)
@@ -173,18 +174,18 @@ Full setup walkthrough with multi-light configuration and automation scripts: **
 | Document | Covers |
 | --- | --- |
 | **SimHub Plugin** | |
-| [SIMHUB_PLUGIN.md](simhub-plugin/docs/SIMHUB_PLUGIN.md) | Plugin architecture, cross-game support, settings, dashboard properties |
-| [COMMENTARY_ENGINE.md](simhub-plugin/docs/COMMENTARY_ENGINE.md) | Trigger evaluation pipeline, severity interruption, fragment assembly, cooldowns |
+| [SIMHUB_PLUGIN.md](racecor-plugin/simhub-plugin/docs/SIMHUB_PLUGIN.md) | Plugin architecture, cross-game support, settings, dashboard properties |
+| [COMMENTARY_ENGINE.md](racecor-plugin/simhub-plugin/docs/COMMENTARY_ENGINE.md) | Trigger evaluation pipeline, severity interruption, fragment assembly, cooldowns |
 | [AI_STRATEGIST_DESIGN.md](AI_STRATEGIST_DESIGN.md) | Strategy engine design — tire lifecycle, fuel strategy, pit optimizer, opponent intelligence |
 | **Dashboard Overlay** | |
-| [dashboard-overlay/README.md](dashboard-overlay/README.md) | Electron overlay setup, panel reference, architecture, drive mode, OBS, Stream Deck |
+| [racecor-overlay/README.md](racecor-overlay/README.md) | Electron overlay setup, panel reference, architecture, drive mode, OBS, Stream Deck |
 | **Homebridge Plugin** | |
-| [HOMEBRIDGE_PLUGIN.md](homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md) | Platform architecture, color mapping, polling loop, per-light overrides |
-| [HOMEKIT.md](homebridge-plugin/docs/HOMEKIT.md) | Apple HomeKit setup, light modes, multi-light configuration, troubleshooting |
+| [HOMEBRIDGE_PLUGIN.md](racecor-plugin/homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md) | Platform architecture, color mapping, polling loop, per-light overrides |
+| [HOMEKIT.md](racecor-plugin/homebridge-plugin/docs/HOMEKIT.md) | Apple HomeKit setup, light modes, multi-light configuration, troubleshooting |
 | **Shared** | |
-| [DATASETS.md](simhub-plugin/docs/DATASETS.md) | Topic schema, trigger conditions, fragment format, how to add new topics |
-| [TESTING.md](simhub-plugin/docs/TESTING.md) | Test suites, CI integration |
-| [DEVELOPMENT.md](simhub-plugin/docs/DEVELOPMENT.md) | Building from source, project setup, contributor workflow |
+| [DATASETS.md](racecor-plugin/simhub-plugin/docs/DATASETS.md) | Topic schema, trigger conditions, fragment format, how to add new topics |
+| [TESTING.md](racecor-plugin/simhub-plugin/docs/TESTING.md) | Test suites, CI integration |
+| [DEVELOPMENT.md](racecor-plugin/simhub-plugin/docs/DEVELOPMENT.md) | Building from source, project setup, contributor workflow |
 
 ## Testing
 
@@ -192,18 +193,18 @@ Three test suites run without SimHub, iRacing, or any external service:
 
 ```bash
 # C# unit tests (200+ tests, NUnit)
-cd simhub-plugin/tests/K10Motorsports.Tests && dotnet test
+cd racecor-plugin/simhub-plugin/tests/K10Motorsports.Tests && dotnet test
 
 # Python dataset validation (28 tests)
-python3 simhub-plugin/tests/validate_datasets.py
+python3 racecor-plugin/simhub-plugin/tests/validate_datasets.py
 
 # Homebridge Jest tests (133 tests)
-cd homebridge-plugin && npm test
+cd racecor-plugin/homebridge-plugin && npm test
 ```
 
 The C# test project uses standalone reimplementations of the plugin's engine logic (no SimHub dependencies), so it runs on any platform with the .NET 6.0 SDK.
 
-Full testing documentation: **[simhub-plugin/docs/TESTING.md](simhub-plugin/docs/TESTING.md)**
+Full testing documentation: **[racecor-plugin/simhub-plugin/docs/TESTING.md](racecor-plugin/simhub-plugin/docs/TESTING.md)**
 
 ## Data Sources and Attribution
 
@@ -247,7 +248,7 @@ The composable fragment system (opener + body + closer) is directly inspired by 
 
 ### AI-Assisted Content
 
-Commentary fragments in `simhub-plugin/k10-motorsports-data/commentary_fragments.json` were generated using [Claude](https://claude.ai) (Anthropic's `claude-haiku-4-5` model) with the commentary topics, sentiment vocabulary, and channel style profiles as input. The generation is a one-time offline process — no AI API calls occur at runtime in the current version.
+Commentary fragments in `racecor-plugin/simhub-plugin/k10-motorsports-data/commentary_fragments.json` were generated using [Claude](https://claude.ai) (Anthropic's `claude-haiku-4-5` model) with the commentary topics, sentiment vocabulary, and channel style profiles as input. The generation is a one-time offline process — no AI API calls occur at runtime in the current version.
 
 Plugin codebase, test suites, dataset structures, documentation, dashboard overlay, strategy engine, and Homebridge companion plugin built with [Claude Code](https://claude.ai/claude-code) (Anthropic's `claude-opus-4-6`).
 

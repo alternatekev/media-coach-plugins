@@ -1,17 +1,9 @@
-import { SITE_NAME, DRIVE_URL } from '@/lib/constants'
-import { getChannelInfo, getLatestVideos } from '@/lib/youtube'
-import { ChannelBanner } from '@/components/youtube/ChannelBanner'
-import { VideoGrid } from '@/components/youtube/VideoGrid'
+import { RACECOR_NAME, DRIVE_URL, K10_NAME, K10_URL } from '@/lib/constants'
 import { TelemetryStatus } from '@/components/telemetry/TelemetryStatus'
 import { DashboardEmbed } from '@/components/telemetry/DashboardEmbed'
 import { FeatureShowcase } from '@/components/telemetry/FeatureShowcase'
 
 export default async function HomePage() {
-  // Fetch YouTube data at build time / ISR (revalidates every 30 min)
-  const [channel, videos] = await Promise.all([
-    getChannelInfo().catch(() => null),
-    getLatestVideos(12).catch(() => []),
-  ])
   return (
     <main className="flex flex-col min-h-screen">
       {/* Hero */}
@@ -21,16 +13,15 @@ export default async function HomePage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[var(--k10-red)]/[0.04] blur-3xl pointer-events-none" />
 
         <img
-          src="/branding/logomark-white.png"
+          src="/branding/racecor-logomark-white.svg"
           alt=""
-          className="h-20 w-auto mb-8 relative z-10 opacity-90"
+          className="h-20 w-auto mb-8 relative z-10"
         />
         <h1 className="text-6xl font-black tracking-tight leading-none mb-4 relative z-10">
-          {SITE_NAME}
+          {RACECOR_NAME}
         </h1>
         <p className="text-xl text-[var(--text-dim)] max-w-2xl leading-relaxed mb-10 relative z-10">
-          Broadcast-grade sim racing HUD with real-time telemetry, race strategy,
-          AI commentary, WebGL effects, and HomeKit smart lighting. Built for iRacing.
+          Broadcast-grade sim racing HUD with real-time telemetry, race strategy, AI commentary, and WebGL visual effects. Built for iRacing.
         </p>
         <div className="flex gap-4 relative z-10">
           <a
@@ -43,7 +34,7 @@ export default async function HomePage() {
             href={DRIVE_URL}
             className="px-8 py-3 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] font-semibold text-sm uppercase tracking-wider hover:bg-white/5 hover:no-underline transition"
           >
-            K10 Pro Drive
+            Pro Drive
           </a>
         </div>
       </section>
@@ -62,7 +53,7 @@ export default async function HomePage() {
           <div>
             <h3 className="text-xl font-bold mb-3 text-[var(--k10-red)]">1. Create Your Account</h3>
             <p className="text-lg text-[var(--text-dim)] mb-3">
-              Sign in with Discord to access K10 Pro Drive — your personal sim racing performance dashboard and download portal.
+              Sign in with Discord to access Pro Drive — your personal sim racing performance dashboard and download portal.
             </p>
             <a
               href={DRIVE_URL}
@@ -82,7 +73,7 @@ export default async function HomePage() {
           <div>
             <h3 className="text-xl font-bold mb-3 text-[var(--k10-red)]">3. Connect & Race</h3>
             <p className="text-lg text-[var(--text-dim)] mb-3">
-              Open the overlay settings (Ctrl+Shift+S), go to Connections, and click &ldquo;Connect to K10 Pro Drive&rdquo; to unlock all Pro features — AI commentary, incidents, spotter, leaderboard, datastream, WebGL effects, and ambient reflections.
+              Open the overlay settings (Ctrl+Shift+S), go to Connections, and click &ldquo;Connect to Pro Drive&rdquo; to unlock all Pro features — AI commentary, incidents, spotter, leaderboard, datastream, WebGL effects, and ambient reflections.
             </p>
             <div className="bg-[var(--bg-surface)] rounded-lg p-4 font-mono text-base text-[var(--text-dim)] border border-[var(--border-subtle)]">
               Your race data syncs automatically — performance charts appear after a few sessions
@@ -91,22 +82,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* YouTube */}
-      {(channel || videos.length > 0) && (
-        <section className="px-6 py-20 max-w-6xl mx-auto w-full">
-          {channel && <ChannelBanner channel={channel} />}
-          {videos.length > 0 && <VideoGrid videos={videos} title="Latest from K10 Motorsports" />}
-        </section>
-      )}
-
       {/* Footer */}
       <footer className="mt-auto px-6 py-8 border-t border-[var(--border-subtle)]">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/branding/logomark-white.png" alt="" className="h-5 w-auto opacity-40" />
-            <span className="text-xs text-[var(--text-muted)]">{SITE_NAME} — Built by Kevin Conboy</span>
+            <img src="/branding/racecor-logomark-white.svg" alt="" className="h-5 w-auto opacity-40" />
+            <span className="text-xs text-[var(--text-muted)]">{RACECOR_NAME} — Built by Kevin Conboy</span>
           </div>
-          <span className="text-xs text-[var(--text-muted)]">MIT License</span>
+          <div className="flex items-center gap-4">
+            <a href={K10_URL} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors">
+              A {K10_NAME} product
+            </a>
+            <span className="text-xs text-[var(--text-muted)]">MIT License</span>
+          </div>
         </div>
       </footer>
     </main>

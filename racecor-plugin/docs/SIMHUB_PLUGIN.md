@@ -111,7 +111,7 @@ When demo mode is active (`K10Motorsports.Plugin.DemoMode = 1`), the server serv
 
 The plugin's telemetry is consumed by three dashboard implementations, all using the same `dashboard.html` source file:
 
-**K10 Motorsports (Electron overlay):** A standalone always-on-top transparent window that polls the HTTP API at ~30fps. Designed for stream overlays and broadcast production. See [dashboard-overlay/README.md](../../dashboard-overlay/README.md) for full documentation.
+**K10 Motorsports (Electron overlay):** A standalone always-on-top transparent window that polls the HTTP API at ~30fps. Designed for stream overlays and broadcast production. See [racecor-overlay/README.md](../../racecor-overlay/README.md) for full documentation.
 
 **SimHub Dashboard Template:** Installed to SimHub's `DashTemplates/` directory. When loaded inside SimHub's dashboard viewer, it uses SimHub's `$prop()` JavaScript API for data access instead of HTTP polling — lower latency since the data is already in-process.
 

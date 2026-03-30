@@ -24,10 +24,10 @@ export default async function DrivePage({ searchParams }: { searchParams: Promis
 
       <img
         src="/branding/logomark-white.png"
-        alt="K10"
+        alt="RaceCor"
         className="h-16 w-auto mb-8 relative z-10 opacity-80"
       />
-      <h1 className="text-4xl font-black mb-3 relative z-10">K10 Pro Drive</h1>
+      <h1 className="text-4xl font-black mb-3 relative z-10">RaceCor Pro Drive</h1>
       <p className="text-[var(--text-dim)] max-w-md mb-8 relative z-10">
         Your sim racing performance dashboard. Track iRating, Safety Rating, license progression,
         and race history across all iRacing categories.

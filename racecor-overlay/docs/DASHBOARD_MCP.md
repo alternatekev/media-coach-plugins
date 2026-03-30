@@ -20,7 +20,7 @@ The dashboard has no bundler — all modules load via `<link>` and `<script src>
 ### File Layout
 
 ```
-K10 Motorsports/
+RaceCor Overlay/
 +-- dashboard.html          <- Main dashboard file: HTML structure + module includes
 +-- main.js                 <- Electron main process
 +-- preload.js              <- IPC bridge (window.k10)
@@ -443,7 +443,7 @@ Applied to `<body>` by `applyGameMode()`:
 ### Key Files
 
 ```
-simhub-plugin/plugin/K10Motorsports.Plugin/
+racecor-plugin/simhub-plugin/plugin/K10Motorsports.Plugin/
 +-- Plugin.cs                    <- Main plugin, HTTP server, JSON output
 +-- Engine/
 |   +-- TelemetrySnapshot.cs     <- Data model for all telemetry values

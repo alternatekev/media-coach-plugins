@@ -89,7 +89,7 @@
   <!--
     Post-build: export built artifacts back into the repo.
     Local dev reads from SimHub folder; CI reads from build/ folder.
-    RepoPluginDir = simhub-plugin/ (two levels up from this .csproj).
+    RepoPluginDir = racecor-plugin/ (two levels up from this .csproj).
   -->
   <PropertyGroup>
     <RepoPluginDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepoPluginDir>

@@ -2,21 +2,25 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 /**
- * Subdomain routing middleware.
+ * Subdomain routing middleware — three sites from one Next.js app.
  *
  * Production:
- *   - k10motorsports.racing        → /marketing/* (public website)
- *   - drive.k10motorsports.racing   → /drive/*     (K10 Pro Drive members app)
+ *   - racecor.io                     → /marketing/* (product site)
+ *   - drive.racecor.io               → /drive/*     (Pro Drive members area)
+ *   - k10motorsports.racing          → /k10/*       (org hub)
+ *   - drive.k10motorsports.racing    → /drive/*     (fallback to drive.racecor.io)
  *
  * Dev (via /etc/hosts):
- *   - dev.k10motorsports.racing:3000       → /marketing/*
- *   - dev.drive.k10motorsports.racing:3000 → /drive/*
+ *   - dev.racecor.io:3000            → /marketing/*
+ *   - dev.drive.racecor.io:3000      → /drive/*
+ *   - dev.k10motorsports.racing:3000 → /k10/*
  *
- * Fallback: ?subdomain=drive query param works in any environment.
+ * Fallback: ?subdomain=drive or ?subdomain=k10 query param works in any environment.
  */
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host') || ''
   const pathname = request.nextUrl.pathname
+  const subdomain = request.nextUrl.searchParams.get('subdomain')
 
   // Skip Next.js internals and static files
   if (
@@ -27,21 +31,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Detect drive subdomain — matches both:
-  //   drive.k10motorsports.racing     (production)
-  //   dev.drive.k10motorsports.racing  (local dev)
-  const isDrive =
-    host.includes('drive.') ||
-    request.nextUrl.searchParams.get('subdomain') === 'drive'
+  // Detect subdomain — prioritize query param, then host header
+  let targetPath = '/marketing' // default
 
-  if (isDrive) {
-    if (!pathname.startsWith('/drive')) {
-      return NextResponse.rewrite(new URL(`/drive${pathname}`, request.url))
-    }
-  } else {
-    if (!pathname.startsWith('/marketing') && !pathname.startsWith('/drive')) {
-      return NextResponse.rewrite(new URL(`/marketing${pathname}`, request.url))
-    }
+  if (host.includes('drive.') || subdomain === 'drive') {
+    targetPath = '/drive'
+  } else if (host.includes('k10motorsports.racing') && !host.includes('drive.')) {
+    targetPath = '/k10'
+  }
+
+  // Rewrite if not already at target path
+  if (!pathname.startsWith(targetPath) && !pathname.startsWith('/drive') && !pathname.startsWith('/k10') && !pathname.startsWith('/marketing')) {
+    return NextResponse.rewrite(new URL(`${targetPath}${pathname}`, request.url))
   }
 
   return NextResponse.next()

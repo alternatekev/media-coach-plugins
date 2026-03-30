@@ -4,11 +4,11 @@ on:
   push:
     branches: [main, master]
     paths:
-      - "homebridge-plugin/**"
+      - "racecor-plugin/homebridge-plugin/**"
   pull_request:
     branches: [main, master]
     paths:
-      - "homebridge-plugin/**"
+      - "racecor-plugin/homebridge-plugin/**"
 
 jobs:
 
@@ -26,16 +26,16 @@ jobs:
         with:
           node-version: "18"
           cache: "npm"
-          cache-dependency-path: homebridge-plugin/package.json
+          cache-dependency-path: racecor-plugin/homebridge-plugin/package.json
 
       - name: Install dependencies
-        working-directory: homebridge-plugin
+        working-directory: racecor-plugin/homebridge-plugin
         run: npm ci
 
       - name: Build TypeScript
-        working-directory: homebridge-plugin
+        working-directory: racecor-plugin/homebridge-plugin
         run: npm run build
 
       - name: Run Jest tests (133 tests)
-        working-directory: homebridge-plugin
+        working-directory: racecor-plugin/homebridge-plugin
         run: npm test

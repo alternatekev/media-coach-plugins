@@ -20,9 +20,22 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host') || ''
   const pathname = request.nextUrl.pathname
+
+  // ── Domain redirect (runs BEFORE any path filtering) ──────────
+  // Redirect drive.k10motorsports.racing → drive.racecor.io so OAuth
+  // callbacks (including /api/auth/*) always resolve to a single
+  // canonical domain. Without this, Discord redirects back to the old
+  // domain and NextAuth returns a Configuration error.
+  if (host.includes('drive.k10motorsports.racing') || host.includes('dev.drive.k10motorsports.racing')) {
+    const racecorHost = host.replace(/drive\..*k10motorsports\.racing/, 'drive.racecor.io')
+    const dest = new URL(request.url)
+    dest.host = racecorHost
+    return NextResponse.redirect(dest, 308)
+  }
+
+  // ── Skip non-page routes ──────────────────────────────────────
   const subdomain = request.nextUrl.searchParams.get('subdomain')
 
-  // Skip Next.js internals and static files
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -58,5 +71,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next|api|.*\\..*).*)'],
+  // Match everything EXCEPT Next.js internals and static files.
+  // api/auth on the old domain is handled by the domain redirect above,
+  // which must run before the path filter — so we include /api/auth here.
+  matcher: [
+    '/((?!_next|.*\\..*).*)',
+  ],
 }

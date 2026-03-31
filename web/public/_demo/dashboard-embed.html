@@ -6810,7 +6810,7 @@ function _fmtLapTime(secs) {
       var baseUrl = window._simhubUrlOverride || SIMHUB_URL;
       var sep = baseUrl.indexOf('?') === -1 ? '?' : '&';
       fetch(baseUrl + sep + 'action=restartdemo')
-        .then(function(r) { if (r.ok) console.log('[K10] Demo restarted'); else console.warn('[K10] Demo restart failed:', r.status); })
+        .then(function(r) { if (r.ok) ; else console.warn('[K10] Demo restart failed:', r.status); })
         .catch(function(err) { console.warn('[K10] Demo restart error:', err); });
     });
   }
@@ -6850,7 +6850,6 @@ function _fmtLapTime(secs) {
   function cycleCarLogo() {
     currentCarLogoIdx = (currentCarLogoIdx + 1) % carLogoOrder.length;
     const key = carLogoOrder[currentCarLogoIdx];
-    console.log('[K10] Logo cycle:', key);
     // Honda special case: use white-fill logo on red bg
     const svg = (key === 'honda') ? carLogos.honda_white : carLogos[key];
     document.getElementById('carLogoIcon').innerHTML = svg;
@@ -7051,7 +7050,6 @@ function _fmtLapTime(secs) {
     const banner = document.getElementById('connBanner');
     if (banner) banner.classList.remove('visible');
     if (window.k10?.releaseInteractive) window.k10.releaseInteractive();
-    console.log('[K10 Motorsports] SimHub URL changed to ' + newUrl);
   }
 
   function dismissConnBanner() {
@@ -10200,8 +10198,6 @@ document.addEventListener('DOMContentLoaded', function () {
       inc.style.right  = incHoriz === 'right' ? '' : 'auto';
       inc.style.marginTop = '';
       inc.style.marginBottom = '';
-      console.log('[layout] incidents → ' + incVert + '-' + incHoriz +
-        ' (sec=' + secVert + '-' + secHoriz + ', pos=' + pos + ')');
     }
 
     // ── 6. Spotter: co-located with race control at top center ──
@@ -10367,7 +10363,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (typeof raw === 'string') {
       try { raw = JSON.parse(raw); } catch(e) { console.warn('[K10 LB] Failed to parse leaderboard string:', e); return; }
     }
-    if (_pollFrame > 0 && _pollFrame <= 3) console.log('[K10 LB] raw type:', typeof raw, 'isArray:', Array.isArray(raw), 'length:', raw ? raw.length : 0, 'sample:', raw ? JSON.stringify(raw).slice(0, 200) : 'null');
     if (!raw || !Array.isArray(raw) || raw.length === 0) return;
 
     // Dedupe: skip render if data hasn't changed (+ settings version)
@@ -12376,14 +12371,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Check memo — suppress if same pattern fired recently
     const expiry = _spotterMemo.get(pattern);
     if (expiry && now < expiry) {
-      console.debug('[K10 Spotter] Suppressed by pattern memo (in cooldown):', pattern, 'expires in', Math.round((expiry - now) / 100) / 10, 's');
       return;
     }
 
     // Also suppress exact duplicate text within a shorter window
     const exactExpiry = _spotterMemo.get(msg);
     if (exactExpiry && now < exactExpiry) {
-      console.debug('[K10 Spotter] Suppressed by exact match memo (in cooldown):', msg, 'expires in', Math.round((exactExpiry - now) / 100) / 10, 's');
       return;
     }
 
@@ -12398,7 +12391,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    console.debug('[K10 Spotter] Showing message:', msg, 'severity:', severity);
     _pushSpotterMsg(msg, severity, headerOverride);
   }
 
@@ -12902,11 +12894,6 @@ document.addEventListener('DOMContentLoaded', function () {
       init(gl) {
         // Try to get GPU timer extension (available on most Windows drivers)
         this._timerExt = gl.getExtension('EXT_disjoint_timer_query_webgl2');
-        if (this._timerExt) {
-          console.log('[GlarePerf] GPU timer query available — frame timing enabled');
-        } else {
-          console.log('[GlarePerf] GPU timer query unavailable — FPS-only mode');
-        }
         this._enabled = true;
       },
 
@@ -12952,11 +12939,6 @@ document.addEventListener('DOMContentLoaded', function () {
           const skipPct = this.totalFrames > 0
             ? ((this.skippedFrames / this.totalFrames) * 100).toFixed(1)
             : '0.0';
-          console.log(
-            `[GlarePerf] FPS=${this.fps} | GPU=${this.frameTimeMs.toFixed(2)}ms | ` +
-            `draws=${this.drawCalls} skipped=${skipPct}% | ` +
-            `ambient=${window._ambientGL ? window._ambientGL.lum.toFixed(2) : 'off'}`
-          );
         }
       },
 
@@ -15562,16 +15544,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const sec = Math.floor(t);
     if (sec % 5 === 0 && sec !== _logTimer) {
       _logTimer = sec;
-      console.log(`[Ambient] color=(${_curR.toFixed(2)}, ${_curG.toFixed(2)}, ${_curB.toFixed(2)}) polled=${_usePolledColor} received=${_hasReceivedColor}`);
     }
   }
 
   // ── Receive color from poll data (C# plugin ScreenColorSampler) ──
   // Called by poll-engine.js each frame when ambient data is present.
   window.updateAmbientFromPoll = function(r, g, b) {
-    if (!_hasReceivedColor) {
-      console.log('[Ambient] First color received from poll data:', r, g, b);
-    }
     _hasReceivedColor = true;
     _usePolledColor = false;
     _tgtR = r / 255;
@@ -15589,7 +15567,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Flag-based color until screen capture data arrives from poll
     _usePolledColor = true;
-    console.log('[Ambient] Started (polled until capture data arrives)');
   };
 
   // External color push (0-1 range)
@@ -15607,7 +15584,6 @@ document.addEventListener('DOMContentLoaded', function () {
     clearReflectionColor();
     _usePolledColor = false;
     _hasReceivedColor = false;
-    console.log('[Ambient] Stopped');
   };
 
   window.isAmbientLightActive = function() {
@@ -15739,7 +15715,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Send to C# plugin via HTTP so ScreenColorSampler uses this region
     sendRectToPlugin(_captureRect);
 
-    console.log('[AmbientCapture] Region set:', _captureRect);
     closeSelectionOverlay();
   }
 
@@ -15886,7 +15861,6 @@ document.addEventListener('DOMContentLoaded', function () {
       _captureRect = window._settings.ambientCaptureRect;
       // Send to C# plugin via HTTP
       sendRectToPlugin(_captureRect);
-      console.log('[AmbientCapture] Restored saved region:', _captureRect);
     }
   };
 
@@ -17902,8 +17876,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Diagnostic logging (first 3 frames + every 300 frames ~10s)
     if (_pollFrame <= 3 || _pollFrame % 300 === 0) {
       const keys = Object.keys(p).filter(k => p[k] != null && p[k] !== 0 && p[k] !== '');
-      console.log(`[K10 poll #${_pollFrame}] Got ${Object.keys(p).length} keys, ${keys.length} non-empty. DemoMode=${p['K10Motorsports.Plugin.DemoMode']}, GameRunning=${p['DataCorePlugin.GameRunning']}`);
-      if (_pollFrame === 1) console.log('[K10 poll] Sample values:', JSON.stringify(Object.fromEntries(keys.slice(0, 10).map(k => [k, p[k]]))));
     }
 
     // ── Plugin version check — warn if old DLL is serving incomplete data ──
@@ -17938,7 +17910,6 @@ document.addEventListener('DOMContentLoaded', function () {
       ? vs('K10Motorsports.Plugin.Demo.SessionTypeName')
       : vs('K10Motorsports.Plugin.SessionTypeName');
     if (_currSessionTypeName && _currSessionTypeName !== _prevSessionTypeName && _prevSessionTypeName) {
-      console.log('[K10] Session changed:', _prevSessionTypeName, '→', _currSessionTypeName);
       if (typeof resetTimeline === 'function') resetTimeline();
     }
     if (_currSessionTypeName) _prevSessionTypeName = _currSessionTypeName;
@@ -18944,8 +18915,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // telemetry, demo, commentary, and track map data as a single JSON blob.
   // Load external assets before starting the poll loop
   Promise.all([loadCarLogos(), loadCountryFlags()]).then(() => {
-    console.log('[K10 Motorsports] Assets loaded, polling SimHub HTTP API at ' + SIMHUB_URL);
-
     // Initialize logo cycling (before we connect, the logos will cycle to be visible)
     _logoCycleTimer = setInterval(() => {
       if (!_hasEverConnected) cycleCarLogo();

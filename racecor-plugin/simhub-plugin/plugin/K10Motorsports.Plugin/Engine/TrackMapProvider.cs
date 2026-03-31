@@ -126,26 +126,23 @@ namespace K10Motorsports.Plugin.Engine
             _drLastTick = DateTime.MinValue;
             _lastYaw = double.NaN;
 
-            // Try to load from bundled dataset (checked into git)
-            if (TryLoadFromBundledMaps(trackId))
+            // User-recorded maps first — never overwritten by plugin install/update
+            if (TryLoadFromOwnCache(trackId))
             {
-                SimHub.Logging.Current.Info($"[K10Motorsports] Loaded track map for '{trackId}' from bundled dataset");
+                SimHub.Logging.Current.Info($"[K10Motorsports] Loaded track map for '{trackId}' from K10 cache (user-recorded)");
                 return;
             }
 
-            // Try to load from SimHub's map cache
+            // SimHub's map cache (fallback)
             if (TryLoadFromSimHub(trackId))
             {
                 SimHub.Logging.Current.Info($"[K10Motorsports] Loaded track map for '{trackId}' from SimHub cache");
                 return;
             }
 
-            // Try to load from our own cache
-            if (TryLoadFromOwnCache(trackId))
-            {
-                SimHub.Logging.Current.Info($"[K10Motorsports] Loaded track map for '{trackId}' from K10 cache");
-                return;
-            }
+            // No bundled maps — cloud maps are fetched by the overlay.
+            // If the overlay finds a cloud map, it'll display it directly.
+            // Meanwhile, start recording so we capture the map for this user.
 
             // No cached map — start recording
             _recording = true;
@@ -507,9 +504,8 @@ namespace K10Motorsports.Plugin.Engine
             // Normalise to 0–100 SVG viewBox with 5% padding
             NormaliseAndBuild(_samples);
 
-            // Save to our cache + bundled dataset for git
+            // Save to local cache (cloud push is handled by the overlay)
             SaveToOwnCache(_currentTrackId);
-            SaveToBundledMaps(_currentTrackId);
 
             SimHub.Logging.Current.Info($"[K10Motorsports] Track map recorded: {_outline.Length} points");
         }

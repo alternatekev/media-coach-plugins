@@ -535,19 +535,31 @@ namespace K10Motorsports.Plugin
 
         /// <summary>
         /// Synthesize F1-style start lights from iRacing PaceMode / SessionState.
-        /// Rolling start: PaceMode 2 (Approaching) → build reds, PaceMode 3 (CrossSF) → all red hold,
-        /// SessionState 3→4 transition → green. Called every eval cycle (~100ms).
+        /// Standing start: build reds 1-5, all-red hold, then green on SessionState 3→4.
+        /// Rolling start:  skip reds entirely — just flash green GO! on SessionState 3→4.
+        /// Called every eval cycle (~100ms).
         /// </summary>
         private void UpdateLightsPhase()
         {
             int ss = _current.SessionState;
             int pm = _current.PaceMode;
+            bool isStanding = _current.IsStandingStart;
 
-            // Green flag: session just went to Racing (4) from formation (3)
-            if (ss == 4 && _lightsPrevSessionState == 3 && _lightsPhase >= 1 && _lightsPhase <= 6)
+            // ── Green flag: session just went to Racing (4) from formation (3) ──
+            if (ss == 4 && _lightsPrevSessionState == 3)
             {
-                _lightsPhase = 7; // GREEN!
-                _lightsHoldFrames = 15; // hold green ~1.5s
+                // If reds were building or holding (standing start), fire green
+                if (_lightsPhase >= 1 && _lightsPhase <= 6)
+                {
+                    _lightsPhase = 7; // GREEN!
+                    _lightsHoldFrames = isStanding ? 30 : 50; // standing ~3s, rolling ~5s
+                }
+                // Rolling start with no prior lights — instant green flash
+                else if (_lightsPhase == 0 && !isStanding)
+                {
+                    _lightsPhase = 7;
+                    _lightsHoldFrames = 50; // hold green ~5s so driver sees it
+                }
             }
             // Green hold → done
             else if (_lightsPhase == 7)
@@ -561,56 +573,57 @@ namespace K10Motorsports.Plugin
                 _lightsHoldFrames--;
                 if (_lightsHoldFrames <= -10) _lightsPhase = 0;
             }
-            // All red hold — waiting for green
+            // All red hold — waiting for green (standing starts only)
             else if (_lightsPhase == 6)
             {
                 // Just hold until green flag (handled above)
             }
-            // Building reds 1-5
+            // Building reds 1-5 (standing starts only)
             else if (_lightsPhase >= 1 && _lightsPhase < 6)
             {
                 _lightsStepFrame--;
                 if (_lightsStepFrame <= 0)
                 {
                     _lightsPhase++;
-                    _lightsStepFrame = 8; // ~0.8s per light column
+                    _lightsStepFrame = 4; // ~0.4s per light column (faster build)
                 }
             }
             // Not active — detect start condition
             else if (_lightsPhase == 0)
             {
-                // PaceMode transitions to 2+ during formation (SS 3)
-                bool pmTransition = ss == 3 && pm >= 2 && _lightsPrevPaceMode < 2;
-                // SessionState transitions to 3 while PaceMode already >= 2
-                // (rolling starts: PM can already be 2 when SS goes to 3)
-                bool ssTransition = ss == 3 && _lightsPrevSessionState != 3 && pm >= 2;
-
-                if (pmTransition || ssTransition)
+                if (isStanding)
                 {
-                    if (pm == 3)
-                        _lightsPhase = 6; // jump to all red
-                    else
+                    // ── Standing start: build red lights ──
+                    bool pmTransition = ss == 3 && pm >= 2 && _lightsPrevPaceMode < 2;
+                    bool ssTransition = ss == 3 && _lightsPrevSessionState != 3 && pm >= 2;
+
+                    if (pmTransition || ssTransition)
                     {
-                        _lightsPhase = 1;
-                        _lightsStepFrame = 8;
+                        if (pm == 3)
+                            _lightsPhase = 6; // jump to all red
+                        else
+                        {
+                            _lightsPhase = 1;
+                            _lightsStepFrame = 4; // ~0.4s per column
+                        }
+                    }
+                    else if (ss == 3 && pm == 3 && _lightsPrevPaceMode < 3)
+                    {
+                        _lightsPhase = 6; // jump to all red
+                    }
+                    else if (ss == 3 && pm >= 3 && _lightsPrevPaceMode >= 3)
+                    {
+                        _lightsPhase = 6;
                     }
                 }
-                // If we somehow get PaceMode 3 directly
-                else if (ss == 3 && pm == 3 && _lightsPrevPaceMode < 3)
-                {
-                    _lightsPhase = 6; // jump to all red
-                }
-                // Final fallback: in formation with pace mode >= 3 but somehow never started
-                else if (ss == 3 && pm >= 3 && _lightsPrevPaceMode >= 3)
-                {
-                    _lightsPhase = 6;
-                }
+                // ── Rolling start: no red build — green fires on SS 3→4 (handled above) ──
+
                 // Catch-all: if session just went to Racing and we never fired lights,
                 // show a quick green flash so the driver sees something
-                else if (ss == 4 && _lightsPrevSessionState <= 3 && _lightsPrevSessionState >= 1 && _lightsPhase == 0)
+                if (ss == 4 && _lightsPrevSessionState <= 3 && _lightsPrevSessionState >= 1 && _lightsPhase == 0)
                 {
                     _lightsPhase = 7; // GREEN!
-                    _lightsHoldFrames = 15;
+                    _lightsHoldFrames = 50; // hold green ~5s
                 }
             }
 

@@ -8,6 +8,7 @@ interface Track {
   id: string
   trackId: string
   trackName: string
+  displayName: string | null
   svgPath: string
   pointCount: number
   gameName: string | null
@@ -110,50 +111,110 @@ function TracksSection() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {tracks.map(track => (
-          <div
-            key={track.id}
-            className="border border-[var(--border)] rounded-lg p-4 bg-[var(--bg-surface)] hover:border-[var(--border-accent)] transition-colors"
-          >
-            <div className="flex justify-between items-start mb-3">
-              <div className="min-w-0">
-                <h3 className="text-sm font-bold text-[var(--text)] truncate">{track.trackName}</h3>
-                <p className="text-xs text-[var(--text-muted)] truncate">{track.trackId}</p>
-              </div>
-              <button
-                onClick={() => deleteTrack(track.trackId)}
-                disabled={deleting === track.trackId}
-                className="text-xs text-red-400 hover:text-red-300 transition-colors cursor-pointer shrink-0 ml-2 disabled:opacity-50"
-              >
-                {deleting === track.trackId ? '...' : 'Delete'}
-              </button>
-            </div>
-
-            {/* SVG Preview */}
-            <div className="bg-[var(--bg-panel)] rounded border border-[var(--border-subtle)] p-2 mb-3 flex items-center justify-center aspect-square">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                <path
-                  d={track.svgPath}
-                  fill="none"
-                  stroke="var(--k10-red)"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-
-            <div className="flex justify-between text-xs text-[var(--text-muted)]">
-              <span>{track.pointCount} pts</span>
-              <span>{track.gameName}</span>
-              <span>{new Date(track.createdAt).toLocaleDateString()}</span>
-            </div>
-          </div>
+          <TrackCard key={track.id} track={track} onDelete={deleteTrack} deleting={deleting} onUpdate={fetchTracks} />
         ))}
       </div>
 
       {!loading && tracks.length === 0 && (
         <p className="text-[var(--text-muted)] text-sm text-center py-8">No track maps in the database.</p>
       )}
+    </div>
+  )
+}
+
+// ── Track Card ──
+
+function TrackCard({ track, onDelete, deleting, onUpdate }: {
+  track: Track
+  onDelete: (trackId: string) => void
+  deleting: string | null
+  onUpdate: () => void
+}) {
+  const [displayName, setDisplayName] = useState(track.displayName || '')
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const isDirty = displayName !== (track.displayName || '')
+
+  const saveDisplayName = async () => {
+    setSaving(true)
+    setSaved(false)
+    try {
+      const res = await fetch('/api/admin/tracks', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trackId: track.trackId, displayName: displayName || null }),
+      })
+      if (!res.ok) throw new Error('Save failed')
+      setSaved(true)
+      onUpdate()
+      setTimeout(() => setSaved(false), 2000)
+    } catch {
+      alert('Failed to save display name')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="border border-[var(--border)] rounded-lg p-4 bg-[var(--bg-surface)] hover:border-[var(--border-accent)] transition-colors">
+      <div className="flex justify-between items-start mb-2">
+        <div className="min-w-0">
+          <h3 className="text-sm font-bold text-[var(--text)] truncate">{track.trackName}</h3>
+          <p className="text-xs text-[var(--text-muted)] truncate">{track.trackId}</p>
+        </div>
+        <button
+          onClick={() => onDelete(track.trackId)}
+          disabled={deleting === track.trackId}
+          className="text-xs text-red-400 hover:text-red-300 transition-colors cursor-pointer shrink-0 ml-2 disabled:opacity-50"
+        >
+          {deleting === track.trackId ? '...' : 'Delete'}
+        </button>
+      </div>
+
+      {/* Display name editor */}
+      <div className="mb-3">
+        <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1 block">Display Name</label>
+        <div className="flex gap-1.5">
+          <input
+            type="text"
+            value={displayName}
+            onChange={e => setDisplayName(e.target.value)}
+            placeholder={track.trackName}
+            className="flex-1 bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded px-2 py-1.5 text-xs text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--k10-red)] min-w-0"
+          />
+          {isDirty && (
+            <button
+              onClick={saveDisplayName}
+              disabled={saving}
+              className="px-2 py-1.5 text-[10px] font-medium uppercase tracking-wide bg-[var(--k10-red)] text-white rounded hover:brightness-110 transition-all disabled:opacity-50 cursor-pointer shrink-0"
+            >
+              {saving ? '...' : 'Save'}
+            </button>
+          )}
+          {saved && <span className="text-[10px] text-[var(--green)] self-center shrink-0">Saved</span>}
+        </div>
+      </div>
+
+      {/* SVG Preview */}
+      <div className="bg-[var(--bg-panel)] rounded border border-[var(--border-subtle)] p-2 mb-3 flex items-center justify-center aspect-square">
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <path
+            d={track.svgPath}
+            fill="none"
+            stroke="var(--k10-red)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+
+      <div className="flex justify-between text-xs text-[var(--text-muted)]">
+        <span>{track.pointCount} pts</span>
+        <span>{track.gameName}</span>
+        <span>{new Date(track.createdAt).toLocaleDateString()}</span>
+      </div>
     </div>
   )
 }

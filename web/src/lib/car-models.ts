@@ -81,8 +81,8 @@ export const CAR_CLASSES: CarClassInfo[] = [
     name: 'Sports Car',
     description: 'Production-based sports and touring cars (MX-5, Elantra N TC, etc.)',
     modelFile: 'sports.glb',
-    source: 'Community glTF model',
-    license: 'CC-BY-4.0',
+    source: 'Procedural MX-5 ND (K10 Motorsports)',
+    license: 'Proprietary',
     irCarPatterns: [
       'mx5_cup', 'mazda_mx5_cup', 'hyundai_elantra_ntc',
       'toyota_gr86', 'porsche_911_cup', 'porsche_992_cup',

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>K10 Car Model Viewer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  .header {
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .header span {
+    font-size: 12px;
+    color: #666;
+    background: rgba(255,255,255,0.05);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+    padding: 24px 32px;
+  }
+  .card {
+    background: linear-gradient(135deg, #12121e 0%, #0e0e1a 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(255,255,255,0.15); }
+  .card.active { border-color: var(--accent); }
+  .card canvas {
+    width: 100%;
+    height: 260px;
+    display: block;
+    background: #0a0a14;
+  }
+  .card-info {
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-info .name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .card-info .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .card-info .meta {
+    font-size: 11px;
+    color: #555;
+    margin-top: 4px;
+  }
+  /* Class accent colors */
+  [data-class="gt3"]     { --accent: #00acc1; }
+  [data-class="gtp"]     { --accent: #e53935; }
+  [data-class="lmp2"]    { --accent: #1e88e5; }
+  [data-class="formula"] { --accent: #ffb300; }
+  [data-class="sports"]  { --accent: #43a047; }
+
+  .badge { background: var(--accent); color: #000; }
+  [data-class="gtp"] .badge,
+  [data-class="lmp2"] .badge { color: #fff; }
+
+  .loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    color: #444;
+  }
+  .canvas-wrap { position: relative; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>K10 Car Model Database</h1>
+  <span>Speed Dreams GPL-2.0 + Procedural • 5 Classes</span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CARS = [
+  { id: 'gt3',     name: 'Bavaria G3 GTR',    class: 'GT3',     file: 'gt3.glb' },
+  { id: 'gtp',     name: 'Murasama M35',      class: 'GTP',     file: 'gtp.glb' },
+  { id: 'formula', name: 'Aichi EJ15',        class: 'Formula', file: 'formula.glb' },
+  { id: 'lmp2',    name: 'Fictivio Prototype', class: 'LMP2',    file: 'lmp2.glb' },
+  { id: 'sports',  name: 'Mazda MX-5 ND',     class: 'Sports',  file: 'sports.glb' },
+];
+
+const grid = document.getElementById('grid');
+const loader = new GLTFLoader();
+
+for (const car of CARS) {
+  // Card DOM
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.class = car.id;
+  card.innerHTML = `
+    <div class="canvas-wrap">
+      <canvas id="canvas-${car.id}"></canvas>
+      <div class="loading" id="load-${car.id}">Loading…</div>
+    </div>
+    <div class="card-info">
+      <div>
+        <div class="name">${car.name}</div>
+        <div class="meta">${car.id === 'sports' ? 'Procedural · K10' : 'Speed Dreams · GPL-2.0'}</div>
+      </div>
+      <div class="badge">${car.class}</div>
+    </div>
+  `;
+  grid.appendChild(card);
+
+  // Three.js setup
+  const canvas = card.querySelector('canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x0a0a14);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, canvas.clientWidth / canvas.clientHeight, 0.01, 100);
+
+  // Lighting — studio 3-point
+  const key = new THREE.DirectionalLight(0xffffff, 2.5);
+  key.position.set(3, 4, 2);
+  scene.add(key);
+
+  const fill = new THREE.DirectionalLight(0x8899cc, 1.2);
+  fill.position.set(-3, 2, 3);
+  scene.add(fill);
+
+  const rim = new THREE.DirectionalLight(0xffffff, 1.5);
+  rim.position.set(-1, 1, -4);
+  scene.add(rim);
+
+  scene.add(new THREE.AmbientLight(0x333344, 0.8));
+
+  // Subtle ground plane
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 20),
+    new THREE.MeshStandardMaterial({
+      color: 0x111122,
+      metalness: 0.8,
+      roughness: 0.3,
+    })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // Controls
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 1.2;
+  controls.enableZoom = true;
+  controls.enablePan = false;
+  controls.maxPolarAngle = Math.PI / 2.1;
+
+  // Accent color for this class
+  const accentColors = {
+    gt3: 0x00acc1, gtp: 0xe53935, lmp2: 0x1e88e5,
+    formula: 0xffb300, sports: 0x43a047,
+  };
+  const accent = accentColors[car.id] || 0x888888;
+
+  // Load model
+  loader.load(car.file, (gltf) => {
+    const model = gltf.scene;
+
+    // Replace materials with car paint material
+    model.traverse((child) => {
+      if (child.isMesh) {
+        child.material = new THREE.MeshStandardMaterial({
+          color: accent,
+          metalness: 0.6,
+          roughness: 0.35,
+          envMapIntensity: 1.0,
+        });
+        child.castShadow = true;
+      }
+    });
+
+    // Auto-frame
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+
+    // Center model
+    model.position.sub(center);
+    // Put it on the ground
+    const newBox = new THREE.Box3().setFromObject(model);
+    model.position.y -= newBox.min.y;
+    ground.position.y = newBox.min.y - 0.01;
+
+    scene.add(model);
+
+    // Camera position — 3/4 front
+    const dist = maxDim * 2.0;
+    camera.position.set(dist * 0.7, dist * 0.35, dist * 0.8);
+    camera.lookAt(0, maxDim * 0.2, 0);
+    controls.target.set(0, maxDim * 0.2, 0);
+
+    // Hide loading text
+    document.getElementById(`load-${car.id}`).style.display = 'none';
+  }, undefined, (err) => {
+    document.getElementById(`load-${car.id}`).textContent = 'Failed to load';
+    console.error(err);
+  });
+
+  // Resize handler
+  function resize() {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    if (canvas.width !== w * renderer.getPixelRatio() || canvas.height !== h * renderer.getPixelRatio()) {
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+  }
+
+  // Render loop
+  function animate() {
+    requestAnimationFrame(animate);
+    resize();
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+</script>
+</body>
+</html>

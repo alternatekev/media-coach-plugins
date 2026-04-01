@@ -17,10 +17,14 @@ interface RaceSession {
 export default function RaceCard({
   session,
   trackSvgPath,
+  carImageUrl,
+  trackImageUrl,
   iRatingHistory,
 }: {
   session: RaceSession
   trackSvgPath: string | null
+  carImageUrl: string | null
+  trackImageUrl: string | null
   iRatingHistory: number[]
 }) {
   const meta = (session.metadata || {}) as Record<string, any>
@@ -68,68 +72,92 @@ export default function RaceCard({
     .replace(/([a-z])([A-Z])/g, '$1 $2')
 
   return (
-    <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] hover:bg-white/[0.02] transition-colors">
-      {/* Track map outline */}
-      <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center opacity-40">
-        {trackSvgPath ? (
-          <svg viewBox="0 0 200 200" className="w-full h-full">
-            <path
-              d={trackSvgPath}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        ) : (
-          <div className="w-10 h-10 rounded-full border border-current opacity-30 flex items-center justify-center text-xs font-bold">
-            {(session.trackName || '?')[0]}
-          </div>
-        )}
-      </div>
-
-      {/* Session info */}
-      <div className="flex-grow min-w-0">
-        <div className="font-semibold text-sm text-[var(--text-secondary)] truncate">
-          {session.trackName || 'Unknown Track'}
-        </div>
-        <div className="text-xs text-[var(--text-dim)] truncate">
-          {session.carModel || 'Unknown Car'}
-        </div>
-        <div className="text-xs text-[var(--text-muted)] mt-0.5 flex items-center gap-2">
-          <span>{dateStr}</span>
-          {sessionLabel && (
-            <>
-              <span className="opacity-30">·</span>
-              <span>{sessionLabel}</span>
-            </>
-          )}
-          {lapStr !== '—' && (
-            <>
-              <span className="opacity-30">·</span>
-              <span className="font-mono">{lapStr}</span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Position + incidents */}
-      <div className="flex-shrink-0 text-center" style={{ minWidth: '48px' }}>
+    <div
+      className="relative overflow-hidden rounded-xl border border-[var(--border)] hover:border-[var(--text-muted)] transition-colors"
+      style={{
+        background: trackImageUrl
+          ? `linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('${trackImageUrl}') center/cover`
+          : 'var(--surface)',
+      }}
+    >
+      {/* Background track image with dark overlay */}
+      {trackImageUrl && (
         <div
-          className="inline-flex items-center justify-center rounded-lg px-2 py-1 text-sm font-black"
-          style={{ background: posBg, color: posColor }}
-        >
-          {isDNF ? 'DNF' : 'P' + pos}
-        </div>
-        {incidents > 0 && (
-          <div className="text-xs text-[var(--text-muted)] mt-1">{incidents}x</div>
-        )}
-      </div>
+          className="absolute inset-0 -z-10 bg-cover bg-center blur-sm opacity-20"
+          style={{ backgroundImage: `url('${trackImageUrl}')` }}
+        />
+      )}
 
-      {/* iRating sparkline */}
-      <div className="flex-shrink-0">
-        <IRatingSparkline values={iRatingHistory} />
+      <div className="relative flex items-center gap-4 p-4">
+        {/* Car thumbnail image */}
+        <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center">
+          {carImageUrl ? (
+            <img
+              src={carImageUrl}
+              alt={session.carModel}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : trackSvgPath ? (
+            <svg viewBox="0 0 200 200" className="w-full h-full opacity-60">
+              <path
+                d={trackSvgPath}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          ) : (
+            <div className="text-xs font-bold text-[var(--text-muted)] text-center px-2">
+              {(session.trackName || '?')[0]}
+            </div>
+          )}
+        </div>
+
+        {/* Session info */}
+        <div className="flex-grow min-w-0">
+          <div className="font-semibold text-sm text-[var(--text-secondary)] truncate">
+            {session.trackName || 'Unknown Track'}
+          </div>
+          <div className="text-xs text-[var(--text-dim)] truncate">
+            {session.carModel || 'Unknown Car'}
+          </div>
+          <div className="text-xs text-[var(--text-muted)] mt-0.5 flex items-center gap-2 flex-wrap">
+            <span>{dateStr}</span>
+            {sessionLabel && (
+              <>
+                <span className="opacity-30">·</span>
+                <span>{sessionLabel}</span>
+              </>
+            )}
+            {lapStr !== '—' && (
+              <>
+                <span className="opacity-30">·</span>
+                <span className="font-mono">{lapStr}</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Position + incidents */}
+        <div className="flex-shrink-0 text-center" style={{ minWidth: '48px' }}>
+          <div
+            className="inline-flex items-center justify-center rounded-lg px-2 py-1 text-sm font-black"
+            style={{ background: posBg, color: posColor }}
+          >
+            {isDNF ? 'DNF' : 'P' + pos}
+          </div>
+          {incidents > 0 && (
+            <div className="text-xs text-[var(--text-muted)] mt-1">{incidents}x</div>
+          )}
+        </div>
+
+        {/* iRating sparkline */}
+        <div className="flex-shrink-0">
+          <IRatingSparkline values={iRatingHistory} />
+        </div>
       </div>
     </div>
   )

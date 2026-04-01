@@ -6,6 +6,7 @@ import { db, schema } from '@/db'
 import { and, eq, gt, desc } from 'drizzle-orm'
 import { Download, LogOut, BarChart3, Trophy, Shield, Car, Settings } from 'lucide-react'
 import RaceCard from './RaceCard'
+import { getCarImage, getTrackImage } from '@/lib/commentary-images'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -54,6 +55,9 @@ export default async function DashboardPage() {
 
   // Fetch track maps for SVG outlines
   let trackMapLookup: Record<string, string> = {}
+  let carImageLookup: Record<string, string | null> = {}
+  let trackImageLookup: Record<string, string | null> = {}
+
   if (isPluginConnected && recentSessions.length > 0) {
     const trackNames = [...new Set(recentSessions.map(s => s.trackName).filter(Boolean))]
     if (trackNames.length > 0) {
@@ -66,6 +70,17 @@ export default async function DashboardPage() {
         trackMapLookup[m.trackName.toLowerCase()] = m.svgPath
       })
     }
+
+    // Build car and track image lookups from commentary data
+    const carModels = [...new Set(recentSessions.map(s => s.carModel).filter(Boolean))]
+    carModels.forEach(carModel => {
+      if (carModel) carImageLookup[carModel] = getCarImage(carModel)
+    })
+
+    const uniqueTrackNames = [...new Set(recentSessions.map(s => s.trackName).filter(Boolean))]
+    uniqueTrackNames.forEach(trackName => {
+      if (trackName) trackImageLookup[trackName] = getTrackImage(trackName)
+    })
   }
 
   // Build iRating history for sparkline
@@ -145,6 +160,8 @@ export default async function DashboardPage() {
                       key={s.id}
                       session={s}
                       trackSvgPath={trackMapLookup[(s.trackName || '').toLowerCase()] || null}
+                      carImageUrl={carImageLookup[s.carModel] || null}
+                      trackImageUrl={trackImageLookup[s.trackName] || null}
                       iRatingHistory={iRatingHistory}
                     />
                   ))}

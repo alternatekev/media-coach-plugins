@@ -83,6 +83,20 @@ The overlay defines a comprehensive CSS variable library for consistent theming:
 
 ## Visual Modes
 
+### Design Philosophy
+
+The three visual modes—Standard, Minimal, and Minimal+—each adapt each module's visual presentation according to specific design goals, rather than simply hiding/showing elements with `display: none`. This approach:
+
+1. **Preserves HTML structure** — No elements are added or removed, only styled differently
+2. **Uses CSS custom properties** — Variables are overridden for cleaner code and easier maintenance
+3. **Targets specific modules** — Each module (tachometer, fuel bar, SR display, etc.) has precise visual adaptations
+4. **Respects data hierarchy** — Decoration is removed/reduced, but essential data values are always visible
+5. **Avoids display:none where possible** — Panel borders use `border-color: transparent` instead of `border: none` to preserve gap spacing without layout shift
+
+Each mode represents a different balance between visual fidelity and cognitive load. Users can select the mode that best matches their viewing context (broadcast, accessibility, racing focus, etc.).
+
+---
+
 ### Standard Mode (Default)
 
 **Philosophy:** Broadcast-grade presentation with full cinematic effects. Maximum visual impact for streaming audiences.
@@ -115,79 +129,115 @@ The overlay defines a comprehensive CSS variable library for consistent theming:
 
 ### Minimal Mode
 
-**Philosophy:** Tufte-pure information visualization. Maximum data-ink ratio, zero decoration. All cognitive load goes to reading actual data values.
+**Philosophy:** Tufte-pure information visualization. Maximum data-ink ratio, zero decoration. All cognitive load goes to reading actual data values. Each module adapts its visual presentation to emphasize pure numeric/factual data while removing all decorative effects.
 
-**Characteristics:**
-- No panel borders: `--border: transparent`
-- WebGL effects disabled (all canvas/glow hidden)
-- No sentiment halo (alpha 0)
-- No animated stripe patterns on race control banner — solid color block only
-- No track map player dot glow — bright dot only
-- Tighter padding: `--pad: 4px`, `--gap: 3px`
-- Car manufacturer logo hidden
-- K10 branding logo hidden
-- Game logo hidden
-- Fuel bar: single-hue green darkening (no gradient)
-- iRating: number only, no bar
-- Safety Rating: number only, no pie chart
-- Commentary panel: hidden or minimal
-- Labels use regular weight, values use bold — maximum contrast
-- Label font sizes reduced by 1px
-- No backdrop-filter blur
-- No animations except essential state changes (toggles, transitions)
-- Drive mode: no background tints, pure black with bright data elements
+**Per-Module Visual Adaptations:**
 
-**CSS Class:** `body.mode-minimal`
-
-**Use Cases:**
-- Accessibility-first environments
-- Data archival / analysis overlays
-- Minimal distraction during intense racing
-- Testing and verification
+| Module | Standard | Minimal | Implementation |
+|--------|----------|---------|-----------------|
+| **Tachometer** | RPM bloom glow, segmented bar, gear, speed | Hide bloom/glow canvas. Keep segmented bar + number + gear | `display: none` on `.gl-overlay`, `.ambient-canvas` |
+| **Fuel bar** | Green→amber→red gradient | Single-hue green. Darkens on low, red on critical | `background: var(--green)` solid color with state-based transitions |
+| **Safety Rating** | Pie chart + numeric value | Numeric value only | `display: none` on `.sr-pie-container` and related SVG elements |
+| **iRating** | Progress bar + numeric value | Numeric value only | `display: none` on `.irating-bar`, `.irating-progress` |
+| **Race Control** | Animated stripe pattern | Solid color, no animation | `animation: none; opacity: 0` on `.rc-inner::after` |
+| **Track map** | Player dot with glow effect | Bright dot, no glow | `filter: none; box-shadow: none` on `.map-player` |
+| **G-force vignette** | Full intensity (edge darkening) | Hidden | `opacity: 0` |
+| **Sentiment halo** | Full color around dashboard | Hidden | `.dashboard::before { opacity: 0 }` |
+| **Commentary panel** | Visible with 14px padding | Hidden entirely | `display: none` on `.commentary-col` |
+| **Logos** | All visible (K10, car, game) | All hidden | `display: none` on `#k10LogoSquare`, `#carLogoSquare`, etc. |
 
 **CSS Variable Overrides:**
 ```css
 body.mode-minimal {
-  --border: transparent;
-  --pad: 4px;
-  --gap: 3px;
+  --border: transparent;      /* Remove panel borders (transparent color, not none) */
+  --pad: 4px;                 /* Tighter internal padding */
+  --gap: 3px;                 /* Tighter inter-panel gaps */
 }
 ```
+
+**Animation/Effects:**
+- Disable all animations globally: `* { animation: none !important; transition: none !important; }`
+- Re-enable opacity transitions for UI state changes only (toggles, visibility)
+- No WebGL effects (bloom, ambient light, glow)
+- No backdrop-filter blur on panels
+
+**CSS Class:** `body.mode-minimal`
+
+**Use Cases:**
+- Accessibility-first viewing (maximum contrast, no distraction)
+- Data archival / analysis overlays (pure numeric focus)
+- Minimal cognitive load during intense racing
+- Testing and verification environments
+
+**Design Rationale:**
+Removes all elements that don't directly communicate data. If it doesn't show a number, a state, or a position, it's gone. Typography emphasizes labels (regular weight) vs. values (bold) for maximum contrast. No animations distract from reading values in real time.
 
 ---
 
 ### Minimal+ Mode
 
-**Philosophy:** Racing-educated Tufte. Preserves essential data-reactive effects that communicate urgency and state, while removing static decoration. A middle path: maximum clarity + racing context.
+**Philosophy:** Racing-educated Tufte. Preserves only data-reactive effects that communicate urgency and state during active driving. Removes static decoration but keeps animations and glows that encode real-time information. Maximum clarity with racing context cues.
 
-**Characteristics:**
-- No panel borders: `--border: transparent`
-- WebGL effects enabled but reduced intensity (60% of standard)
-  - RPM tachometer bloom preserved (color-reactive)
-  - Ambient light off
-  - Glow canvas off (replaced by CSS-only glow)
-- Track map player dot glow preserved, tightened radius
-- Fuel bar: green → amber → red (racing color convention)
-- Safety Rating: pie chart visible + license-class threshold marks
-- Car manufacturer logo visible (contextual data for broadcast)
-- K10 branding logo hidden
-- Game logo hidden
-- Commentary panel visible with tighter padding (10px vs 14px)
-- Sentiment halo at 40% of standard alpha (subtle peripheral cue)
-- Flag banner: animated stripe on flag state change, settles after 4 seconds
-- G-force vignette at 50% intensity (peripheral safety cue)
-- Labels use regular weight, values use bold
-- Tighter padding: `--pad: 5px`, `--gap: 3px`
+**Per-Module Visual Adaptations:**
+
+| Module | Standard | Minimal+ | Implementation |
+|--------|----------|----------|-----------------|
+| **Tachometer** | RPM bloom glow, segmented bar, gear, speed | Keep bloom at 60% opacity. Hide ambient/glow canvas | `.gl-overlay { opacity: 0.6 !important; display: block }` |
+| **RPM glow effects** | Full intensity color pulses | Reduced intensity (60% of standard) | `text-shadow` with reduced blur radius and opacity |
+| **Fuel bar** | Green→amber→red gradient | Keep green→amber→red gradient | Standard behavior preserved |
+| **Safety Rating** | Pie chart + numeric value | Pie chart + numeric value | Standard behavior preserved |
+| **iRating** | Progress bar + numeric value | Numeric value visible, progress bar optional | Value always visible, bar depends on data |
+| **Race Control** | Animated stripe pattern | Animate on flag change, settle after 4s | `animation: rc-flag-scroll 1.5s, rc-flag-settle 0.5s ease 4s forwards` |
+| **Track map** | Player dot with glow effect | Glow preserved but tightened (8px vs 12px) | `filter: drop-shadow(0 0 8px rgba(...))` with pulse animation |
+| **Map pulse animation** | Full intensity | Reduced intensity | `@keyframes map-player-pulse-mini` with 6-8px drop-shadow |
+| **G-force vignette** | Full intensity (edge darkening) | 50% opacity | `opacity: 0.5 !important` |
+| **Sentiment halo** | Full color around dashboard | 40% opacity | `.dashboard::before { opacity: 0.4 }` |
+| **Commentary panel** | Visible with 14px padding | Visible with 10px padding | `padding: 10px !important` |
+| **Car logo** | Visible (branding) | Visible (contextual data — car identity) | `display: block !important` |
+| **K10 & Game logos** | Visible (branding) | Hidden | `display: none !important` |
+
+**CSS Variable Overrides:**
+```css
+body.mode-minimal-plus {
+  --border: transparent;      /* Remove panel borders */
+  --pad: 5px;                 /* Slightly tighter than standard (6px) */
+  --gap: 3px;                 /* Tight inter-panel gaps */
+}
+```
+
+**Animation/Effects:**
+- Disable non-critical animations: `* { animation: none !important; transition: none !important; }`
+- Re-enable essential data-reactive effects:
+  - RPM color transitions (green/yellow/red based on RPM level)
+  - Fuel bar color transitions
+  - Track map dot pulse (reduced intensity)
+  - Race control flag stripe animation + settle
+  - Sentiment halo color (reactive to commentary tone)
+  - G-force vignette (reactive to lateral acceleration)
 
 **CSS Class:** `body.mode-minimal-plus`
 
 **Use Cases:**
 - Serious racing broadcasts (league play, esports)
 - Professional stream overlays with pro-audience context
-- Training / coaching scenarios (need urgency cues)
+- Training / coaching scenarios (need real-time urgency cues)
+- Driver cockpit HUD (responsive to telemetry)
 
-**Key Difference from Minimal:**
-Data-reactive glow on tachometer stays because RPM heat is actively changing during driving and the color intensity (brighter at redline) encodes urgency that drivers train to perceive. Static decoration (ambient light, sentiment halo at full intensity) is removed.
+**Design Rationale:**
+
+**Why keep tachometer bloom at 60%?** RPM heat is actively changing during driving. The color intensity (brighter green at safe RPM, brighter red at redline) encodes urgency that drivers train to perceive instantly. This is data-reactive feedback, not decoration.
+
+**Why reduce bloom instead of hiding it?** At full intensity, the bloom effect can be distracting during broadcasts. 60% preserves the urgency signal while reducing visual chaos. The brightness differential (green vs red) still communicates state clearly.
+
+**Why keep map dot pulse but tighten it?** Locating player position on track is safety-critical. The glow helps find the dot quickly without the extra drama of standard intensity. Tightening the radius (8px vs 12px) reduces bloom while maintaining visibility.
+
+**Why sentiment halo at 40%?** Commentary sentiment is real data (color-reactive), but broadcasting at full intensity (100%) is overwhelming. 40% opacity provides peripheral color context without dominating the view. Users can still perceive mood shifts at a glance.
+
+**Why settle RC banner after 4s?** Racing rules flags are momentary events. Keeping stripes animated for 4 seconds ensures visibility of the flag change, then settles to 15% opacity for reference without distraction.
+
+**Why preserve fuel and SR pie chart?** These are essential racing data. The gradient fuel bar and SR pie are standard racing UI conventions that drivers expect. Removing them would create cognitive load ("where's my fuel state?").
+
+**Why show G-force vignette at 50%?** Drivers need peripheral awareness of lateral acceleration limits. The vignette warns when approaching lateral limits without detailed telemetry reading. 50% opacity is noticeable but not intrusive.
 
 ---
 

@@ -14,6 +14,7 @@ export async function GET() {
       id: schema.trackMaps.id,
       trackId: schema.trackMaps.trackId,
       trackName: schema.trackMaps.trackName,
+      displayName: schema.trackMaps.displayName,
       svgPath: schema.trackMaps.svgPath,
       pointCount: schema.trackMaps.pointCount,
       gameName: schema.trackMaps.gameName,
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { trackId, trackName, rawCsv, gameName, trackLengthKm } = body
+    const { trackId, trackName, displayName, rawCsv, gameName, trackLengthKm } = body
 
     if (!trackId || !trackName || !rawCsv) {
       return NextResponse.json(
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
         .update(schema.trackMaps)
         .set({
           trackName: trackName.trim(),
+          displayName: displayName?.trim() || null,
           svgPath,
           pointCount,
           rawCsv: rawCsv.trim(),
@@ -84,6 +86,7 @@ export async function POST(request: NextRequest) {
       .values({
         trackId: normalizedTrackId,
         trackName: trackName.trim(),
+        displayName: displayName?.trim() || null,
         svgPath,
         pointCount,
         rawCsv: rawCsv.trim(),
@@ -100,6 +103,41 @@ export async function POST(request: NextRequest) {
       mapId: result[0].id,
       pointCount,
     }, { status: 201 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Invalid request'
+    return NextResponse.json({ error: message }, { status: 400 })
+  }
+}
+
+/** PATCH /api/admin/tracks — Update track display name */
+export async function PATCH(request: NextRequest) {
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  try {
+    const body = await request.json()
+    const { trackId, displayName } = body
+
+    if (!trackId) {
+      return NextResponse.json({ error: 'trackId required' }, { status: 400 })
+    }
+
+    const normalizedId = trackId.toLowerCase().trim()
+
+    const updated = await db
+      .update(schema.trackMaps)
+      .set({
+        displayName: displayName?.trim() || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.trackMaps.trackId, normalizedId))
+      .returning({ id: schema.trackMaps.id, trackId: schema.trackMaps.trackId, displayName: schema.trackMaps.displayName })
+
+    if (updated.length === 0) {
+      return NextResponse.json({ error: 'Track map not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true, ...updated[0] })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Invalid request'
     return NextResponse.json({ error: message }, { status: 400 })

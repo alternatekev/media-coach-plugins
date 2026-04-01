@@ -24,18 +24,18 @@ const CSV_DIR = path.resolve(
   '../../racecor-plugin/simhub-plugin/k10-motorsports-data/trackmaps'
 )
 
-const TRACK_META: Record<string, { gameName?: string; trackLengthKm?: number }> = {
-  'barber 2026':            { gameName: 'iracing', trackLengthKm: 3.7 },
-  'bathurst':               { gameName: 'iracing', trackLengthKm: 6.213 },
-  'miami gp':               { gameName: 'iracing', trackLengthKm: 5.412 },
-  'nurburgring combined':   { gameName: 'iracing', trackLengthKm: 25.378 },
-  'nurburgring nordschleife': { gameName: 'iracing', trackLengthKm: 20.832 },
-  'oschersleben gp':        { gameName: 'iracing', trackLengthKm: 3.696 },
-  'oulton international':   { gameName: 'iracing', trackLengthKm: 4.307 },
-  'sebring international':  { gameName: 'iracing', trackLengthKm: 6.019 },
-  'spa 2024 up':            { gameName: 'iracing', trackLengthKm: 7.004 },
-  'stpete':                 { gameName: 'iracing', trackLengthKm: 2.89 },
-  'virginia 2022 full':     { gameName: 'iracing', trackLengthKm: 5.263 },
+const TRACK_META: Record<string, { gameName?: string; trackLengthKm?: number; displayName?: string }> = {
+  'barber 2026':              { gameName: 'iracing', trackLengthKm: 3.7,    displayName: 'Barber Motorsports Park' },
+  'bathurst':                 { gameName: 'iracing', trackLengthKm: 6.213,  displayName: 'Mount Panorama' },
+  'miami gp':                 { gameName: 'iracing', trackLengthKm: 5.412,  displayName: 'Miami International Autodrome' },
+  'nurburgring combined':     { gameName: 'iracing', trackLengthKm: 25.378, displayName: 'Nürburgring Combined' },
+  'nurburgring nordschleife': { gameName: 'iracing', trackLengthKm: 20.832, displayName: 'Nürburgring Nordschleife' },
+  'oschersleben gp':          { gameName: 'iracing', trackLengthKm: 3.696,  displayName: 'Oschersleben' },
+  'oulton international':     { gameName: 'iracing', trackLengthKm: 4.307,  displayName: 'Oulton Park International' },
+  'sebring international':    { gameName: 'iracing', trackLengthKm: 6.019,  displayName: 'Sebring International Raceway' },
+  'spa 2024 up':              { gameName: 'iracing', trackLengthKm: 7.004,  displayName: 'Spa-Francorchamps' },
+  'stpete':                   { gameName: 'iracing', trackLengthKm: 2.89,   displayName: 'St. Petersburg' },
+  'virginia 2022 full':       { gameName: 'iracing', trackLengthKm: 5.263,  displayName: 'Virginia International Raceway' },
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -69,21 +69,23 @@ async function main() {
   const sql = neon(dbUrl)
   const db = drizzle(sql)
 
-  // Ensure the track_maps table exists (run migration inline)
-  const migrationPath = path.resolve(__dirname, '../drizzle/0001_track_maps.sql')
-  if (fs.existsSync(migrationPath)) {
-    console.log('Running track_maps migration...')
-    const migrationSql = fs.readFileSync(migrationPath, 'utf-8')
-    // Neon can't run multiple statements in one call — split on semicolons
-    const statements = migrationSql
-      .split(';')
-      .map(s => s.trim())
-      .filter(s => s.length > 0)
-    for (const stmt of statements) {
-      await sql.query(stmt, [])
+  // Run migrations inline (each split on semicolons for Neon)
+  const migrationFiles = ['0001_track_maps.sql', '0002_track_display_name.sql']
+  for (const migFile of migrationFiles) {
+    const migrationPath = path.resolve(__dirname, '../drizzle', migFile)
+    if (fs.existsSync(migrationPath)) {
+      console.log(`Running migration: ${migFile}`)
+      const migrationSql = fs.readFileSync(migrationPath, 'utf-8')
+      const statements = migrationSql
+        .split(';')
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+      for (const stmt of statements) {
+        await sql.query(stmt, [])
+      }
     }
-    console.log('Migration applied (or table already exists).\n')
   }
+  console.log('Migrations applied.\n')
 
   const csvFiles = fs.readdirSync(CSV_DIR).filter(f => f.endsWith('.csv'))
   console.log(`Found ${csvFiles.length} track CSV files in ${CSV_DIR}\n`)
@@ -118,6 +120,7 @@ async function main() {
       await db.insert(trackMaps).values({
         trackId,
         trackName,
+        displayName: meta.displayName ?? null,
         svgPath,
         pointCount,
         rawCsv,

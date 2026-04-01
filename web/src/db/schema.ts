@@ -41,6 +41,7 @@ export const trackMaps = pgTable('track_maps', {
   id: uuid('id').defaultRandom().primaryKey(),
   trackId: varchar('track_id', { length: 128 }).notNull().unique(),
   trackName: varchar('track_name', { length: 256 }).notNull(),
+  displayName: varchar('display_name', { length: 256 }),
   svgPath: text('svg_path').notNull(),
   pointCount: integer('point_count').notNull(),
   rawCsv: text('raw_csv').notNull(),

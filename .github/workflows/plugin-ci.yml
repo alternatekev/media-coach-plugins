@@ -2,3 +2,8 @@
 # Kept as empty file to avoid git conflicts; delete this file entirely when convenient.
 name: "[DISABLED] SimHub Plugin CI"
 on: workflow_dispatch
+jobs:
+  disabled:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "This workflow is disabled. Use simhub-ci.yml instead."

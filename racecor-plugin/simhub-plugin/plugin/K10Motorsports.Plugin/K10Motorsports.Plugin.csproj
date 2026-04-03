@@ -75,15 +75,15 @@
   </ItemGroup>
 
   <!--
-    Post-build (local dev only): copy the k10-motorsports-data folder
+    Post-build (local dev only): copy the racecorio-prodrive-data folder
     alongside the DLL so the plugin can find commentary_topics.json.
   -->
   <Target Name="CopyDataset" AfterTargets="Build" Condition="$(_IsLocalDev)">
     <ItemGroup>
-      <DatasetFiles Include="..\..\k10-motorsports-data\**\*" />
+      <DatasetFiles Include="..\..\racecorio-prodrive-data\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(DatasetFiles)"
-          DestinationFolder="$(SimHubPath)k10-motorsports-data\%(RecursiveDir)"
+          DestinationFolder="$(SimHubPath)racecorio-prodrive-data\%(RecursiveDir)"
           SkipUnchangedFiles="true" />
   </Target>
 
@@ -107,18 +107,18 @@
           SkipUnchangedFiles="true" />
     <!-- Sync recorded track maps back to repo (local dev only) -->
     <ItemGroup Condition="$(_IsLocalDev)">
-      <RecordedMaps Include="$(SimHubPath)k10-motorsports-data\trackmaps\*.csv" />
+      <RecordedMaps Include="$(SimHubPath)racecorio-prodrive-data\trackmaps\*.csv" />
     </ItemGroup>
     <Copy SourceFiles="@(RecordedMaps)"
-          DestinationFolder="$(RepoPluginDir)k10-motorsports-data\trackmaps\"
+          DestinationFolder="$(RepoPluginDir)racecorio-prodrive-data\trackmaps\"
           SkipUnchangedFiles="true"
           Condition="$(_IsLocalDev)" />
     <!-- Sync telemetry recordings back to repo (local dev only) -->
     <ItemGroup Condition="$(_IsLocalDev)">
-      <RecordedTelemetry Include="$(SimHubPath)k10-motorsports-data\recordings\*.jsonl" />
+      <RecordedTelemetry Include="$(SimHubPath)racecorio-prodrive-data\recordings\*.jsonl" />
     </ItemGroup>
     <Copy SourceFiles="@(RecordedTelemetry)"
-          DestinationFolder="$(RepoPluginDir)k10-motorsports-data\recordings\"
+          DestinationFolder="$(RepoPluginDir)racecorio-prodrive-data\recordings\"
           SkipUnchangedFiles="true"
           Condition="$(_IsLocalDev)" />
     <Message Importance="high"

@@ -149,7 +149,7 @@ Full setup walkthrough with multi-light configuration and automation scripts: **
 │   │   │           ├── TireTracker.cs          Grip scoring, wear estimation, temp monitoring
 │   │   │           ├── FuelComputer.cs         Burn stats, pit window, fuel saving detection
 │   │   │           └── StintData.cs            Per-stint telemetry history
-│   │   ├── k10-motorsports-data/         Commentary topics, fragments, sentiments (JSON)
+│   │   ├── racecorio-prodrive-data/         Commentary topics, fragments, sentiments (JSON)
 │   │   ├── tests/                        C# unit tests + Python dataset validation
 │   │   ├── tools/                        Telemetry replay, fragment generation
 │   │   └── DashTemplates/                SimHub dashboard templates
@@ -248,7 +248,7 @@ The composable fragment system (opener + body + closer) is directly inspired by 
 
 ### AI-Assisted Content
 
-Commentary fragments in `racecor-plugin/simhub-plugin/k10-motorsports-data/commentary_fragments.json` were generated using [Claude](https://claude.ai) (Anthropic's `claude-haiku-4-5` model) with the commentary topics, sentiment vocabulary, and channel style profiles as input. The generation is a one-time offline process — no AI API calls occur at runtime in the current version.
+Commentary fragments in `racecor-plugin/simhub-plugin/racecorio-prodrive-data/commentary_fragments.json` were generated using [Claude](https://claude.ai) (Anthropic's `claude-haiku-4-5` model) with the commentary topics, sentiment vocabulary, and channel style profiles as input. The generation is a one-time offline process — no AI API calls occur at runtime in the current version.
 
 Plugin codebase, test suites, dataset structures, documentation, dashboard overlay, strategy engine, and Homebridge companion plugin built with [Claude Code](https://claude.ai/claude-code) (Anthropic's `claude-opus-4-6`).
 

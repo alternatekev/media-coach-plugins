@@ -31,7 +31,7 @@ dotnet build plugin/K10Motorsports.Plugin/K10Motorsports.Plugin.sln
 
 The build automatically:
 1. Compiles `RaceCor-ioProDrive.dll` to the SimHub directory
-2. Copies `k10-motorsports-data/` to `SimHub\dataset\` (post-build target `CopyDataset`)
+2. Copies `racecorio-prodrive-data/` to `SimHub\dataset\` (post-build target `CopyDataset`)
 3. Copies `DashTemplates/` to `SimHub\DashTemplates\` (post-build target `CopyDashboard`)
 
 In Debug configuration, pressing F5 in Visual Studio launches SimHub directly for debugging.
@@ -103,7 +103,7 @@ The plugin has zero runtime dependencies. All functionality uses Node.js built-i
 
 ### Editing Topics and Fragments
 
-Edit the JSON files in `k10-motorsports-data/` directly. After changes:
+Edit the JSON files in `racecorio-prodrive-data/` directly. After changes:
 
 ```bash
 # Validate structural integrity (28 tests)
@@ -164,7 +164,7 @@ The export tool copies:
 - `RaceCor-ioProDrive.dll` and `.pdb` from SimHub to the repo root
 - The `DashTemplates/k10 motorsports/` folder from SimHub to the repo (excluding `_Backups/`)
 
-It does **not** copy the `k10-motorsports-data/` folder back — the repo is the source of truth for dataset files. Changes to datasets should be made in the repo and pushed to SimHub via `install.bat` or a rebuild.
+It does **not** copy the `racecorio-prodrive-data/` folder back — the repo is the source of truth for dataset files. Changes to datasets should be made in the repo and pushed to SimHub via `install.bat` or a rebuild.
 
 ```bash
 # After export, the typical commit flow is:
@@ -181,7 +181,7 @@ git commit -m "Update built plugin and dashboard"
 │   └── Properties/                 Assembly info
 ├── homebridge-plugin/              Homebridge plugin source (TypeScript)
 │   └── src/__tests__/              Jest tests
-├── k10-motorsports-data/                        Shared data files (JSON)
+├── racecorio-prodrive-data/                        Shared data files (JSON)
 ├── tests/
 │   ├── K10Motorsports.Tests/        C# unit tests (.NET 6.0, NUnit)
 │   ├── validate_datasets.py        Python dataset validation

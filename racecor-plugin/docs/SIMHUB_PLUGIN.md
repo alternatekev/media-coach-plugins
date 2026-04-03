@@ -75,7 +75,7 @@ dotnet build plugin/K10Motorsports.Plugin/K10Motorsports.Plugin.sln
 # The DLL and dataset folder are copied to SimHub automatically via post-build targets
 ```
 
-The post-build step also copies the `k10-motorsports-data/` folder and `DashTemplates/` to the SimHub directory so the plugin can find its data files at runtime.
+The post-build step also copies the `racecorio-prodrive-data/` folder and `DashTemplates/` to the SimHub directory so the plugin can find its data files at runtime.
 
 Dependencies are all SimHub-provided DLLs (GameReaderCommon, SimHub.Plugins, SimHub.Logging, Newtonsoft.Json, log4net) referenced with `Private=False` so they aren't copied to output.
 

@@ -50,7 +50,7 @@ function LogoCard({ logo, onDelete, onUpdate }: { logo: LogoEntry; onDelete: (k:
       {/* Header */}
       <div className="flex justify-between items-start mb-2">
         <div className="min-w-0">
-          <h3 className="text-sm font-bold text-[var(--text)] truncate">{logo.brandName}</h3>
+          <h3 className="text-2xl font-bold text-[var(--text)] truncate">{logo.brandName}</h3>
           <p className="text-[10px] text-[var(--text-muted)] font-mono">{logo.brandKey}</p>
         </div>
         <div className="flex gap-1 shrink-0 ml-2">
@@ -182,7 +182,7 @@ function MissingLogoCard({ brand, onUploaded }: { brand: MissingBrand; onUploade
       {/* Header */}
       <div className="flex justify-between items-start mb-2">
         <div className="min-w-0">
-          <h3 className="text-sm font-bold text-[var(--text)] truncate">{brand.brandName}</h3>
+          <h3 className="text-2xl font-bold text-[var(--text)] truncate">{brand.brandName}</h3>
           <p className="text-[10px] text-[var(--text-muted)] font-mono">{brand.brandKey}</p>
         </div>
         <div className="flex gap-1 shrink-0 ml-2">

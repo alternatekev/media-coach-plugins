@@ -322,7 +322,10 @@ export default function OverviewCards() {
         title="Track Maps"
         count={trackCount}
         description="Manage track map SVGs, upload new track data from CSV files"
-        hero={trackHero ? <TrackPhotoHero hero={trackHero} svgPath={tracks.find(t => t.trackId.includes(trackHero.key) || trackHero.key.includes(t.trackId))?.svgPath} /> : undefined}
+        hero={trackHero ? <TrackPhotoHero hero={trackHero} svgPath={tracks.find(t => {
+          const norm = (s: string) => s.toLowerCase().replace(/[-_ ]+/g, '')
+          return norm(t.trackId).includes(norm(trackHero.key)) || norm(trackHero.key).includes(norm(t.trackId))
+        })?.svgPath} /> : undefined}
       >
         <TrackMultiples tracks={tracks} />
       </OverviewCard>
@@ -333,7 +336,8 @@ export default function OverviewCards() {
         count={logoCount}
         description={missingCount > 0 ? `${missingCount} brands still need logos` : 'Manage car brand logos, colors, and artwork'}
         hero={brandHero ? (() => {
-          const match = logos.find(l => l.brandKey === brandHero.key || l.brandName.toLowerCase() === brandHero.name.toLowerCase())
+          const norm = (s: string) => s.toLowerCase().replace(/[-_ ]+/g, '')
+          const match = logos.find(l => norm(l.brandKey) === norm(brandHero.key) || norm(l.brandName) === norm(brandHero.name) || norm(l.brandKey).includes(norm(brandHero.key)) || norm(brandHero.key).includes(norm(l.brandKey)))
           return <BrandPhotoHero hero={brandHero} logoSvg={match?.logoSvg} brandColor={match?.brandColorHex} />
         })() : undefined}
       >

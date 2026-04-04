@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 
 // ── Types (minimal, just what we need for previews) ──
 
 interface TrackPreview {
   trackId: string
+  trackName: string
   svgPath: string
 }
 
@@ -39,12 +40,14 @@ function OverviewCard({
   title,
   count,
   description,
+  hero,
   children,
 }: {
   href: string
   title: string
   count?: number
   description: string
+  hero?: React.ReactNode
   children?: React.ReactNode
 }) {
   return (
@@ -52,6 +55,7 @@ function OverviewCard({
       href={href}
       className="border border-[var(--border)] rounded-lg p-5 bg-[var(--bg-surface)] hover:border-[var(--border-accent)] hover:bg-[var(--bg-panel)] transition-all group flex flex-col"
     >
+      {hero && <div className="mb-3">{hero}</div>}
       <div className="flex items-baseline justify-between mb-1">
         <h2 className="text-lg font-bold tracking-wide uppercase text-[var(--k10-red)] group-hover:brightness-110 transition-colors">
           {title}
@@ -196,6 +200,62 @@ function EmptyRow({ label }: { label: string }) {
   return <p className="text-[10px] text-[var(--text-muted)] italic">{label}</p>
 }
 
+// Pick a random item from the portion NOT shown in the bottom row
+function pickHero<T>(items: T[], shownCount: number): T | null {
+  if (items.length <= shownCount) return null
+  const pool = items.slice(shownCount)
+  return pool[Math.floor(Math.random() * pool.length)]
+}
+
+function TrackHero({ track }: { track: TrackPreview }) {
+  return (
+    <div className="flex items-center gap-4">
+      <div className="w-20 h-20 shrink-0 rounded-lg bg-[var(--bg-panel)] border border-[var(--border-subtle)] flex items-center justify-center">
+        <svg viewBox="0 0 100 100" className="w-16 h-16">
+          <path
+            d={track.svgPath}
+            fill="none"
+            stroke="var(--k10-red)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-0.5">Featured</p>
+        <p className="text-sm font-bold text-[var(--text)] truncate">{track.trackName}</p>
+        <p className="text-[10px] text-[var(--text-muted)] font-mono truncate">{track.trackId}</p>
+      </div>
+    </div>
+  )
+}
+
+function LogoHero({ logo }: { logo: LogoPreview }) {
+  return (
+    <div className="flex items-center gap-4">
+      <div
+        className="w-20 h-20 shrink-0 rounded-lg border border-[var(--border-subtle)] flex items-center justify-center overflow-hidden"
+        style={{ background: logo.brandColorHex ? `${logo.brandColorHex}8C` : 'var(--bg-panel)' }}
+      >
+        {logo.logoSvg ? (
+          <div
+            className="w-14 h-14 flex items-center justify-center [&_svg]:max-h-full [&_svg]:max-w-full [&_svg]:h-12 [&_svg]:w-auto"
+            dangerouslySetInnerHTML={{ __html: logo.logoSvg }}
+          />
+        ) : (
+          <span className="text-lg text-white/40 font-bold uppercase">{logo.brandName.slice(0, 2)}</span>
+        )}
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-0.5">Featured</p>
+        <p className="text-sm font-bold text-[var(--text)] truncate">{logo.brandName}</p>
+        <p className="text-[10px] text-[var(--text-muted)] font-mono truncate">{logo.brandKey}</p>
+      </div>
+    </div>
+  )
+}
+
 // ── Main ──
 
 export default function OverviewCards() {
@@ -206,6 +266,13 @@ export default function OverviewCards() {
   const [missingCount, setMissingCount] = useState(0)
   const [users, setUsers] = useState<UserPreview[]>([])
   const [logStats, setLogStats] = useState<LogStats | null>(null)
+
+  const TRACK_ROW_COUNT = 10
+  const LOGO_ROW_COUNT = 10
+
+  // Pick a random hero from items NOT shown in the bottom row (stable per data load)
+  const trackHero = useMemo(() => pickHero(tracks, TRACK_ROW_COUNT), [tracks])
+  const logoHero = useMemo(() => pickHero(logos, LOGO_ROW_COUNT), [logos])
 
   useEffect(() => {
     // Fire all four fetches concurrently
@@ -244,6 +311,7 @@ export default function OverviewCards() {
         title="Track Maps"
         count={trackCount}
         description="Manage track map SVGs, upload new track data from CSV files"
+        hero={trackHero ? <TrackHero track={trackHero} /> : undefined}
       >
         <TrackMultiples tracks={tracks} />
       </OverviewCard>
@@ -253,6 +321,7 @@ export default function OverviewCards() {
         title="Car Brands"
         count={logoCount}
         description={missingCount > 0 ? `${missingCount} brands still need logos` : 'Manage car brand logos, colors, and artwork'}
+        hero={logoHero ? <LogoHero logo={logoHero} /> : undefined}
       >
         <LogoMultiples logos={logos} />
       </OverviewCard>

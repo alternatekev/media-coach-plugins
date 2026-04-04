@@ -101,7 +101,7 @@ export default async function DashboardPage() {
       {/* Top bar */}
       <header className="border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src="/branding/logomark-white.png" alt="K10" className="h-8 w-auto opacity-80" />
+          <img src="/branding/racecor-logomark-white.svg" alt="RaceCor.io" className="h-8 w-auto opacity-80" />
           <span className="text-sm font-bold tracking-wider uppercase text-[var(--text-secondary)]">Pro Drive</span>
           {isPluginConnected && (
             <div className="flex items-center gap-1.5 ml-4 pl-4 border-l border-[var(--border)]">

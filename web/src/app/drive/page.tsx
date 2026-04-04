@@ -23,7 +23,7 @@ export default async function DrivePage({ searchParams }: { searchParams: Promis
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-[var(--k10-red)]/[0.06] blur-3xl pointer-events-none" />
 
       <img
-        src="/branding/logomark-white.png"
+        src="/branding/racecor-logomark-white.svg"
         alt="RaceCor.io"
         className="h-16 w-auto mb-8 relative z-10 opacity-80"
       />

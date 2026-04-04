@@ -62,7 +62,7 @@ Marketing site at [racecorprodrive.racing](https://racecorprodrive.racing) built
 
 ### Windows Installer (Recommended)
 
-Download **K10-Motorsports-Setup.exe** from the [latest release](https://github.com/alternatekev/media-coach-simhub-plugin/releases/latest). The installer bundles both the SimHub plugin and the Electron overlay. Choose to install either or both during setup — the installer auto-detects your SimHub installation and handles all file placement.
+Download **RaceCor-Setup.exe** from the [latest release](https://github.com/alternatekev/media-coach-simhub-plugin/releases/latest). The installer bundles both the SimHub plugin and the Electron overlay. Choose to install either or both during setup — the installer auto-detects your SimHub installation and handles all file placement.
 
 The plugin includes a built-in **Check for updates** button in its SimHub settings panel that downloads and launches the latest installer automatically.
 
@@ -101,7 +101,7 @@ Add the `RaceCorProDriveLights` platform to your Homebridge `config.json`:
   "simhubUrl": "http://localhost:8888",
   "mode": "all_colors",
   "enableBlink": true,
-  "lights": [{ "name": "Sim Rig Light", "uniqueId": "k10-motorsports-light-1" }]
+  "lights": [{ "name": "Sim Rig Light", "uniqueId": "racecor-light-1" }]
 }
 ```
 

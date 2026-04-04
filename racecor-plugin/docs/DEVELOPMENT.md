@@ -93,7 +93,7 @@ npm run test:coverage
 npm run lint
 ```
 
-After `npm link`, restart Homebridge to pick up changes. The plugin is registered as `homebridge-k10-motorsports-lights` and uses the `RaceCorProDriveLights` platform alias.
+After `npm link`, restart Homebridge to pick up changes. The plugin is registered as `homebridge-racecor-lights` and uses the `RaceCorProDriveLights` platform alias.
 
 ### Dependencies
 

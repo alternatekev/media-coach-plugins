@@ -1,18 +1,18 @@
-# Welcome to K10 Motorsports
+# Welcome to RaceCor
 
 Broadcast-grade sim racing HUD with real-time telemetry, AI commentary, race strategy, WebGL effects, and HomeKit smart lighting. Built for iRacing.
 
 ## Get Started
 
-**1.** Sign in with Discord at **[prodrive.racecor.io](https://prodrive.racecor.io)** to create your K10 Pro Drive account
+**1.** Sign in with Discord at **[prodrive.racecor.io](https://prodrive.racecor.io)** to create your RaceCorProDrive account
 
 **2.** Download the Windows installer from your Pro Drive dashboard — it bundles the SimHub plugin and overlay, auto-detects your SimHub installation, and handles all file placement
 
-**3.** Launch the overlay, open Settings (**Ctrl+Shift+S**), go to **Connections**, and click **Connect to K10 Pro Drive**
+**3.** Launch the overlay, open Settings (**Ctrl+Shift+S**), go to **Connections**, and click **Connect to RaceCorProDrive**
 
 **4.** Race. Your telemetry syncs automatically — performance charts appear after a few sessions.
 
-## Pro Features (unlocked with K10 Pro Drive)
+## Pro Features (unlocked with RaceCorProDrive)
 
 - AI Commentary — real-time race narration powered by LLM
 - Incidents Panel — contact and off-track detection
@@ -25,7 +25,7 @@ Broadcast-grade sim racing HUD with real-time telemetry, AI commentary, race str
 
 ## Links
 
-- **Website:** [k10motorsports.racing](https://k10motorsports.racing)
+- **Website:** [racecor.io](https://k10motorsports.racing)
 - **Pro Drive:** [prodrive.racecor.io](https://prodrive.racecor.io)
 - **GitHub:** [github.com/alternatekev/media-coach-simhub-plugin](https://github.com/alternatekev/media-coach-simhub-plugin)
 

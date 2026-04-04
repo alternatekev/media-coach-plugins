@@ -108,7 +108,7 @@ Each mode represents a different balance between visual fidelity and cognitive l
 - Animated stripe patterns on race control banner
 - Track map player dot glow with drop shadow
 - Car manufacturer logo visible (branding)
-- K10 logo visible (branding)
+- RaceCor logo visible (branding)
 - Game logo visible (branding)
 - Fuel bar: gradient green → amber → red
 - iRating: segmented bar + numeric value
@@ -144,7 +144,7 @@ Each mode represents a different balance between visual fidelity and cognitive l
 | **G-force vignette** | Full intensity (edge darkening) | Hidden | `opacity: 0` |
 | **Sentiment halo** | Full color around dashboard | Hidden | `.dashboard::before { opacity: 0 }` |
 | **Commentary panel** | Visible with 14px padding | Hidden entirely | `display: none` on `.commentary-col` |
-| **Logos** | All visible (K10, car, game) | All hidden | `display: none` on `#k10LogoSquare`, `#carLogoSquare`, etc. |
+| **Logos** | All visible (RaceCor, car, game) | All hidden | `display: none` on `#k10LogoSquare`, `#carLogoSquare`, etc. |
 
 **CSS Variable Overrides:**
 ```css

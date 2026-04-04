@@ -1,6 +1,6 @@
 # Screenshot Testing Tool — Specification
 
-This document specs out an automated visual regression testing tool for the K10 Motorsports SimHub dashboard. The tool captures screenshots of the dashboard at specific moments during a demo sequence and compares them against golden reference images to detect visual regressions.
+This document specs out an automated visual regression testing tool for the RaceCorProDrive SimHub dashboard. The tool captures screenshots of the dashboard at specific moments during a demo sequence and compares them against golden reference images to detect visual regressions.
 
 ## Problem
 
@@ -10,7 +10,7 @@ The existing test suites validate trigger logic, dataset integrity, and Homebrid
 
 **Hard requirements:**
 - Windows only (SimHub is Windows-only)
-- SimHub installed with the K10 Motorsports plugin and dashboard template
+- SimHub installed with the RaceCorProDrive plugin and dashboard template
 - No live sim session needed (uses demo mode)
 - Produces a pass/fail result with diff images on failure
 - Runs unattended after initial golden image generation

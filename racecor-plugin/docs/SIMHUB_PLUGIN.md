@@ -1,6 +1,6 @@
 # SimHub Plugin Architecture
 
-The K10 Motorsports plugin is a .NET Framework 4.8 WPF plugin for [SimHub](https://www.simhubdash.com/). It reads telemetry from any supported sim (with full feature support for iRacing), evaluates trigger conditions against live data, and surfaces commentary prompts through SimHub's property system for display on dashboards and consumption by companion tools.
+The RaceCorProDrive plugin is a .NET Framework 4.8 WPF plugin for [SimHub](https://www.simhubdash.com/). It reads telemetry from any supported sim (with full feature support for iRacing), evaluates trigger conditions against live data, and surfaces commentary prompts through SimHub's property system for display on dashboards and consumption by companion tools.
 
 ## Project Structure
 
@@ -91,7 +91,7 @@ The reflection-based capture uses a `Coalesce<T>()` helper that handles NaN valu
 
 ## HTTP API (Port 8889)
 
-The plugin runs its own lightweight HTTP server using `System.Net.HttpListener`, independent of SimHub's built-in web server. This serves the K10 Motorsports dashboard overlay and can be consumed by any HTTP client.
+The plugin runs its own lightweight HTTP server using `System.Net.HttpListener`, independent of SimHub's built-in web server. This serves the RaceCorProDrive dashboard overlay and can be consumed by any HTTP client.
 
 **Endpoint:** `GET http://localhost:8889/racecor-io-pro-drive/`
 
@@ -111,7 +111,7 @@ When demo mode is active (`RaceCorProDrive.Plugin.DemoMode = 1`), the server ser
 
 The plugin's telemetry is consumed by three dashboard implementations, all using the same `dashboard.html` source file:
 
-**K10 Motorsports (Electron overlay):** A standalone always-on-top transparent window that polls the HTTP API at ~30fps. Designed for stream overlays and broadcast production. See [racecor-overlay/README.md](../../racecor-overlay/README.md) for full documentation.
+**RaceCorProDrive (Electron overlay):** A standalone always-on-top transparent window that polls the HTTP API at ~30fps. Designed for stream overlays and broadcast production. See [racecor-overlay/README.md](../../racecor-overlay/README.md) for full documentation.
 
 **SimHub Dashboard Template:** Installed to SimHub's `DashTemplates/` directory. When loaded inside SimHub's dashboard viewer, it uses SimHub's `$prop()` JavaScript API for data access instead of HTTP polling — lower latency since the data is already in-process.
 

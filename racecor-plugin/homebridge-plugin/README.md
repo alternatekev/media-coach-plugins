@@ -24,7 +24,7 @@ Part of the [RaceCorProDrive](https://github.com/alternatekev/media-coach-simhub
 
 1. Install the plugin via Homebridge UI:
    - Go to Homebridge → Plugins → Install Plugin
-   - Search for `homebridge-k10-motorsports-lights`
+   - Search for `homebridge-racecor-lights`
    - Click Install
 
 2. Configure the plugin:
@@ -145,12 +145,12 @@ npm install
 npm run build
 
 # 2. Copy the built plugin into Homebridge's plugin directory
-sudo cp -r /path/to/k10-motorsports-plugins/homebridge-plugin \
-    /var/lib/homebridge/node_modules/homebridge-k10-motorsports-lights
+sudo cp -r /path/to/racecor-plugins/homebridge-plugin \
+    /var/lib/homebridge/node_modules/homebridge-racecor-lights
 
 # 3. Fix ownership (Homebridge runs as the homebridge user)
 sudo chown -R homebridge:homebridge \
-    /var/lib/homebridge/node_modules/homebridge-k10-motorsports-lights
+    /var/lib/homebridge/node_modules/homebridge-racecor-lights
 
 # 4. Restart Homebridge
 sudo systemctl restart homebridge
@@ -160,8 +160,8 @@ On subsequent deploys, only the `dist/` folder needs to be re-copied:
 
 ```bash
 npm run build && \
-sudo cp -r dist /var/lib/homebridge/node_modules/homebridge-k10-motorsports-lights/ && \
-sudo chown -R homebridge:homebridge /var/lib/homebridge/node_modules/homebridge-k10-motorsports-lights && \
+sudo cp -r dist /var/lib/homebridge/node_modules/homebridge-racecor-lights/ && \
+sudo chown -R homebridge:homebridge /var/lib/homebridge/node_modules/homebridge-racecor-lights && \
 sudo systemctl restart homebridge
 ```
 
@@ -173,7 +173,7 @@ sudo tail -f /var/lib/homebridge/homebridge.log
 
 Expected startup output:
 ```
-Loaded plugin: homebridge-k10-motorsports-lights@1.0.0
+Loaded plugin: homebridge-racecor-lights@1.0.0
 Registered accessory: Sim Rig Light
 Starting SimHub polling (interval: 500ms)
 Homebridge v1.x.x is running on port 51370

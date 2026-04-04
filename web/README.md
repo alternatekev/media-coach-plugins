@@ -1,9 +1,9 @@
-# K10 Motorsports — Web
+# RaceCor.io — Web
 
-Part of the [K10 Motorsports](https://github.com/alternatekev/media-coach-simhub-plugin) sim racing platform. Next.js 16 site for [k10motorsports.racing](https://k10motorsports.racing) with subdomain routing:
+Part of the [RaceCor](https://github.com/alternatekev/media-coach-simhub-plugin) sim racing platform. Next.js 16 site for [racecor.io](https://racecor.io) with subdomain routing:
 
-- **k10motorsports.racing** — Marketing site (public): product overview, feature highlights, download links, and documentation for the broadcast-grade sim racing HUD
-- **prodrive.racecor.io** — K10 Pro Drive members app (Discord auth): exclusive content, setup guides, and community features
+- **racecor.io** — Marketing site (public): product overview, feature highlights, download links, and documentation for the broadcast-grade sim racing HUD
+- **prodrive.racecor.io** — RaceCor Pro Drive members app (Discord auth): exclusive content, setup guides, and community features
 
 Stack: Next.js 16, React 19, Tailwind CSS 4, NextAuth 5, Strapi CMS.
 
@@ -47,13 +47,13 @@ cp .env.example .env.local
 The middleware uses subdomain routing. Dev domains use a `dev.` prefix so they never collide with production DNS. Add these to `/etc/hosts`:
 
 ```
-127.0.0.1   dev.k10motorsports.racing
+127.0.0.1   dev.racecor.io
 127.0.0.1   dev.prodrive.racecor.io
 ```
 
 Then access:
 
-- `http://dev.k10motorsports.racing:3000` → marketing site
+- `http://dev.racecor.io:3000` → marketing site
 - `http://dev.prodrive.racecor.io:3000` → drive members app
 
 Alternatively, use the query parameter shortcut without hosts changes:

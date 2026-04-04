@@ -27,9 +27,9 @@ const FEATURES = [
     accent: 'var(--amber)',
   },
   {
-    module: 'maps',
-    title: 'Track Map & Sectors',
-    desc: 'SVG minimap with heading-up rotation. Opponent dots with proximity glow. Per-sector timing with live delta and PB tracking.',
+    module: 'timing',
+    title: 'Race Timing & Analysis',
+    desc: 'Live leaderboard with position sparklines, relative/absolute timing, and performance-colored lap times. Real-time gap tracking and lap analysis.',
     accent: 'var(--blue)',
   },
   {

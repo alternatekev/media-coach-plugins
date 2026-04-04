@@ -203,9 +203,9 @@ function TrackCard({ track, onDelete, deleting, onUpdate }: {
         </div>
       </div>
 
-      {/* Sector toggle */}
+      {/* Expanded sectors toggle */}
       <div className="mb-3">
-        <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1 block">Sectors</label>
+        <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1 block">Expanded Sectors</label>
         <button
           onClick={toggleSectors}
           disabled={savingSectors}
@@ -215,7 +215,7 @@ function TrackCard({ track, onDelete, deleting, onUpdate }: {
             <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${sectorCount === 7 ? 'translate-x-5' : 'translate-x-0.5'}`} />
           </div>
           <span className="text-xs text-[var(--text-dim)] font-mono">
-            {savingSectors ? '...' : `${sectorCount} sectors`}
+            {savingSectors ? '...' : sectorCount}
           </span>
         </button>
       </div>

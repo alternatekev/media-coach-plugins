@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin'
 import AdminNav from './AdminNav'
 import ThemeToggle from '@/components/ThemeToggle'
+import ThemeSetSelector from '@/components/ThemeSetSelector'
+import ThemePreview from './styles/ThemePreview'
 import LogoMark from '@/components/LogoMark'
 
 export const metadata = {
@@ -30,6 +32,8 @@ export default async function AdminLayout({
           <span className="text-sm font-bold tracking-wider uppercase text-[var(--k10-red)]">Admin</span>
         </div>
         <div className="flex items-center gap-3">
+          <ThemeSetSelector />
+          <ThemePreview />
           <ThemeToggle />
           {session.user?.image && <img src={session.user.image} alt="" className="w-6 h-6 rounded-full" />}
           <span className="text-xs text-[var(--text-muted)]">{user.discordDisplayName as string}</span>

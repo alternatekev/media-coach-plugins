@@ -60,6 +60,25 @@
     --sentiment-alpha: 0;
   }
 
+  /* Light theme fallback — overridden by remote token CSS when available */
+  [data-theme="light"] {
+    --bg: hsla(240, 10%, 96%, 0.92);
+    --bg-panel: hsla(240, 10%, 94%, 0.92);
+    --bg-logo: hsla(240, 5%, 92%, 0.92);
+    --border: rgba(0, 0, 0, 0.12);
+    --text-primary: hsla(0, 0%, 10%, 1.0);
+    --text-secondary: rgba(0, 0, 0, 0.65);
+    --text-dim: rgba(0, 0, 0, 0.50);
+
+    --red: #d32f2f;
+    --green: #2e7d32;
+    --blue: #1565c0;
+    --amber: #f57f17;
+    --orange: #e65100;
+    --cyan: #00838f;
+    --purple: #6a1b9a;
+  }
+
   body {
     font-family: var(--ff);
     color: var(--text-primary);
@@ -6879,7 +6898,11 @@ const _defaultSettings = {
   // AI Race Coach
   agentKey: '',
   coachTone: 'coach',    // 'broadcast', 'coach', 'mentor'
-  coachDepth: 'standard' // 'quick', 'standard', 'deep'
+  coachDepth: 'standard', // 'quick', 'standard', 'deep'
+  // Remote design tokens
+  useRemoteTokens: true,       // fetch CSS token builds from K10 Pro Drive API
+  theme: 'dark',               // 'dark' or 'light' — synced with web dashboard preference
+  apiBase: 'https://prodrive.racecor.io' // K10 Pro Drive API base URL
 };
 
 let _settings = Object.assign({}, _defaultSettings);
@@ -9326,6 +9349,12 @@ document.addEventListener('DOMContentLoaded', function () {
       document.body.classList.add('logo-only');
     }
 
+    // Theme — sync body attribute and dropdown for CSS variable theming
+    const theme = _settings.theme || 'dark';
+    document.body.setAttribute('data-theme', theme);
+    const themeSel = document.getElementById('settingsTheme');
+    if (themeSel) themeSel.value = theme;
+
     // Visual mode classes
     const preset = _settings.visualPreset || 'standard';
     document.body.classList.remove('mode-minimal', 'mode-minimal-plus');
@@ -9512,6 +9541,17 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.settings-preset-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.preset === preset);
     });
+  }
+
+  // ── Theme switching ──
+  function updateTheme(value) {
+    _settings.theme = value || 'dark';
+    document.body.setAttribute('data-theme', _settings.theme);
+    // Notify token loader to update (if loaded)
+    if (window.tokenLoader && typeof window.tokenLoader.setTheme === 'function') {
+      window.tokenLoader.setTheme(_settings.theme);
+    }
+    saveSettings();
   }
 
   // ── Draggable settings panel ──

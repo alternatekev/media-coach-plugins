@@ -30,7 +30,7 @@ export default function ThemeToggle() {
       }}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
     >
-      {theme === 'dark' ? '☀ Light' : '● Dark'}
+      {theme === 'dark' ? '● Dark' : '☀ Light'}
     </button>
   )
 }

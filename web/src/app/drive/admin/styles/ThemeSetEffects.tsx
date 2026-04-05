@@ -168,35 +168,20 @@ export default function ThemeSetEffects() {
       .map(([k, v]) => `  ${k}: ${v} !important;`)
       .join('\n')
 
-    const liveryUrl = LIVERY_IMAGES[activeSet]
-    const liveryBg = liveryUrl
-      ? currentTheme === 'light'
-        ? `body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: url('${liveryUrl}') center/cover no-repeat fixed;
-    filter: blur(80px) saturate(1.6) brightness(1.1);
-    opacity: 0.15;
-    pointer-events: none;
-  }`
-        : `body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: url('${liveryUrl}') center/cover no-repeat fixed;
-    filter: blur(80px) saturate(1.4) brightness(0.35);
-    opacity: 0.40;
-    pointer-events: none;
-  }`
-      : ''
-
     // Parse brand for frosted header border
     const brandRgb = brandColor.startsWith('#')
       ? `${parseInt(brandColor.slice(1,3),16)}, ${parseInt(brandColor.slice(3,5),16)}, ${parseInt(brandColor.slice(5,7),16)}`
       : '255, 255, 255'
+
+    // Make <main> transparent so the livery bg div shows through.
+    // Body gets the base color as fallback.
+    const layoutOverrides = `
+  body {
+    background: var(--bg) !important;
+  }
+  main {
+    background: transparent !important;
+  }`
 
     const frostedHeader = `
   header {
@@ -227,7 +212,7 @@ export default function ThemeSetEffects() {
 ${selector} {
 ${vars}
 }
-${liveryBg}
+${layoutOverrides}
 ${frostedHeader}
 `
 
@@ -236,6 +221,32 @@ ${frostedHeader}
     }
   }, [currentTheme, activeSet])
 
-  // This component is invisible — it only injects styles
-  return null
+  // Render livery background as a real DOM element — pseudo-elements
+  // can't punch through <main>'s solid background.
+  const isTeamSet = activeSet !== 'default' && PALETTES[activeSet]
+  const liveryUrl = isTeamSet ? LIVERY_IMAGES[activeSet] : null
+
+  if (!liveryUrl) return null
+
+  const isLight = currentTheme === 'light'
+
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: 'none',
+        backgroundImage: `url('${liveryUrl}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        filter: isLight
+          ? 'blur(80px) saturate(1.6) brightness(1.1)'
+          : 'blur(80px) saturate(1.4) brightness(0.35)',
+        opacity: isLight ? 0.15 : 0.4,
+      }}
+    />
+  )
 }

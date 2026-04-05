@@ -22,6 +22,8 @@ export async function uploadTokenBuild(
       access: 'public',
       contentType: 'text/css',
       addRandomSuffix: false,
+      allowOverwrite: true,
+      cacheControlMaxAge: 0,
     })
 
     // Upsert into tokenBuilds — keep only latest per set+theme+platform

@@ -204,7 +204,6 @@ export default function ThemePreview() {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: -1;
     background: url('${liveryUrl}') center/cover no-repeat fixed;
     filter: blur(80px) saturate(1.6) brightness(1.1);
     opacity: 0.15;
@@ -214,7 +213,6 @@ export default function ThemePreview() {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: -1;
     background: url('${liveryUrl}') center/cover no-repeat fixed;
     filter: blur(80px) saturate(1.4) brightness(0.35);
     opacity: 0.40;

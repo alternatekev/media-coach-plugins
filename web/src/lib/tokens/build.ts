@@ -11,8 +11,8 @@ export interface BuildResult {
 /**
  * Build CSS token files that include both dark (base) and light theme blocks.
  * Each blob contains:
- *   :root { /* dark/base tokens */ }
- *   [data-theme="light"] { /* light overrides */ }
+ *   :root { dark/base tokens }
+ *   [data-theme="light"] { light overrides }
  *
  * Returns CSS strings for web and overlay platforms.
  */

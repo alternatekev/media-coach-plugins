@@ -445,14 +445,7 @@ export default function TokenEditor() {
       if (!saveRes.ok) throw new Error('Failed to save tokens')
 
       // 2. Trigger build
-      const buildRes = await fetch('/api/admin/tokens/build', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ themeId: 'dark' }),
-      })
-      if (!buildRes.ok) throw new Error('Build failed')
-
-      const buildData = await buildRes.json()
+      await handleRebuild()
 
       setDrafts(new Map())
       setSuccess(
@@ -462,6 +455,28 @@ export default function TokenEditor() {
 
       // Refetch tokens to get updated values
       await fetchTokens()
+    } catch (e) {
+      setError(String(e))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleRebuild = async () => {
+    setSaving(true)
+    setError(null)
+
+    try {
+      const buildRes = await fetch('/api/admin/tokens/build', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ themeId: 'dark' }),
+      })
+      if (!buildRes.ok) throw new Error('Build failed')
+
+      const buildData = await buildRes.json()
+      setSuccess(`CSS rebuilt successfully. ${buildData.builds?.length || 0} platform(s) updated.`)
+      setTimeout(() => setSuccess(null), 4000)
     } catch (e) {
       setError(String(e))
     } finally {
@@ -515,20 +530,29 @@ export default function TokenEditor() {
             Edit design tokens — changes preview live and deploy to both web and overlay.
           </p>
         </div>
-        {drafts.size > 0 && (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-[var(--amber)]">
-              {drafts.size} unsaved change{drafts.size > 1 ? 's' : ''}
-            </span>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-4 py-2 bg-[var(--green)] text-white text-sm font-bold uppercase tracking-wider rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {saving ? 'Building...' : 'Save & Build'}
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {drafts.size > 0 && (
+            <>
+              <span className="text-sm text-[var(--amber)]">
+                {drafts.size} unsaved change{drafts.size > 1 ? 's' : ''}
+              </span>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-4 py-2 bg-[var(--green)] text-white text-sm font-bold uppercase tracking-wider rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {saving ? 'Building...' : 'Save & Build'}
+              </button>
+            </>
+          )}
+          <button
+            onClick={handleRebuild}
+            disabled={saving}
+            className="px-4 py-2 border border-[var(--border)] text-[var(--text-secondary)] text-sm font-bold uppercase tracking-wider rounded-md hover:border-[var(--border-accent)] transition-colors disabled:opacity-50"
+          >
+            {saving ? 'Building...' : 'Rebuild CSS'}
+          </button>
+        </div>
       </div>
 
       {/* Error/Success messages */}

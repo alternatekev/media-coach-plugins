@@ -14,7 +14,7 @@ using SimHub.Plugins;
 namespace RaceCorProDrive.Plugin
 {
     [PluginDescription("Broadcast-grade sim racing HUD with real-time telemetry, AI commentary, race strategy, WebGL effects, and HomeKit smart lighting.")]
-    [PluginAuthor("RaceCorProDrive")]
+    [PluginAuthor("K10 Motorsports")]
     [PluginName("RaceCor.io Pro Drive")]
     public class Plugin : IPlugin, IDataPlugin, IWPFSettingsV2
     {
@@ -32,8 +32,8 @@ namespace RaceCorProDrive.Plugin
 #endif
 
         // Engine
-        private readonly CommentaryEngine  _engine   = new CommentaryEngine();
-        private readonly TrackMapProvider  _trackMap = new TrackMapProvider();
+        private readonly CommentaryEngine _engine = new CommentaryEngine();
+        private readonly TrackMapProvider _trackMap = new TrackMapProvider();
         private readonly Engine.IRacingSdkBridge _sdkBridge = new Engine.IRacingSdkBridge();
         private readonly Engine.Strategy.StrategyCoordinator _strategy = new Engine.Strategy.StrategyCoordinator();
         private FeedbackEngine _feedback;
@@ -46,7 +46,7 @@ namespace RaceCorProDrive.Plugin
         private string _lastCarModel = "";
 
         // Telemetry frames (current + previous for delta calculations)
-        private TelemetrySnapshot _current  = new TelemetrySnapshot();
+        private TelemetrySnapshot _current = new TelemetrySnapshot();
         private TelemetrySnapshot _previous = new TelemetrySnapshot();
 
         // Frame counter — we evaluate triggers every N frames to reduce CPU load
@@ -90,17 +90,6 @@ namespace RaceCorProDrive.Plugin
 
         // ── Track map queries (for settings UI) ─────────────────────────────
 
-        /// <summary>Track IDs bundled with the plugin (compiled into git).</summary>
-        public List<string> GetBundledTrackIds() => _trackMap.GetBundledTrackIds();
-
-        /// <summary>Track IDs recorded locally but not yet in the trackmaps directory.</summary>
-        public List<string> GetLocalOnlyTrackIds() => _trackMap.GetLocalOnlyTrackIds();
-
-        /// <summary>Copy local-only track maps to a destination folder. Returns count copied.</summary>
-        public int ExportLocalMapsTo(string destinationDir) => _trackMap.ExportLocalMapsTo(destinationDir);
-
-        /// <summary>Returns the list of directories searched for track map CSVs.</summary>
-        public List<string> GetTrackMapSearchPaths() => _trackMap.GetTrackMapSearchPaths();
 
         // ── IWPFSettingsV2 ────────────────────────────────────────────────────
 
@@ -227,15 +216,15 @@ namespace RaceCorProDrive.Plugin
             {
                 if (!_current.GameRunning) return "none";
                 int f = _current.SessionFlags;
-                if ((f & TelemetrySnapshot.FLAG_RED)       != 0) return "red";
-                if ((f & TelemetrySnapshot.FLAG_REPAIR)    != 0) return "meatball";
-                if ((f & TelemetrySnapshot.FLAG_BLACK)     != 0) return "black";
-                if ((f & TelemetrySnapshot.FLAG_YELLOW)    != 0) return "yellow";
-                if ((f & TelemetrySnapshot.FLAG_BLUE)      != 0) return "blue";
-                if ((f & TelemetrySnapshot.FLAG_DEBRIS)    != 0) return "debris";
-                if ((f & TelemetrySnapshot.FLAG_WHITE)     != 0) return "white";
+                if ((f & TelemetrySnapshot.FLAG_RED) != 0) return "red";
+                if ((f & TelemetrySnapshot.FLAG_REPAIR) != 0) return "meatball";
+                if ((f & TelemetrySnapshot.FLAG_BLACK) != 0) return "black";
+                if ((f & TelemetrySnapshot.FLAG_YELLOW) != 0) return "yellow";
+                if ((f & TelemetrySnapshot.FLAG_BLUE) != 0) return "blue";
+                if ((f & TelemetrySnapshot.FLAG_DEBRIS) != 0) return "debris";
+                if ((f & TelemetrySnapshot.FLAG_WHITE) != 0) return "white";
                 if ((f & TelemetrySnapshot.FLAG_CHECKERED) != 0) return "checkered";
-                if ((f & TelemetrySnapshot.FLAG_GREEN)     != 0) return "green";
+                if ((f & TelemetrySnapshot.FLAG_GREEN) != 0) return "green";
                 // Orange flag: detect if we are lapping the car immediately ahead
                 if (IsLappingCarAhead(_current)) return "orange";
                 return "none";
@@ -248,15 +237,15 @@ namespace RaceCorProDrive.Plugin
             // When DemoMode == 1, the dashboard reads these instead of GameData
             var dt = _engine.DemoTelemetry; // shorthand
 
-            this.AttachDelegate("Demo.Gear",       () => dt.Gear);
-            this.AttachDelegate("Demo.Rpm",        () => dt.Rpm);
-            this.AttachDelegate("Demo.MaxRpm",     () => dt.MaxRpm);
-            this.AttachDelegate("Demo.SpeedMph",   () => dt.SpeedMph);
-            this.AttachDelegate("Demo.Throttle",   () => dt.Throttle * 100); // 0-100 to match SimHub GameData
-            this.AttachDelegate("Demo.Brake",      () => dt.Brake * 100);
-            this.AttachDelegate("Demo.Clutch",     () => dt.Clutch * 100);
-            this.AttachDelegate("Demo.Fuel",       () => dt.Fuel);
-            this.AttachDelegate("Demo.MaxFuel",    () => dt.MaxFuel);
+            this.AttachDelegate("Demo.Gear", () => dt.Gear);
+            this.AttachDelegate("Demo.Rpm", () => dt.Rpm);
+            this.AttachDelegate("Demo.MaxRpm", () => dt.MaxRpm);
+            this.AttachDelegate("Demo.SpeedMph", () => dt.SpeedMph);
+            this.AttachDelegate("Demo.Throttle", () => dt.Throttle * 100); // 0-100 to match SimHub GameData
+            this.AttachDelegate("Demo.Brake", () => dt.Brake * 100);
+            this.AttachDelegate("Demo.Clutch", () => dt.Clutch * 100);
+            this.AttachDelegate("Demo.Fuel", () => dt.Fuel);
+            this.AttachDelegate("Demo.MaxFuel", () => dt.MaxFuel);
             this.AttachDelegate("Demo.FuelPerLap", () => dt.FuelPerLap);
             this.AttachDelegate("Demo.RemainingLaps", () => dt.RemainingLaps);
             this.AttachDelegate("Demo.TyreTempFL", () => dt.TyreTempFL);
@@ -267,36 +256,36 @@ namespace RaceCorProDrive.Plugin
             this.AttachDelegate("Demo.TyreWearFR", () => dt.TyreWearFR);
             this.AttachDelegate("Demo.TyreWearRL", () => dt.TyreWearRL);
             this.AttachDelegate("Demo.TyreWearRR", () => dt.TyreWearRR);
-            this.AttachDelegate("Demo.BrakeBias",  () => dt.BrakeBias);
-            this.AttachDelegate("Demo.TC",         () => dt.TC);
-            this.AttachDelegate("Demo.ABS",        () => dt.ABS);
-            this.AttachDelegate("Demo.Position",   () => dt.Position);
+            this.AttachDelegate("Demo.BrakeBias", () => dt.BrakeBias);
+            this.AttachDelegate("Demo.TC", () => dt.TC);
+            this.AttachDelegate("Demo.ABS", () => dt.ABS);
+            this.AttachDelegate("Demo.Position", () => dt.Position);
             this.AttachDelegate("Demo.CurrentLap", () => dt.CurrentLap);
-            this.AttachDelegate("Demo.BestLapTime",() => dt.BestLapTime);
-            this.AttachDelegate("Demo.CurrentLapTime",() => dt.CurrentLapTime);
-            this.AttachDelegate("Demo.CarModel",   () => dt.CarModel);
-            this.AttachDelegate("Demo.SessionTime",   () => dt.SessionTime);
-            this.AttachDelegate("Demo.LastLapTime",   () => dt.LastLapTime);
+            this.AttachDelegate("Demo.BestLapTime", () => dt.BestLapTime);
+            this.AttachDelegate("Demo.CurrentLapTime", () => dt.CurrentLapTime);
+            this.AttachDelegate("Demo.CarModel", () => dt.CarModel);
+            this.AttachDelegate("Demo.SessionTime", () => dt.SessionTime);
+            this.AttachDelegate("Demo.LastLapTime", () => dt.LastLapTime);
             this.AttachDelegate("Demo.RemainingTime", () => dt.RemainingTime);
-            this.AttachDelegate("Demo.TotalLaps",     () => dt.TotalLaps);
-            this.AttachDelegate("Demo.IRating",    () => dt.IRating);
-            this.AttachDelegate("Demo.SafetyRating",() => dt.SafetyRating);
-            this.AttachDelegate("Demo.GapAhead",   () => dt.GapAhead);
-            this.AttachDelegate("Demo.GapBehind",  () => dt.GapBehind);
+            this.AttachDelegate("Demo.TotalLaps", () => dt.TotalLaps);
+            this.AttachDelegate("Demo.IRating", () => dt.IRating);
+            this.AttachDelegate("Demo.SafetyRating", () => dt.SafetyRating);
+            this.AttachDelegate("Demo.GapAhead", () => dt.GapAhead);
+            this.AttachDelegate("Demo.GapBehind", () => dt.GapBehind);
             this.AttachDelegate("Demo.DriverAhead", () => dt.DriverAhead);
-            this.AttachDelegate("Demo.DriverBehind",() => dt.DriverBehind);
-            this.AttachDelegate("Demo.IRAhead",    () => dt.IRAhead);
-            this.AttachDelegate("Demo.IRBehind",   () => dt.IRBehind);
+            this.AttachDelegate("Demo.DriverBehind", () => dt.DriverBehind);
+            this.AttachDelegate("Demo.IRAhead", () => dt.IRAhead);
+            this.AttachDelegate("Demo.IRBehind", () => dt.IRBehind);
 
             // ── Track map properties — SVG path + car positions ────────────────
-            this.AttachDelegate("TrackMap.Ready",      () => _trackMap.IsReady ? 1 : 0);
-            this.AttachDelegate("TrackMap.TrackName",  () => _trackMap.TrackName ?? "");
-            this.AttachDelegate("TrackMap.SvgPath",    () => _trackMap.SvgPath);
-            this.AttachDelegate("TrackMap.PlayerX",    () => _trackMap.PlayerX);
-            this.AttachDelegate("TrackMap.PlayerY",    () => _trackMap.PlayerY);
-            this.AttachDelegate("TrackMap.Opponents",  () => _trackMap.OpponentData);
+            this.AttachDelegate("TrackMap.Ready", () => _trackMap.IsReady ? 1 : 0);
+            this.AttachDelegate("TrackMap.TrackName", () => _trackMap.TrackName ?? "");
+            this.AttachDelegate("TrackMap.SvgPath", () => _trackMap.SvgPath);
+            this.AttachDelegate("TrackMap.PlayerX", () => _trackMap.PlayerX);
+            this.AttachDelegate("TrackMap.PlayerY", () => _trackMap.PlayerY);
+            this.AttachDelegate("TrackMap.Opponents", () => _trackMap.OpponentData);
             this.AttachDelegate("TrackMap.OpponentCount", () => _trackMap.OpponentCount);
-            this.AttachDelegate("TrackMap.Recording",  () => !_trackMap.IsReady ? 1 : 0);
+            this.AttachDelegate("TrackMap.Recording", () => !_trackMap.IsReady ? 1 : 0);
 
             // Nearest car distance fraction for proximity-based lighting
             this.AttachDelegate("NearestCarDistance", () =>
@@ -320,45 +309,27 @@ namespace RaceCorProDrive.Plugin
 
             // ── Actions ───────────────────────────────────────────────────────
 
-            // Manually dismiss the current prompt
-            this.AddAction("RaceCorProDrive.DismissPrompt", (a, b) =>
-            {
-                _engine.ClearPrompt();
-                SimHub.Logging.Current.Info("[RaceCorProDrive] Prompt dismissed by user action");
-            });
 
-            // Feedback actions — bind to a button box or SimHub Control Mapper
-            this.AddAction("RaceCorProDrive.ThumbsUp", (a, b) =>
-            {
-                _feedback.Record(_engine.CurrentTopicId, _engine.CurrentText, +1);
-                SimHub.Logging.Current.Info($"[RaceCorProDrive] ThumbsUp: {_engine.CurrentTopicId}");
-            });
-
-            this.AddAction("RaceCorProDrive.ThumbsDown", (a, b) =>
-            {
-                _feedback.Record(_engine.CurrentTopicId, _engine.CurrentText, -1);
-                SimHub.Logging.Current.Info($"[RaceCorProDrive] ThumbsDown: {_engine.CurrentTopicId}");
-            });
 
             // Pitbox wheel button actions — bind in SimHub Control Mapper
-            this.AddAction("RaceCorProDrive.CyclePitboxTab",     (a, b) => { _pitboxTabCycle++;    });
+            this.AddAction("RaceCorProDrive.CyclePitboxTab", (a, b) => { _pitboxTabCycle++; });
             this.AddAction("RaceCorProDrive.CyclePitboxTabBack", (a, b) => { _pitboxTabCycleBack++; });
-            this.AddAction("RaceCorProDrive.PitboxNext",         (a, b) => { _pitboxNext++;        });
-            this.AddAction("RaceCorProDrive.PitboxPrev",         (a, b) => { _pitboxPrev++;        });
-            this.AddAction("RaceCorProDrive.PitboxIncrement",    (a, b) => { _pitboxIncrement++;   });
-            this.AddAction("RaceCorProDrive.PitboxDecrement",    (a, b) => { _pitboxDecrement++;   });
-            this.AddAction("RaceCorProDrive.PitboxToggle",       (a, b) => { _pitboxToggle++;      });
+            this.AddAction("RaceCorProDrive.PitboxNext", (a, b) => { _pitboxNext++; });
+            this.AddAction("RaceCorProDrive.PitboxPrev", (a, b) => { _pitboxPrev++; });
+            this.AddAction("RaceCorProDrive.PitboxIncrement", (a, b) => { _pitboxIncrement++; });
+            this.AddAction("RaceCorProDrive.PitboxDecrement", (a, b) => { _pitboxDecrement++; });
+            this.AddAction("RaceCorProDrive.PitboxToggle", (a, b) => { _pitboxToggle++; });
 
             // Expose pitbox counters so dashboard can detect changes
-            this.AttachDelegate("DS.PitboxTabCycle",     () => _pitboxTabCycle);
+            this.AttachDelegate("DS.PitboxTabCycle", () => _pitboxTabCycle);
             this.AttachDelegate("DS.PitboxTabCycleBack", () => _pitboxTabCycleBack);
-            this.AttachDelegate("DS.PitboxNext",         () => _pitboxNext);
-            this.AttachDelegate("DS.PitboxPrev",         () => _pitboxPrev);
-            this.AttachDelegate("DS.PitboxIncrement",    () => _pitboxIncrement);
-            this.AttachDelegate("DS.PitboxDecrement",    () => _pitboxDecrement);
-            this.AttachDelegate("DS.PitboxToggle",       () => _pitboxToggle);
+            this.AttachDelegate("DS.PitboxNext", () => _pitboxNext);
+            this.AttachDelegate("DS.PitboxPrev", () => _pitboxPrev);
+            this.AttachDelegate("DS.PitboxIncrement", () => _pitboxIncrement);
+            this.AttachDelegate("DS.PitboxDecrement", () => _pitboxDecrement);
+            this.AttachDelegate("DS.PitboxToggle", () => _pitboxToggle);
 
-// ── Events ────────────────────────────────────────────────────────
+            // ── Events ────────────────────────────────────────────────────────
             this.AddEvent("NewCommentaryPrompt");
 
             // Show a brief placeholder so the dashboard is visible before any game starts
@@ -427,7 +398,7 @@ namespace RaceCorProDrive.Plugin
         {
             // Capture current telemetry every frame (cheap snapshot)
             _previous = _current;
-            _current  = TelemetrySnapshot.Capture(pluginManager, ref data);
+            _current = TelemetrySnapshot.Capture(pluginManager, ref data);
 
             // ── Start position tracking ──
             // Capture the grid position once when the session goes to Racing (state 4)
@@ -508,7 +479,7 @@ namespace RaceCorProDrive.Plugin
             {
                 var parts = _current.PlayerName.Trim().Split(new[] { ' ' }, 2);
                 _engine.DriverFirstName = parts[0];
-                _engine.DriverLastName  = parts.Length > 1 ? parts[1] : "";
+                _engine.DriverLastName = parts.Length > 1 ? parts[1] : "";
             }
 
             // Synthesize start lights from PaceMode/SessionState
@@ -629,11 +600,11 @@ namespace RaceCorProDrive.Plugin
 
         public void ApplySettings()
         {
-            _engine.DisplaySeconds    = Settings.PromptDisplaySeconds;
-            _engine.EventOnlyMode     = Settings.EventOnlyMode;
-            _engine.DemoMode          = Settings.DemoMode;
-            _engine.DriverFirstName   = Settings.DriverFirstName ?? "";
-            _engine.DriverLastName    = Settings.DriverLastName ?? "";
+            _engine.DisplaySeconds = Settings.PromptDisplaySeconds;
+            _engine.EventOnlyMode = Settings.EventOnlyMode;
+            _engine.DemoMode = Settings.DemoMode;
+            _engine.DriverFirstName = Settings.DriverFirstName ?? "";
+            _engine.DriverLastName = Settings.DriverLastName ?? "";
             _trackMap.SetDemoMode(Settings.DemoMode);
             _engine.EnabledCategories = Settings.EnabledCategories?.Count > 0
                 ? new System.Collections.Generic.HashSet<string>(Settings.EnabledCategories)
@@ -1118,15 +1089,15 @@ namespace RaceCorProDrive.Plugin
                             f = _engine.CurrentDemoFlags;
                         else if (s.GameRunning)
                             f = s.SessionFlags;
-                        if      ((f & TelemetrySnapshot.FLAG_RED)       != 0) flagState = "red";
-                        else if ((f & TelemetrySnapshot.FLAG_REPAIR)    != 0) flagState = "meatball";
-                        else if ((f & TelemetrySnapshot.FLAG_BLACK)     != 0) flagState = "black";
-                        else if ((f & TelemetrySnapshot.FLAG_YELLOW)    != 0) flagState = "yellow";
-                        else if ((f & TelemetrySnapshot.FLAG_BLUE)      != 0) flagState = "blue";
-                        else if ((f & TelemetrySnapshot.FLAG_DEBRIS)    != 0) flagState = "debris";
-                        else if ((f & TelemetrySnapshot.FLAG_WHITE)     != 0) flagState = "white";
+                        if ((f & TelemetrySnapshot.FLAG_RED) != 0) flagState = "red";
+                        else if ((f & TelemetrySnapshot.FLAG_REPAIR) != 0) flagState = "meatball";
+                        else if ((f & TelemetrySnapshot.FLAG_BLACK) != 0) flagState = "black";
+                        else if ((f & TelemetrySnapshot.FLAG_YELLOW) != 0) flagState = "yellow";
+                        else if ((f & TelemetrySnapshot.FLAG_BLUE) != 0) flagState = "blue";
+                        else if ((f & TelemetrySnapshot.FLAG_DEBRIS) != 0) flagState = "debris";
+                        else if ((f & TelemetrySnapshot.FLAG_WHITE) != 0) flagState = "white";
                         else if ((f & TelemetrySnapshot.FLAG_CHECKERED) != 0) flagState = "checkered";
-                        else if ((f & TelemetrySnapshot.FLAG_GREEN)     != 0) flagState = "green";
+                        else if ((f & TelemetrySnapshot.FLAG_GREEN) != 0) flagState = "green";
                         else if (!demo && IsLappingCarAhead(s)) flagState = "orange";
                     }
 
@@ -1543,7 +1514,7 @@ namespace RaceCorProDrive.Plugin
                     sb.Append("}");
 
                     byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
-                    ctx.Response.ContentType     = "application/json";
+                    ctx.Response.ContentType = "application/json";
                     ctx.Response.ContentLength64 = buf.Length;
                     ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                     ctx.Response.OutputStream.Write(buf, 0, buf.Length);

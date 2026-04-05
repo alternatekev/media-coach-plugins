@@ -19,7 +19,6 @@ namespace RaceCorProDrive.Plugin
         {
             _plugin = plugin;
             InitializeComponent();
-            RefreshTrackLists();
 
             // Load logo
             try
@@ -42,91 +41,6 @@ namespace RaceCorProDrive.Plugin
             };
         }
 
-        private void RefreshTrackLists()
-        {
-            try
-            {
-                var searchPaths = _plugin.GetTrackMapSearchPaths();
-                string activePath = "(not resolved)";
-                foreach (var p in searchPaths)
-                {
-                    if (Directory.Exists(p)) { activePath = p; break; }
-                }
-                TrackMapsDirLabel.Text = $"Folder: {activePath}";
-            }
-            catch (Exception ex)
-            {
-                TrackMapsDirLabel.Text = $"Error: {ex.Message}";
-            }
-        }
-
-        private void RefreshTracks_Click(object sender, RoutedEventArgs e)
-        {
-            RefreshTrackLists();
-            ExportStatusLabel.Text = "";
-        }
-
-        private void ExportTracks_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var searchPaths = _plugin.GetTrackMapSearchPaths();
-                string destDir = null;
-                foreach (var p in searchPaths)
-                {
-                    if (p.Contains("PluginsData")) continue;
-                    if (Directory.Exists(p)) { destDir = p; break; }
-                }
-                if (destDir == null && searchPaths.Count > 0) destDir = searchPaths[0];
-
-                if (string.IsNullOrEmpty(destDir))
-                {
-                    ExportStatusLabel.Text = "Could not determine trackmaps folder.";
-                    return;
-                }
-
-                int count = _plugin.ExportLocalMapsTo(destDir);
-                ExportStatusLabel.Foreground = new System.Windows.Media.SolidColorBrush(
-                    System.Windows.Media.Color.FromRgb(0x6f, 0xcf, 0x6f));
-                ExportStatusLabel.Text = count > 0
-                    ? $"Copied {count} track map{(count == 1 ? "" : "s")} to {destDir}"
-                    : "No new tracks to copy.";
-                RefreshTrackLists();
-            }
-            catch (Exception ex)
-            {
-                ExportStatusLabel.Foreground = new System.Windows.Media.SolidColorBrush(
-                    System.Windows.Media.Color.FromRgb(0xcf, 0x6f, 0x6f));
-                ExportStatusLabel.Text = $"Export failed: {ex.Message}";
-            }
-        }
-
-        private void OpenTrackmapsFolder_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var searchPaths = _plugin.GetTrackMapSearchPaths();
-                string openPath = null;
-                foreach (var p in searchPaths)
-                {
-                    if (p.Contains("PluginsData")) continue;
-                    if (Directory.Exists(p)) { openPath = p; break; }
-                }
-                if (openPath == null && searchPaths.Count > 0)
-                {
-                    openPath = searchPaths[0];
-                    Directory.CreateDirectory(openPath);
-                }
-                if (!string.IsNullOrEmpty(openPath))
-                    Process.Start("explorer.exe", openPath);
-            }
-            catch (Exception ex)
-            {
-                ExportStatusLabel.Foreground = new System.Windows.Media.SolidColorBrush(
-                    System.Windows.Media.Color.FromRgb(0xcf, 0x6f, 0x6f));
-                ExportStatusLabel.Text = $"Failed to open folder: {ex.Message}";
-            }
-        }
 
         // ── Update UI ────────────────────────────────────────────
 

@@ -105,24 +105,7 @@
           DestinationFolder="$(RepoPluginDir)"
           Condition="Exists('$(OutputPath)RaceCor-ioProDrive.pdb')"
           SkipUnchangedFiles="true" />
-    <!-- Sync recorded track maps back to repo (local dev only) -->
-    <ItemGroup Condition="$(_IsLocalDev)">
-      <RecordedMaps Include="$(SimHubPath)racecorprodrive-data\trackmaps\*.csv" />
-    </ItemGroup>
-    <Copy SourceFiles="@(RecordedMaps)"
-          DestinationFolder="$(RepoPluginDir)racecorprodrive-data\trackmaps\"
-          SkipUnchangedFiles="true"
-          Condition="$(_IsLocalDev)" />
-    <!-- Sync telemetry recordings back to repo (local dev only) -->
-    <ItemGroup Condition="$(_IsLocalDev)">
-      <RecordedTelemetry Include="$(SimHubPath)racecorprodrive-data\recordings\*.jsonl" />
-    </ItemGroup>
-    <Copy SourceFiles="@(RecordedTelemetry)"
-          DestinationFolder="$(RepoPluginDir)racecorprodrive-data\recordings\"
-          SkipUnchangedFiles="true"
-          Condition="$(_IsLocalDev)" />
-    <Message Importance="high"
-             Text="Exported DLL+PDB to $(RepoPluginDir)" />
+  
   </Target>
 
   <!-- Debug: launch SimHub when pressing F5 -->

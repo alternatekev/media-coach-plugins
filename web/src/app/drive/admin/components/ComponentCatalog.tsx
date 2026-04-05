@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, ReactNode } from 'react'
+import { SearchFilterBar, GameBadge, StatCard } from '@/app/drive/admin/components'
+import IRatingSparkline from '@/app/drive/dashboard/IRatingSparkline'
 
 // ── Component registry ─────────────────────────────────────────────
 
@@ -9,61 +11,77 @@ type Category = 'admin' | 'dashboard' | 'shared' | 'driving' | 'race-info' | 'pi
 
 interface ComponentEntry {
   name: string
-  element?: string        // web component tag name (overlay only)
+  element?: string
   file: string
   platform: Platform
   category: Category
   description: string
-  props?: string[]        // key props/attributes
-  tokens?: string[]       // design tokens consumed
+  storyId?: string         // Storybook story path for deep link
+  preview?: () => ReactNode // live render
 }
+
+// ── Storybook base URL ──
+const SB = 'http://localhost:6006/?path=/story/'
+
+// ── Registry with live previews ──
 
 const components: ComponentEntry[] = [
   // ── Web: Admin ──
-  {
-    name: 'AdminNav',
-    file: 'web/src/app/drive/admin/AdminNav.tsx',
-    platform: 'web',
-    category: 'admin',
-    description: 'Tab navigation bar for admin section with active route highlighting. Left-aligned data pages, right-aligned tool pages.',
-    props: [],
-    tokens: ['--k10-red', '--text-muted', '--text-dim'],
-  },
-  {
-    name: 'OverviewCards',
-    file: 'web/src/app/drive/admin/OverviewCards.tsx',
-    platform: 'web',
-    category: 'admin',
-    description: 'Admin dashboard overview with 4 summary cards. Shows hero artwork from commentary photos, small multiples (SVG tracks, logo circles, user avatars, log success bars). Fetches from 5 API endpoints concurrently.',
-    props: [],
-    tokens: ['--k10-red', '--bg-surface', '--border', '--text-muted', '--green'],
-  },
-  {
-    name: 'SearchFilterBar',
-    file: 'web/src/app/drive/admin/components.tsx',
-    platform: 'web',
-    category: 'admin',
-    description: 'Reusable search input with game filter dropdown and sort options. Used across Track Maps and Car Brands pages.',
-    props: ['search', 'onSearchChange', 'game', 'onGameChange', 'sort', 'onSortChange', 'sortOptions'],
-    tokens: ['--bg-panel', '--border', '--text', '--text-muted'],
-  },
   {
     name: 'GameBadge',
     file: 'web/src/app/drive/admin/components.tsx',
     platform: 'web',
     category: 'admin',
-    description: 'Colored pill badge showing game name (iRacing, LMU, ACC) with semi-transparent tinted background.',
-    props: ['game'],
-    tokens: ['--blue', '--amber', '--green'],
+    description: 'Colored pill badge showing game name with semi-transparent tinted background.',
+    storyId: 'admin-gamebadge--all-games',
+    preview: () => (
+      <div className="flex gap-2">
+        <GameBadge game="iracing" />
+        <GameBadge game="lmu" />
+        <GameBadge game="acc" />
+      </div>
+    ),
   },
   {
     name: 'StatCard',
     file: 'web/src/app/drive/admin/components.tsx',
     platform: 'web',
     category: 'admin',
-    description: 'Small stat display with label and value. Supports optional color for positive/negative/neutral states.',
-    props: ['label', 'value', 'color?'],
-    tokens: ['--bg-panel', '--border-subtle', '--text-dim'],
+    description: 'Stat display with label and value. Supports color variants for positive/negative states.',
+    storyId: 'admin-statcard--stats-row',
+    preview: () => (
+      <div className="grid grid-cols-4 gap-2">
+        <StatCard label="Total" value={1247} />
+        <StatCard label="OK" value={1221} color="green" />
+        <StatCard label="Failed" value={26} color="red" />
+        <StatCard label="Avg" value="142ms" color="muted" />
+      </div>
+    ),
+  },
+  {
+    name: 'SearchFilterBar',
+    file: 'web/src/app/drive/admin/components.tsx',
+    platform: 'web',
+    category: 'admin',
+    description: 'Search input with game filter dropdown and sort options. Used across Track Maps and Car Brands.',
+    storyId: 'admin-searchfilterbar--default',
+    preview: () => (
+      <SearchFilterBar
+        search=""
+        onSearch={() => {}}
+        game=""
+        onGame={() => {}}
+        sort="name-asc"
+        onSort={() => {}}
+      />
+    ),
+  },
+  {
+    name: 'OverviewCards',
+    file: 'web/src/app/drive/admin/OverviewCards.tsx',
+    platform: 'web',
+    category: 'admin',
+    description: 'Admin dashboard overview with 4 summary cards. Hero artwork from commentary photos, small multiples (SVG tracks, logo circles, user avatars, log success bars).',
   },
   {
     name: 'TrackCard',
@@ -71,26 +89,27 @@ const components: ComponentEntry[] = [
     platform: 'web',
     category: 'admin',
     description: 'Track management card with SVG preview, editable display name, sector count toggle (3 ↔ 7), game badges, and delete action.',
-    props: ['track', 'onUpdate', 'onDelete'],
-    tokens: ['--bg-surface', '--border', '--k10-red', '--text'],
   },
   {
     name: 'LogoCard',
     file: 'web/src/app/drive/admin/brands/BrandsSection.tsx',
     platform: 'web',
     category: 'admin',
-    description: 'Brand logo card with SVG/PNG preview, color picker, game badges, opacity-tinted background using brand hex color (8C alpha), and clear-logo action.',
-    props: ['logo', 'onUpdate', 'onClear'],
-    tokens: ['--bg-surface', '--border', '--text'],
+    description: 'Brand logo card with SVG/PNG preview, color picker, game badges, opacity-tinted background, and clear-logo action.',
   },
   {
     name: 'MissingLogoCard',
     file: 'web/src/app/drive/admin/brands/BrandsSection.tsx',
     platform: 'web',
     category: 'admin',
-    description: 'Empty-state brand card for brands without uploaded logos. Shows brand name over color background with per-card file upload.',
-    props: ['brand', 'onUpload'],
-    tokens: ['--bg-panel', '--border-subtle', '--text-muted'],
+    description: 'Empty-state brand card for brands without uploaded logos. Shows brand name over color background with file upload.',
+  },
+  {
+    name: 'AdminNav',
+    file: 'web/src/app/drive/admin/AdminNav.tsx',
+    platform: 'web',
+    category: 'admin',
+    description: 'Tab navigation with active route highlighting. Left-aligned data pages, right-aligned tool pages.',
   },
 
   // ── Web: Dashboard ──
@@ -99,74 +118,71 @@ const components: ComponentEntry[] = [
     file: 'web/src/app/drive/dashboard/IRatingSparkline.tsx',
     platform: 'web',
     category: 'dashboard',
-    description: 'Tiny SVG sparkline chart showing iRating trend over recent sessions. Color-coded: green (uptrend), red (downtrend), gray (flat).',
-    props: ['values: number[]'],
-    tokens: ['--green', '--k10-red', '--text-muted'],
+    description: 'Tiny SVG sparkline chart showing iRating trend. Color-coded: green (up), red (down), gray (flat).',
+    storyId: 'dashboard-iratingsparkline--multiple-sparklines',
+    preview: () => (
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-[var(--text-muted)] w-12">Road</span>
+          <IRatingSparkline values={[1850, 1870, 1890, 1920, 1960, 2010]} />
+          <span className="text-xs text-[var(--green)] font-mono">2010</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-[var(--text-muted)] w-12">Oval</span>
+          <IRatingSparkline values={[1500, 1480, 1460, 1440, 1420, 1400]} />
+          <span className="text-xs text-red-400 font-mono">1400</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-[var(--text-muted)] w-12">Dirt</span>
+          <IRatingSparkline values={[1200, 1210, 1205, 1208, 1202, 1206]} />
+          <span className="text-xs text-[var(--text-dim)] font-mono">1206</span>
+        </div>
+      </div>
+    ),
   },
   {
     name: 'RaceCard',
     file: 'web/src/app/drive/dashboard/RaceCard.tsx',
     platform: 'web',
     category: 'dashboard',
-    description: 'Session history card showing track photo background, SVG track outline, car model, position badge (P1–P3 gold/silver/bronze, DNF red), best lap time, incidents, and iRating sparkline.',
-    props: ['session', 'trackSvgPath', 'carImageUrl', 'trackImageUrl', 'iRatingHistory'],
-    tokens: ['--bg-surface', '--border', '--k10-red', '--green', '--amber', '--text'],
+    description: 'Session history card with track photo background, SVG track outline, position badge (P1–P3 podium colors, DNF red), best lap, incidents, and iRating sparkline.',
   },
   {
     name: 'LogoCustomizer',
     file: 'web/src/app/drive/dashboard/LogoCustomizer.tsx',
     platform: 'web',
     category: 'dashboard',
-    description: 'User-facing logo URL editor for custom overlay branding. Live preview, HTTPS validation, reset to default. Authenticates via bearer token.',
-    props: ['customLogoUrl', 'userToken'],
-    tokens: ['--bg-surface', '--border', '--green', '--k10-red'],
+    description: 'User-facing logo URL editor for custom overlay branding. Live preview, HTTPS validation, reset to default.',
   },
 
-  // ── Web: Shared / Marketing ──
+  // ── Web: Marketing / Shared ──
   {
     name: 'FeatureShowcase',
     file: 'web/src/components/telemetry/FeatureShowcase.tsx',
     platform: 'web',
     category: 'marketing',
-    description: 'Auto-cycling feature carousel showing 13 overlay modules with screenshots and descriptions. 8-second cycle with manual selection. Used on product landing page.',
-    props: [],
-    tokens: ['--k10-red', '--bg-surface', '--border'],
+    description: 'Auto-cycling feature carousel showing 13 overlay modules with screenshots and descriptions. 8-second cycle with manual selection.',
   },
   {
     name: 'TelemetryStatus',
     file: 'web/src/components/telemetry/TelemetryStatus.tsx',
     platform: 'web',
     category: 'shared',
-    description: 'Live telemetry connection status panel. Shows connection indicator, latency, track/car info, and grid of real-time values (gear, speed, RPM, position, lap, throttle, brake).',
-    props: [],
-    tokens: ['--green', '--k10-red', '--amber', '--text', '--bg-surface'],
-  },
-  {
-    name: 'TelemetryProvider',
-    file: 'web/src/components/telemetry/TelemetryProvider.tsx',
-    platform: 'web',
-    category: 'shared',
-    description: 'React context provider for live telemetry data. Polls /api/telemetry endpoint. Exposes useTelemetry() and useTelemetryValue() hooks with connection status and latency.',
-    props: ['children'],
-    tokens: [],
+    description: 'Live telemetry connection status with connection indicator, latency, track/car info, and real-time value grid.',
   },
   {
     name: 'ChannelBanner',
     file: 'web/src/components/youtube/ChannelBanner.tsx',
     platform: 'web',
     category: 'marketing',
-    description: 'YouTube channel header with thumbnail, title, subscriber/video/view counts, and subscribe button link.',
-    props: ['channel: YouTubeChannelInfo'],
-    tokens: ['--bg-surface', '--border', '--k10-red'],
+    description: 'YouTube channel header with thumbnail, title, subscriber/video/view counts, and subscribe button.',
   },
   {
     name: 'VideoGrid',
     file: 'web/src/components/youtube/VideoGrid.tsx',
     platform: 'web',
     category: 'marketing',
-    description: 'Responsive video grid with type filtering (Videos/Shorts/Live). Cards show thumbnail, title, duration, view count, publish date. Shorts use 9:16 aspect ratio.',
-    props: ['videos: YouTubeVideo[]', 'title?'],
-    tokens: ['--bg-surface', '--border', '--text-muted'],
+    description: 'Responsive video grid with type filtering (Videos/Shorts/Live). Cards show thumbnail, title, duration, view count.',
   },
 
   // ── Overlay: Driving ──
@@ -176,9 +192,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/tachometer.js',
     platform: 'overlay',
     category: 'driving',
-    description: 'RPM gauge with segmented color bar (green/yellow/red zones), large gear display, and speed readout. Flashes at 91%+ RPM (redline).',
-    props: ['rpmRatio', 'gear', 'speed', 'speedUnit', 'rpmValue'],
-    tokens: ['--red', '--green', '--amber', '--ff', '--fs-xl', '--bg'],
+    description: 'RPM gauge with segmented color bar (green/yellow/red zones), large gear display, speed readout. Flashes at 91%+ RPM.',
   },
   {
     name: 'DriveHUD',
@@ -186,9 +200,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/drive-hud.js',
     platform: 'overlay',
     category: 'driving',
-    description: 'Full-screen driving display with 3-column layout: track map with player/opponent dots (left), position/lap delta/sector times (center), incident counter (right). Supports 3 or 7 sector configurations.',
-    props: ['position', 'lapDelta', 'sectors', 'lastLap', 'bestLap', 'incidents', 'trackMapSvg'],
-    tokens: ['--red', '--green', '--amber', '--purple', '--cyan', '--ff-mono', '--bg-panel'],
+    description: '3-column driving display: track map with player/opponent dots, position/lap delta/sector times, incident counter. Supports 3 or 7 sectors.',
   },
   {
     name: 'PedalCurves',
@@ -196,9 +208,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/pedal-curves.js',
     platform: 'overlay',
     category: 'driving',
-    description: 'Canvas-based pedal input visualization with throttle, brake, clutch curves. Histogram overlay shows input distribution. Response curve display.',
-    props: ['throttle', 'brake', 'clutch', 'showCurves'],
-    tokens: ['--green', '--red', '--blue', '--bg-panel'],
+    description: 'Canvas-based pedal input visualization with throttle/brake/clutch curves, histogram overlay, and response curve display.',
   },
   {
     name: 'Datastream',
@@ -206,9 +216,15 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/datastream.js',
     platform: 'overlay',
     category: 'driving',
-    description: 'Telemetry readout panel with G-force diamond indicator, yaw rate waveform, steering torque, track temperature, and lap delta.',
-    props: ['lateralG', 'longitudinalG', 'yawRate', 'steeringTorque', 'trackTemp'],
-    tokens: ['--cyan', '--amber', '--ff-mono', '--bg-panel', '--border'],
+    description: 'Telemetry readout panel with G-force diamond, yaw rate waveform, steering torque, track temperature, lap delta.',
+  },
+  {
+    name: 'SectorHUD',
+    element: 'racecor-sector-hud',
+    file: 'racecor-overlay/modules/components/sector-hud.js',
+    platform: 'overlay',
+    category: 'driving',
+    description: 'Sector time display with color coding: green (faster), amber (slower), red (much slower), purple (personal best).',
   },
 
   // ── Overlay: Race Info ──
@@ -218,9 +234,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/leaderboard.js',
     platform: 'overlay',
     category: 'race-info',
-    description: 'Full standings table with driver names, positions, gaps, iRating, and Canvas-rendered sparkline history showing lap time trends.',
-    props: ['drivers', 'playerName', 'focusMode', 'maxRows'],
-    tokens: ['--text-primary', '--text-secondary', '--ff', '--ff-mono', '--bg', '--border'],
+    description: 'Full standings table with driver names, positions, gaps, iRating, and Canvas-rendered sparkline history.',
   },
   {
     name: 'PositionCard',
@@ -228,9 +242,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/position-card.js',
     platform: 'overlay',
     category: 'race-info',
-    description: 'Current position display (P1, P2, etc.) with iRating and Safety Rating. Cycles pages showing different rating categories.',
-    props: ['position', 'totalCars', 'irating', 'safetyRating', 'licenseClass'],
-    tokens: ['--fs-xl', '--fw-black', '--ff', '--bg-panel'],
+    description: 'Current position display (P1, P2, etc.) with iRating and Safety Rating. Cycles through rating categories.',
   },
   {
     name: 'GapDisplay',
@@ -238,9 +250,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/gap-display.js',
     platform: 'overlay',
     category: 'race-info',
-    description: 'Time gap to car ahead/behind with driver names and iRating numbers. Color-coded gap changes (green shrinking, red growing).',
-    props: ['aheadGap', 'aheadDriver', 'aheadIR', 'behindGap', 'behindDriver', 'behindIR'],
-    tokens: ['--green', '--red', '--ff-mono', '--text-dim'],
+    description: 'Time gap to car ahead/behind with driver names. Color-coded: green shrinking, red growing.',
   },
   {
     name: 'Incidents',
@@ -248,9 +258,15 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/incidents.js',
     platform: 'overlay',
     category: 'race-info',
-    description: 'Incident counter with penalty threshold and disqualification threshold indicators. Flashes on new incidents.',
-    props: ['count', 'penaltyThreshold', 'dqThreshold'],
-    tokens: ['--red', '--amber', '--ff-mono', '--bg-panel'],
+    description: 'Incident counter with penalty and disqualification threshold indicators. Flashes on new incidents.',
+  },
+  {
+    name: 'RaceEnd',
+    element: 'racecor-race-end',
+    file: 'racecor-overlay/modules/components/race-end.js',
+    platform: 'overlay',
+    category: 'race-info',
+    description: 'Post-race results screen: finishing position, best lap, incidents, iRating/SR delta. Auto-hides after 30s.',
   },
 
   // ── Overlay: Pit & Strategy ──
@@ -260,9 +276,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/pitbox.js',
     platform: 'overlay',
     category: 'pit-strategy',
-    description: 'Tabbed pit strategy panel with Fuel, Tires, and Strategy tabs. Shows fuel consumption rate, tire wear/selection grid, and pit window timing.',
-    props: ['fuelData', 'tireData', 'strategyData', 'activeTab'],
-    tokens: ['--green', '--amber', '--red', '--ff-mono', '--bg-panel', '--border'],
+    description: 'Tabbed pit strategy panel: Fuel, Tires, Strategy tabs. Fuel consumption, tire wear/selection, pit window timing.',
   },
   {
     name: 'FuelGauge',
@@ -270,9 +284,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/fuel-gauge.js',
     platform: 'overlay',
     category: 'pit-strategy',
-    description: 'Fuel level display with consumption rate per lap and estimated laps remaining. Color transitions from green to amber to red as fuel drops.',
-    props: ['fuelLevel', 'fuelPerLap', 'fuelLapsRemaining'],
-    tokens: ['--green', '--amber', '--red', '--ff-mono'],
+    description: 'Fuel level with consumption rate per lap and laps remaining estimate. Color transitions green → amber → red.',
   },
   {
     name: 'TireGrid',
@@ -280,9 +292,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/tire-grid.js',
     platform: 'overlay',
     category: 'pit-strategy',
-    description: '2×2 tire grid showing temperature, wear percentage, and compound indicator for each wheel position (FL, FR, RL, RR).',
-    props: ['tires'],
-    tokens: ['--green', '--amber', '--red', '--bg-panel', '--border'],
+    description: '2×2 tire grid: temperature, wear percentage, and compound indicator for each wheel position.',
   },
 
   // ── Overlay: Commentary & Status ──
@@ -292,9 +302,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/commentary.js',
     platform: 'overlay',
     category: 'commentary',
-    description: 'AI commentary text panel with dynamic sentiment coloring (hue-based background and border). Auto-shows on new messages with slide-in animation.',
-    props: ['title', 'text', 'meta', 'topicId', 'sentimentHue', 'visible'],
-    tokens: ['--sentiment-h', '--sentiment-s', '--sentiment-l', '--ff', '--bg-panel'],
+    description: 'AI commentary text panel with dynamic sentiment coloring (hue-based). Auto-shows on new messages with slide-in animation.',
   },
   {
     name: 'CommentaryViz',
@@ -302,9 +310,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/commentary-viz.js',
     platform: 'overlay',
     category: 'commentary',
-    description: 'Enhanced commentary with Canvas-based telemetry visualization charts and backdrop track image. Shows data context alongside AI-generated text.',
-    props: ['title', 'text', 'meta', 'topicId', 'sentimentHue', 'visible', 'trackImage'],
-    tokens: ['--sentiment-h', '--ff', '--ff-mono', '--bg-panel'],
+    description: 'Enhanced commentary with Canvas-based telemetry visualization charts and backdrop track image.',
   },
   {
     name: 'RaceControl',
@@ -312,19 +318,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/race-control.js',
     platform: 'overlay',
     category: 'commentary',
-    description: 'Full-width flag announcement banner (yellow, red, checkered, black, meatball) with animated stripe pattern and auto-dismiss timer.',
-    props: ['flagState', 'detail'],
-    tokens: ['--ff', '--fw-bold'],
-  },
-  {
-    name: 'RaceEnd',
-    element: 'racecor-race-end',
-    file: 'racecor-overlay/modules/components/race-end.js',
-    platform: 'overlay',
-    category: 'race-info',
-    description: 'Post-race results screen showing finishing position, best lap, incident count, and iRating/SR delta changes. Auto-hides after 30 seconds.',
-    props: ['position', 'totalLaps', 'bestLap', 'incidents', 'iratingDelta', 'srDelta'],
-    tokens: ['--green', '--red', '--ff', '--ff-mono', '--bg'],
+    description: 'Full-width flag banner (yellow, red, checkered, black, meatball) with animated stripe pattern and auto-dismiss.',
   },
 
   // ── Overlay: Visualization ──
@@ -334,9 +328,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/driver-profile.js',
     platform: 'overlay',
     category: 'visualization',
-    description: 'Driver analytics panel with iRating/SR trend sparklines and session statistics (laps, incidents, best lap time).',
-    props: ['driverName', 'licenseClass', 'irating', 'safetyRating', 'iratingHistory', 'srHistory'],
-    tokens: ['--ff-display', '--ff-mono', '--bg-panel', '--border'],
+    description: 'Driver analytics panel with iRating/SR trend sparklines and session statistics.',
   },
   {
     name: 'RaceTimeline',
@@ -344,19 +336,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/race-timeline.js',
     platform: 'overlay',
     category: 'visualization',
-    description: 'Position history heat-map strip showing driver position changes throughout the race with color-coded timeline visualization.',
-    props: ['positionHistory'],
-    tokens: ['--green', '--red', '--amber', '--bg-panel'],
-  },
-  {
-    name: 'SectorHUD',
-    element: 'racecor-sector-hud',
-    file: 'racecor-overlay/modules/components/sector-hud.js',
-    platform: 'overlay',
-    category: 'driving',
-    description: 'Sector time display with color coding: green (faster than best), amber (slower), red (much slower), purple (personal best).',
-    props: ['sectors', 'bestSectors'],
-    tokens: ['--green', '--amber', '--red', '--purple', '--ff-mono'],
+    description: 'Position history heat-map strip showing position changes throughout the race.',
   },
   {
     name: 'WebGL FX',
@@ -364,9 +344,7 @@ const components: ComponentEntry[] = [
     file: 'racecor-overlay/modules/components/webgl-fx.js',
     platform: 'overlay',
     category: 'visualization',
-    description: 'WebGL2 effects engine providing glow, bloom, and ambient lighting post-processing. Renders to overlay canvas composited behind/over other elements.',
-    props: ['mode', 'intensity'],
-    tokens: ['--ambient-r', '--ambient-g', '--ambient-b', '--ambient-lum'],
+    description: 'WebGL2 effects engine for glow, bloom, and ambient lighting post-processing.',
   },
 ]
 
@@ -406,43 +384,47 @@ function CategoryBadge({ category }: { category: Category }) {
 }
 
 function ComponentCard({ entry }: { entry: ComponentEntry }) {
+  const storyUrl = entry.storyId ? `${SB}${entry.storyId}` : null
+
   return (
-    <div className="border border-[var(--border)] rounded-lg bg-[var(--bg-surface)] hover:border-[var(--border-accent)] transition-colors p-5">
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <h3 className="text-base font-bold text-[var(--text)]">{entry.name}</h3>
-          {entry.element && (
-            <code className="text-[10px] text-[var(--text-muted)] font-mono">&lt;{entry.element}&gt;</code>
+    <div className="border border-[var(--border)] rounded-lg bg-[var(--bg-surface)] hover:border-[var(--border-accent)] transition-colors overflow-hidden">
+      {/* Live preview */}
+      {entry.preview && (
+        <div className="border-b border-[var(--border-subtle)] bg-[var(--bg)] p-4">
+          {entry.preview()}
+        </div>
+      )}
+
+      <div className="p-5">
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <h3 className="text-base font-bold text-[var(--text)]">{entry.name}</h3>
+            {entry.element && (
+              <code className="text-[10px] text-[var(--text-muted)] font-mono">&lt;{entry.element}&gt;</code>
+            )}
+          </div>
+          <div className="flex gap-1.5">
+            <PlatformBadge platform={entry.platform} />
+            <CategoryBadge category={entry.category} />
+          </div>
+        </div>
+
+        <p className="text-xs text-[var(--text-dim)] mb-3 leading-relaxed">{entry.description}</p>
+
+        <div className="flex items-center justify-between">
+          <code className="text-[10px] text-[var(--text-muted)] font-mono truncate">{entry.file}</code>
+          {storyUrl && (
+            <a
+              href={storyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] font-medium text-[var(--purple)] hover:underline ml-3 shrink-0"
+            >
+              Open in Storybook ↗
+            </a>
           )}
         </div>
-        <div className="flex gap-1.5">
-          <PlatformBadge platform={entry.platform} />
-          <CategoryBadge category={entry.category} />
-        </div>
       </div>
-
-      <p className="text-xs text-[var(--text-dim)] mb-3 leading-relaxed">{entry.description}</p>
-
-      <code className="block text-[10px] text-[var(--text-muted)] font-mono mb-3 truncate">{entry.file}</code>
-
-      {entry.props && entry.props.length > 0 && (
-        <div className="mb-2">
-          <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Props: </span>
-          <span className="text-[10px] text-[var(--text-dim)] font-mono">
-            {entry.props.join(', ')}
-          </span>
-        </div>
-      )}
-
-      {entry.tokens && entry.tokens.length > 0 && (
-        <div className="flex gap-1 flex-wrap">
-          {entry.tokens.map(t => (
-            <span key={t} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[var(--bg-panel)] text-[var(--text-muted)] border border-[var(--border-subtle)]">
-              {t}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
@@ -480,11 +462,11 @@ export default function ComponentCatalog() {
       {/* Filters */}
       <div className="flex items-center gap-4 mb-8">
         <div className="flex gap-1 border-b border-[var(--border)]">
-          {[
+          {([
             { id: 'all' as Filter, label: 'All', count: components.length },
             { id: 'web' as Filter, label: 'Web', count: components.filter(c => c.platform === 'web').length },
             { id: 'overlay' as Filter, label: 'Overlay', count: components.filter(c => c.platform === 'overlay').length },
-          ].map(tab => (
+          ]).map(tab => (
             <button
               key={tab.id}
               onClick={() => setFilter(tab.id)}
@@ -508,12 +490,23 @@ export default function ComponentCatalog() {
         />
       </div>
 
-      {/* Stats */}
-      <div className="flex gap-6 mb-8 text-xs text-[var(--text-muted)]">
-        <span><strong className="text-[var(--text)]">{filtered.length}</strong> components</span>
-        <span><strong className="text-blue-400">{filtered.filter(c => c.platform === 'web').length}</strong> React</span>
-        <span><strong className="text-purple-400">{filtered.filter(c => c.platform === 'overlay').length}</strong> Web Components</span>
-        <span><strong className="text-[var(--text-dim)]">{grouped.size}</strong> categories</span>
+      {/* Storybook link */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="text-xs text-[var(--text-muted)]">
+          <strong className="text-[var(--text)]">{filtered.length}</strong> components
+          {' · '}
+          <strong className="text-blue-400">{filtered.filter(c => c.platform === 'web').length}</strong> React
+          {' · '}
+          <strong className="text-purple-400">{filtered.filter(c => c.platform === 'overlay').length}</strong> Web Components
+        </div>
+        <a
+          href="http://localhost:6006"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-medium text-[var(--purple)] hover:underline"
+        >
+          Open Storybook ↗
+        </a>
       </div>
 
       {/* Grouped cards */}

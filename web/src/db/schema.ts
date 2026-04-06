@@ -121,6 +121,7 @@ export const raceSessions = pgTable('race_sessions', {
   carModel: varchar('car_model', { length: 128 }).notNull(),
   manufacturer: varchar('manufacturer', { length: 64 }),
   category: varchar('category', { length: 16 }).notNull(),
+  gameName: varchar('game_name', { length: 64 }).default('iracing'),
   trackName: varchar('track_name', { length: 128 }),
   sessionType: varchar('session_type', { length: 32 }),
   finishPosition: integer('finish_position'),

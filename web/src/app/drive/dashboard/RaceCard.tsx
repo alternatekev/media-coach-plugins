@@ -34,6 +34,7 @@ export default function RaceCard({
   const isDNF = !pos || pos === 0
   const incidents = session.incidentCount ?? 0
   const bestLap = meta.bestLapTime
+  const gameName = meta.gameName || 'iRacing'
 
   // Format lap time
   let lapStr = '—'
@@ -72,6 +73,18 @@ export default function RaceCard({
 
   const sessionLabel = (session.sessionType || session.category || '')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
+
+  // Determine game badge text (short form)
+  const getGameBadge = (name: string): string => {
+    const normalized = name.toLowerCase()
+    if (normalized === 'iracing') return 'iR'
+    if (normalized === 'lmu' || normalized === 'lemans unlimited') return 'LMU'
+    if (normalized === 'acc' || normalized === 'assetto corsa competizione') return 'ACC'
+    if (normalized === 'raceroom') return 'R3'
+    if (normalized === 'rfactor' || normalized === 'rfactor2') return 'RF2'
+    if (normalized === 'ams' || normalized === 'automobilista') return 'AMS'
+    return name.substring(0, 3).toUpperCase()
+  }
 
   return (
     <div
@@ -130,8 +143,11 @@ export default function RaceCard({
             )}
             {session.trackName || 'Unknown Track'}
           </div>
-          <div className="text-xs text-[var(--text-dim)] truncate">
-            {session.carModel || 'Unknown Car'}
+          <div className="text-xs text-[var(--text-dim)] truncate flex items-center gap-2">
+            <span>{session.carModel || 'Unknown Car'}</span>
+            <span className="flex-shrink-0 px-1.5 py-0.5 rounded bg-[var(--text-muted)] bg-opacity-20 text-[var(--text-muted)] text-xs font-semibold">
+              {getGameBadge(gameName)}
+            </span>
           </div>
           <div className="text-xs text-[var(--text-muted)] mt-0.5 flex items-center gap-2 flex-wrap">
             <span>{dateStr}</span>

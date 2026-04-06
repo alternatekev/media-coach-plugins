@@ -138,14 +138,35 @@ namespace RaceCorProDrive.Plugin.Engine
             // Fix #14: iRacing reports acceleration in m/s²; dashboard expects G.
             // SimHub normalized values are already in G, so only convert iRacing raw.
             const float MsToG = 1f / 9.80665f;
-            float rawLat  = GetRaw<float>(pm, "LatAccel");
-            float rawLong = GetRaw<float>(pm, "LongAccel");
-            float rawVert = GetRaw<float>(pm, "VertAccel");
-            // If raw values are present (non-zero), they're from iRacing in m/s² → convert to G
+            float rawLat, rawLong, rawVert;
+
+            // LMU: read accelerations from mLocalAccel (array index: x=0 lateral, z=2 longitudinal, y=1 vertical)
+            if (DetectGame(s.GameName) == GameId.LMU)
+            {
+                float[] localAccel = GetRawArray<float>(pm, "Telemetry.mLocalAccel");
+                rawLat = localAccel.Length > 0 ? localAccel[0] : 0f;  // x = lateral
+                rawLong = localAccel.Length > 2 ? localAccel[2] : 0f; // z = longitudinal
+                rawVert = localAccel.Length > 1 ? localAccel[1] : 0f; // y = vertical
+            }
+            else
+            {
+                rawLat  = GetRaw<float>(pm, "LatAccel");
+                rawLong = GetRaw<float>(pm, "LongAccel");
+                rawVert = GetRaw<float>(pm, "VertAccel");
+            }
+
+            // If raw values are present (non-zero), they're from iRacing/LMU in m/s² → convert to G
             s.LatAccel  = rawLat  != 0 ? rawLat  * MsToG : GetNorm<float>(d, "AccelerationSway");
             s.LongAccel = rawLong != 0 ? rawLong * MsToG : GetNorm<float>(d, "AccelerationSurge");
             s.VertAccel = rawVert != 0 ? rawVert * MsToG : GetNorm<float>(d, "AccelerationHeave");
-            s.YawRate   = Coalesce(GetRaw<float>(pm, "YawRate"),   GetNorm<float>(d, "YawVelocity"));
+
+            // YawRate: try game-specific, then fallback to normalized
+            float yawRateRaw = DetectGame(s.GameName) == GameId.LMU
+                ? (GetRawArray<float>(pm, "Telemetry.mLocalRot").Length > 1
+                    ? GetRawArray<float>(pm, "Telemetry.mLocalRot")[1]
+                    : 0f)  // LMU: y = yaw rate in rad/s
+                : GetRaw<float>(pm, "YawRate");
+            s.YawRate = yawRateRaw != 0 ? yawRateRaw : GetNorm<float>(d, "YawVelocity");
 
             // ── Driver aids ──────────────────────────────────────────────────
             s.AbsActive = GetRaw<bool>(pm, "BrakeABSactive") || GetNorm<bool>(d, "ABSActive");
@@ -368,8 +389,8 @@ namespace RaceCorProDrive.Plugin.Engine
             }
             else if (detectedGame == GameId.LMU)
             {
-                // LMU: mUnfilteredSteering is normalized -1 to 1, leave as ratio
-                s.SteeringWheelAngle = GetRaw<float>(pm, "Telemetry.mUnfilteredSteering", "DataCorePlugin.GameRawData.");
+                // LMU: mUnfilteredSteering is -1 to +1 ratio → convert to radians (approx)
+                s.SteeringWheelAngle = GetRaw<float>(pm, "Telemetry.mUnfilteredSteering", "DataCorePlugin.GameRawData.") * (float)Math.PI;
             }
             else
             {
@@ -445,6 +466,11 @@ namespace RaceCorProDrive.Plugin.Engine
                 float r3ePitLimit = GetRaw<float>(pm, "SessionPitSpeedLimit", "DataCorePlugin.GameRawData.");
                 s.PitSpeedLimitKmh = r3ePitLimit > 0 ? r3ePitLimit * 3.6 : 0;
             }
+            else if (detectedGame == GameId.LMU)
+            {
+                // LMU: 60 km/h default pit limit (not exposed in rF2 telemetry)
+                s.PitSpeedLimitKmh = 60f;
+            }
 
             // Track whether this car actually has an ERS system.
             // Non-hybrid cars report 0.0 permanently; reset detection on car change.
@@ -457,13 +483,55 @@ namespace RaceCorProDrive.Plugin.Engine
                 _sessionHasErs = true;
             s.HasErs = _sessionHasErs;
 
-            // Player car index and multi-car arrays (iRacing-only)
+            // Player car index and multi-car arrays
             if (detectedGame == GameId.IRacing)
             {
                 s.PlayerCarIdx = GetRaw<int>(pm, "PlayerCarIdx");
                 s.CarIdxLapDistPct = GetRawArray<float>(pm, "CarIdxLapDistPct");
                 s.CarIdxOnPitRoad = GetRawArray<bool>(pm, "CarIdxOnPitRoad");
                 s.CarIdxLapCompleted = GetRawArray<int>(pm, "CarIdxLapCompleted");
+            }
+            else if (detectedGame == GameId.LMU)
+            {
+                // LMU: Build per-car arrays from rF2 Scoring.mVehicles structure
+                int numVehicles = GetRaw<int>(pm, "Scoring.mScoringInfo.mNumVehicles", "DataCorePlugin.GameRawData.");
+                if (numVehicles > 0)
+                {
+                    var lapDist = new float[numVehicles];
+                    var onPit = new bool[numVehicles];
+                    var lapsCompleted = new int[numVehicles];
+                    int playerIdx = 0;
+
+                    for (int i = 0; i < numVehicles; i++)
+                    {
+                        string veh = $"Scoring.mVehicles[{i}].";
+                        lapDist[i] = GetRaw<float>(pm, veh + "mLapDist", "DataCorePlugin.GameRawData.");
+                        onPit[i] = GetRaw<bool>(pm, veh + "mInPits", "DataCorePlugin.GameRawData.");
+                        lapsCompleted[i] = GetRaw<int>(pm, veh + "mTotalLaps", "DataCorePlugin.GameRawData.");
+                        if (GetRaw<bool>(pm, veh + "mIsPlayer", "DataCorePlugin.GameRawData."))
+                            playerIdx = i;
+                    }
+
+                    // LMU: Normalize lapDist to 0-1 range (rF2 uses meters, divide by track length)
+                    float trackLength = GetRaw<float>(pm, "Scoring.mScoringInfo.mLapDist", "DataCorePlugin.GameRawData.");
+                    if (trackLength > 0)
+                    {
+                        for (int i = 0; i < numVehicles; i++)
+                            lapDist[i] /= trackLength;
+                    }
+
+                    s.PlayerCarIdx = playerIdx;
+                    s.CarIdxLapDistPct = lapDist;
+                    s.CarIdxOnPitRoad = onPit;
+                    s.CarIdxLapCompleted = lapsCompleted;
+                }
+                else
+                {
+                    s.PlayerCarIdx = 0;
+                    s.CarIdxLapDistPct = new float[0];
+                    s.CarIdxOnPitRoad = new bool[0];
+                    s.CarIdxLapCompleted = new int[0];
+                }
             }
             else
             {
@@ -706,7 +774,8 @@ namespace RaceCorProDrive.Plugin.Engine
 
             // Fix #16: ACC cars always have TC and ABS — the iRacing dc* detection
             // never triggers for ACC because ACC uses different property paths (Graphics.TC/ABS).
-            if (detectedGame == GameId.ACC || detectedGame == GameId.ACEvo || detectedGame == GameId.AC || detectedGame == GameId.ACRally)
+            // LMU: rF2 cars with TC/ABS settings should also be marked as having these aids
+            if (detectedGame == GameId.ACC || detectedGame == GameId.ACEvo || detectedGame == GameId.AC || detectedGame == GameId.ACRally || detectedGame == GameId.LMU)
             {
                 _hasTC = true;
                 _hasABS = true;
@@ -804,6 +873,9 @@ namespace RaceCorProDrive.Plugin.Engine
                 case GameId.ACEvo:
                 case GameId.ACRally:
                     return GetRaw<float>(pm, "Graphics.ABS", "DataCorePlugin.GameRawData.");
+                case GameId.LMU:
+                    // LMU: read ABS setting from rF2 telemetry
+                    return GetRaw<float>(pm, "Telemetry.mAntiLockBraking", "DataCorePlugin.GameRawData.");
                 case GameId.RaceRoom:
                     return GetRaw<float>(pm, "ABS", "DataCorePlugin.GameRawData.");
                 case GameId.IRacing:
@@ -845,15 +917,19 @@ namespace RaceCorProDrive.Plugin.Engine
                     // Fix #9: LMU flag support — mGamePhase for session flags, mHighestFlagColor for individual
                     int lmuMask = 0;
                     int gamePhase = GetRaw<int>(pm, "Scoring.mScoringInfo.mGamePhase", "DataCorePlugin.GameRawData.");
-                    // LMU game phases: 5=GreenFlag, 6=FullCourseYellow, 8=FormationLap
+                    // LMU game phases: 5=GreenFlag, 6=FullCourseYellow, 7=SessionStopped, 8=SessionOver
                     if (gamePhase == 5) lmuMask |= 0x0004; // green
                     if (gamePhase == 6) lmuMask |= 0x0008; // yellow
+                    if (gamePhase == 7) lmuMask |= 0x0010; // LMU: red flag (session stopped)
+                    if (gamePhase == 8) lmuMask |= 0x0001; // LMU: checkered flag (session over)
                     int flagColor = GetRaw<int>(pm, "Telemetry.mHighestFlagColor", "DataCorePlugin.GameRawData.");
-                    // 0=none, 1=green, 2=blue, 3=yellow, 5=black, 6=white
+                    // 0=none, 1=green, 2=blue, 3=yellow, 4=red, 5=black, 6=white, 7=checkered
                     if (flagColor == 2) lmuMask |= 0x0020; // blue
                     if (flagColor == 3) lmuMask |= 0x0008; // yellow
+                    if (flagColor == 4) lmuMask |= 0x0010; // LMU: red flag from mHighestFlagColor
                     if (flagColor == 5) lmuMask |= 0x00010000; // black
                     if (flagColor == 6) lmuMask |= 0x0002; // white
+                    if (flagColor == 7) lmuMask |= 0x0001; // LMU: checkered flag from mHighestFlagColor
                     return lmuMask;
                 case GameId.IRacing:
                 default:

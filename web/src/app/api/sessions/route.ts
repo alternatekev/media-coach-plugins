@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     const {
       preRaceIRating, preRaceSR, preRaceLicense,
-      carModel, trackName, sessionType, gameId,
+      carModel, trackName, sessionType, gameId, gameName,
       finishPosition, incidentCount, completedLaps, totalLaps,
       bestLapTime, estimatedIRatingDelta,
       startedAt, finishedAt
@@ -33,6 +33,10 @@ export async function POST(request: NextRequest) {
     if (!carModel || !trackName || !sessionType) {
       return NextResponse.json({ error: 'Missing required session fields' }, { status: 400 })
     }
+
+    // Determine game and whether it's iRacing
+    const normalizedGameName = (gameName || 'iRacing').trim()
+    const isIRacing = normalizedGameName.toLowerCase() === 'iracing'
 
     // Insert race session
     const session = await db.insert(schema.raceSessions).values({
@@ -46,6 +50,7 @@ export async function POST(request: NextRequest) {
       incidentCount: incidentCount || null,
       metadata: {
         gameId,
+        gameName: normalizedGameName,
         preRaceIRating,
         preRaceSR,
         preRaceLicense,
@@ -58,8 +63,8 @@ export async function POST(request: NextRequest) {
       }
     }).returning()
 
-    // Insert rating history snapshot
-    if (preRaceIRating > 0 || preRaceSR > 0) {
+    // Only insert rating history and update driverRatings for iRacing sessions with valid ratings
+    if (isIRacing && (preRaceIRating > 0 || preRaceSR > 0)) {
       await db.insert(schema.ratingHistory).values({
         userId: result.user.id,
         category: _detectCategory(sessionType),
@@ -72,8 +77,8 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Update current ratings
-    if (preRaceIRating > 0) {
+    // Update current ratings only for iRacing sessions with valid ratings
+    if (isIRacing && preRaceIRating > 0) {
       const category = _detectCategory(sessionType)
       const existing = await db.select().from(schema.driverRatings)
         .where(eq(schema.driverRatings.userId, result.user.id))

@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
       carModel, trackName, sessionType, gameId, gameName,
       finishPosition, incidentCount, completedLaps, totalLaps,
       bestLapTime, estimatedIRatingDelta,
-      startedAt, finishedAt
+      startedAt, finishedAt,
+      isPracticeSession, practiceData
     } = body
 
     // Validate required fields
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     const isIRacing = normalizedGameName.toLowerCase() === 'iracing'
     const isLMU = normalizedGameName.toLowerCase() === 'lmu' || normalizedGameName.toLowerCase().includes('le mans') || normalizedGameName.toLowerCase().includes('rfactor')
 
-    // Insert race session
+    // Insert session (race or practice/qualifying/warmup)
     const session = await db.insert(schema.raceSessions).values({
       userId: result.user.id,
       carModel: carModel || 'Unknown',
@@ -61,7 +62,12 @@ export async function POST(request: NextRequest) {
         bestLapTime,
         estimatedIRatingDelta,
         startedAt,
-        finishedAt
+        finishedAt,
+        // Practice/qualifying session data (null for race sessions)
+        ...(isPracticeSession ? {
+          isPracticeSession: true,
+          practiceData: practiceData || null,
+        } : {})
       }
     }).returning()
 

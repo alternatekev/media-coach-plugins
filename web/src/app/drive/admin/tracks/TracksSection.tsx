@@ -221,11 +221,27 @@ function TrackCard({ track, onDelete, deleting, onUpdate }: {
   return (
     <div className="border border-[var(--border)] rounded-lg p-4 bg-[var(--bg-surface)] hover:border-[var(--border-accent)] transition-colors">
       <div className="flex justify-between items-start mb-2">
-        <div className="min-w-0">
-          <h3 className="text-2xl font-bold text-[var(--text)] truncate">{track.trackName}</h3>
-          <div className="flex items-center gap-2">
-            <p className="text-xs text-[var(--text-muted)] truncate">{track.trackId}</p>
-            {track.gameName && <GameBadge game={track.gameName} />}
+        <div className="flex items-start gap-3 min-w-0">
+          {/* Inline logo preview */}
+          {(track.logoSvg || track.hasLogoPng) && (
+            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-[var(--bg-panel)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5">
+              {track.logoSvg ? (
+                <img
+                  src={`data:image/svg+xml,${encodeURIComponent(track.logoSvg)}`}
+                  alt=""
+                  className="max-h-full max-w-full"
+                />
+              ) : (
+                <span className="text-[8px] text-[var(--text-muted)] uppercase">PNG</span>
+              )}
+            </div>
+          )}
+          <div className="min-w-0">
+            <h3 className="text-2xl font-bold text-[var(--text)] truncate">{track.trackName}</h3>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-[var(--text-muted)] truncate">{track.trackId}</p>
+              {track.gameName && <GameBadge game={track.gameName} />}
+            </div>
           </div>
         </div>
         <button

@@ -9,55 +9,78 @@ function UploadForm({ onUploaded }: { onUploaded: () => void }) {
   const [gameName, setGameName] = useState('iracing')
   const [csvText, setCsvText] = useState('')
   const [fileName, setFileName] = useState('')
+  const [shtlFile, setShtlFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null)
 
+  const isShtl = fileName.toLowerCase().endsWith('.shtl')
+
+  const loadFile = (file: File) => {
+    setFileName(file.name)
+    setResult(null)
+    if (file.name.toLowerCase().endsWith('.shtl')) {
+      // .shtl is gzip binary — store the File object, don't read as text
+      setShtlFile(file)
+      setCsvText('')
+      // Pre-fill name from filename as a convenience (server will override with embedded metadata)
+      if (!trackName) {
+        const name = file.name.replace(/\.shtl$/i, '').replace(/[-_]/g, ' ')
+        setTrackName(name)
+      }
+    } else {
+      // .csv — read as plain text
+      setShtlFile(null)
+      if (!trackName) {
+        const name = file.name.replace(/\.csv$/i, '').replace(/[-_]/g, ' ')
+        setTrackName(name)
+        if (!trackId) setTrackId(name.toLowerCase().trim())
+      }
+      const reader = new FileReader()
+      reader.onload = (ev) => setCsvText(ev.target?.result as string || '')
+      reader.readAsText(file)
+    }
+  }
+
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
-    setFileName(file.name)
-    if (!trackName) {
-      const name = file.name.replace(/\.csv$/i, '').replace(/[-_]/g, ' ')
-      setTrackName(name)
-      if (!trackId) setTrackId(name.toLowerCase().trim())
-    }
-    const reader = new FileReader()
-    reader.onload = (ev) => setCsvText(ev.target?.result as string || '')
-    reader.readAsText(file)
+    if (file) loadFile(file)
   }
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     const file = e.dataTransfer.files[0]
-    if (!file) return
-    setFileName(file.name)
-    if (!trackName) {
-      const name = file.name.replace(/\.csv$/i, '').replace(/[-_]/g, ' ')
-      setTrackName(name)
-      if (!trackId) setTrackId(name.toLowerCase().trim())
-    }
-    const reader = new FileReader()
-    reader.onload = (ev) => setCsvText(ev.target?.result as string || '')
-    reader.readAsText(file)
+    if (file) loadFile(file)
+  }
+
+  const reset = () => {
+    setTrackId(''); setTrackName(''); setCsvText(''); setFileName(''); setShtlFile(null)
   }
 
   const submit = async () => {
-    if (!trackId || !trackName || !csvText) return
     setUploading(true)
     setResult(null)
     try {
-      const res = await fetch('/api/admin/tracks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trackId, trackName, rawCsv: csvText, gameName }),
-      })
+      let res: Response
+
+      if (isShtl && shtlFile) {
+        // .shtl upload — send as multipart/form-data; server extracts all metadata from the file
+        const form = new FormData()
+        form.append('file', shtlFile)
+        res = await fetch('/api/admin/tracks/shtl', { method: 'POST', body: form })
+      } else {
+        // CSV upload — send as JSON with manual track ID / name
+        if (!trackId || !trackName || !csvText) return
+        res = await fetch('/api/admin/tracks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ trackId, trackName, rawCsv: csvText, gameName }),
+        })
+      }
+
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Upload failed')
       setResult({ ok: true, message: `${data.status}: ${data.trackId} (${data.pointCount} points)` })
-      setTrackId('')
-      setTrackName('')
-      setCsvText('')
-      setFileName('')
+      reset()
       onUploaded()
     } catch (e) {
       setResult({ ok: false, message: e instanceof Error ? e.message : 'Upload failed' })
@@ -66,36 +89,47 @@ function UploadForm({ onUploaded }: { onUploaded: () => void }) {
     }
   }
 
+  const canSubmit = isShtl ? !!shtlFile : !!(trackId && trackName && csvText)
+
   return (
     <div className="border border-[var(--border)] rounded-lg p-5 bg-[var(--bg-surface)]">
-      <h2 className="text-sm font-bold tracking-wide uppercase text-[var(--text-secondary)] mb-4">Upload Track CSV</h2>
+      <h2 className="text-sm font-bold tracking-wide uppercase text-[var(--text-secondary)] mb-4">Upload Track Map</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <input type="text" placeholder="track id (e.g. sebring international)" value={trackId} onChange={e => setTrackId(e.target.value)}
-          className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded px-3 py-2 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--k10-red)]" />
-        <input type="text" placeholder="Track Name" value={trackName} onChange={e => setTrackName(e.target.value)}
-          className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded px-3 py-2 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--k10-red)]" />
-        <select value={gameName} onChange={e => setGameName(e.target.value)}
-          className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--k10-red)]">
-          <option value="iracing">iRacing</option>
-          <option value="lmu">Le Mans Ultimate</option>
-          <option value="acc">ACC</option>
-        </select>
-      </div>
+      {/* CSV-only fields — hidden when a .shtl file is loaded */}
+      {!isShtl && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <input type="text" placeholder="track id (e.g. sebring international)" value={trackId} onChange={e => setTrackId(e.target.value)}
+            className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded px-3 py-2 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--k10-red)]" />
+          <input type="text" placeholder="Track Name" value={trackName} onChange={e => setTrackName(e.target.value)}
+            className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded px-3 py-2 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--k10-red)]" />
+          <select value={gameName} onChange={e => setGameName(e.target.value)}
+            className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--k10-red)]">
+            <option value="iracing">iRacing</option>
+            <option value="lmu">Le Mans Ultimate</option>
+            <option value="acc">ACC</option>
+          </select>
+        </div>
+      )}
 
       <div onDragOver={e => e.preventDefault()} onDrop={handleDrop}
         className="border-2 border-dashed border-[var(--border)] rounded-lg p-6 text-center mb-4 hover:border-[var(--k10-red)] transition-colors cursor-pointer"
-        onClick={() => document.getElementById('csv-file-input')?.click()}>
-        <input id="csv-file-input" type="file" accept=".csv" onChange={handleFile} className="hidden" />
+        onClick={() => document.getElementById('track-file-input')?.click()}>
+        <input id="track-file-input" type="file" accept=".csv,.shtl" onChange={handleFile} className="hidden" />
         {fileName ? (
-          <p className="text-sm text-[var(--text)]">{fileName} <span className="text-[var(--text-muted)]">({csvText.split('\n').length} lines)</span></p>
+          <div>
+            <p className="text-sm text-[var(--text)]">{fileName}</p>
+            {isShtl
+              ? <p className="text-xs text-[var(--text-muted)] mt-0.5">SimHub track layout — metadata will be read from file</p>
+              : <p className="text-xs text-[var(--text-muted)] mt-0.5">{csvText.split('\n').length} lines</p>
+            }
+          </div>
         ) : (
-          <p className="text-sm text-[var(--text-muted)]">Drop a CSV file here or click to browse</p>
+          <p className="text-sm text-[var(--text-muted)]">Drop a <strong>.csv</strong> or <strong>.shtl</strong> file here, or click to browse</p>
         )}
       </div>
 
       <div className="flex items-center gap-3">
-        <button onClick={submit} disabled={uploading || !trackId || !trackName || !csvText}
+        <button onClick={submit} disabled={uploading || !canSubmit}
           className="px-4 py-2 bg-[var(--k10-red)] text-white text-sm font-medium rounded hover:brightness-110 transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">
           {uploading ? 'Uploading...' : 'Upload & Generate SVG'}
         </button>

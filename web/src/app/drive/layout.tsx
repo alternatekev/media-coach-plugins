@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import DriveNav from '@/components/DriveNav'
 
 export const metadata: Metadata = {
   title: 'RaceCor.io Pro Drive',
@@ -7,9 +8,9 @@ export const metadata: Metadata = {
 
 export default function DriveLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      {/* Drive app navigation will go here (auth-gated) */}
+    <div className="min-h-screen bg-[var(--bg)]">
+      <DriveNav />
       {children}
-    </>
+    </div>
   )
 }

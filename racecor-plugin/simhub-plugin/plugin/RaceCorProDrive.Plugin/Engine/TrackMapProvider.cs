@@ -133,10 +133,25 @@ namespace RaceCorProDrive.Plugin.Engine
                 return;
             }
 
+            // Try to load from our bundled trackmaps directory (racecorprodrive-data/trackmaps/)
+            if (TryLoadFromBundledMaps(trackId))
+            {
+                SimHub.Logging.Current.Info($"[RaceCorProDrive] Loaded track map for '{trackId}' from bundled maps");
+                return;
+            }
+
             // Try to load from our own cache
             if (TryLoadFromOwnCache(trackId))
             {
                 SimHub.Logging.Current.Info($"[RaceCorProDrive] Loaded track map for '{trackId}' from K10 cache");
+                return;
+            }
+
+            // Try to fetch from the K10 web app (track management database)
+            if (TryLoadFromWebApi(trackId))
+            {
+                // Also save locally so we don't hit the network next time
+                SaveToOwnCache(trackId);
                 return;
             }
 
@@ -947,6 +962,69 @@ namespace RaceCorProDrive.Plugin.Engine
             }
 
             return count;
+        }
+
+        // ── Web API: K10 cloud track map ───────────────────────────────────
+
+        private const string CloudApiBase = "https://prodrive.racecor.io/api/tracks";
+
+        /// <summary>
+        /// Fetch track map CSV from the K10 web app and load it.
+        /// Called during OnTrackChanged when no local map is found.
+        /// The API returns rawCsv (WorldX,WorldZ,LapDistPct lines) in the same
+        /// format used by bundled and own-cache CSV files.
+        /// </summary>
+        private bool TryLoadFromWebApi(string trackId)
+        {
+            if (string.IsNullOrEmpty(trackId)) return false;
+
+            try
+            {
+                string url = CloudApiBase + "?trackName=" + Uri.EscapeDataString(trackId.Trim());
+                var request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+                request.Method = "GET";
+                request.Timeout = 5000;
+                request.UserAgent = "RaceCorProDrive-Plugin";
+
+                string json;
+                using (var response = (System.Net.HttpWebResponse)request.GetResponse())
+                using (var reader = new System.IO.StreamReader(response.GetResponseStream()))
+                    json = reader.ReadToEnd();
+
+                // Extract rawCsv field — look for "rawCsv":"<value>" (value may be null or a multiline string)
+                var csvMatch = System.Text.RegularExpressions.Regex.Match(
+                    json, "\"rawCsv\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"",
+                    System.Text.RegularExpressions.RegexOptions.Singleline);
+
+                if (!csvMatch.Success) return false;
+
+                // Unescape JSON string escapes (\n → newline, \r → carriage return)
+                string rawCsv = csvMatch.Groups[1].Value
+                    .Replace("\\n", "\n")
+                    .Replace("\\r", "\r")
+                    .Replace("\\\"", "\"")
+                    .Replace("\\\\", "\\");
+
+                if (string.IsNullOrWhiteSpace(rawCsv)) return false;
+
+                // Parse as a CSV and load
+                string tmpPath = Path.Combine(Path.GetTempPath(), "racecor_trackmap_" + Guid.NewGuid().ToString("N") + ".csv");
+                File.WriteAllText(tmpPath, rawCsv);
+                bool loaded = TryLoadCsvMap(tmpPath);
+                try { File.Delete(tmpPath); } catch { }
+
+                if (loaded)
+                    SimHub.Logging.Current.Info($"[RaceCorProDrive] Loaded track map for '{trackId}' from K10 web API");
+                else
+                    SimHub.Logging.Current.Warn($"[RaceCorProDrive] K10 web API returned rawCsv for '{trackId}' but it failed to parse");
+
+                return loaded;
+            }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[RaceCorProDrive] Web API track map fetch failed for '{trackId}': {ex.Message}");
+                return false;
+            }
         }
 
         // ── File I/O: SimHub map cache ─────────────────────────────────────

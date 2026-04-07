@@ -4,6 +4,20 @@ import { useEffect, useState, useCallback } from 'react'
 
 const SET_COOKIE = 'racecor-theme-set'
 
+// Hardcoded defaults for the "default" theme set (no brand)
+const DEFAULT_BACKGROUNDS: Record<string, BackgroundData> = {
+  light: {
+    url: 'https://images.unsplash.com/photo-1467277378664-19a209d31b02?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    photographer: 'Gijs Coolen',
+    photographerUrl: 'https://unsplash.com/@gijsparadijs',
+  },
+  dark: {
+    url: 'https://images.unsplash.com/photo-1475701838571-da463ac4e5fa?q=80&w=2170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    photographer: 'Jairph',
+    photographerUrl: 'https://unsplash.com/@jairph',
+  },
+}
+
 interface BackgroundData {
   url: string
   photographer: string
@@ -30,8 +44,13 @@ export default function DashboardBackground() {
     const brand = brandOverride || readCookie(SET_COOKIE) || ''
 
     if (!brand || brand === 'default') {
-      setBg(null)
+      // Use hardcoded default backgrounds
+      const fallback = DEFAULT_BACKGROUNDS[currentTheme] || DEFAULT_BACKGROUNDS.dark
+      setBg(fallback)
       setLoaded(false)
+      const img = new Image()
+      img.onload = () => setLoaded(true)
+      img.src = fallback.url
       return
     }
 

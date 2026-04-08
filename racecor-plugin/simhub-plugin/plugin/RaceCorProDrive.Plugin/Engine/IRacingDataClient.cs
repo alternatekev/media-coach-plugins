@@ -109,11 +109,15 @@ namespace RaceCorProDrive.Plugin.Engine
                 string encodedPassword = Convert.ToBase64String(hashBytes);
 
                 // POST to auth endpoint
+                // iRacing's API requires browser-like headers; custom User-Agents get 405'd
                 var request = (HttpWebRequest)WebRequest.Create(AUTH_URL);
                 request.Method = "POST";
                 request.ContentType = "application/json";
+                request.Accept = "application/json";
                 request.CookieContainer = _cookies;
-                request.UserAgent = "RaceCorProDrive/1.0";
+                request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+                request.Headers.Add("Origin", "https://members-ng.iracing.com");
+                request.Referer = "https://members-ng.iracing.com/";
 
                 string body = JsonConvert.SerializeObject(new
                 {
@@ -344,7 +348,7 @@ namespace RaceCorProDrive.Plugin.Engine
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "GET";
             request.CookieContainer = _cookies;
-            request.UserAgent = "RaceCorProDrive/1.0";
+            request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
             request.Accept = "application/json";
 
             using (var response = (HttpWebResponse)request.GetResponse())

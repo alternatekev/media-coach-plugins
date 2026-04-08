@@ -1120,6 +1120,9 @@ namespace RaceCorProDrive.Plugin
                             }
                             else if (_iracingData.Authenticate(email, password))
                             {
+                                // Persist credentials so future sessions auto-authenticate
+                                Settings.IRacingEmail = email;
+                                Settings.IRacingPassword = password;
                                 authResultJson = "{\"ok\":true}";
                             }
                             else

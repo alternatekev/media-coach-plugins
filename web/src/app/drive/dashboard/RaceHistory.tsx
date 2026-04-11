@@ -133,7 +133,7 @@ export default function RaceHistory({
             ))}
           </div>
         ) : (
-          <RaceListView cards={displayCards} />
+          <RaceListView cards={displayCards} lookups={lookups} />
         )
       ) : (
         <div className="p-8 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-center">

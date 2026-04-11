@@ -14,7 +14,12 @@ import SessionLengthCards from "./SessionLengthCards";
 
 import IRatingTimeline, { type RatingHistoryPoint } from "./IRatingTimeline";
 import DataManagement from "./DataManagement";
+import WhenInsightsPanel from "./WhenInsightsPanel";
+import DataStrip from "./DataStrip";
+import RecentMoments from "./RecentMoments";
 import { getCarImage, getTrackImage } from "@/lib/commentary-images";
+import { computeWhenProfile, generateWhenInsights } from "@/lib/when-engine";
+import { detectMoments, type Moment, type SessionRecord as MomentSession, type RatingRecord as MomentRating } from "@/lib/moments";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -219,6 +224,72 @@ export default async function DashboardPage() {
     }
   }
 
+  // ── When-engine insights ────────────────────────────────────────────────────
+  let whenInsights: { type: 'positive' | 'negative' | 'neutral'; text: string }[] = []
+  let safetyRatingByCategory: { category: string; safetyRating: string; license: string }[] = []
+  if (isPluginConnected && dbUser && allSessions.length >= 5) {
+    const fullRatingHistory = await db
+      .select()
+      .from(schema.ratingHistory)
+      .where(eq(schema.ratingHistory.userId, dbUser.id))
+      .orderBy(desc(schema.ratingHistory.createdAt))
+
+    const profile = computeWhenProfile(
+      JSON.parse(JSON.stringify(allSessions)),
+      JSON.parse(JSON.stringify(fullRatingHistory)),
+    )
+    whenInsights = generateWhenInsights(profile)
+
+    // Latest safety rating + license per category
+    const seenSR = new Set<string>()
+    for (const row of fullRatingHistory) {
+      if (!seenSR.has(row.category)) {
+        seenSR.add(row.category)
+        safetyRatingByCategory.push({
+          category: row.category,
+          safetyRating: row.safetyRating,
+          license: row.license,
+        })
+      }
+    }
+  }
+
+  // ── Moments (latest 3 by date) ──────────────────────────────────────────────
+  let recentMoments: Moment[] = []
+  if (isPluginConnected && dbUser && allSessions.length > 0) {
+    const fullRH = await db
+      .select()
+      .from(schema.ratingHistory)
+      .where(eq(schema.ratingHistory.userId, dbUser.id))
+      .orderBy(desc(schema.ratingHistory.createdAt))
+
+    const momentSessions: MomentSession[] = allSessions.map(s => ({
+      id: s.id,
+      carModel: s.carModel,
+      trackName: s.trackName || 'Unknown Track',
+      finishPosition: s.finishPosition || undefined,
+      incidentCount: s.incidentCount || 0,
+      metadata: s.metadata ? (typeof s.metadata === 'string' ? JSON.parse(s.metadata) : s.metadata) as MomentSession['metadata'] : undefined,
+      createdAt: s.createdAt,
+      gameName: s.gameName || 'iracing',
+      sessionType: s.sessionType || 'race',
+    }))
+
+    const momentRatings: MomentRating[] = fullRH.map(r => ({
+      iRating: r.iRating,
+      prevIRating: r.prevIRating ?? 0,
+      prevLicense: r.prevLicense || undefined,
+      license: r.license,
+      createdAt: r.createdAt,
+    }))
+
+    const allMoments = detectMoments(momentSessions, momentRatings)
+    // Sort by date desc for "latest 5"
+    recentMoments = [...allMoments]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5)
+  }
+
   // ── Visualization data (all sessions + rating deltas) ───────────────────────
   let vizData: SessionDataPoint[] = [];
   let dnaSessionData: { finishPosition: number | null; incidentCount: number | null; metadata: Record<string, any> | null; carModel: string; trackName: string | null; gameName: string | null; createdAt: string }[] = [];
@@ -390,20 +461,35 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen relative">
+      {isPluginConnected && allSessions.length > 0 && (
+        <DataStrip
+          displayName={displayName}
+          raceCount={raceCount}
+          totalLaps={careerStats.totalLaps}
+          iRatingByCategory={iRatingByCategory}
+          safetyRatingByCategory={safetyRatingByCategory}
+          careerSpan={careerStats.careerSpan}
+          uniqueGames={careerStats.uniqueGames}
+          uniqueTracks={careerStats.uniqueTracks}
+          uniqueCars={careerStats.uniqueCars}
+          iRatingHistory={iRatingFullHistory}
+          insights={whenInsights}
+        />
+      )}
       <div className="max-w-[120rem] mx-auto px-6 py-12">
         {isPluginConnected ? (
           <>
-            {/* Welcome */}
+            {/* Welcome + Recent Moments */}
             <section className="mb-12">
-              <h1
-                className="text-3xl font-black mb-2"
-                style={{ fontFamily: "var(--ff-display)" }}
-              >
-                Welcome, {displayName}
-              </h1>
-              <p className="text-[var(--text-dim)]">
-                Your overlay is connected and sending data to Pro Drive.
-              </p>
+              {recentMoments.length > 0 && (
+                <RecentMoments
+                  moments={recentMoments}
+                  trackMapLookup={trackMapLookup}
+                  trackLogoLookup={trackLogoLookup}
+                  trackDisplayNameLookup={trackDisplayNameLookup}
+                  brandLogoLookup={brandLogoLookup}
+                />
+              )}
             </section>
 
             {/* Visualizations — Calendar Heatmap + Scatter Grid */}
@@ -418,71 +504,7 @@ export default async function DashboardPage() {
               </section>
             )}
 
-            {/* iRating Timeline */}
-            {iRatingFullHistory.length > 0 && (
-              <section className="mb-12">
-                <IRatingTimeline history={iRatingFullHistory} />
-              </section>
-            )}
-
-            {/* Career Summary */}
-            {allSessions.length > 0 && (
-              <section className="mb-12">
-                <h2
-                  className="font-bold flex items-center gap-2 mb-4"
-                  style={{ fontSize: '23px' }}
-                >
-                  <Trophy size={24} className="text-[var(--border-accent)]" />
-                  Career Summary
-                </h2>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
-                  <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                    <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2">Total Races</div>
-                    <div className="text-2xl font-black" style={{ fontFamily: 'var(--ff-mono)' }}>{raceCount}</div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                    <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2">Total Laps</div>
-                    <div className="text-2xl font-black" style={{ fontFamily: 'var(--ff-mono)' }}>{careerStats.totalLaps.toLocaleString()}</div>
-                  </div>
-                  {iRatingByCategory.map(({ category, iRating }) => {
-                    const label: Record<string, string> = {
-                      road: 'Road iR',
-                      oval: 'Oval iR',
-                      dirt_road: 'Dirt Road iR',
-                      dirt_oval: 'Dirt Oval iR',
-                      sports_car: 'Sports Car iR',
-                    }
-                    return (
-                      <div key={category} className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                        <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2">{label[category] || `${category} iR`}</div>
-                        <div className="text-2xl font-black" style={{ fontFamily: 'var(--ff-mono)' }}>{iRating.toLocaleString()}</div>
-                      </div>
-                    )
-                  })}
-                  {careerStats.careerSpan && (
-                    <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                      <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2">Career Span</div>
-                      <div className="text-2xl font-black">{careerStats.careerSpan}</div>
-                    </div>
-                  )}
-                  {careerStats.uniqueGames > 1 && (
-                    <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                      <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2">Games</div>
-                      <div className="text-2xl font-black" style={{ fontFamily: 'var(--ff-mono)' }}>{careerStats.uniqueGames}</div>
-                    </div>
-                  )}
-                  <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                    <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2">Tracks</div>
-                    <div className="text-2xl font-black" style={{ fontFamily: 'var(--ff-mono)' }}>{careerStats.uniqueTracks}</div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                    <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-2">Unique Cars</div>
-                    <div className="text-2xl font-black" style={{ fontFamily: 'var(--ff-mono)' }}>{careerStats.uniqueCars}</div>
-                  </div>
-                </div>
-              </section>
-            )}
+            {/* iRating timeline + career summary replaced by DataStrip sparklines */}
 
             {/* Race History — card grid / list toggle */}
             <RaceHistory

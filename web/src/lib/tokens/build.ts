@@ -50,10 +50,15 @@ export async function buildTokens(setSlug: string = 'default'): Promise<BuildRes
   const results: BuildResult[] = []
 
   for (const platform of ['web', 'overlay'] as const) {
-    // Filter tokens for this platform
-    const platformTokens = baseTokens.filter(
-      (t) => t.platforms === 'both' || t.platforms === platform
-    )
+    // Filter tokens for this platform.
+    // Typography tokens (font sizes, weights, families) are only emitted for
+    // the 'default' set — all other theme sets inherit them from default's
+    // :root block so team themes don't clobber the base type scale.
+    const platformTokens = baseTokens.filter((t) => {
+      if (t.platforms !== 'both' && t.platforms !== platform) return false
+      if (setSlug !== 'default' && t.category === 'typography') return false
+      return true
+    })
 
     // ── Dark theme = base tokens + dark overrides for this set ──
     const resolvedDarkTokens = platformTokens.map((t) => ({

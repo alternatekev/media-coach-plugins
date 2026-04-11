@@ -14,7 +14,6 @@ const NAV_ITEMS = [
   { href: '/drive/dashboard', label: 'Dashboard', icon: LayoutDashboard },
 
   { href: '/drive/dna', label: 'DNA', icon: Dna },
-  { href: '/drive/when', label: 'When', icon: CalendarClock },
   { href: '/drive/tracks', label: 'Tracks & Cars', icon: MapPin },
   { href: '/drive/moments', label: 'Moments', icon: Sparkles },
 ]
@@ -43,7 +42,6 @@ export default function DriveNavLinks() {
             `}
           >
             <Icon size={24} />
-            <span className="uppercase tracking-wide">{item.label}</span>
           </Link>
         )
       })}

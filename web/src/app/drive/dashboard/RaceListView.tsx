@@ -22,6 +22,23 @@ interface DisplayCard {
   practiceSession?: RaceSession
 }
 
+interface BrandInfo {
+  logoSvg: string | null
+  logoPng: string | null
+  brandColorHex: string | null
+  manufacturerName: string
+}
+
+interface CardLookups {
+  trackMapLookup: Record<string, string>
+  carImageLookup: Record<string, string | null>
+  trackImageLookup: Record<string, string | null>
+  trackLogoLookup: Record<string, string>
+  trackDisplayNameLookup: Record<string, string>
+  brandLogoLookup: Record<string, BrandInfo>
+  iRatingHistory: number[]
+}
+
 // ── Badge helpers ──────────────────────────────────────────────────────────────
 
 function getGameBadgeColor(gameName: string): { bg: string; text: string; badge: string } {
@@ -55,12 +72,14 @@ const isPractice = (s: RaceSession) =>
   (s.sessionType || s.category || '').toLowerCase().includes('practice')
 
 // ── Grid column template ──────────────────────────────────────────────────────
-// Date | Track+Car | Lap | Game | Pos | iR Δ | Inc | +P
+// Date | Track Logo + Track+Car (with brand logo) | Lap | Game | Pos | iR Δ | Inc | +P
 const GRID_COLS = '48px 1fr 72px 36px 44px 48px 28px 20px'
+
+const trackKey = (name: string | null) => (name || '').toLowerCase()
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export default function RaceListView({ cards }: { cards: DisplayCard[] }) {
+export default function RaceListView({ cards, lookups }: { cards: DisplayCard[]; lookups: CardLookups }) {
   const grouped = useMemo(() => {
     const map: Record<string, DisplayCard[]> = {}
     for (const card of cards) {
@@ -112,11 +131,45 @@ export default function RaceListView({ cards }: { cards: DisplayCard[] }) {
                     {formatDate(session.createdAt)}
                   </div>
 
-                  {/* Col 2 — Track + Car (flexible) */}
+                  {/* Col 2 — Track + Car with logos (flexible) */}
                   <div className="min-w-0 flex items-center gap-2">
+                    {/* Track logo */}
+                    {(() => {
+                      const tKey = trackKey(session.trackName)
+                      const trackLogoSvg = lookups.trackLogoLookup[tKey]
+                      if (trackLogoSvg) {
+                        return (
+                          <img
+                            src={`data:image/svg+xml,${encodeURIComponent(trackLogoSvg)}`}
+                            alt=""
+                            className="w-4 h-4 flex-shrink-0 opacity-60"
+                          />
+                        )
+                      }
+                      return null
+                    })()}
                     <span className="text-sm font-semibold text-[var(--text-secondary)] truncate">
-                      {session.trackName || 'Unknown Track'}
+                      {lookups.trackDisplayNameLookup[trackKey(session.trackName)] || session.trackName || 'Unknown Track'}
                     </span>
+                    <span className="text-white/10 flex-shrink-0">·</span>
+                    {/* Brand logo */}
+                    {(() => {
+                      const brandInfo = lookups.brandLogoLookup[session.carModel]
+                      if (!brandInfo) return null
+                      const src = brandInfo.logoSvg
+                        ? `data:image/svg+xml,${encodeURIComponent(brandInfo.logoSvg)}`
+                        : brandInfo.logoPng
+                          ? `data:image/png;base64,${brandInfo.logoPng}`
+                          : null
+                      if (!src) return null
+                      return (
+                        <img
+                          src={src}
+                          alt={brandInfo.manufacturerName}
+                          className="h-3.5 w-auto flex-shrink-0 opacity-50"
+                        />
+                      )
+                    })()}
                     <span className="text-xs text-[var(--text-dim)] truncate hidden sm:inline">
                       {session.carModel || 'Unknown Car'}
                     </span>

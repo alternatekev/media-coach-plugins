@@ -98,19 +98,7 @@ export default function DriverDNAPage({ sessions, ratingHistory }: Props) {
             </p>
           </div>
 
-          {/* Grayed out radar for visual reference */}
-          <div className="mt-12 rounded-lg p-8" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', borderWidth: '1px' }}>
-            <div className="opacity-30">
-              <ResponsiveContainer width="100%" height={400}>
-                <RadarChart data={radarData}>
-                  <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                  <PolarAngleAxis dataKey="dimension" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 12 }} />
-                  <PolarRadiusAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} domain={[0, 100]} />
-                  <Radar name="Driver DNA" dataKey="value" stroke="#e53935" fill="#e53935" fillOpacity={0.25} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+
         </div>
       </div>
     )
@@ -132,29 +120,6 @@ export default function DriverDNAPage({ sessions, ratingHistory }: Props) {
               {archetype.description}
             </p>
           </div>
-        </div>
-
-        {/* Radar Chart */}
-        <div
-          className="rounded-lg p-8 mb-12"
-          style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', borderWidth: '1px' }}
-        >
-          <ResponsiveContainer width="100%" height={400}>
-            <RadarChart data={radarData}>
-              <PolarGrid stroke="rgba(255,255,255,0.1)" />
-              <PolarAngleAxis dataKey="dimension" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 12 }} />
-              <PolarRadiusAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} domain={[0, 100]} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                }}
-                labelStyle={{ color: 'var(--text)' }}
-              />
-              <Radar name="Driver DNA" dataKey="value" stroke="#e53935" fill="#e53935" fillOpacity={0.25} />
-            </RadarChart>
-          </ResponsiveContainer>
         </div>
 
         {/* Dimension Breakdown Grid */}

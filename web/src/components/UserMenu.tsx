@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Settings, LogOut, ChevronDown, Upload, Check, AlertCircle, Loader2 } from 'lucide-react'
+import { Settings, LogOut, ChevronDown, Upload, Check, AlertCircle, Loader2, Trash2 } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import ThemeSetSelector from '@/components/ThemeSetSelector'
 
@@ -20,6 +20,8 @@ export default function UserMenu({ user, signOutAction }: UserMenuProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [importStatus, setImportStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
   const [importMsg, setImportMsg] = useState<string | null>(null)
+  const [resetStatus, setResetStatus] = useState<'idle' | 'confirm' | 'resetting' | 'done'>('idle')
+  const [resetMsg, setResetMsg] = useState<string | null>(null)
 
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
@@ -70,6 +72,32 @@ export default function UserMenu({ user, signOutAction }: UserMenuProps) {
     // Reset file input so the same file can be re-selected
     e.target.value = ''
   }, [])
+
+  const handleResetRatings = useCallback(async () => {
+    if (resetStatus === 'idle') {
+      setResetStatus('confirm')
+      return
+    }
+    if (resetStatus !== 'confirm') return
+    setResetStatus('resetting')
+    try {
+      const res = await fetch('/api/ratings/reset', { method: 'POST' })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setResetStatus('done')
+        setResetMsg(`Cleared ${data.deleted.historyRows} history + ${data.deleted.ratingRows} rating rows`)
+        setTimeout(() => { setResetStatus('idle'); setResetMsg(null) }, 3000)
+      } else {
+        setResetMsg(data.error || 'Reset failed')
+        setResetStatus('idle')
+        setTimeout(() => setResetMsg(null), 4000)
+      }
+    } catch {
+      setResetMsg('Network error')
+      setResetStatus('idle')
+      setTimeout(() => setResetMsg(null), 4000)
+    }
+  }, [resetStatus])
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
@@ -159,6 +187,40 @@ export default function UserMenu({ user, signOutAction }: UserMenuProps) {
               <div className="flex items-center gap-1.5">
                 <AlertCircle size={13} style={{ color: '#ef5350' }} />
                 <span className="text-xs text-[var(--text-dim)]">{importMsg}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Reset iRacing Data */}
+          <div className="px-3 py-1.5">
+            {resetStatus === 'idle' && (
+              <button
+                onClick={handleResetRatings}
+                className="flex items-center gap-2 text-xs font-medium text-[var(--text-muted)] hover:text-red-400 transition-colors cursor-pointer"
+              >
+                <Trash2 size={14} />
+                {resetMsg || 'Reset iRacing Data'}
+              </button>
+            )}
+            {resetStatus === 'confirm' && (
+              <button
+                onClick={handleResetRatings}
+                className="flex items-center gap-2 text-xs font-medium text-red-400 cursor-pointer"
+              >
+                <Trash2 size={14} />
+                Click again to confirm
+              </button>
+            )}
+            {resetStatus === 'resetting' && (
+              <div className="flex items-center gap-2">
+                <Loader2 size={14} className="animate-spin text-red-400" />
+                <span className="text-xs text-[var(--text-dim)]">Resetting...</span>
+              </div>
+            )}
+            {resetStatus === 'done' && (
+              <div className="flex items-center gap-1.5">
+                <Check size={13} style={{ color: '#66bb6a' }} />
+                <span className="text-xs font-medium" style={{ color: '#66bb6a' }}>{resetMsg}</span>
               </div>
             )}
           </div>

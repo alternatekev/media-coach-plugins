@@ -152,9 +152,9 @@ export default function IRatingTimeline({ history }: Props) {
               color: '#fff',
               fontSize: '12px',
             }}
-            formatter={(value: number | undefined, name: string) => [
-              value != null ? value.toLocaleString() : '—',
-              CATEGORY_META[name]?.label ?? name,
+            formatter={(value, name) => [
+              value != null ? Number(value).toLocaleString() : '—',
+              CATEGORY_META[String(name)]?.label ?? String(name),
             ]}
           />
           {categories.length > 1 && (

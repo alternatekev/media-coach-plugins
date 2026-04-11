@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Upsert driver rating
+    // Upsert driver rating (current values)
     const existing = await db.select().from(schema.driverRatings)
       .where(eq(schema.driverRatings.userId, result.user.id))
       .limit(1)
@@ -42,7 +42,26 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({ success: true, timestamp: new Date().toISOString() })
+    // Also record a history point so we build up iRating history over time
+    if (iRating > 0) {
+      try {
+        await db.insert(schema.ratingHistory).values({
+          userId: result.user.id,
+          category,
+          iRating: Math.round(iRating),
+          safetyRating: String(safetyRating || '0.00'),
+          license: license || 'R',
+          sessionType: category,
+          trackName: null,
+          carModel: null,
+          createdAt: new Date(),
+        })
+      } catch {
+        // Ignore duplicate/constraint errors — history point may already exist
+      }
+    }
+
+    return NextResponse.json({ success: true, timestamp: new Date().toISOString(), historyRecorded: iRating > 0 })
   } catch (err) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }

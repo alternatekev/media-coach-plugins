@@ -113,7 +113,7 @@ export default function IRacingQuickImport() {
                 Import iRacing Data
               </span>
             </div>
-            <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
               Go to <span className="text-[var(--text-dim)]">iRacing &rarr; Results &rarr; Download JSON</span> and drop the file here. Tracks are auto-mapped to your Pro Drive library.
             </p>
           </div>
@@ -141,7 +141,7 @@ export default function IRacingQuickImport() {
               className="hidden"
             />
             <Upload size={14} className="mx-auto mb-1 text-[var(--text-muted)]" />
-            <p className="text-[10px] text-[var(--text-muted)] leading-tight">
+            <p className="text-xs text-[var(--text-muted)] leading-tight">
               Drop .json
             </p>
           </div>
@@ -165,14 +165,14 @@ export default function IRacingQuickImport() {
               {result.imported?.sessions ?? 0} sessions imported
             </span>
             {result.trackMappings && (
-              <span className="text-[10px] text-[var(--text-muted)] ml-1">
+              <span className="text-xs text-[var(--text-muted)] ml-1">
                 · {Object.keys(result.trackMappings).length} tracks mapped
               </span>
             )}
           </div>
           <button
             onClick={reset}
-            className="text-[11px] text-[var(--text-dim)] hover:text-[var(--text-primary)] transition-colors shrink-0"
+            className="text-sm text-[var(--text-dim)] hover:text-[var(--text-primary)] transition-colors shrink-0"
           >
             Import more
           </button>
@@ -189,7 +189,7 @@ export default function IRacingQuickImport() {
           </div>
           <button
             onClick={reset}
-            className="text-[11px] text-[var(--text-dim)] hover:text-[var(--text-primary)] transition-colors shrink-0 ml-3"
+            className="text-sm text-[var(--text-dim)] hover:text-[var(--text-primary)] transition-colors shrink-0 ml-3"
           >
             Try again
           </button>

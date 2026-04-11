@@ -762,22 +762,38 @@ export default function TokenEditor() {
     setError(null)
 
     try {
-      const buildRes = await fetch('/api/admin/tokens/build', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ setSlug: activeSetSlug }),
-      })
-      if (!buildRes.ok) throw new Error('Build failed')
+      let built = 0
+      let failed = 0
 
-      const buildData = await buildRes.json()
+      for (const set of themeSets) {
+        try {
+          const buildRes = await fetch('/api/admin/tokens/build', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ setSlug: set.slug }),
+          })
+          if (!buildRes.ok) throw new Error(`Build failed for ${set.slug}`)
 
-      // Find the web platform build URL and tell ThemeSetEffects to load it
-      const webBuild = buildData.builds?.find((b: { platform: string; url: string }) => b.platform === 'web')
-      window.dispatchEvent(new CustomEvent('theme-css-rebuilt', {
-        detail: { setSlug: activeSetSlug, cssUrl: webBuild?.url || null },
-      }))
+          const buildData = await buildRes.json()
 
-      setSuccess(`CSS rebuilt for "${buildData.setSlug}". ${buildData.builds?.length || 0} platform(s) updated.`)
+          // If the active set was just built, update the live preview
+          if (set.slug === activeSetSlug) {
+            const webBuild = buildData.builds?.find((b: { platform: string; url: string }) => b.platform === 'web')
+            window.dispatchEvent(new CustomEvent('theme-css-rebuilt', {
+              detail: { setSlug: activeSetSlug, cssUrl: webBuild?.url || null },
+            }))
+          }
+
+          built++
+        } catch {
+          failed++
+        }
+      }
+
+      const msg = failed
+        ? `Rebuilt ${built}/${themeSets.length} theme sets (${failed} failed).`
+        : `Rebuilt all ${built} theme sets.`
+      setSuccess(msg)
       setTimeout(() => setSuccess(null), 4000)
     } catch (e) {
       setError(String(e))
@@ -933,7 +949,7 @@ export default function TokenEditor() {
             disabled={saving || buildingAll}
             className="px-4 py-2 border border-[var(--border)] text-[var(--text-secondary)] text-sm font-bold uppercase tracking-wider rounded-md hover:border-[var(--border-accent)] transition-colors disabled:opacity-50"
           >
-            {saving ? 'Building...' : 'Rebuild CSS'}
+            {saving ? `Building ${themeSets.length} sets...` : 'Rebuild All CSS'}
           </button>
           <button
             onClick={handleRebuildAll}

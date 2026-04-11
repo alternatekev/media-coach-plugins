@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using GameReaderCommon;
+using Newtonsoft.Json.Linq;
 using RaceCorProDrive.Plugin.Engine;
 using SimHub.Plugins;
 
@@ -89,6 +90,11 @@ namespace RaceCorProDrive.Plugin
 
         // Screen color sampler — replaces Electron desktopCapturer for ambient light
         private readonly ScreenColorSampler _screenColorSampler = new ScreenColorSampler();
+
+        // Week Planner cache — season schedule for next-race-ideas
+        private JToken _weekPlannerCache = null;
+        private DateTime _weekPlannerCacheTime = DateTime.MinValue;
+        private static readonly TimeSpan WeekPlannerCacheDuration = TimeSpan.FromHours(6);
 
         // ── Track map queries (for settings UI) ─────────────────────────────
 
@@ -1094,6 +1100,58 @@ namespace RaceCorProDrive.Plugin
                         ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                         ctx.Response.StatusCode = 200;
                         ctx.Response.OutputStream.Write(latestBytes, 0, latestBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    // ── Week Planner — cached season schedule for next-race-ideas ──
+                    if (action == "weekPlanner")
+                    {
+                        string resultJson;
+                        try
+                        {
+                            if (_weekPlannerCache != null && (DateTime.UtcNow - _weekPlannerCacheTime) < WeekPlannerCacheDuration)
+                            {
+                                resultJson = "{\"ok\":true,\"cached\":true,\"data\":" + _weekPlannerCache.ToString(Newtonsoft.Json.Formatting.None) + "}";
+                            }
+                            else
+                            {
+                                if (!_iracingData.IsAuthenticated)
+                                {
+                                    _iracingData.TryLoadLocalCookies();
+                                }
+                                if (!_iracingData.IsAuthenticated
+                                    && !string.IsNullOrEmpty(Settings.IRacingEmail)
+                                    && !string.IsNullOrEmpty(Settings.IRacingPassword))
+                                {
+                                    _iracingData.Authenticate(Settings.IRacingEmail, Settings.IRacingPassword);
+                                }
+
+                                if (!_iracingData.IsAuthenticated)
+                                {
+                                    resultJson = "{\"ok\":false,\"error\":\"Not authenticated to iRacing.\"}";
+                                }
+                                else
+                                {
+                                    var seasons = _iracingData.GetSeasonSchedule();
+                                    _weekPlannerCache = seasons;
+                                    _weekPlannerCacheTime = DateTime.UtcNow;
+                                    resultJson = "{\"ok\":true,\"cached\":false,\"data\":" + seasons.ToString(Newtonsoft.Json.Formatting.None) + "}";
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            SimHub.Logging.Current.Error($"[RaceCorProDrive] weekPlanner fetch error: {ex}");
+                            resultJson = "{\"ok\":false,\"error\":\"" + Escape(ex.Message) + "\"}";
+                        }
+
+                        byte[] wpBytes = Encoding.UTF8.GetBytes(resultJson);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.Headers.Add("Access-Control-Allow-Private-Network", "true");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(wpBytes, 0, wpBytes.Length);
                         ctx.Response.OutputStream.Close();
                         continue;
                     }

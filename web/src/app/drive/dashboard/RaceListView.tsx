@@ -183,7 +183,7 @@ export default function RaceListView({ cards, lookups }: { cards: DisplayCard[];
                   {/* Col 4 — Game badge */}
                   <div className="flex justify-center">
                     <span
-                      className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-[10px] font-semibold"
+                      className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-xs font-semibold"
                       style={{ background: gameBadge.bg, color: gameBadge.text }}
                     >
                       {gameBadge.badge}
@@ -194,14 +194,14 @@ export default function RaceListView({ cards, lookups }: { cards: DisplayCard[];
                   <div className="flex justify-center">
                     {!practice ? (
                       <span
-                        className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-[10px] font-bold"
+                        className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold"
                         style={{ background: posBadge.bg, color: posBadge.text }}
                       >
                         {posBadge.label}
                         {fieldSize ? <span className="font-normal opacity-60 ml-0.5">/{fieldSize}</span> : null}
                       </span>
                     ) : (
-                      <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase">
+                      <span className="text-xs text-[var(--text-muted)] font-semibold uppercase">
                         Prac
                       </span>
                     )}
@@ -222,12 +222,12 @@ export default function RaceListView({ cards, lookups }: { cards: DisplayCard[];
                   </div>
 
                   {/* Col 7 — Incidents */}
-                  <div className="text-[10px] text-[var(--text-muted)] tabular-nums text-right">
+                  <div className="text-xs text-[var(--text-muted)] tabular-nums text-right">
                     {incidents > 0 ? `${incidents}x` : ''}
                   </div>
 
                   {/* Col 8 — Linked practice indicator */}
-                  <div className="text-[10px] text-[var(--text-muted)] text-center" title={practiceSession ? 'Includes linked practice session' : ''}>
+                  <div className="text-xs text-[var(--text-muted)] text-center" title={practiceSession ? 'Includes linked practice session' : ''}>
                     {practiceSession ? '+P' : ''}
                   </div>
                 </div>

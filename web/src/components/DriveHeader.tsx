@@ -58,7 +58,7 @@ export default async function DriveHeader() {
   return (
     <>
       <ThemeSetEffects />
-      <header className="border-b border-[var(--border)] bg-[var(--bg)] sticky top-0 z-40">
+      <header className="border-b border-[var(--border)] bg-[var(--bg-elevated)] backdrop-blur-md sticky top-0 z-40">
         <div className="px-4 flex items-center justify-between">
           {/* Left: logo + nav links */}
           <div className="flex items-center gap-4">

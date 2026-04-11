@@ -287,7 +287,7 @@ export default async function DashboardPage() {
     // Sort by date desc for "latest 5"
     recentMoments = [...allMoments]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5)
+      .slice(0, 4)
   }
 
   // ── Visualization data (all sessions + rating deltas) ───────────────────────
@@ -529,7 +529,7 @@ export default async function DashboardPage() {
             <section className="mb-12">
               <h2
                 className="font-bold mb-4 flex items-center gap-2"
-                style={{ fontSize: "23px" }}
+                style={{ fontSize: "var(--fs-2xl)" }}
               >
                 <BarChart3 size={24} className="text-[var(--border-accent)]" />
                 Performance
@@ -583,7 +583,7 @@ export default async function DashboardPage() {
               <section className="mb-12">
                 <h2
                   className="font-bold mb-4 flex items-center gap-2"
-                  style={{ fontSize: "23px" }}
+                  style={{ fontSize: "var(--fs-2xl)" }}
                 >
                   <Shield size={24} className="text-[var(--border-accent)]" />
                   Pro Features
@@ -665,7 +665,7 @@ export default async function DashboardPage() {
             </section>
 
             <section className="mb-12 p-6 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-              <h2 className="font-bold mb-4" style={{ fontSize: "23px" }}>
+              <h2 className="font-bold mb-4" style={{ fontSize: "var(--fs-2xl)" }}>
                 Get Connected
               </h2>
               <ol className="space-y-3 text-sm text-[var(--text-dim)]">
@@ -691,7 +691,7 @@ export default async function DashboardPage() {
             <section className="mb-12">
               <h2
                 className="font-bold mb-4 flex items-center gap-2"
-                style={{ fontSize: "23px" }}
+                style={{ fontSize: "var(--fs-2xl)" }}
               >
                 <BarChart3 size={24} className="text-[var(--border-accent)]" />
                 Performance
@@ -742,7 +742,7 @@ export default async function DashboardPage() {
             <section>
               <h2
                 className="font-bold mb-4 flex items-center gap-2"
-                style={{ fontSize: "23px" }}
+                style={{ fontSize: "var(--fs-2xl)" }}
               >
                 <Shield size={24} className="text-[var(--border-accent)]" />
                 Pro Features

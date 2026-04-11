@@ -18,10 +18,7 @@ export function buildCssFromTokens(
         const name = (token.cssProperty as string) || `--${key}`
         let value = String(token.$value)
 
-        // Platform transform: web backgrounds get solid alpha
-        if (platform === 'web' && token.kind === 'color' && name.startsWith('--bg')) {
-          value = forceOpaqueAlpha(value)
-        }
+        // Respect alpha values as set by theme — no forced opacity override
 
         props.push(`  ${name}: ${value};`)
       } else if (val && typeof val === 'object') {

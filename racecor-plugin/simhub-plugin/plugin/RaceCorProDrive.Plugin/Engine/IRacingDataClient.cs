@@ -369,6 +369,33 @@ namespace RaceCorProDrive.Plugin.Engine
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
+        /// Fetch current-season series schedules from the iRacing Data API.
+        /// Returns season objects with track schedules, race times, car classes, and license info.
+        /// </summary>
+        public JToken GetSeasonSchedule()
+        {
+            string url = DATA_BASE + "/series/seasons";
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "GET";
+            request.CookieContainer = _cookies;
+            request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+            request.Accept = "application/json";
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            using (var reader = new StreamReader(response.GetResponseStream()))
+            {
+                string body = reader.ReadToEnd();
+                var envelope = JObject.Parse(body);
+                string link = envelope.Value<string>("link");
+                if (!string.IsNullOrEmpty(link))
+                {
+                    return FetchSignedUrl(link);
+                }
+                return new JArray();
+            }
+        }
+
+        /// <summary>
         /// Fetch complete career data and return as a JSON object suitable for
         /// posting to the Pro Drive web API bulk import endpoint.
         /// </summary>

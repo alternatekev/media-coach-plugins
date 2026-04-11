@@ -81,7 +81,7 @@ export default function RaceHistory({
       <div className="flex items-center justify-between mb-4">
         <h2
           className="font-bold flex items-center gap-2"
-          style={{ fontSize: '23px' }}
+          style={{ fontSize: 'var(--fs-2xl)' }}
         >
           <Car size={24} className="text-[var(--border-accent)]" />
           Race History

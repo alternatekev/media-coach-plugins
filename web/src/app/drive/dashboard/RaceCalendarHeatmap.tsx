@@ -423,7 +423,7 @@ export default function RaceCalendarHeatmap({ sessions }: Props) {
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="absolute pointer-events-none z-10 px-2 py-1 rounded text-[11px] text-[var(--text)] whitespace-nowrap"
+          className="absolute pointer-events-none z-10 px-2 py-1 rounded text-sm text-[var(--text)] whitespace-nowrap"
           style={{
             left: tooltip.x,
             top: tooltip.y,

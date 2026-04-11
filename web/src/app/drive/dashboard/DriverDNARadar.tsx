@@ -66,7 +66,7 @@ export default function DriverDNARadar({ sessions, ratingHistory }: Props) {
           <Target size={24} className="text-[var(--border-accent)]" />
           Driver DNA
         </div>
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--k10-red)]/15 text-[var(--k10-red)]">
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--k10-red)]/15 text-[var(--k10-red)]">
           {archetype.name}
         </span>
       </div>
@@ -94,7 +94,7 @@ export default function DriverDNARadar({ sessions, ratingHistory }: Props) {
       {/* Footer link */}
       <Link
         href="/drive/dna"
-        className="text-[10px] text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors text-right mt-1"
+        className="text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors text-right mt-1"
       >
         View full profile &rarr;
       </Link>

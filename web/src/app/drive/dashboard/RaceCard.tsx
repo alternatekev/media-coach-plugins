@@ -174,7 +174,7 @@ export default function RaceCard({
           {gameLogoUrl ? (
             <img src={gameLogoUrl} alt={gameLabel} className="h-3.5 w-auto object-contain" />
           ) : (
-            <span className="text-[10px] font-bold leading-none text-[var(--text-secondary)]">{gameLabel}</span>
+            <span className="text-xs font-bold leading-none text-[var(--text-secondary)]">{gameLabel}</span>
           )}
         </div>
 
@@ -237,7 +237,7 @@ export default function RaceCard({
                 )}
               </div>
               {fieldSize && !isDNF && (
-                <span className="text-[9px] font-semibold mt-0.5 opacity-60">of {fieldSize}</span>
+                <span className="text-xs font-semibold mt-0.5 opacity-60">of {fieldSize}</span>
               )}
             </div>
           )}
@@ -254,11 +254,11 @@ export default function RaceCard({
             }}
           >
             <div className="flex items-center justify-between text-xs">
-              <span className="text-[var(--text-muted)] uppercase tracking-wide text-[10px] font-semibold">Practice</span>
+              <span className="text-[var(--text-muted)] uppercase tracking-wide text-xs font-semibold">Practice</span>
               <span className="font-mono text-[var(--text-dim)]">{practiceLapStr}</span>
             </div>
             {(practiceSession.incidentCount ?? 0) > 0 && (
-              <div className="mt-0.5 text-[10px] text-[var(--text-muted)]">
+              <div className="mt-0.5 text-xs text-[var(--text-muted)]">
                 {practiceSession.incidentCount}× incidents
               </div>
             )}

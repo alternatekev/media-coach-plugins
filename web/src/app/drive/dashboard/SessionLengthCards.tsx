@@ -127,7 +127,7 @@ export default function SessionLengthCards({ sessions }: Props) {
       {/* Footer link */}
       <Link
         href="/drive/when"
-        className="text-[10px] text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors text-right mt-2"
+        className="text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors text-right mt-2"
       >
         View full analysis &rarr;
       </Link>

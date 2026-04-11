@@ -135,55 +135,19 @@ function MomentCard({ moment, lookups }: { moment: Moment; lookups: MomentLookup
       <div className="relative flex-1 min-w-0 p-3">
         <div className="flex items-center gap-1.5 mb-0.5">
           <span
-            className="text-xs font-bold leading-none truncate"
+            className="text-lg font-bold leading-none"
             style={{ color: accent }}
           >
             {moment.title}
           </span>
-          <span className="text-[10px] text-[var(--text-muted)] leading-none shrink-0">
+          <span className="text-xs text-[var(--text-muted)] leading-none shrink-0">
             {formatRelative(moment.date)}
           </span>
         </div>
-        <p className="text-[11px] text-[var(--text-dim)] leading-tight line-clamp-2">
+        <p className="text-md text-[var(--text-dim)] leading-tight line-clamp-2">
           {moment.description}
         </p>
-        {(moment.trackName || moment.carModel) && (
-          <div className="flex items-center gap-1.5 mt-1">
-            {/* Track logo + name */}
-            {moment.trackName && (
-              <>
-                {trackLogoSvg && (
-                  <img
-                    src={`data:image/svg+xml,${encodeURIComponent(trackLogoSvg)}`}
-                    alt=""
-                    className="w-3 h-3 flex-shrink-0 opacity-50"
-                  />
-                )}
-                <span className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] truncate">
-                  {trackDisplayName}
-                </span>
-              </>
-            )}
-            {moment.trackName && moment.carModel && (
-              <span className="text-[var(--text-muted)] opacity-40">·</span>
-            )}
-            {/* Brand logo + car name */}
-            {moment.carModel && (
-              <>
-                {brandLogoSrc && (
-                  <img
-                    src={brandLogoSrc}
-                    alt={brandInfo?.manufacturerName || ''}
-                    className="h-2.5 w-auto flex-shrink-0 opacity-50"
-                  />
-                )}
-                <span className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] truncate">
-                  {moment.carModel}
-                </span>
-              </>
-            )}
-          </div>
-        )}
+       
       </div>
     </div>
   )

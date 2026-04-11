@@ -65,15 +65,15 @@ const LICENSE_COLOR: Record<string, string> = {
 }
 
 function Separator() {
-  return <div className="w-px self-stretch bg-white/10 shrink-0" />
+  return <div className="w-px self-stretch bg-[var(--border)] shrink-0" />
 }
 
 function Stat({ label, value, mono = true }: { label: string; value: string | number; mono?: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-0.5 px-3">
-      <span className="text-[10px] uppercase tracking-wider text-white/40 leading-none">{label}</span>
+    <div className="flex flex-col items-center gap-0.5 px-3" style={{color: 'var(--text-dim)'}}>
+      <span className="text-xs uppercase tracking-wider leading-none" style={{color: 'var(--text-secondary)'}}>{label}</span>
       <span
-        className="text-sm font-bold text-white/90 leading-none"
+        className="text-sm font-bold leading-none"
         style={mono ? { fontFamily: 'var(--ff-mono)' } : undefined}
       >
         {typeof value === 'number' ? value.toLocaleString() : value}
@@ -118,19 +118,19 @@ function Sparkline({ points, color, label, current, sr }: {
     : `${pathD} L${(SPARK_W - SPARK_PAD).toFixed(1)},${SPARK_H} L${SPARK_PAD},${SPARK_H} Z`
 
   return (
-    <div className="flex items-center gap-2 px-3 shrink-0" style={{ width: SPARK_W + 100 }}>
+    <div className="flex items-center gap-2 px-3 shrink-0" style={{ width: SPARK_W + 100, color: 'var(--text-dim)' }}>
       {/* Label + value */}
       <div className="flex flex-col gap-0.5 shrink-0 min-w-[70px]">
-        <span className="text-[10px] uppercase tracking-wider text-white/40 leading-none">
+        <span className="text-xs uppercase tracking-wider leading-none"  style={{color: 'var(--text-secondary)'}}>
           {label}
         </span>
         <div className="flex items-center gap-1">
-          <span className="text-sm font-bold text-white/90 leading-none" style={{ fontFamily: 'var(--ff-mono)' }}>
+          <span className="text-sm font-bold leading-none" style={{ fontFamily: 'var(--ff-mono)' }}>
             {current.toLocaleString()}
           </span>
           {sr && (
             <span
-              className="text-[9px] font-black leading-none px-1 py-0.5 rounded-sm"
+              className="text-xs font-black leading-none px-1 py-0.5 rounded-sm"
               style={{ background: LICENSE_COLOR[sr.license] || LICENSE_COLOR.R, color: 'white' }}
             >
               {sr.license}{sr.safetyRating}
@@ -193,12 +193,11 @@ export default function DataStrip({
       className="sticky z-30 border-b backdrop-blur-md"
       style={{
         top: 41,
-        background: 'hsla(0, 0%, 6%, 0.85)',
-        borderColor: 'hsla(0, 0%, 100%, 0.08)',
+        background: 'var(--bg-surface)',
+        borderColor: 'var(--border-accent)',
       }}
     >
       <div className="max-w-[120rem] mx-auto px-6 flex items-center justify-start gap-0 py-1.5 overflow-x-auto">
-        <Stat label="Welcome" value={displayName} mono={false} />
         <Stat label="Races" value={raceCount} />
         <Separator />
         <Stat label="Laps" value={totalLaps} />
@@ -248,7 +247,7 @@ export default function DataStrip({
         {insights.length > 0 && (
           <>
             <Separator />
-            <div className="flex items-center gap-2 px-3 shrink-0">
+            <div className="flex items-center gap-2 px-3 shrink-0 color">
               {insights.map((insight, i) => (
                 <div key={i} className="flex items-center gap-1.5 shrink-0">
                   <Sun
@@ -261,8 +260,8 @@ export default function DataStrip({
                           : 'hsl(0, 0%, 45%)',
                     }}
                   />
-                  <span className="text-[11px] text-white/50 whitespace-nowrap">{insight.text}</span>
-                  {i < insights.length - 1 && <span className="text-white/10 mx-1">·</span>}
+                  <span className="text-sm whitespace-nowrap">{insight.text}</span>
+                  {i < insights.length - 1 && <span className=" mx-1">·</span>}
                 </div>
               ))}
             </div>

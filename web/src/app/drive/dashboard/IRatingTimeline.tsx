@@ -141,14 +141,14 @@ export default function IRatingTimeline({ history }: Props) {
                 <span className="text-2xl font-bold" style={{ color: meta?.color ?? '#999' }}>
                   {val.toLocaleString()}
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mt-1">
+                <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] mt-1">
                   {meta?.label ?? cat}
                 </span>
               </div>
             ) : null
           })}
         </div>
-        <p className="text-[10px] text-[var(--text-muted)] mt-3">
+        <p className="text-xs text-[var(--text-muted)] mt-3">
           Race to start tracking your iRating over time
         </p>
       </div>

@@ -40,94 +40,97 @@
    --k10-red-dark:    2.0:1  FAIL      (use for backgrounds/borders only, never text)
 */
 
-:root {
-  /* Backgrounds */
-  --bg: #0a0a14;
-  --bg-surface: rgba(16, 16, 32, 0.90);
-  --bg-panel: rgba(10, 10, 20, 0.95);
-  --bg-elevated: rgba(24, 24, 48, 0.85);
+/* Fallback tokens in @layer base so the unlayered blob CSS always wins.
+   These only apply when no token blob is loaded (e.g. local dev, first paint). */
+@layer base {
+  :root {
+    /* Backgrounds */
+    --bg: #0a0a14;
+    --bg-surface: rgba(16, 16, 32, 0.90);
+    --bg-panel: rgba(10, 10, 20, 0.95);
+    --bg-elevated: rgba(24, 24, 48, 0.85);
 
-  /* Borders */
-  --border: rgba(255, 255, 255, 0.14);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(229, 57, 53, 0.35);
+    /* Borders */
+    --border: rgba(255, 255, 255, 0.14);
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-accent: rgba(229, 57, 53, 0.35);
 
-  /* Text — all pass WCAG AA on --bg */
-  --text: #e8e8f0;
-  --text-secondary: rgba(255, 255, 255, 0.69);
-  --text-dim: rgba(255, 255, 255, 0.55);
-  --text-muted: rgba(255, 255, 255, 0.45);
+    /* Text — all pass WCAG AA on --bg */
+    --text: #e8e8f0;
+    --text-secondary: rgba(255, 255, 255, 0.69);
+    --text-dim: rgba(255, 255, 255, 0.55);
+    --text-muted: rgba(255, 255, 255, 0.45);
 
-  /* K10 Brand reds — extracted from logomark.png
-     Three-chevron gradient: bright → mid → dark */
-  --k10-red: #e53935;
-  --k10-red-mid: #b02020;
-  --k10-red-dark: #700010;
+    /* K10 Brand reds — extracted from logomark.png
+       Three-chevron gradient: bright → mid → dark */
+    --k10-red: #e53935;
+    --k10-red-mid: #b02020;
+    --k10-red-dark: #700010;
 
-  /* Track map SVG stroke — neutral in K10, team brand color when a set is active.
-     Derived from --k10-red which is already overridden in every team blob. */
-  --track-stroke: rgba(255, 255, 255, 0.55);
+    /* Track map SVG stroke — neutral in K10, team brand color when a set is active.
+       Derived from --k10-red which is already overridden in every team blob. */
+    --track-stroke: rgba(255, 255, 255, 0.55);
 
-  /* Semantic colors */
-  --green: #43a047;
-  --blue: #1e88e5;
-  --amber: #ffb300;
-  --purple: #7c6cf0;
-  --cyan: #00acc1;
+    /* Semantic colors */
+    --green: #43a047;
+    --blue: #1e88e5;
+    --amber: #ffb300;
+    --purple: #7c6cf0;
+    --cyan: #00acc1;
 
-  /* Typography */
-  --ff: sofia-pro-comp, sans-serif;
-  --ff-display: "stolzl", sans-serif;
-  --ff-mono: 'JetBrains Mono', 'Consolas', 'SF Mono', monospace;
+    /* Typography */
+    --ff: sofia-pro-comp, sans-serif;
+    --ff-display: "stolzl", sans-serif;
+    --ff-mono: 'JetBrains Mono', 'Consolas', 'SF Mono', monospace;
 
-  /* Font sizes — fallbacks until token blob loads */
-  --fs-xs: 10px;
-  --fs-sm: 11px;
-  --fs-md: 11px;
-  --fs-lg: 13px;
-  --fs-xl: 20px;
-  --fs-2xl: 24px;
-  --fs-3xl: 30px;
-  --fs-4xl: 36px;
-  --fs-5xl: 48px;
-  --fs-6xl: 60px;
-  --fs-7xl: 72px;
-  --fs-8xl: 96px;
-  --fs-9xl: 128px;
+    /* Font sizes — fallbacks until token blob loads */
+    --fs-xs: 10px;
+    --fs-sm: 11px;
+    --fs-md: 11px;
+    --fs-lg: 13px;
+    --fs-xl: 20px;
+    --fs-2xl: 24px;
+    --fs-3xl: 30px;
+    --fs-4xl: 36px;
+    --fs-5xl: 48px;
+    --fs-6xl: 60px;
+    --fs-7xl: 72px;
+    --fs-8xl: 96px;
+    --fs-9xl: 128px;
 
-  /* Radii */
-  --corner-r: 12px;
-  --corner-r-sm: 6px;
+    /* Radii */
+    --corner-r: 12px;
+    --corner-r-sm: 6px;
+  }
 
-}
+  /* Light theme fallback */
+  [data-theme="light"] {
+    --bg: #f5f5f8;
+    --bg-surface: rgba(255, 255, 255, 0.95);
+    --bg-panel: rgba(240, 240, 245, 0.95);
+    --bg-elevated: rgba(255, 255, 255, 1.0);
 
-/* Light theme fallback — overridden by blob CSS when available */
-[data-theme="light"] {
-  --bg: #f5f5f8;
-  --bg-surface: rgba(255, 255, 255, 0.95);
-  --bg-panel: rgba(240, 240, 245, 0.95);
-  --bg-elevated: rgba(255, 255, 255, 1.0);
+    --border: rgba(0, 0, 0, 0.12);
+    --border-subtle: rgba(0, 0, 0, 0.06);
+    --border-accent: rgba(211, 47, 47, 0.35);
 
-  --border: rgba(0, 0, 0, 0.12);
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-accent: rgba(211, 47, 47, 0.35);
+    --text: #1a1a1a;
+    --text-secondary: rgba(0, 0, 0, 0.65);
+    --text-dim: rgba(0, 0, 0, 0.50);
+    --text-muted: rgba(0, 0, 0, 0.40);
 
-  --text: #1a1a1a;
-  --text-secondary: rgba(0, 0, 0, 0.65);
-  --text-dim: rgba(0, 0, 0, 0.50);
-  --text-muted: rgba(0, 0, 0, 0.40);
+    --k10-red: #d32f2f;
+    --k10-red-mid: #c62828;
+    --k10-red-dark: #b71c1c;
 
-  --k10-red: #d32f2f;
-  --k10-red-mid: #c62828;
-  --k10-red-dark: #b71c1c;
+    --track-stroke: rgba(0, 0, 0, 0.45);
 
-  --track-stroke: rgba(0, 0, 0, 0.45);
-
-  --green: #2e7d32;
-  --blue: #1565c0;
-  --amber: #f57f17;
-  --purple: #6a1b9a;
-  --cyan: #00838f;
+    --green: #2e7d32;
+    --blue: #1565c0;
+    --amber: #f57f17;
+    --purple: #6a1b9a;
+    --cyan: #00838f;
+  }
 }
 
 /* Base typography & color-scheme — inside @layer base so Tailwind

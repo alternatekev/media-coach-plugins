@@ -47,7 +47,7 @@ export default function DataManagement({ totalSessions, emptySessions }: DataMan
       >
         <Settings size={14} />
         Data Management
-        <span className="text-[10px]">{isOpen ? '▲' : '▼'}</span>
+        <span className="text-xs">{isOpen ? '▲' : '▼'}</span>
       </button>
 
       {isOpen && (

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateToken } from '@/lib/plugin-auth'
 import { db, schema } from '@/db'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { buildTrackLookup, resolveTrackName, consolidateUserTracks } from '@/lib/resolve-track'
 import { resolveIRacingTrackId } from '@/data/iracing-track-map'
 
@@ -139,10 +139,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Consolidate any old sessions with mismatched track names
+    // Consolidate any old sessions with mismatched track names or stale categories
     if (sessionsImported > 0) {
       try {
         await consolidateUserTracks(userId)
+      } catch {}
+
+      // Merge legacy sports_car → road (iRacing merged these in 2024 S2)
+      try {
+        await db.update(schema.raceSessions)
+          .set({ category: 'road' })
+          .where(and(eq(schema.raceSessions.userId, userId), eq(schema.raceSessions.category, 'sports_car')))
+        await db.update(schema.ratingHistory)
+          .set({ category: 'road' })
+          .where(and(eq(schema.ratingHistory.userId, userId), eq(schema.ratingHistory.category, 'sports_car')))
+        await db.update(schema.driverRatings)
+          .set({ category: 'road' })
+          .where(and(eq(schema.driverRatings.userId, userId), eq(schema.driverRatings.category, 'sports_car')))
       } catch {}
 
       try {

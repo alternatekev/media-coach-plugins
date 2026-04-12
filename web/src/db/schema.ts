@@ -184,3 +184,4 @@ export const tokenBuilds = pgTable('token_builds', {
   builtAt: timestamp('built_at').defaultNow().notNull(),
   builtBy: uuid('built_by').references(() => users.id),
 })
+

@@ -148,12 +148,12 @@ function Sparkline({ points, color, label, current, sr }: {
         style={{ opacity: 0.9 }}
       >
         <defs>
-          <linearGradient id={`spark-fill-${label}`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`spark-fill-${sr?.category}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={color} stopOpacity={0.25} />
             <stop offset="100%" stopColor={color} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <path d={fillD} fill={`url(#spark-fill-${label})`} />
+        <path d={fillD} fill={`url(#spark-fill-${sr?.category})`} />
         <path d={pathD} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
         {isSingle && <circle cx={SPARK_W / 2} cy={midY} r={3} fill={color} />}
       </svg>

@@ -20,6 +20,9 @@ import RecentMoments from "./RecentMoments";
 import { getCarImage, getTrackImage } from "@/lib/commentary-images";
 import { computeWhenProfile, generateWhenInsights } from "@/lib/when-engine";
 import { detectMoments, type Moment, type SessionRecord as MomentSession, type RatingRecord as MomentRating } from "@/lib/moments";
+import NextRaceIdeas, { type RaceSuggestion as NRISuggestion, type StrategyType } from "./NextRaceIdeas";
+import { computeNextRaceIdeas, type SessionInput, type RatingInput, type DriverRatingInput, type IRacingSchedule } from "@/lib/next-race-ideas";
+import { fetchIRacingSchedule } from "@/lib/iracing-schedule-fetcher";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -287,7 +290,90 @@ export default async function DashboardPage() {
     // Sort by date desc for "latest 5"
     recentMoments = [...allMoments]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 4)
+      .slice(0, 5)
+  }
+
+  // ── Next Race Ideas ────────────────────────────────────────────────────────
+  let nextRaceSuggestions: NRISuggestion[] = []
+  if (isPluginConnected && dbUser && allSessions.length >= 3) {
+    try {
+      // Fetch schedule data from week planner
+      const scheduleData = await fetchIRacingSchedule()
+
+      if (scheduleData.length > 0) {
+
+        // Fetch full rating history with all fields needed by scoring engine
+        const nriRatingHistory = await db
+          .select()
+          .from(schema.ratingHistory)
+          .where(eq(schema.ratingHistory.userId, dbUser.id))
+          .orderBy(desc(schema.ratingHistory.createdAt))
+
+        // Fetch current driver ratings
+        const nriDriverRatings = await db
+          .select()
+          .from(schema.driverRatings)
+          .where(eq(schema.driverRatings.userId, dbUser.id))
+
+        // Map to scoring engine input types
+        const sessionInputs: SessionInput[] = allSessions.map(s => ({
+          id: s.id,
+          carModel: s.carModel,
+          manufacturer: s.manufacturer,
+          category: s.category,
+          gameName: s.gameName || 'iracing',
+          trackName: s.trackName,
+          sessionType: s.sessionType,
+          finishPosition: s.finishPosition,
+          incidentCount: s.incidentCount,
+          metadata: s.metadata ? (typeof s.metadata === 'string' ? JSON.parse(s.metadata) : s.metadata) as SessionInput['metadata'] : null,
+          createdAt: s.createdAt,
+        }))
+
+        const ratingInputs: RatingInput[] = nriRatingHistory.map(r => ({
+          category: r.category,
+          iRating: r.iRating,
+          safetyRating: r.safetyRating,
+          license: r.license,
+          prevIRating: r.prevIRating,
+          prevSafetyRating: r.prevSafetyRating,
+          prevLicense: r.prevLicense,
+          trackName: r.trackName,
+          carModel: r.carModel,
+          createdAt: r.createdAt,
+        }))
+
+        const driverRatingInputs: DriverRatingInput[] = nriDriverRatings.map(dr => ({
+          category: dr.category,
+          iRating: dr.iRating,
+          safetyRating: dr.safetyRating,
+          license: dr.license,
+        }))
+
+        const rawSuggestions = computeNextRaceIdeas(
+          sessionInputs,
+          ratingInputs,
+          driverRatingInputs,
+          scheduleData,
+        )
+
+        // Map to component display type with serialized dates
+        nextRaceSuggestions = rawSuggestions.map(s => ({
+          seriesName: s.seriesName,
+          trackName: s.trackName,
+          trackConfig: s.trackConfig ?? undefined,
+          license: s.licenseClass,
+          official: s.isOfficial,
+          fixed: s.isFixed,
+          score: s.score,
+          strategy: s.strategy.type as StrategyType,
+          commentary: s.commentary,
+          startsAtUtc: s.nextStartTime.toISOString(),
+        }))
+      }
+    } catch (err) {
+      console.error('[dashboard] Next Race Ideas error:', err)
+    }
   }
 
   // ── Visualization data (all sessions + rating deltas) ───────────────────────
@@ -491,6 +577,13 @@ export default async function DashboardPage() {
                 />
               )}
             </section>
+
+            {/* Next Race Ideas */}
+            {nextRaceSuggestions.length > 0 && (
+              <section className="mb-12">
+                <NextRaceIdeas suggestions={nextRaceSuggestions} />
+              </section>
+            )}
 
             {/* Visualizations — Calendar Heatmap + Scatter Grid */}
             {vizData.length > 0 && (

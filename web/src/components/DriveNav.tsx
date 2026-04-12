@@ -8,6 +8,7 @@ import {
   CalendarClock,
   MapPin,
   Sparkles,
+  Settings,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -19,7 +20,7 @@ const NAV_ITEMS = [
   { href: '/drive/moments', label: 'Moments', icon: Sparkles },
 ]
 
-export default function DriveNav() {
+export default function DriveNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
 
   return (
@@ -48,6 +49,24 @@ export default function DriveNav() {
             </Link>
           )
         })}
+        {isAdmin && (
+          <Link
+            href="/drive/admin"
+            className={`
+              px-3 py-2 flex items-center gap-1.5
+              text-xs font-medium
+              border-b-2 transition-colors
+              ${
+                pathname.startsWith('/drive/admin')
+                  ? 'text-[var(--k10-red)] border-b-[var(--k10-red)]'
+                  : 'text-[var(--k10-red)]/60 border-b-transparent hover:text-[var(--k10-red)]'
+              }
+            `}
+          >
+            <Settings size={24} />
+            <span>Admin</span>
+          </Link>
+        )}
       </div>
     </nav>
   )

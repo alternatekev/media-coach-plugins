@@ -59,13 +59,13 @@ export default async function DriveHeader() {
     <>
       <ThemeSetEffects />
       <header className="border-b border-[var(--border)] bg-[var(--bg-elevated)] backdrop-blur-md sticky top-0 z-40">
-        <div className="px-4 flex items-center justify-between">
+        <div className="px-4 flex items-center justify-between overflow-visible">
           {/* Left: logo + nav links */}
           <div className="flex items-center gap-4">
             <a href="/drive/dashboard" className="flex items-center gap-2 py-2 flex-shrink-0">
               <LogoMark className="h-5 w-auto" />
             </a>
-            <DriveNavLinks />
+            <DriveNavLinks isAdmin={admin} />
           </div>
 
           {/* Right: user menu */}

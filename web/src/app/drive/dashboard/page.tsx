@@ -22,7 +22,9 @@ import { getCarImage, getTrackImage } from "@/lib/commentary-images";
 import { computeWhenProfile, generateWhenInsights } from "@/lib/when-engine";
 import { detectMoments, type Moment, type SessionRecord as MomentSession, type RatingRecord as MomentRating } from "@/lib/moments";
 import NextRaceIdeas, { type RaceSuggestion as NRISuggestion, type StrategyType } from "./NextRaceIdeas";
+import TopTracksAndCars from "./TopTracksAndCars";
 import { computeNextRaceIdeas, type SessionInput, type RatingInput, type DriverRatingInput, type IRacingSchedule } from "@/lib/next-race-ideas";
+import { computeTrackMastery, computeCarAffinity } from "@/lib/mastery";
 import { fetchIRacingSchedule } from "@/lib/iracing-schedule-fetcher";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -666,6 +668,17 @@ export default async function DashboardPage() {
     return { totalLaps, uniqueTracks, uniqueCars, uniqueGames, careerSpan };
   })();
 
+  // ── Track mastery + car affinity (top 3 for sidebar) ─────────────────────────
+  const masterySessions = allSessions.map(s => ({
+    ...s,
+    manufacturer: s.manufacturer || '',
+    incidentCount: s.incidentCount ?? 0,
+    metadata: (s.metadata ?? null) as Record<string, any> | null,
+    gameName: ((s.metadata as Record<string, any>)?.gameName as string) || s.gameName || 'Unknown',
+  }))
+  const trackMasteryList = computeTrackMastery(masterySessions as any)
+  const carAffinityList = computeCarAffinity(masterySessions as any)
+
   // ── Helpers ──────────────────────────────────────────────────────────────────
   const trackKey = (name: string | null) => (name || "").toLowerCase();
 
@@ -715,9 +728,30 @@ export default async function DashboardPage() {
                         <DriverDNARadar sessions={dnaSessionData} ratingHistory={dnaRatingData} />
                       </div>
                     )}
+                    {/* Race History — card grid / list toggle */}
+                    <RaceHistory
+                      displayCards={displayCards}
+                      lookups={{
+                        trackMapLookup,
+                        carImageLookup,
+                        trackImageLookup,
+                        trackLogoLookup,
+                        trackDisplayNameLookup,
+                        brandLogoLookup,
+                        iRatingHistory,
+                      }}
+                    />
                   </div>
                   {/* ── Right column ── */}
                   <div className="flex flex-col gap-4">
+                    {(trackMasteryList.length > 0 || carAffinityList.length > 0) && (
+                      <TopTracksAndCars
+                        tracks={trackMasteryList}
+                        cars={carAffinityList}
+                        trackDisplayNameLookup={trackDisplayNameLookup}
+                        brandLogoLookup={brandLogoLookup}
+                      />
+                    )}
                     {recentMoments.length > 0 && (
                       <RecentMoments
                         moments={recentMoments}
@@ -737,20 +771,6 @@ export default async function DashboardPage() {
             )}
 
             {/* iRating timeline + career summary replaced by DataStrip sparklines */}
-
-            {/* Race History — card grid / list toggle */}
-            <RaceHistory
-              displayCards={displayCards}
-              lookups={{
-                trackMapLookup,
-                carImageLookup,
-                trackImageLookup,
-                trackLogoLookup,
-                trackDisplayNameLookup,
-                brandLogoLookup,
-                iRatingHistory,
-              }}
-            />
 
             {/* Data Management (collapsible) */}
             {isPluginConnected && raceCount > 0 && (

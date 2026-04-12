@@ -61,7 +61,7 @@ export default function SessionLengthCards({ sessions }: Props) {
 
   if (!hasData) {
     return (
-      <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-4 h-full flex flex-col items-center justify-center min-h-[200px]">
+      <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-4 flex flex-col items-center justify-center min-h-[200px]">
         <Zap size={24} className="text-[var(--text-muted)] mb-2 opacity-50" />
         <p className="text-sm text-[var(--text-muted)] text-center">
           Complete 5+ races to see session length stats
@@ -71,7 +71,7 @@ export default function SessionLengthCards({ sessions }: Props) {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] mb-3">
         <Zap size={24} className="text-[var(--border-accent)]" />
@@ -79,13 +79,13 @@ export default function SessionLengthCards({ sessions }: Props) {
       </div>
 
       {/* Stacked cards */}
-      <div className="flex flex-col gap-2 flex-1">
+      <div className="flex flex-col gap-2">
         {buckets.map((bucket) => {
           const isTop = bucket.sessions === maxSessions && bucket.sessions > 0
           return (
             <div
               key={bucket.label}
-              className={`rounded-xl p-3 border transition flex-1 ${
+              className={`rounded-xl p-3 border transition ${
                 isTop
                   ? 'border-[var(--k10-red)] bg-[var(--bg-elevated)]'
                   : 'border-[var(--border)] bg-[var(--bg-elevated)]'

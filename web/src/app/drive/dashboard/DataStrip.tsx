@@ -188,9 +188,8 @@ export default function DataStrip({
 
   return (
     <div
-      className="sticky z-30 border-b backdrop-blur-md"
+      className="border-b"
       style={{
-        top: 41,
         background: 'var(--bg-surface)',
         borderColor: 'var(--border-accent)',
       }}

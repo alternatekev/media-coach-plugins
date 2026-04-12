@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Settings, LogOut, ChevronDown, Upload, Check, AlertCircle, Loader2, Trash2 } from 'lucide-react'
+import { LogOut, ChevronDown, Upload, Check, AlertCircle, Loader2, Trash2 } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import ThemeSetSelector from '@/components/ThemeSetSelector'
 
@@ -227,18 +227,6 @@ export default function UserMenu({ user, signOutAction }: UserMenuProps) {
 
           {/* Divider */}
           <div className="my-1 border-t border-[var(--border)]" />
-
-          {/* Admin link */}
-          {user.isAdmin && (
-            <a
-              href="/drive/admin"
-              className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[var(--k10-red)] transition-colors hover:bg-[var(--bg-surface)]"
-              onClick={() => setOpen(false)}
-            >
-              <Settings size={14} />
-              Admin
-            </a>
-          )}
 
           {/* Sign out */}
           <form action={signOutAction}>

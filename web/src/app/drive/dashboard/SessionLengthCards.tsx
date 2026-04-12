@@ -78,8 +78,8 @@ export default function SessionLengthCards({ sessions }: Props) {
         Session Length
       </div>
 
-      {/* Stacked cards */}
-      <div className="flex flex-col gap-2">
+      {/* 3-column layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {buckets.map((bucket) => {
           const isTop = bucket.sessions === maxSessions && bucket.sessions > 0
           return (

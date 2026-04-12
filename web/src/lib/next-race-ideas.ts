@@ -97,6 +97,8 @@ export interface RaceSuggestion {
   isOfficial: boolean
   isFixed: boolean
   carClassNames: string[]
+  seasonId: number
+  seriesId: number
   nextStartTime: Date
   minutesUntilStart: number
   sessionMinutes: number
@@ -841,6 +843,8 @@ export function computeNextRaceIdeas(
         isOfficial: season.official,
         isFixed: season.fixed_setup,
         carClassNames: season.car_classes.map(c => c.name),
+        seasonId: season.season_id,
+        seriesId: season.series_id,
         nextStartTime: bestNextStart.nextStart,
         minutesUntilStart,
         sessionMinutes: scheduleItem.race_time_descriptors[0].session_minutes || 60,
@@ -866,6 +870,8 @@ export function computeNextRaceIdeas(
             isOfficial: season.official,
             isFixed: season.fixed_setup,
             carClassNames: season.car_classes.map(c => c.name),
+            seasonId: season.season_id,
+            seriesId: season.series_id,
             nextStartTime: bestNextStart.nextStart,
             minutesUntilStart,
             sessionMinutes: scheduleItem.race_time_descriptors[0].session_minutes || 60,

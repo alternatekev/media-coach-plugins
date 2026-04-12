@@ -307,7 +307,7 @@ export default function RaceCalendarHeatmap({ sessions }: Props) {
           textAnchor="end"
           dominantBaseline="middle"
           fill="var(--text-muted)"
-          fontSize={12}
+          fontSize={16}
           fontFamily="var(--ff)"
         >
           {label}
@@ -360,14 +360,14 @@ export default function RaceCalendarHeatmap({ sessions }: Props) {
     <div ref={containerRef} className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-4 h-full relative flex flex-col">
       {/* Header row */}
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
+        <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)]">
           <CalendarDays size={24} className="text-[var(--border-accent)]" />
           Race Calendar
         </div>
         <select
           value={metric}
           onChange={e => setMetric(e.target.value as HeatMetric)}
-          className="bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)] text-xs rounded px-2 py-1 outline-none cursor-pointer"
+          className="bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)] text-sm rounded px-2 py-1 outline-none cursor-pointer"
         >
           {(Object.keys(METRIC_LABELS) as HeatMetric[]).map(k => (
             <option key={k} value={k}>{METRIC_LABELS[k]}</option>
@@ -384,7 +384,7 @@ export default function RaceCalendarHeatmap({ sessions }: Props) {
         >
           <ChevronLeft size={24} className="text-[var(--text-secondary)]" />
         </button>
-        <span className="text-sm font-bold text-[var(--text)] min-w-[80px] text-center tracking-wide">
+        <span className="text-base font-bold text-[var(--text)] min-w-[80px] text-center tracking-wide">
           {season.label}
         </span>
         <button
@@ -414,7 +414,7 @@ export default function RaceCalendarHeatmap({ sessions }: Props) {
               textAnchor="middle"
               dominantBaseline="middle"
               fill="var(--text-muted)"
-              fontSize={12}
+              fontSize={16}
               fontFamily="var(--ff)"
             >
               {label}

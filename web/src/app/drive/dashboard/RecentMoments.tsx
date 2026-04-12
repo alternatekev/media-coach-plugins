@@ -230,35 +230,114 @@ function MomentCard({ moment, lookups }: { moment: Moment; lookups: MomentLookup
 
 // ── Export ─────────────────────────────────────────────────────────────────────
 
+const HIGHLIGHT_GRADIENT: Record<string, string> = {
+  win_streak:        'linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%)',
+  podium_streak:     'linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%)',
+  clean_streak:      'linear-gradient(135deg, rgba(67,160,71,0.15) 0%, rgba(67,160,71,0.05) 100%)',
+  milestone_irating: 'linear-gradient(135deg, rgba(229,57,53,0.15) 0%, rgba(229,57,53,0.05) 100%)',
+  license_promotion: 'linear-gradient(135deg, rgba(30,136,229,0.15) 0%, rgba(30,136,229,0.05) 100%)',
+  comeback:          'linear-gradient(135deg, rgba(255,152,0,0.15) 0%, rgba(255,152,0,0.05) 100%)',
+  iron_man:          'linear-gradient(135deg, rgba(255,87,34,0.15) 0%, rgba(255,87,34,0.05) 100%)',
+}
+
+function HighlightCard({ moment, lookups }: { moment: Moment; lookups: MomentLookups }) {
+  const accent = ACCENT[moment.type] || '#888'
+  const icon = ICON[moment.type]
+  const bg = HIGHLIGHT_GRADIENT[moment.type] || 'var(--bg-elevated)'
+
+  return (
+    <div
+      className="rounded-xl border p-4 overflow-hidden"
+      style={{
+        background: bg,
+        borderColor: `${accent}30`,
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center mt-0.5"
+          style={{ background: `${accent}20`, color: accent }}
+        >
+          {icon ? icon(18) : <Star size={18} />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="text-sm font-bold leading-tight truncate" style={{ color: accent }}>
+              {moment.title}
+            </span>
+          </div>
+          <p className="text-xs text-[var(--text-dim)] leading-snug line-clamp-2 mb-1.5">
+            {moment.description}
+          </p>
+          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+            <span>{formatRelative(moment.date)}</span>
+            {moment.gameName && (
+              <>
+                <span className="opacity-40">·</span>
+                <span>{moment.gameName}</span>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="shrink-0 text-right">
+          <div className="text-xl font-bold leading-none" style={{ color: accent }}>
+            {moment.significance}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function RecentMoments({
   moments,
+  highlights = [],
   trackMapLookup,
   trackLogoLookup,
   trackDisplayNameLookup,
   brandLogoLookup,
   compact = false,
-}: { moments: Moment[]; compact?: boolean } & MomentLookups) {
-  if (moments.length === 0) return null
+}: { moments: Moment[]; highlights?: Moment[]; compact?: boolean } & MomentLookups) {
+  if (moments.length === 0 && highlights.length === 0) return null
 
   const lookups: MomentLookups = { trackMapLookup, trackLogoLookup, trackDisplayNameLookup, brandLogoLookup }
 
   if (compact) {
     return (
-      <div className="space-y-2">
-        {/* Section header */}
-        <div className="flex items-center gap-2">
-          <Star size={16} className="text-[var(--text-secondary)]" />
-          <h3 className="text-sm font-semibold text-[var(--text-secondary)]">
-            Recent Moments
-          </h3>
-        </div>
+      <div className="space-y-3">
+        {/* Highlights */}
+        {highlights.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Trophy size={16} className="text-[var(--text-secondary)]" />
+              <h3 className="text-sm font-semibold text-[var(--text-secondary)]">
+                Highlights
+              </h3>
+            </div>
+            <div className="flex flex-col gap-2">
+              {highlights.map((m, i) => (
+                <HighlightCard key={`hl-${m.type}-${m.date}-${i}`} moment={m} lookups={lookups} />
+              ))}
+            </div>
+          </div>
+        )}
 
-        {/* Stacked compact rows */}
-        <div className="flex flex-col gap-1">
-          {moments.map((m, i) => (
-            <CompactMomentRow key={`${m.type}-${m.date}-${i}`} moment={m} lookups={lookups} />
-          ))}
-        </div>
+        {/* Recent timeline */}
+        {moments.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Star size={16} className="text-[var(--text-secondary)]" />
+              <h3 className="text-sm font-semibold text-[var(--text-secondary)]">
+                Recent Moments
+              </h3>
+            </div>
+            <div className="flex flex-col gap-1">
+              {moments.map((m, i) => (
+                <CompactMomentRow key={`${m.type}-${m.date}-${i}`} moment={m} lookups={lookups} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     )
   }

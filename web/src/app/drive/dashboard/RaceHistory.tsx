@@ -116,7 +116,7 @@ export default function RaceHistory({
       {/* Content */}
       {displayCards.length > 0 ? (
         view === 'cards' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {displayCards.map(({ session: s, practiceSession }) => (
               <RaceCard
                 key={s.id}

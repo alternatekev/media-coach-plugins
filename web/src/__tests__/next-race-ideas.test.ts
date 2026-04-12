@@ -383,6 +383,8 @@ function makeSuggestion(overrides: Partial<RaceSuggestion>): RaceSuggestion {
     isOfficial: overrides.isOfficial ?? true,
     isFixed: overrides.isFixed ?? false,
     carClassNames: overrides.carClassNames ?? [],
+    seasonId: overrides.seasonId ?? 1000,
+    seriesId: overrides.seriesId ?? 100,
     nextStartTime: overrides.nextStartTime ?? new Date('2026-04-11T20:00:00Z'),
     minutesUntilStart: overrides.minutesUntilStart ?? 30,
     sessionMinutes: overrides.sessionMinutes ?? 30,

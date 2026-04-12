@@ -260,8 +260,9 @@ export default async function DashboardPage() {
     }
   }
 
-  // ── Moments (latest 3 by date) ──────────────────────────────────────────────
+  // ── Moments ─────────────────────────────────────────────────────────────────
   let recentMoments: Moment[] = []
+  let momentHighlights: Moment[] = []
   if (isPluginConnected && dbUser && allSessions.length > 0) {
     const fullRH = await db
       .select()
@@ -290,10 +291,12 @@ export default async function DashboardPage() {
     }))
 
     const allMoments = detectMoments(momentSessions, momentRatings)
-    // Sort by date desc for "latest 6"
+    // Top 5 by significance (detectMoments returns significance-sorted)
+    momentHighlights = allMoments.slice(0, 5)
+    // Sort by date desc for "latest 20"
     recentMoments = [...allMoments]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 6)
+      .slice(0, 20)
   }
 
   // ── Next Race Ideas ────────────────────────────────────────────────────────
@@ -373,6 +376,8 @@ export default async function DashboardPage() {
           commentary: s.commentary,
           startsAtUtc: s.nextStartTime.toISOString(),
           carClassNames: s.carClassNames,
+          seasonId: s.seasonId,
+          seriesId: s.seriesId,
         }))
 
         // Populate image/brand lookups for suggested race tracks & car classes
@@ -728,6 +733,9 @@ export default async function DashboardPage() {
                         <DriverDNARadar sessions={dnaSessionData} ratingHistory={dnaRatingData} />
                       </div>
                     )}
+                    {vizData.length > 0 && (
+                      <SessionLengthCards sessions={dnaSessionData} />
+                    )}
                     {/* Race History — card grid / list toggle */}
                     <RaceHistory
                       displayCards={displayCards}
@@ -748,22 +756,21 @@ export default async function DashboardPage() {
                       <TopTracksAndCars
                         tracks={trackMasteryList}
                         cars={carAffinityList}
+                        trackMapLookup={trackMapLookup}
                         trackDisplayNameLookup={trackDisplayNameLookup}
                         brandLogoLookup={brandLogoLookup}
                       />
                     )}
-                    {recentMoments.length > 0 && (
+                    {(recentMoments.length > 0 || momentHighlights.length > 0) && (
                       <RecentMoments
                         moments={recentMoments}
+                        highlights={momentHighlights}
                         trackMapLookup={trackMapLookup}
                         trackLogoLookup={trackLogoLookup}
                         trackDisplayNameLookup={trackDisplayNameLookup}
                         brandLogoLookup={brandLogoLookup}
                         compact
                       />
-                    )}
-                    {vizData.length > 0 && (
-                      <SessionLengthCards sessions={dnaSessionData} />
                     )}
                   </div>
                 </div>
@@ -776,59 +783,6 @@ export default async function DashboardPage() {
             {isPluginConnected && raceCount > 0 && (
               <DataManagement totalSessions={raceCount} emptySessions={emptySessionCount} />
             )}
-
-            {/* Performance */}
-            <section className="mb-6">
-              <h2
-                className="font-bold mb-2 flex items-center gap-2"
-                style={{ fontSize: "var(--fs-2xl)" }}
-              >
-                <BarChart3 size={24} className="text-[var(--border-accent)]" />
-                Performance
-              </h2>
-              {hasEnoughData ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                    <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1">
-                      Races
-                    </div>
-                    <div className="text-2xl font-black">{raceCount}</div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                    <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1">
-                      Charts
-                    </div>
-                    <div className="text-sm text-[var(--text-dim)]">
-                      Coming soon
-                    </div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
-                    <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1">
-                      Trends
-                    </div>
-                    <div className="text-sm text-[var(--text-dim)]">
-                      Coming soon
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-8 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-center">
-                  <Trophy
-                    size={32}
-                    className="mx-auto mb-3 text-[var(--text-muted)]"
-                  />
-                  <p className="text-sm text-[var(--text-dim)] mb-1">
-                    {raceCount === 0
-                      ? "No race data yet"
-                      : `${raceCount} of 5 races recorded`}
-                  </p>
-                  <p className="text-xs text-[var(--text-muted)]">
-                    Charts and performance trends will appear once you&apos;ve
-                    completed at least 5 races.
-                  </p>
-                </div>
-              )}
-            </section>
 
             {/* Pro Features */}
             {!hasEnoughData && (

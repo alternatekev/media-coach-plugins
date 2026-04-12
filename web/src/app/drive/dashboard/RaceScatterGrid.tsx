@@ -234,14 +234,14 @@ export default function RaceScatterGrid({ sessions }: Props) {
     <div ref={containerRef} className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-4 h-full relative flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
+        <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)]">
           <Clock size={24} className="text-[var(--border-accent)]" />
           Race Schedule
         </div>
         <select
           value={metric}
           onChange={e => setMetric(e.target.value as HeatMetric)}
-          className="bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)] text-xs rounded px-2 py-1 outline-none cursor-pointer"
+          className="bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-secondary)] text-sm rounded px-2 py-1 outline-none cursor-pointer"
         >
           {(Object.keys(METRIC_LABELS) as HeatMetric[]).map(k => (
             <option key={k} value={k}>{METRIC_LABELS[k]}</option>
@@ -293,7 +293,7 @@ export default function RaceScatterGrid({ sessions }: Props) {
               textAnchor="end"
               dominantBaseline="middle"
               fill="var(--text-muted)"
-              fontSize={10}
+              fontSize={14}
             >
               {label}
             </text>
@@ -307,7 +307,7 @@ export default function RaceScatterGrid({ sessions }: Props) {
               y={MARGIN.top + CHART_H + 16}
               textAnchor="middle"
               fill="var(--text-muted)"
-              fontSize={10}
+              fontSize={14}
             >
               {label}
             </text>

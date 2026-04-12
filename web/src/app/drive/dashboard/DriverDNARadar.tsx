@@ -62,11 +62,11 @@ export default function DriverDNARadar({ sessions, ratingHistory }: Props) {
     <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-4 h-full relative flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
+        <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)]">
           <Target size={24} className="text-[var(--border-accent)]" />
           Driver DNA
         </div>
-        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--k10-red)]/15 text-[var(--k10-red)]">
+        <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-[var(--k10-red)]/15 text-[var(--k10-red)]">
           {archetype.name}
         </span>
       </div>
@@ -76,8 +76,8 @@ export default function DriverDNARadar({ sessions, ratingHistory }: Props) {
         <ResponsiveContainer width="100%" height={280}>
           <RadarChart data={radarData}>
             <PolarGrid stroke="rgba(255,255,255,0.1)" />
-            <PolarAngleAxis dataKey="dimension" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 10 }} />
-            <PolarRadiusAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9 }} domain={[0, 100]} />
+            <PolarAngleAxis dataKey="dimension" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 14 }} />
+            <PolarRadiusAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 13 }} domain={[0, 100]} />
             <Tooltip
               contentStyle={{
                 backgroundColor: 'var(--surface)',
@@ -94,7 +94,7 @@ export default function DriverDNARadar({ sessions, ratingHistory }: Props) {
       {/* Footer link */}
       <Link
         href="/drive/dna"
-        className="text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors text-right mt-1"
+        className="text-sm text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors text-right mt-1"
       >
         View full profile &rarr;
       </Link>

@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Clock, Target, AlertTriangle, Flame, Shield, Zap, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Clock, Target, AlertTriangle, Flame, Shield, Zap, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { resolveIRacingTrackId } from '@/data/iracing-track-map'
+import { useElectron } from '@/hooks/useElectron'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -20,6 +21,8 @@ export interface RaceSuggestion {
   commentary: string
   startsAtUtc: string
   carClassNames?: string[]
+  seasonId?: number
+  seriesId?: number
 }
 
 export interface BrandInfo {
@@ -180,9 +183,11 @@ function lookupAllBrands(lookups: RaceLookups, carClassNames: string[]): BrandIn
 function HeroRaceCard({
   suggestion,
   lookups,
+  showRegister,
 }: {
   suggestion: RaceSuggestion
   lookups: RaceLookups
+  showRegister: boolean
 }) {
   const accentColor = getScoreColor(suggestion.score)
   const strategyColor = STRATEGY_COLOR[suggestion.strategy]
@@ -391,6 +396,23 @@ function HeroRaceCard({
             {suggestion.commentary}
           </p>
         </div>
+
+        {/* Register & Join — only in Electron on Windows */}
+        {showRegister && suggestion.seasonId && (
+          <a
+            href={`https://members.iracing.com/membersite/member/SeriesSchedule.do?season=${suggestion.seasonId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-all hover:brightness-110"
+            style={{
+              background: accentColor,
+              color: '#fff',
+            }}
+          >
+            <ExternalLink size={14} />
+            Register &amp; Join
+          </a>
+        )}
       </div>
     </div>
   )
@@ -400,6 +422,8 @@ function HeroRaceCard({
 
 export default function NextRaceIdeas({ suggestions, lookups }: NextRaceIdeasProps) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const { isElectron, isWindows } = useElectron()
+  const showRegister = isElectron && isWindows
 
   if (suggestions.length === 0) return null
 
@@ -418,7 +442,7 @@ export default function NextRaceIdeas({ suggestions, lookups }: NextRaceIdeasPro
       </div>
 
       {/* Hero card */}
-      <HeroRaceCard suggestion={current} lookups={lookups} />
+      <HeroRaceCard suggestion={current} lookups={lookups} showRegister={showRegister} />
 
       {/* Pagination controls */}
       {suggestions.length > 1 && (

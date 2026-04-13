@@ -123,7 +123,7 @@ export default function IncidentHotspots({ raceSessions, ratingHistory }: Incide
 
   return (
     <div
-      className="rounded-lg p-6"
+      className="rounded-xl p-6"
       style={{
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
@@ -135,17 +135,17 @@ export default function IncidentHotspots({ raceSessions, ratingHistory }: Incide
       </div>
 
       {hotspotsData.length === 0 ? (
-        <div className="text-center py-8 text-zinc-400">
+        <div className="text-center py-8 text-[var(--text-dim)]">
           <p>No track data yet. Race at different tracks to see hotspot analysis.</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-700">
-                <th className="text-left py-3 px-4 font-medium text-zinc-300">Track</th>
+              <tr className="border-b border-[var(--border)]">
+                <th className="text-left py-3 px-4 font-medium text-[var(--text-dim)]">Track</th>
                 <th
-                  className="text-right py-3 px-4 font-medium text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
+                  className="text-right py-3 px-4 font-medium text-[var(--text-dim)] cursor-pointer hover:text-[var(--text-secondary)] transition-colors"
                   onClick={() => toggleSort('totalRaces')}
                 >
                   <div className="flex items-center justify-end gap-2">
@@ -161,9 +161,9 @@ export default function IncidentHotspots({ raceSessions, ratingHistory }: Incide
                     )}
                   </div>
                 </th>
-                <th className="text-right py-3 px-4 font-medium text-zinc-300">Total Incidents</th>
+                <th className="text-right py-3 px-4 font-medium text-[var(--text-dim)]">Total Incidents</th>
                 <th
-                  className="text-right py-3 px-4 font-medium text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
+                  className="text-right py-3 px-4 font-medium text-[var(--text-dim)] cursor-pointer hover:text-[var(--text-secondary)] transition-colors"
                   onClick={() => toggleSort('avgIncidents')}
                 >
                   <div className="flex items-center justify-end gap-2">
@@ -180,7 +180,7 @@ export default function IncidentHotspots({ raceSessions, ratingHistory }: Incide
                   </div>
                 </th>
                 <th
-                  className="text-right py-3 px-4 font-medium text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
+                  className="text-right py-3 px-4 font-medium text-[var(--text-dim)] cursor-pointer hover:text-[var(--text-secondary)] transition-colors"
                   onClick={() => toggleSort('srTrend')}
                 >
                   <div className="flex items-center justify-end gap-2">
@@ -202,17 +202,17 @@ export default function IncidentHotspots({ raceSessions, ratingHistory }: Incide
               {sortedData.map((hotspot) => (
                 <tr
                   key={hotspot.track}
-                  className="border-b border-zinc-800 hover:bg-zinc-800 hover:bg-opacity-50 transition-colors"
+                  className="border-b border-[var(--border)] hover:bg-[var(--bg-panel)] transition-colors"
                 >
-                  <td className="py-3 px-4 text-zinc-100">
+                  <td className="py-3 px-4 text-[var(--text-secondary)]">
                     <Link href={`/drive/track/${encodeURIComponent(hotspot.track)}`} className="hover:text-emerald-400 transition-colors">
                       {hotspot.track}
                     </Link>
                   </td>
-                  <td className="py-3 px-4 text-right text-zinc-300">{hotspot.totalRaces}</td>
-                  <td className="py-3 px-4 text-right text-zinc-300">{hotspot.totalIncidents}</td>
+                  <td className="py-3 px-4 text-right text-[var(--text-dim)]">{hotspot.totalRaces}</td>
+                  <td className="py-3 px-4 text-right text-[var(--text-dim)]">{hotspot.totalIncidents}</td>
                   <td className="py-3 px-4 text-right">
-                    <span className={hotspot.avgIncidents > 2 ? 'text-rose-400' : 'text-zinc-300'}>
+                    <span className={hotspot.avgIncidents > 2 ? 'text-rose-400' : 'text-[var(--text-dim)]'}>
                       {hotspot.avgIncidents.toFixed(1)}
                     </span>
                   </td>
@@ -232,7 +232,7 @@ export default function IncidentHotspots({ raceSessions, ratingHistory }: Incide
                         )}
                       </div>
                     ) : (
-                      <span className="text-zinc-500">N/A</span>
+                      <span className="text-[var(--text-muted)]">N/A</span>
                     )}
                   </td>
                 </tr>

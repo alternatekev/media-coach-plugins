@@ -97,7 +97,7 @@ export default function SRGainLeaderboard({ ratingHistory }: SRGainLeaderboardPr
 
   return (
     <div
-      className="rounded-lg p-6"
+      className="rounded-xl p-6"
       style={{
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
@@ -109,18 +109,18 @@ export default function SRGainLeaderboard({ ratingHistory }: SRGainLeaderboardPr
       </div>
 
       {gainData.length === 0 ? (
-        <div className="text-center py-8 text-zinc-400">
+        <div className="text-center py-8 text-[var(--text-dim)]">
           <p>No SR gains yet. Complete races with positive SR changes to see data here.</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-700">
-                <th className="text-left py-3 px-4 font-medium text-zinc-300">Track</th>
-                <th className="text-left py-3 px-4 font-medium text-zinc-300">Car</th>
+              <tr className="border-b border-[var(--border)]">
+                <th className="text-left py-3 px-4 font-medium text-[var(--text-dim)]">Track</th>
+                <th className="text-left py-3 px-4 font-medium text-[var(--text-dim)]">Car</th>
                 <th
-                  className="text-right py-3 px-4 font-medium text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
+                  className="text-right py-3 px-4 font-medium text-[var(--text-dim)] cursor-pointer hover:text-[var(--text-secondary)] transition-colors"
                   onClick={() => toggleSort('racesCompleted')}
                 >
                   <div className="flex items-center justify-end gap-2">
@@ -137,7 +137,7 @@ export default function SRGainLeaderboard({ ratingHistory }: SRGainLeaderboardPr
                   </div>
                 </th>
                 <th
-                  className="text-right py-3 px-4 font-medium text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
+                  className="text-right py-3 px-4 font-medium text-[var(--text-dim)] cursor-pointer hover:text-[var(--text-secondary)] transition-colors"
                   onClick={() => toggleSort('avgSRGain')}
                 >
                   <div className="flex items-center justify-end gap-2">
@@ -153,22 +153,22 @@ export default function SRGainLeaderboard({ ratingHistory }: SRGainLeaderboardPr
                     )}
                   </div>
                 </th>
-                <th className="text-right py-3 px-4 font-medium text-zinc-300">Range</th>
+                <th className="text-right py-3 px-4 font-medium text-[var(--text-dim)]">Range</th>
               </tr>
             </thead>
             <tbody>
               {sortedData.map((combo, idx) => (
                 <tr
                   key={`${combo.track}|${combo.car}`}
-                  className="border-b border-zinc-800 hover:bg-zinc-800 hover:bg-opacity-50 transition-colors"
+                  className="border-b border-[var(--border)] hover:bg-[var(--bg-panel)] transition-colors"
                 >
-                  <td className="py-3 px-4 text-zinc-100">{combo.track}</td>
-                  <td className="py-3 px-4 text-zinc-100">{combo.car}</td>
-                  <td className="py-3 px-4 text-right text-zinc-300">{combo.racesCompleted}</td>
+                  <td className="py-3 px-4 text-[var(--text-secondary)]">{combo.track}</td>
+                  <td className="py-3 px-4 text-[var(--text-secondary)]">{combo.car}</td>
+                  <td className="py-3 px-4 text-right text-[var(--text-dim)]">{combo.racesCompleted}</td>
                   <td className="py-3 px-4 text-right">
                     <span className="text-emerald-400 font-medium">+{combo.avgSRGain.toFixed(2)}</span>
                   </td>
-                  <td className="py-3 px-4 text-right text-zinc-400 text-xs">
+                  <td className="py-3 px-4 text-right text-[var(--text-muted)] text-xs">
                     {combo.minGain.toFixed(2)} to +{combo.maxGain.toFixed(2)}
                   </td>
                 </tr>

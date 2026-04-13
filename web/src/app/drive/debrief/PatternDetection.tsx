@@ -84,16 +84,16 @@ export default function PatternDetection({
 
   if (!hasPatterns) {
     return (
-      <div className="rounded-lg bg-zinc-800 border border-zinc-700 p-6">
+      <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-6">
         <div className="flex items-center gap-2 mb-4">
           <Lightbulb size={20} className="text-emerald-400" />
-          <h2 className="text-lg font-semibold text-zinc-100">
+          <h2 className="text-lg font-semibold text-[var(--text-secondary)]">
             Pattern Detection
           </h2>
         </div>
 
-        <div className="bg-zinc-900 rounded p-4 text-center">
-          <p className="text-sm text-zinc-400">
+        <div className="bg-[var(--bg-panel)] rounded-lg p-4 text-center">
+          <p className="text-sm text-[var(--text-dim)]">
             No recurring incident patterns detected at {trackName}. Keep up the
             consistency!
           </p>
@@ -103,11 +103,11 @@ export default function PatternDetection({
   }
 
   return (
-    <div className="rounded-lg bg-zinc-800 border border-zinc-700 p-6">
+    <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-6">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <AlertTriangle size={20} className="text-amber-400" />
-        <h2 className="text-lg font-semibold text-zinc-100">
+        <h2 className="text-lg font-semibold text-[var(--text-secondary)]">
           Recurring Incident Locations
         </h2>
       </div>
@@ -117,15 +117,15 @@ export default function PatternDetection({
         {patterns.map((pattern, idx) => (
           <div
             key={idx}
-            className="bg-zinc-900 rounded-lg p-4 border border-zinc-700"
+            className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border)]"
           >
             {/* Top: Position + Count */}
             <div className="flex items-center justify-between mb-2">
               <div>
-                <p className="text-sm font-semibold text-zinc-100">
+                <p className="text-sm font-semibold text-[var(--text-secondary)]">
                   ~{pattern.percentage}% Around Track
                 </p>
-                <p className="text-xs text-zinc-500 mt-1">
+                <p className="text-xs text-[var(--text-muted)] mt-1">
                   {pattern.trackPosition.toFixed(2)} track position
                 </p>
               </div>
@@ -134,15 +134,15 @@ export default function PatternDetection({
                 <p className="text-2xl font-bold text-amber-400">
                   {pattern.count}x
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-[var(--text-muted)]">
                   in last {allSessions.length} races
                 </p>
               </div>
             </div>
 
             {/* Lap breakdown */}
-            <div className="mt-3 pt-3 border-t border-zinc-700">
-              <p className="text-xs text-zinc-400 font-medium mb-1.5">
+            <div className="mt-3 pt-3 border-t border-[var(--border)]">
+              <p className="text-xs text-[var(--text-dim)] font-medium mb-1.5">
                 Occurred on laps:
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -155,7 +155,7 @@ export default function PatternDetection({
                   </span>
                 ))}
                 {pattern.lapNumbers.length < pattern.count && (
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-xs text-[var(--text-muted)]">
                     +{pattern.count - pattern.lapNumbers.length} more
                   </span>
                 )}
@@ -163,8 +163,8 @@ export default function PatternDetection({
             </div>
 
             {/* Advice */}
-            <div className="mt-3 pt-3 border-t border-zinc-700">
-              <p className="text-xs text-zinc-300">
+            <div className="mt-3 pt-3 border-t border-[var(--border)]">
+              <p className="text-xs text-[var(--text-dim)]">
                 Focus on your approach at this section. Consider: brake point
                 consistency, line selection, or traffic management in this area.
               </p>
@@ -174,9 +174,9 @@ export default function PatternDetection({
       </div>
 
       {/* Summary */}
-      <div className="mt-4 pt-4 border-t border-zinc-700">
-        <p className="text-xs text-zinc-400">
-          <span className="font-semibold text-zinc-300">Tip:</span> These
+      <div className="mt-4 pt-4 border-t border-[var(--border)]">
+        <p className="text-xs text-[var(--text-dim)]">
+          <span className="font-semibold text-[var(--text-secondary)]">Tip:</span> These
           recurring locations suggest areas where you can focus improvement
           efforts. Reviewing onboard footage of laps from this area might reveal
           technique adjustments.

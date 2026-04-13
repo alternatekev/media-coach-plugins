@@ -59,15 +59,15 @@ export default function LapTimeline({
   }
 
   return (
-    <div className="rounded-lg bg-zinc-800 border border-zinc-700 p-6">
+    <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-6">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <TrendingUp size={20} className="text-emerald-400" />
-        <h2 className="text-lg font-semibold text-zinc-100">Lap-by-Lap Timeline</h2>
+        <h2 className="text-lg font-semibold text-[var(--text-secondary)]">Lap-by-Lap Timeline</h2>
       </div>
 
       {/* Chart */}
-      <div className="bg-zinc-900 rounded p-4 mb-4" style={{ height: 300 }}>
+      <div className="bg-[var(--bg-panel)] rounded-lg p-4 mb-4" style={{ height: 300 }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
             <defs>
@@ -83,23 +83,23 @@ export default function LapTimeline({
 
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="rgba(255, 255, 255, 0.1)"
+              stroke="var(--border)"
             />
             <XAxis
               dataKey="lap"
-              stroke="rgba(255, 255, 255, 0.3)"
+              stroke="var(--text-dim)"
               tick={{ fontSize: 12 }}
             />
             <YAxis
               yAxisId="left"
-              stroke="rgba(255, 255, 255, 0.3)"
+              stroke="var(--text-dim)"
               tick={{ fontSize: 12 }}
               label={{ value: 'Lap Time (s)', angle: -90, position: 'insideLeft' }}
             />
             <YAxis
               yAxisId="right"
               orientation="right"
-              stroke="rgba(255, 255, 255, 0.3)"
+              stroke="var(--text-dim)"
               tick={{ fontSize: 12 }}
               label={{
                 value: 'Rage Score',
@@ -179,24 +179,24 @@ export default function LapTimeline({
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: '#10b981' }}
           />
-          <span className="text-zinc-300">Lap Time (primary)</span>
+          <span className="text-[var(--text-dim)]">Lap Time (primary)</span>
         </div>
         <div className="flex items-center gap-2">
           <div
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: '#f59e0b' }}
           />
-          <span className="text-zinc-300">Rage Score (secondary)</span>
+          <span className="text-[var(--text-dim)]">Rage Score (secondary)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500" />
-          <span className="text-zinc-300">Incident Marker</span>
+          <span className="text-[var(--text-dim)]">Incident Marker</span>
         </div>
       </div>
 
       {/* Insights */}
-      <div className="mt-4 pt-4 border-t border-zinc-700">
-        <p className="text-xs text-zinc-400">
+      <div className="mt-4 pt-4 border-t border-[var(--border)]">
+        <p className="text-xs text-[var(--text-dim)]">
           Green area shows lap consistency. Orange line shows your composure
           (higher = more agitated). Red dots mark laps where incidents occurred.
         </p>

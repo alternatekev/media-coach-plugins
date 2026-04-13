@@ -212,10 +212,10 @@ export function ComposureTrendsClient({ sessions }: Props) {
 
   if (sortedSessions.length === 0) {
     return (
-      <div className="p-12 rounded-xl bg-zinc-900 border border-zinc-700 text-center">
-        <Heart size={40} className="mx-auto text-zinc-500 mb-4" />
-        <p className="text-lg font-semibold text-zinc-100">No Composure Data Yet</p>
-        <p className="text-sm text-zinc-400 mt-2">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-12 text-center">
+        <Heart size={40} className="mx-auto text-[var(--text-muted)] mb-4" />
+        <p className="text-lg font-semibold text-[var(--text)]">No Composure Data Yet</p>
+        <p className="text-sm text-[var(--text-dim)] mt-2">
           Complete some races to see your composure trends and behavioral analytics
         </p>
       </div>
@@ -223,105 +223,104 @@ export function ComposureTrendsClient({ sessions }: Props) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-zinc-100">Composure Trends</h1>
-        <p className="text-sm text-zinc-400 mt-1">
-          Analyze your emotional control and composure patterns across {insights?.totalRaces} races
-        </p>
+    <div className="space-y-8">
+      {/* Page Hero Header */}
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-panel)] p-8 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5 pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[var(--border-accent)] to-transparent rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="rounded-lg p-3 bg-[var(--bg-elevated)] border border-[var(--border)]">
+              <Heart size={24} className="text-[var(--border-accent)]" />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-[var(--text)] mb-2" style={{ fontFamily: 'var(--ff-display)' }}>
+                Composure Trends
+              </h1>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Analyze your emotional control and composure patterns across {insights?.totalRaces} {insights?.totalRaces === 1 ? 'race' : 'races'}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Summary Insights Cards */}
       {insights && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  Composure Trend
-                </p>
-                <p className="text-2xl font-bold text-zinc-100 mt-2">
-                  {Math.abs(insights.composureTrend).toFixed(1)}%
-                </p>
-                <p className="text-xs text-zinc-500 mt-1">
-                  {insights.composureTrendDirection === 'up' && 'Improving over time'}
-                  {insights.composureTrendDirection === 'down' && 'Declining over time'}
-                  {insights.composureTrendDirection === 'stable' && 'Steady'}
-                </p>
-              </div>
-              <div className="mt-1">
-                {insights.composureTrendDirection === 'up' && (
-                  <TrendingUp size={24} className="text-emerald-500" />
-                )}
-                {insights.composureTrendDirection === 'down' && (
-                  <TrendingDown size={24} className="text-rose-500" />
-                )}
-                {insights.composureTrendDirection === 'stable' && (
-                  <Heart size={24} className="text-zinc-500" />
-                )}
-              </div>
-            </div>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>
+              Composure Trend
+            </p>
+            <p className="text-xl font-bold text-[var(--text)] mt-3" style={{ fontFamily: 'var(--ff-mono)' }}>
+              {Math.abs(insights.composureTrend).toFixed(1)}%
+            </p>
+            <p className="text-xs text-[var(--text-dim)] mt-2 flex items-center gap-2">
+              {insights.composureTrendDirection === 'up' && (
+                <>
+                  <TrendingUp size={14} className="text-emerald-500" />
+                  Improving
+                </>
+              )}
+              {insights.composureTrendDirection === 'down' && (
+                <>
+                  <TrendingDown size={14} className="text-rose-500" />
+                  Declining
+                </>
+              )}
+              {insights.composureTrendDirection === 'stable' && (
+                <>
+                  <Heart size={14} className="text-[var(--border-accent)]" />
+                  Steady
+                </>
+              )}
+            </p>
           </div>
 
-          <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  SR Correlation
-                </p>
-                <p className="text-2xl font-bold text-zinc-100 mt-2">
-                  {insights.srDeltaMultiplier.toFixed(1)}x
-                </p>
-                <p className="text-xs text-zinc-500 mt-1">
-                  Better SR at composure &gt;70
-                </p>
-              </div>
-              <Zap size={24} className="text-amber-500 mt-1" />
-            </div>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>
+              SR Correlation
+            </p>
+            <p className="text-xl font-bold text-[var(--text)] mt-3" style={{ fontFamily: 'var(--ff-mono)' }}>
+              {insights.srDeltaMultiplier.toFixed(1)}x
+            </p>
+            <p className="text-xs text-[var(--text-dim)] mt-2">
+              Better SR at composure &gt;70
+            </p>
           </div>
 
-          <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  Avg Recovery Time
-                </p>
-                <p className="text-2xl font-bold text-zinc-100 mt-2">
-                  {formatTime(insights.avgRecoveryTime)}
-                </p>
-                <p className="text-xs text-zinc-500 mt-1">
-                  After rage spike
-                </p>
-              </div>
-              <Heart size={24} className="text-rose-500 mt-1" />
-            </div>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>
+              Avg Recovery Time
+            </p>
+            <p className="text-xl font-bold text-[var(--text)] mt-3" style={{ fontFamily: 'var(--ff-mono)' }}>
+              {formatTime(insights.avgRecoveryTime)}
+            </p>
+            <p className="text-xs text-[var(--text-dim)] mt-2">
+              After rage spike
+            </p>
           </div>
 
-          <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  Retaliation Rate
-                </p>
-                <p className="text-2xl font-bold text-zinc-100 mt-2">
-                  {insights.retaliationRate.toFixed(1)}%
-                </p>
-                <p className="text-xs text-zinc-500 mt-1">
-                  Of incidents
-                </p>
-              </div>
-              <TrendingDown size={24} className="text-orange-500 mt-1" />
-            </div>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>
+              Retaliation Rate
+            </p>
+            <p className="text-xl font-bold text-[var(--text)] mt-3" style={{ fontFamily: 'var(--ff-mono)' }}>
+              {insights.retaliationRate.toFixed(1)}%
+            </p>
+            <p className="text-xs text-[var(--text-dim)] mt-2">
+              Of incidents
+            </p>
           </div>
         </div>
       )}
 
       {/* 1. Composure Score Over Time */}
-      <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Heart size={18} className="text-emerald-500" />
-          <h2 className="text-sm font-semibold text-zinc-100">Composure Score Over Time</h2>
+          <Heart size={18} className="text-[var(--border-accent)]" />
+          <h3 className="text-sm font-bold text-[var(--text)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>Composure Score Over Time</h3>
         </div>
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart data={composureChartData} margin={{ top: 8, right: 12, left: -16, bottom: 16 }}>
@@ -353,11 +352,10 @@ export function ComposureTrendsClient({ sessions }: Props) {
             />
             <Tooltip
               contentStyle={{
-                background: 'rgba(16, 16, 32, 0.95)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '12px',
+                background: 'rgba(10,10,20,0.95)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8,
+                fontSize: 12,
               }}
               formatter={((value: any, name?: string) => {
                 if (name === 'composure') return [value.toFixed(1), 'Composure']
@@ -390,10 +388,10 @@ export function ComposureTrendsClient({ sessions }: Props) {
       </div>
 
       {/* 2. Rage Spike Frequency */}
-      <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Zap size={18} className="text-rose-500" />
-          <h2 className="text-sm font-semibold text-zinc-100">Rage Spike Frequency</h2>
+          <Zap size={18} className="text-[var(--border-accent)]" />
+          <h3 className="text-sm font-bold text-[var(--text)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>Rage Spike Frequency</h3>
         </div>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={rageSpikeChartData} margin={{ top: 8, right: 12, left: -16, bottom: 16 }}>
@@ -409,11 +407,10 @@ export function ComposureTrendsClient({ sessions }: Props) {
             />
             <Tooltip
               contentStyle={{
-                background: 'rgba(16, 16, 32, 0.95)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '12px',
+                background: 'rgba(10,10,20,0.95)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8,
+                fontSize: 12,
               }}
             />
             <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)' }} />
@@ -424,10 +421,10 @@ export function ComposureTrendsClient({ sessions }: Props) {
       </div>
 
       {/* 3. Composure vs SR Delta Scatter */}
-      <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp size={18} className="text-blue-500" />
-          <h2 className="text-sm font-semibold text-zinc-100">Composure vs SR Gain</h2>
+          <TrendingUp size={18} className="text-[var(--border-accent)]" />
+          <h3 className="text-sm font-bold text-[var(--text)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>Composure vs SR Gain</h3>
         </div>
         <ResponsiveContainer width="100%" height={280}>
           <ScatterChart margin={{ top: 8, right: 12, left: -16, bottom: 16 }}>
@@ -448,11 +445,10 @@ export function ComposureTrendsClient({ sessions }: Props) {
             />
             <Tooltip
               contentStyle={{
-                background: 'rgba(16, 16, 32, 0.95)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '12px',
+                background: 'rgba(10,10,20,0.95)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8,
+                fontSize: 12,
               }}
               formatter={(value: any) => {
                 if (typeof value === 'number') return value.toFixed(2)
@@ -463,16 +459,16 @@ export function ComposureTrendsClient({ sessions }: Props) {
             <Scatter name="Sessions" data={scatterData} fill="#06b6d4" />
           </ScatterChart>
         </ResponsiveContainer>
-        <p className="text-xs text-zinc-400 mt-2">
+        <p className="text-xs text-[var(--text-dim)] mt-2">
           Shows correlation between composure score and SR change per session
         </p>
       </div>
 
       {/* 4. Behavioral Trends */}
-      <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingDown size={18} className="text-orange-500" />
-          <h2 className="text-sm font-semibold text-zinc-100">Behavioral Trends</h2>
+          <TrendingDown size={18} className="text-[var(--border-accent)]" />
+          <h3 className="text-sm font-bold text-[var(--text)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>Behavioral Trends</h3>
         </div>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={behavioralChartData} margin={{ top: 8, right: 12, left: -16, bottom: 16 }}>
@@ -488,11 +484,10 @@ export function ComposureTrendsClient({ sessions }: Props) {
             />
             <Tooltip
               contentStyle={{
-                background: 'rgba(16, 16, 32, 0.95)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '12px',
+                background: 'rgba(10,10,20,0.95)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8,
+                fontSize: 12,
               }}
               formatter={((value: any, name?: string) => {
                 if (name === 'cleanLapPercent') return [`${value.toFixed(1)}%`, 'Clean Lap %']
@@ -540,40 +535,40 @@ export function ComposureTrendsClient({ sessions }: Props) {
       {/* Recovery Stats */}
       {insights && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>
               Cooldown Effectiveness
             </p>
-            <p className="text-2xl font-bold text-zinc-100 mt-2">
+            <p className="text-xl font-bold text-[var(--text)] mt-3" style={{ fontFamily: 'var(--ff-mono)' }}>
               {insights.cooldownEffectiveness.toFixed(1)}%
             </p>
-            <p className="text-xs text-zinc-500 mt-2">
+            <p className="text-xs text-[var(--text-dim)] mt-2">
               Cooldowns triggered as % of rage spikes
             </p>
           </div>
 
-          <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>
               High Composure SR
             </p>
-            <p className="text-2xl font-bold text-zinc-100 mt-2">
+            <p className="text-xl font-bold text-[var(--text)] mt-3" style={{ fontFamily: 'var(--ff-mono)' }}>
               {insights.highComposureAvgSRDelta > 0 ? '+' : ''}
               {insights.highComposureAvgSRDelta.toFixed(2)}
             </p>
-            <p className="text-xs text-zinc-500 mt-2">
+            <p className="text-xs text-[var(--text-dim)] mt-2">
               Avg SR delta when composure &gt; 70
             </p>
           </div>
 
-          <div className="rounded-lg bg-zinc-900 border border-zinc-700 p-4">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider" style={{ fontFamily: 'var(--ff-display)' }}>
               Low Composure SR
             </p>
-            <p className="text-2xl font-bold text-zinc-100 mt-2">
+            <p className="text-xl font-bold text-[var(--text)] mt-3" style={{ fontFamily: 'var(--ff-mono)' }}>
               {insights.lowComposureAvgSRDelta > 0 ? '+' : ''}
               {insights.lowComposureAvgSRDelta.toFixed(2)}
             </p>
-            <p className="text-xs text-zinc-500 mt-2">
+            <p className="text-xs text-[var(--text-dim)] mt-2">
               Avg SR delta when composure ≤ 70
             </p>
           </div>

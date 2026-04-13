@@ -5,6 +5,7 @@ import { and, eq, gt } from 'drizzle-orm'
 import LogoMark from '@/components/LogoMark'
 import ThemeSetEffects from '@/components/ThemeSetEffects'
 import DriveNavLinks from '@/components/DriveNavLinks'
+import MomentsDrawerWrapper from '@/components/MomentsDrawerWrapper'
 import UserMenu from '@/components/UserMenu'
 
 export default async function DriveHeader() {
@@ -68,9 +69,10 @@ export default async function DriveHeader() {
             <DriveNavLinks isAdmin={admin} />
           </div>
 
-          {/* Right: user menu */}
+          {/* Right: moments + user menu */}
           {session?.user && (
-            <div className="flex items-center flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <MomentsDrawerWrapper />
               <UserMenu
                 user={{
                   name: displayName,

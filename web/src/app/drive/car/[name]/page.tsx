@@ -122,13 +122,17 @@ export default async function CarDetailPage({
   const carImageUrl = getCarImage(carModel)
 
   // ── Sibling cars from same manufacturer ──────────────────────────────────
-  const manufacturer = matchingSessions[0]?.manufacturer || brandName || null
+  const GENERIC_MANUFACTURERS = new Set(['global', 'fia', 'imsa', 'sro', 'nascar', 'usac', 'arca', 'indycar', 'v8'])
+  const rawManufacturer = matchingSessions[0]?.manufacturer
+  const isGenericManuf = !rawManufacturer || GENERIC_MANUFACTURERS.has(rawManufacturer.toLowerCase())
+  const manufacturer = isGenericManuf ? (brandName || carModel.split(' ')[0] || null) : rawManufacturer
   const siblingModels = new Map<string, { count: number; positions: number[]; incidents: number }>()
 
   if (manufacturer) {
     for (const s of carSessions) {
-      // Match by manufacturer field or brand name appearing in the model
-      const sameManuf = s.manufacturer && s.manufacturer.toLowerCase() === manufacturer.toLowerCase()
+      // Match by manufacturer field (ignoring generic names) or brand name appearing in the model
+      const sManuf = s.manufacturer && !GENERIC_MANUFACTURERS.has(s.manufacturer.toLowerCase()) ? s.manufacturer : null
+      const sameManuf = sManuf && sManuf.toLowerCase() === manufacturer.toLowerCase()
       const brandInModel = brandName && s.carModel.toLowerCase().includes(brandName.toLowerCase())
       if ((sameManuf || brandInModel) && s.carModel !== carModel) {
         const existing = siblingModels.get(s.carModel) || { count: 0, positions: [], incidents: 0 }
@@ -156,7 +160,8 @@ export default async function CarDetailPage({
   // ── Brand-level aggregate (this car + siblings) ──────────────────────────
   const allBrandSessions = manufacturer
     ? carSessions.filter(s => {
-        const sameManuf = s.manufacturer && s.manufacturer.toLowerCase() === manufacturer.toLowerCase()
+        const sManuf = s.manufacturer && !GENERIC_MANUFACTURERS.has(s.manufacturer.toLowerCase()) ? s.manufacturer : null
+        const sameManuf = sManuf && sManuf.toLowerCase() === manufacturer.toLowerCase()
         const brandInModel = brandName && s.carModel.toLowerCase().includes(brandName.toLowerCase())
         return sameManuf || brandInModel
       })

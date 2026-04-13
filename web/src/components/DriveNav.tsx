@@ -7,6 +7,7 @@ import {
   Dna,
   CalendarClock,
   MapPin,
+  Car,
   Sparkles,
   Settings,
 } from 'lucide-react'
@@ -16,7 +17,8 @@ const NAV_ITEMS = [
 
   { href: '/drive/dna', label: 'DNA', icon: Dna },
   { href: '/drive/when', label: 'When', icon: CalendarClock },
-  { href: '/drive/tracks', label: 'Tracks & Cars', icon: MapPin },
+  { href: '/drive/tracks', label: 'Tracks', icon: MapPin },
+  { href: '/drive/cars', label: 'Cars', icon: Car },
   { href: '/drive/moments', label: 'Moments', icon: Sparkles },
 ]
 

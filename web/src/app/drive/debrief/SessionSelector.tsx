@@ -50,7 +50,7 @@ export default function SessionSelector({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-semibold text-zinc-200">
+      <label className="text-sm font-semibold text-[var(--text-secondary)]">
         Select Session
       </label>
       <div className="space-y-2 max-h-[400px] overflow-y-auto">
@@ -67,8 +67,8 @@ export default function SessionSelector({
                 w-full text-left p-3 rounded-lg border transition-all
                 ${
                   isSelected
-                    ? 'bg-zinc-700 border-zinc-500 ring-2 ring-emerald-500'
-                    : 'bg-zinc-800 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-750'
+                    ? 'bg-[var(--bg-elevated)] border-[var(--border)] ring-2 ring-emerald-500'
+                    : 'bg-[var(--bg-panel)] border-[var(--border)] hover:border-[var(--border)] hover:bg-[var(--bg-elevated)]'
                 }
               `}
             >
@@ -76,21 +76,21 @@ export default function SessionSelector({
                 <div className="flex-1 min-w-0">
                   {/* Track + Car */}
                   <div className="flex items-center gap-2 mb-1">
-                    <Map size={14} className="text-zinc-400 flex-shrink-0" />
-                    <span className="text-sm font-medium text-zinc-100 truncate">
+                    <Map size={14} className="text-[var(--text-dim)] flex-shrink-0" />
+                    <span className="text-sm font-medium text-[var(--text-secondary)] truncate">
                       {session.trackName || 'Unknown Track'}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 mb-1">
-                    <Car size={14} className="text-zinc-400 flex-shrink-0" />
-                    <span className="text-xs text-zinc-400 truncate">
+                    <Car size={14} className="text-[var(--text-dim)] flex-shrink-0" />
+                    <span className="text-xs text-[var(--text-dim)] truncate">
                       {session.carModel}
                     </span>
                   </div>
 
                   {/* Date */}
-                  <div className="flex items-center gap-2 text-xs text-zinc-500">
+                  <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
                     <Calendar size={13} />
                     {formatDate(session.createdAt)}
                   </div>
@@ -99,14 +99,14 @@ export default function SessionSelector({
                 {/* Finish Position + Incidents (right side) */}
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
                   <div className="flex items-center gap-1">
-                    <Trophy size={14} className="text-zinc-400" />
+                    <Trophy size={14} className="text-[var(--text-dim)]" />
                     <span
                       className={`text-sm font-semibold ${
                         isDNF
                           ? 'text-rose-400'
                           : session.finishPosition === 1
                             ? 'text-amber-300'
-                            : 'text-zinc-300'
+                            : 'text-[var(--text-dim)]'
                       }`}
                     >
                       {getPositionLabel(session.finishPosition, isDNF)}

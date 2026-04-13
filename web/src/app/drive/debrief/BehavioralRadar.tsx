@@ -103,24 +103,24 @@ export default function BehavioralRadar({
   if (radarData.length === 0) return null
 
   return (
-    <div className="rounded-lg bg-zinc-800 border border-zinc-700 p-6">
+    <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-6">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <Zap size={20} className="text-yellow-400" />
-        <h2 className="text-lg font-semibold text-zinc-100">Behavioral Profile</h2>
+        <h2 className="text-lg font-semibold text-[var(--text-secondary)]">Behavioral Profile</h2>
       </div>
 
       {/* Radar Chart */}
-      <div className="bg-zinc-900 rounded p-4" style={{ height: 350 }}>
+      <div className="bg-[var(--bg-panel)] rounded-lg p-4" style={{ height: 350 }}>
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={radarData}>
-            <PolarGrid stroke="rgba(255, 255, 255, 0.1)" />
+            <PolarGrid stroke="var(--border)" />
             <PolarAngleAxis
               dataKey="dimension"
-              tick={{ fill: 'rgba(255, 255, 255, 0.7)', fontSize: 12 }}
+              tick={{ fill: 'var(--text-dim)', fontSize: 12 }}
             />
             <PolarRadiusAxis
-              tick={{ fill: 'rgba(255, 255, 255, 0.3)', fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               domain={[0, 100]}
             />
             <Tooltip
@@ -158,7 +158,7 @@ export default function BehavioralRadar({
       <div className="flex flex-wrap gap-4 mt-4 text-sm">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-emerald-500" />
-          <span className="text-zinc-300">This Session</span>
+          <span className="text-[var(--text-dim)]">This Session</span>
         </div>
         <div className="flex items-center gap-2">
           <div
@@ -169,35 +169,35 @@ export default function BehavioralRadar({
               width: '6px',
             }}
           />
-          <span className="text-zinc-300">All-Time Avg (dashed)</span>
+          <span className="text-[var(--text-dim)]">All-Time Avg (dashed)</span>
         </div>
       </div>
 
       {/* Insights */}
-      <div className="mt-4 pt-4 border-t border-zinc-700 space-y-2">
-        <p className="text-xs text-zinc-400 font-medium">Session Insights:</p>
-        <ul className="text-xs text-zinc-400 space-y-1">
+      <div className="mt-4 pt-4 border-t border-[var(--border)] space-y-2">
+        <p className="text-xs text-[var(--text-dim)] font-medium">Session Insights:</p>
+        <ul className="text-xs text-[var(--text-dim)] space-y-1">
           <li>
             • Throttle aggression:{' '}
-            <span className="text-zinc-200">
+            <span className="text-[var(--text-secondary)]">
               {sessionAverage.throttleAggression.toFixed(1)}/25
             </span>
           </li>
           <li>
             • Steering erraticism:{' '}
-            <span className="text-zinc-200">
+            <span className="text-[var(--text-secondary)]">
               {sessionAverage.steeringErraticism.toFixed(1)}/20
             </span>
           </li>
           <li>
             • Braking aggression:{' '}
-            <span className="text-zinc-200">
+            <span className="text-[var(--text-secondary)]">
               {sessionAverage.brakingAggression.toFixed(1)}/20
             </span>
           </li>
           <li>
             • Proximity chasing:{' '}
-            <span className="text-zinc-200">
+            <span className="text-[var(--text-secondary)]">
               {sessionAverage.proximityChasing.toFixed(1)}/25
             </span>
           </li>

@@ -62,7 +62,7 @@ export default function IncidentPhaseChart({ sessionBehaviors }: IncidentPhaseCh
 
   return (
     <div
-      className="rounded-lg p-6"
+      className="rounded-xl p-6"
       style={{
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
@@ -74,7 +74,7 @@ export default function IncidentPhaseChart({ sessionBehaviors }: IncidentPhaseCh
       </div>
 
       {!hasData ? (
-        <div className="text-center py-8 text-zinc-400">
+        <div className="text-center py-8 text-[var(--text-dim)]">
           <p>No behavior data available. This data populates as you race.</p>
         </div>
       ) : (
@@ -102,15 +102,15 @@ export default function IncidentPhaseChart({ sessionBehaviors }: IncidentPhaseCh
               <div className="text-2xl font-bold text-rose-400 mb-1">
                 {chartData.stats.early.toFixed(2)}
               </div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wide">Start Line</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Start Line</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-rose-400 mb-1">{chartData.stats.mid.toFixed(2)}</div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wide">Mid-Race</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Mid-Race</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-rose-400 mb-1">{chartData.stats.late.toFixed(2)}</div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wide">Closing Laps</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Closing Laps</div>
             </div>
           </div>
         </>

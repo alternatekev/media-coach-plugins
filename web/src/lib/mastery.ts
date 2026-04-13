@@ -170,24 +170,40 @@ export function computeTrackMastery(sessions: RaceSession[]): TrackMastery[] {
 
 function extractManufacturer(carModel: string): string {
   const MULTI_WORD = ['aston martin', 'alfa romeo', 'mercedes-amg', 'mercedes amg', 'red bull', 'ktm x-bow']
-  const lower = carModel.toLowerCase()
+  // Series/organization prefixes that appear in iRacing car names before the actual brand
+  const SERIES_PREFIXES = ['global', 'fia', 'imsa', 'sro', 'super']
+  let lower = carModel.toLowerCase()
+  let model = carModel
 
-  for (const brand of MULTI_WORD) {
-    if (lower.startsWith(brand)) {
-      return carModel.slice(0, brand.length).replace(/\b\w/g, c => c.toUpperCase())
+  // Strip leading series prefixes to get to the actual brand name
+  for (const prefix of SERIES_PREFIXES) {
+    if (lower.startsWith(prefix + ' ')) {
+      model = model.slice(prefix.length).trim()
+      lower = model.toLowerCase()
+      break // only strip one prefix
     }
   }
 
-  return carModel.split(' ')[0] || 'Unknown'
+  for (const brand of MULTI_WORD) {
+    if (lower.startsWith(brand)) {
+      return model.slice(0, brand.length).replace(/\b\w/g, c => c.toUpperCase())
+    }
+  }
+
+  return model.split(' ')[0] || 'Unknown'
 }
 
 export function computeCarAffinity(sessions: RaceSession[]): CarAffinity[] {
   if (sessions.length === 0) return []
 
   // Group by manufacturer
+  // Treat generic/series names like "Global" as missing so we extract the real brand from the car model
+  const GENERIC_MANUFACTURERS = new Set(['global', 'fia', 'imsa', 'sro', 'nascar', 'usac', 'arca', 'indycar', 'v8'])
   const manufacturerMap = new Map<string, RaceSession[]>()
   for (const session of sessions) {
-    const manufacturer = session.manufacturer || extractManufacturer(session.carModel)
+    const raw = session.manufacturer?.trim()
+    const isGeneric = !raw || GENERIC_MANUFACTURERS.has(raw.toLowerCase())
+    const manufacturer = isGeneric ? extractManufacturer(session.carModel) : raw
     if (!manufacturerMap.has(manufacturer)) {
       manufacturerMap.set(manufacturer, [])
     }

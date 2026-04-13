@@ -82,7 +82,7 @@ export default function SRProjection({
 
   return (
     <div
-      className="rounded-lg p-6"
+      className="rounded-xl p-6"
       style={{
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
@@ -94,7 +94,7 @@ export default function SRProjection({
       </div>
 
       {currentLicense === 'P' ? (
-        <div className="text-center py-8 text-zinc-400">
+        <div className="text-center py-8 text-[var(--text-dim)]">
           <p className="mb-2 text-lg font-medium text-emerald-400">You've reached Pro!</p>
           <p>Maintain your SR above 5.0 to keep your Pro status.</p>
         </div>
@@ -104,17 +104,17 @@ export default function SRProjection({
           <div className="mb-6">
             <div className="flex items-end justify-between mb-2">
               <div>
-                <p className="text-sm text-zinc-400 mb-1">Next License Level</p>
+                <p className="text-sm text-[var(--text-dim)] mb-1">Next License Level</p>
                 <p className="text-2xl font-bold text-cyan-400">{projection.nextLicense}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-zinc-400 mb-1">Current SR</p>
-                <p className="text-2xl font-bold text-zinc-100">{currentSafetyRating.toFixed(2)}</p>
+                <p className="text-sm text-[var(--text-dim)] mb-1">Current SR</p>
+                <p className="text-2xl font-bold text-[var(--text-secondary)]">{currentSafetyRating.toFixed(2)}</p>
               </div>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-zinc-800 rounded-full h-3 overflow-hidden mb-2">
+            <div className="w-full bg-[var(--bg-panel)] rounded-full h-3 overflow-hidden mb-2">
               <div
                 className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full transition-all duration-500"
                 style={{ width: `${progress}%` }}
@@ -122,7 +122,7 @@ export default function SRProjection({
             </div>
 
             {/* Target Value */}
-            <p className="text-xs text-zinc-500 text-right">
+            <p className="text-xs text-[var(--text-muted)] text-right">
               Target: {LICENSE_THRESHOLDS[currentLicense]?.sr || 0} SR
             </p>
           </div>
@@ -133,19 +133,19 @@ export default function SRProjection({
               <div className="text-lg font-bold text-cyan-400 mb-1">
                 {projection.srNeeded.toFixed(2)}
               </div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wide">SR Needed</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide">SR Needed</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-bold text-cyan-400 mb-1">
                 {projection.avgGainPerRace.toFixed(2)}
               </div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wide">Avg Gain/Race</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Avg Gain/Race</div>
             </div>
           </div>
 
           {/* Races Needed */}
-          <div className="mt-6 p-4 rounded-lg bg-zinc-800 bg-opacity-50 text-center">
-            <p className="text-sm text-zinc-400 mb-2">
+          <div className="mt-6 p-4 rounded-lg bg-[var(--bg-panel)] text-center">
+            <p className="text-sm text-[var(--text-dim)] mb-2">
               {projection.racesNeeded >= 999
                 ? 'No recent SR gains to project'
                 : `At your current pace, approximately `}
@@ -156,7 +156,7 @@ export default function SRProjection({
               </p>
             )}
             {projection.racesNeeded < 999 && (
-              <p className="text-xs text-zinc-500 mt-2">to reach {projection.nextLicense} class</p>
+              <p className="text-xs text-[var(--text-muted)] mt-2">to reach {projection.nextLicense} class</p>
             )}
           </div>
         </>

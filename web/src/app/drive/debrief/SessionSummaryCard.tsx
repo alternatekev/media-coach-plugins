@@ -89,21 +89,21 @@ export default function SessionSummaryCard({
   }
 
   return (
-    <div className="rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden">
+    <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] overflow-hidden">
       {/* Header */}
-      <div className="bg-zinc-750 border-b border-zinc-700 px-6 py-4">
+      <div className="bg-[var(--bg-panel)] border-b border-[var(--border)] px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <Link href={`/drive/track/${encodeURIComponent(session.trackName || '')}`} className="text-lg font-semibold text-zinc-100 hover:text-emerald-400 transition-colors">
+            <Link href={`/drive/track/${encodeURIComponent(session.trackName || '')}`} className="text-lg font-semibold text-[var(--text-secondary)] hover:text-emerald-400 transition-colors">
               {session.trackName || 'Unknown Track'}
             </Link>
-            <p className="text-sm text-zinc-400 mt-1">
-              <Link href={`/drive/car/${encodeURIComponent(session.carModel)}`} className="hover:text-zinc-200 transition-colors">{session.carModel}</Link> • {formatDate(session.createdAt)}
+            <p className="text-sm text-[var(--text-dim)] mt-1">
+              <Link href={`/drive/car/${encodeURIComponent(session.carModel)}`} className="hover:text-[var(--text-secondary)] transition-colors">{session.carModel}</Link> • {formatDate(session.createdAt)}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <BarChart3 size={20} className="text-zinc-400" />
-            <span className="text-2xl font-bold text-zinc-100">
+            <BarChart3 size={20} className="text-[var(--text-dim)]" />
+            <span className="text-2xl font-bold text-[var(--text-secondary)]">
               {isDNF ? 'DNF' : session.finishPosition || '—'}
             </span>
           </div>
@@ -113,28 +113,28 @@ export default function SessionSummaryCard({
       {/* Stats Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6">
         {/* Finish Position / Incidents */}
-        <div className="bg-zinc-900 rounded p-3">
-          <p className="text-xs text-zinc-400 font-medium mb-1">Incidents</p>
-          <p className="text-2xl font-bold text-zinc-100">
+        <div className="bg-[var(--bg-panel)] rounded-lg p-3">
+          <p className="text-xs text-[var(--text-dim)] font-medium mb-1">Incidents</p>
+          <p className="text-2xl font-bold text-[var(--text-secondary)]">
             {session.incidentCount ?? 0}
           </p>
         </div>
 
         {/* Clean Laps */}
-        <div className="bg-zinc-900 rounded p-3">
-          <p className="text-xs text-zinc-400 font-medium mb-1">Clean Laps</p>
+        <div className="bg-[var(--bg-panel)] rounded-lg p-3">
+          <p className="text-xs text-[var(--text-dim)] font-medium mb-1">Clean Laps</p>
           <p className="text-2xl font-bold text-emerald-400">
             {cleanLapPercentage}%
           </p>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-[var(--text-muted)] mt-1">
             {cleanLapsCount} of {totalLaps}
           </p>
         </div>
 
         {/* SR Change */}
         {srChange !== null && (
-          <div className="bg-zinc-900 rounded p-3">
-            <p className="text-xs text-zinc-400 font-medium mb-1">SR Change</p>
+          <div className="bg-[var(--bg-panel)] rounded-lg p-3">
+            <p className="text-xs text-[var(--text-dim)] font-medium mb-1">SR Change</p>
             <div className="flex items-center gap-1">
               {srChange >= 0 ? (
                 <>
@@ -157,8 +157,8 @@ export default function SessionSummaryCard({
 
         {/* iR Change */}
         {irChange !== null && (
-          <div className="bg-zinc-900 rounded p-3">
-            <p className="text-xs text-zinc-400 font-medium mb-1">iR Change</p>
+          <div className="bg-[var(--bg-panel)] rounded-lg p-3">
+            <p className="text-xs text-[var(--text-dim)] font-medium mb-1">iR Change</p>
             <div className="flex items-center gap-1">
               {irChange >= 0 ? (
                 <>
@@ -182,24 +182,24 @@ export default function SessionSummaryCard({
 
       {/* Race Phase Breakdown (if behavior data exists) */}
       {sessionBehavior && (
-        <div className="border-t border-zinc-700 px-6 py-4">
-          <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
+        <div className="border-t border-[var(--border)] px-6 py-4">
+          <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-3 flex items-center gap-2">
             <AlertCircle size={16} className="text-amber-400" />
             Incidents by Race Phase
           </h3>
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-zinc-900 rounded p-3 text-center">
-              <p className="text-xs text-zinc-400 font-medium mb-1">Early</p>
+            <div className="bg-[var(--bg-panel)] rounded-lg p-3 text-center">
+              <p className="text-xs text-[var(--text-dim)] font-medium mb-1">Early</p>
               <p className="text-2xl font-bold text-rose-400">
                 {earlyIncidents}
               </p>
             </div>
-            <div className="bg-zinc-900 rounded p-3 text-center">
-              <p className="text-xs text-zinc-400 font-medium mb-1">Mid</p>
+            <div className="bg-[var(--bg-panel)] rounded-lg p-3 text-center">
+              <p className="text-xs text-[var(--text-dim)] font-medium mb-1">Mid</p>
               <p className="text-2xl font-bold text-amber-400">{midIncidents}</p>
             </div>
-            <div className="bg-zinc-900 rounded p-3 text-center">
-              <p className="text-xs text-zinc-400 font-medium mb-1">Late</p>
+            <div className="bg-[var(--bg-panel)] rounded-lg p-3 text-center">
+              <p className="text-xs text-[var(--text-dim)] font-medium mb-1">Late</p>
               <p className="text-2xl font-bold text-orange-400">
                 {lateIncidents}
               </p>
@@ -210,43 +210,43 @@ export default function SessionSummaryCard({
 
       {/* Behavioral Metrics */}
       {sessionBehavior && (
-        <div className="border-t border-zinc-700 px-6 py-4">
-          <h3 className="text-sm font-semibold text-zinc-200 mb-3">
+        <div className="border-t border-[var(--border)] px-6 py-4">
+          <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-3">
             Behavioral Metrics
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
             <div>
-              <p className="text-zinc-400 text-xs mb-1">Hard Braking Events</p>
-              <p className="text-lg font-semibold text-zinc-100">
+              <p className="text-[var(--text-dim)] text-xs mb-1">Hard Braking Events</p>
+              <p className="text-lg font-semibold text-[var(--text-secondary)]">
                 {sessionBehavior.hardBrakingEvents}
               </p>
             </div>
             <div>
-              <p className="text-zinc-400 text-xs mb-1">Close Passes</p>
-              <p className="text-lg font-semibold text-zinc-100">
+              <p className="text-[var(--text-dim)] text-xs mb-1">Close Passes</p>
+              <p className="text-lg font-semibold text-[var(--text-secondary)]">
                 {sessionBehavior.closePassCount}
               </p>
             </div>
             <div>
-              <p className="text-zinc-400 text-xs mb-1">Off-Track Events</p>
-              <p className="text-lg font-semibold text-zinc-100">
+              <p className="text-[var(--text-dim)] text-xs mb-1">Off-Track Events</p>
+              <p className="text-lg font-semibold text-[var(--text-secondary)]">
                 {sessionBehavior.offTrackCount}
               </p>
             </div>
             <div>
-              <p className="text-zinc-400 text-xs mb-1">Spins</p>
-              <p className="text-lg font-semibold text-zinc-100">
+              <p className="text-[var(--text-dim)] text-xs mb-1">Spins</p>
+              <p className="text-lg font-semibold text-[var(--text-secondary)]">
                 {sessionBehavior.spinCount}
               </p>
             </div>
             <div>
-              <p className="text-zinc-400 text-xs mb-1">Peak Rage Score</p>
+              <p className="text-[var(--text-dim)] text-xs mb-1">Peak Rage Score</p>
               <p className="text-lg font-semibold text-rose-400">
                 {sessionBehavior.peakRageScore.toFixed(1)}
               </p>
             </div>
             <div>
-              <p className="text-zinc-400 text-xs mb-1">Avg Rage Score</p>
+              <p className="text-[var(--text-dim)] text-xs mb-1">Avg Rage Score</p>
               <p className="text-lg font-semibold text-orange-400">
                 {sessionBehavior.avgRageScore.toFixed(1)}
               </p>

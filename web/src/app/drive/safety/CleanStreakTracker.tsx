@@ -92,7 +92,7 @@ export default function CleanStreakTracker({ lapTelemetry, raceSessions }: Clean
 
   return (
     <div
-      className="rounded-lg p-6"
+      className="rounded-xl p-6"
       style={{
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
@@ -104,7 +104,7 @@ export default function CleanStreakTracker({ lapTelemetry, raceSessions }: Clean
       </div>
 
       {lapTelemetry.length === 0 ? (
-        <div className="text-center py-8 text-zinc-400">
+        <div className="text-center py-8 text-[var(--text-dim)]">
           <Target size={32} className="mx-auto mb-2 opacity-50" />
           <p>No lap data yet. Complete a race to track your clean streak.</p>
         </div>
@@ -114,22 +114,22 @@ export default function CleanStreakTracker({ lapTelemetry, raceSessions }: Clean
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-1">{currentStreak}</div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wide">Current Streak</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Current Streak</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-1">{bestStreak}</div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wide">Best Streak</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Best Streak</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-1">{cleanLapPercentage.toFixed(0)}%</div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wide">Clean Laps</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Clean Laps</div>
             </div>
           </div>
 
           {/* Mini Chart */}
           {streakChartData.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-zinc-300 mb-3">Clean vs Incident Laps by Session</h3>
+              <h3 className="text-sm font-medium text-[var(--text-dim)] mb-3">Clean vs Incident Laps by Session</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={streakChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />

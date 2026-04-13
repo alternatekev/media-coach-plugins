@@ -5,9 +5,8 @@ import Link from 'next/link'
 import {
   LayoutDashboard,
   Dna,
-  CalendarClock,
   MapPin,
-  Sparkles,
+  Car,
   Settings,
 } from 'lucide-react'
 
@@ -15,8 +14,8 @@ const NAV_ITEMS = [
   { href: '/drive/dashboard', label: 'Dashboard', icon: LayoutDashboard },
 
   { href: '/drive/dna', label: 'DNA', icon: Dna },
-  { href: '/drive/tracks', label: 'Tracks & Cars', icon: MapPin },
-  { href: '/drive/moments', label: 'Moments', icon: Sparkles },
+  { href: '/drive/tracks', label: 'Tracks', icon: MapPin },
+  { href: '/drive/cars', label: 'Cars', icon: Car },
 ]
 
 function NavTooltip({ label, children }: { label: string; children: React.ReactNode }) {

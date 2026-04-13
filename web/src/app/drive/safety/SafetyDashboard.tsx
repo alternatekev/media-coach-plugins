@@ -111,17 +111,28 @@ export default function SafetyDashboard({
   const hasData = raceSessions.length > 0 || ratingHistory.length > 0
 
   return (
-    <main className="min-h-screen bg-zinc-900 text-zinc-100">
+    <main className="min-h-screen bg-[var(--bg)]">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="mb-12">
-          <h1
-            className="text-4xl font-black mb-2"
-            style={{ fontFamily: 'var(--ff-display)' }}
-          >
-            Safety Rating Optimizer
-          </h1>
-          <p className="text-zinc-400">Improve your iRacing Safety Rating with data-driven insights</p>
+        {/* Hero Section */}
+        <div className="rounded-xl bg-[var(--bg-panel)] p-8 sm:p-12 overflow-hidden relative mb-16">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-emerald-400 to-green-400 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-cyan-400 to-teal-400 rounded-full blur-3xl" />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-4">
+              <Shield size={40} className="text-emerald-400" />
+              <h1
+                className="text-4xl sm:text-5xl font-bold"
+                style={{ fontFamily: 'var(--ff-display)' }}
+              >
+                Safety Rating
+              </h1>
+            </div>
+            <p className="text-lg text-[var(--text-secondary)] max-w-2xl">
+              Improve your iRacing Safety Rating with data-driven insights
+            </p>
+          </div>
         </div>
 
         {!hasData ? (
@@ -133,9 +144,9 @@ export default function SafetyDashboard({
               border: '1px solid var(--border)',
             }}
           >
-            <AlertCircle size={48} className="mx-auto mb-4 text-zinc-500" />
+            <AlertCircle size={48} className="mx-auto mb-4 text-[var(--text-muted)]" />
             <h2 className="text-xl font-semibold mb-2">No racing data yet</h2>
-            <p className="text-zinc-400 mb-6">
+            <p className="text-[var(--text-dim)] mb-6">
               Import your iRacing results to get started with Safety Rating analysis.
             </p>
             <a

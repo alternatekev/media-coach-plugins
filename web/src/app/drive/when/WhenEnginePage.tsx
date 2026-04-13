@@ -85,9 +85,9 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
 
   if (!hasEnoughData) {
     return (
-      <main className="min-h-screen px-6 py-12">
+      <main className="min-h-screen px-6 py-12 bg-[var(--bg)]">
         <div className="max-w-4xl mx-auto">
-          <div className="p-8 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-center">
+          <div className="p-8 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-center">
             <Clock size={32} className="mx-auto mb-3 text-[var(--text-muted)]" />
             <p className="text-sm text-[var(--text-dim)] mb-1">Race a few more times and we'll show you when you're at your best</p>
             <p className="text-xs text-[var(--text-muted)]">
@@ -125,7 +125,7 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
           width: '32px',
           height: '32px',
           backgroundColor: color,
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: '1px solid var(--border)',
           cursor: hasData ? 'pointer' : 'default',
         }}
         onMouseEnter={() => {
@@ -150,16 +150,32 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
   }
 
   return (
-    <main className="min-h-screen px-6 py-12">
+    <main className="min-h-screen px-6 py-12 bg-[var(--bg)]">
       <div className="max-w-4xl mx-auto space-y-12">
+        {/* Hero Section */}
+        <div className="rounded-xl bg-[var(--bg-panel)] p-8 sm:p-12 overflow-hidden relative mb-16">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-purple-400 to-violet-400 rounded-full blur-3xl" />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-4">
+              <Clock size={40} className="text-blue-400" />
+              <h1 className="text-4xl sm:text-5xl font-bold" style={{ fontFamily: 'var(--ff-display)' }}>
+                When Engine
+              </h1>
+            </div>
+            <p className="text-lg text-[var(--text-secondary)] max-w-2xl">
+              When do you race your best? Discover your peak performance windows.
+            </p>
+          </div>
+        </div>
+
         {/* Heatmap */}
         <section>
-          <div className="mb-6">
-            <h1 className="text-3xl font-black mb-2" style={{ fontFamily: 'var(--ff-display)' }}>Performance Heatmap</h1>
-            <p className="text-[var(--text-dim)] text-sm">When do you race your best?</p>
-          </div>
+          <h2 className="text-[var(--text-secondary)] text-2xl font-bold mb-6">Heatmap</h2>
 
-          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+          <div className="p-6 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
             <div className="flex">
               {/* Y-axis labels */}
               <div className="flex flex-col justify-between pr-3 pt-1 w-12">
@@ -190,8 +206,8 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
                           style={{
                             width: '32px',
                             height: '32px',
-                            backgroundColor: 'rgba(255,255,255,0.03)',
-                            border: '1px solid rgba(255,255,255,0.1)',
+                            backgroundColor: 'var(--bg-panel)',
+                            border: '1px solid var(--border)',
                           }}
                         />
                       ))}
@@ -236,7 +252,7 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
           {/* Tooltip */}
           {tooltipState?.visible && (
             <div
-              className="fixed bg-[var(--surface)] border border-[var(--border)] rounded-lg p-3 text-sm shadow-lg z-50"
+              className="fixed bg-[var(--bg-elevated)] border border-[var(--border)] rounded-lg p-3 text-sm shadow-lg z-50"
               style={{
                 left: `${tooltipState.x}px`,
                 top: `${tooltipState.y}px`,
@@ -255,18 +271,18 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
 
         {/* Day of Week Chart */}
         <section>
-          <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <Calendar size={24} className="text-[var(--border-accent)]" />
+          <h2 className="text-[var(--text-secondary)] text-lg font-bold mb-4 flex items-center gap-2">
+            <Calendar size={24} className="text-[var(--text-dim)]" />
             Day of Week Performance
           </h2>
-          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+          <div className="p-6 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)]">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={dayOfWeekChartData}>
                 <XAxis dataKey="name" stroke="var(--text-muted)" />
                 <YAxis stroke="var(--text-muted)" />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'var(--surface)',
+                    backgroundColor: 'var(--bg-elevated)',
                     border: '1px solid var(--border)',
                     borderRadius: '0.5rem',
                   }}
@@ -287,8 +303,8 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
 
         {/* Session Length Cards */}
         <section>
-          <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <Zap size={24} className="text-[var(--border-accent)]" />
+          <h2 className="text-[var(--text-secondary)] text-lg font-bold mb-4 flex items-center gap-2">
+            <Zap size={24} className="text-[var(--text-dim)]" />
             Performance by Session Length
           </h2>
           <div className="grid grid-cols-3 gap-4">
@@ -299,8 +315,8 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
                   key={data.name}
                   className={`p-6 rounded-xl border transition ${
                     isLongest
-                      ? 'bg-[var(--surface)] border-[var(--k10-red)] shadow-sm'
-                      : 'bg-[var(--surface)] border-[var(--border)]'
+                      ? 'bg-[var(--bg-elevated)] border-[var(--k10-red)] shadow-sm'
+                      : 'bg-[var(--bg-elevated)] border-[var(--border)]'
                   }`}
                 >
                   <div className="text-sm font-bold text-[var(--text-secondary)] mb-4">{data.name} Races</div>
@@ -333,15 +349,15 @@ export default function WhenEnginePage({ sessions, ratingHistory }: {
         {/* Insights */}
         {insights.length > 0 && (
           <section>
-            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <Sun size={24} className="text-[var(--border-accent)]" />
+            <h2 className="text-[var(--text-secondary)] text-lg font-bold mb-4 flex items-center gap-2">
+              <Sun size={24} className="text-[var(--text-dim)]" />
               Insights
             </h2>
             <div className="space-y-3">
               {insights.map((insight, idx) => (
                 <div
                   key={idx}
-                  className="p-4 rounded-lg bg-[var(--surface)] border-l-4"
+                  className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] border-l-4"
                   style={{
                     borderLeftColor:
                       insight.type === 'positive'

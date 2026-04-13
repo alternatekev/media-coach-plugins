@@ -39,38 +39,38 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 
 const GRADIENT_MAP: Record<string, string> = {
   win_streak:
-    'linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%)',
+    'linear-gradient(135deg, hsla(45, 100%, 51%, 0.12) 0%, hsla(45, 100%, 51%, 0.04) 100%)',
   podium_streak:
-    'linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%)',
+    'linear-gradient(135deg, hsla(45, 100%, 51%, 0.12) 0%, hsla(45, 100%, 51%, 0.04) 100%)',
   clean_streak:
-    'linear-gradient(135deg, rgba(67, 160, 71, 0.15) 0%, rgba(67, 160, 71, 0.05) 100%)',
+    'linear-gradient(135deg, hsla(120, 35%, 45%, 0.12) 0%, hsla(120, 35%, 45%, 0.04) 100%)',
   milestone_irating:
-    'linear-gradient(135deg, rgba(229, 57, 53, 0.15) 0%, rgba(229, 57, 53, 0.05) 100%)',
+    'linear-gradient(135deg, hsla(0, 80%, 55%, 0.12) 0%, hsla(0, 80%, 55%, 0.04) 100%)',
   license_promotion:
-    'linear-gradient(135deg, rgba(30, 136, 229, 0.15) 0%, rgba(30, 136, 229, 0.05) 100%)',
+    'linear-gradient(135deg, hsla(215, 95%, 52%, 0.12) 0%, hsla(215, 95%, 52%, 0.04) 100%)',
   comeback:
-    'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 152, 0, 0.05) 100%)',
-  personal_best: `var(--surface)`,
-  new_track: `var(--surface)`,
-  new_car: `var(--surface)`,
-  century: `var(--surface)`,
+    'linear-gradient(135deg, hsla(30, 100%, 50%, 0.12) 0%, hsla(30, 100%, 50%, 0.04) 100%)',
+  personal_best: `var(--bg-elevated)`,
+  new_track: `var(--bg-elevated)`,
+  new_car: `var(--bg-elevated)`,
+  century: `var(--bg-elevated)`,
   iron_man:
-    'linear-gradient(135deg, rgba(255, 87, 34, 0.15) 0%, rgba(255, 87, 34, 0.05) 100%)',
-  heartbreak: `var(--surface)`,
+    'linear-gradient(135deg, hsla(10, 100%, 55%, 0.12) 0%, hsla(10, 100%, 55%, 0.04) 100%)',
+  heartbreak: `var(--bg-elevated)`,
 }
 
 const BORDER_COLOR_MAP: Record<string, string> = {
-  win_streak: '#ffd700',
-  podium_streak: '#ffd700',
-  clean_streak: '#43a047',
-  milestone_irating: '#e53935',
-  license_promotion: '#1e88e5',
-  comeback: '#ff9800',
+  win_streak: 'hsl(45, 100%, 51%)',
+  podium_streak: 'hsl(45, 100%, 51%)',
+  clean_streak: 'hsl(120, 35%, 45%)',
+  milestone_irating: 'hsl(0, 80%, 55%)',
+  license_promotion: 'hsl(215, 95%, 52%)',
+  comeback: 'hsl(30, 100%, 50%)',
   personal_best: 'var(--border)',
   new_track: 'var(--border)',
   new_car: 'var(--border)',
   century: 'var(--border)',
-  iron_man: '#ff5722',
+  iron_man: 'hsl(10, 100%, 55%)',
   heartbreak: 'var(--border)',
 }
 
@@ -104,14 +104,30 @@ export default function MomentsPage({ sessions, ratingHistory }: MomentsPageProp
 
   if (moments.length === 0) {
     return (
-      <div className="min-h-screen px-6 py-12">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-[var(--text-secondary)] mb-2">Your Moments</h1>
-          <p className="text-[var(--text-muted)] mb-12">
-            Track your greatest achievements and milestones
-          </p>
+      <div className="min-h-screen px-6 py-12 bg-[var(--bg)] flex flex-col">
+        {/* Hero Section */}
+        <div className="max-w-4xl mx-auto w-full mb-16">
+          <div className="rounded-xl bg-[var(--bg-panel)] p-8 sm:p-12 overflow-hidden relative">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-red-400 to-pink-400 rounded-full blur-3xl" />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-4">
+                <Trophy size={40} className="text-yellow-400" />
+                <h1 className="text-4xl sm:text-5xl font-bold" style={{ fontFamily: 'var(--ff-display)' }}>
+                  Moments
+                </h1>
+              </div>
+              <p className="text-lg text-[var(--text-secondary)] max-w-2xl">
+                Track your greatest achievements, milestones, and memorable racing moments
+              </p>
+            </div>
+          </div>
+        </div>
 
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-8 py-12 text-center">
+        <div className="max-w-4xl mx-auto w-full flex-1 flex items-center">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] px-8 py-12 text-center w-full">
             <Star size={48} className="mx-auto text-[var(--text-muted)] mb-4 opacity-50" />
             <p className="text-lg text-[var(--text-muted)]">
               Keep racing to unlock your first milestone!
@@ -123,12 +139,26 @@ export default function MomentsPage({ sessions, ratingHistory }: MomentsPageProp
   }
 
   return (
-    <div className="min-h-screen px-6 py-12">
+    <div className="min-h-screen px-6 py-12 bg-[var(--bg)]">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-[var(--text-secondary)] mb-2">Your Moments</h1>
-        <p className="text-[var(--text-muted)] mb-12">
-          Track your greatest achievements and milestones
-        </p>
+        {/* Hero Section */}
+        <div className="rounded-xl bg-[var(--bg-panel)] p-8 sm:p-12 overflow-hidden relative mb-16">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-red-400 to-pink-400 rounded-full blur-3xl" />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-4">
+              <Trophy size={40} className="text-yellow-400" />
+              <h1 className="text-4xl sm:text-5xl font-bold" style={{ fontFamily: 'var(--ff-display)' }}>
+                Moments
+              </h1>
+            </div>
+            <p className="text-lg text-[var(--text-secondary)] max-w-2xl">
+              Track your greatest achievements, milestones, and memorable racing moments
+            </p>
+          </div>
+        </div>
 
         {/* Highlights Section */}
         {highlights.length > 0 && (
@@ -138,8 +168,11 @@ export default function MomentsPage({ sessions, ratingHistory }: MomentsPageProp
               {highlights.map((moment, idx) => (
                 <div
                   key={idx}
-                  className="rounded-xl border border-[var(--border)] p-6 overflow-hidden"
-                  style={{ background: GRADIENT_MAP[moment.type] }}
+                  className="rounded-xl border bg-[var(--bg-elevated)] p-6 overflow-hidden"
+                  style={{
+                    background: GRADIENT_MAP[moment.type],
+                    borderColor: BORDER_COLOR_MAP[moment.type]
+                  }}
                 >
                   <div className="flex items-start gap-4">
                     <div className="text-white flex-shrink-0 mt-1 text-[var(--text-secondary)]">
@@ -161,10 +194,10 @@ export default function MomentsPage({ sessions, ratingHistory }: MomentsPageProp
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className="text-3xl font-bold text-[var(--k10-red)]">
+                      <div className="text-3xl font-bold text-[var(--k10-red)]" style={{ fontFamily: 'var(--ff-display)' }}>
                         {moment.significance}
                       </div>
-                      <p className="text-xs text-[var(--text-muted)]">significance</p>
+                      <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">significance</p>
                     </div>
                   </div>
                 </div>
@@ -180,14 +213,14 @@ export default function MomentsPage({ sessions, ratingHistory }: MomentsPageProp
             <div className="space-y-8">
               {Array.from(grouped.entries()).map(([month, monthMoments]) => (
                 <div key={month}>
-                  <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-4">
+                  <h3 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">
                     {month}
                   </h3>
                   <div className="space-y-3">
                     {monthMoments.map((moment, idx) => (
                       <div
                         key={idx}
-                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 flex items-start gap-4"
+                        className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-5 flex items-start gap-4"
                         style={{
                           borderLeftWidth: '4px',
                           borderLeftColor: BORDER_COLOR_MAP[moment.type],
@@ -218,7 +251,7 @@ export default function MomentsPage({ sessions, ratingHistory }: MomentsPageProp
               <div className="mt-8 text-center">
                 <button
                   onClick={() => setShowAll(true)}
-                  className="px-6 py-2 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)] transition-colors text-sm font-medium"
+                  className="px-6 py-2 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-colors text-sm font-medium"
                 >
                   Load more moments
                 </button>

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db, schema } from "@/db";
 import { eq, desc, and } from "drizzle-orm";
+import { BarChart3 } from "lucide-react";
 import SessionSelector from "./SessionSelector";
 import SessionSummaryCard from "./SessionSummaryCard";
 import LapTimeline from "./LapTimeline";
@@ -287,74 +288,89 @@ export default async function DebriefPage({
 
   // ── Render Page ─────────────────────────────────────────────────────────────
   return (
-    <main className="bg-zinc-900 min-h-screen">
-      {/* Header */}
-      <div className="border-b border-zinc-800 px-6 py-4">
-        <h1 className="text-2xl font-bold text-zinc-100">
-          Post-Session Debrief
-        </h1>
-        <p className="text-sm text-zinc-400 mt-1">
-          Review your session behavior and identify recurring patterns.
-        </p>
+    <main className="bg-[var(--bg)] min-h-screen">
+      {/* Hero */}
+      <div className="px-6 pt-12 pb-0">
+        <div className="max-w-5xl mx-auto">
+          <div className="rounded-xl bg-[var(--bg-panel)] p-8 sm:p-12 overflow-hidden relative mb-8">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-rose-400 to-red-400 rounded-full blur-3xl" />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-4">
+                <BarChart3 size={40} className="text-amber-400" />
+                <h1 className="text-4xl sm:text-5xl font-bold" style={{ fontFamily: 'var(--ff-display)' }}>
+                  Post-Session Debrief
+                </h1>
+              </div>
+              <p className="text-lg text-[var(--text-secondary)] max-w-2xl">
+                Review your session behavior and identify recurring patterns
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Main Content */}
-      <div className="p-6 space-y-6">
-        {/* Session Selector */}
-        <div className="max-w-md">
-          <SessionSelector
-            sessions={mappedSessions}
-            selectedSessionId={selectedSession.id}
+      <div className="px-6 pb-12 space-y-6">
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* Session Selector */}
+          <div className="max-w-md">
+            <SessionSelector
+              sessions={mappedSessions}
+              selectedSessionId={selectedSession.id}
+            />
+          </div>
+
+          {/* Session Summary */}
+          <SessionSummaryCard
+            session={mappedSelected}
+            sessionBehavior={mappedBehavior}
+            lapTelemetries={mappedLaps}
           />
-        </div>
 
-        {/* Session Summary */}
-        <SessionSummaryCard
-          session={mappedSelected}
-          sessionBehavior={mappedBehavior}
-          lapTelemetries={mappedLaps}
-        />
+          {/* Lap Timeline */}
+          {mappedLaps.length > 0 && (
+            <LapTimeline lapTelemetries={mappedLaps} />
+          )}
 
-        {/* Lap Timeline */}
-        {mappedLaps.length > 0 && (
-          <LapTimeline lapTelemetries={mappedLaps} />
-        )}
+          {/* Commentary Replay */}
+          {mappedBehavior?.commentaryLog &&
+            Array.isArray(mappedBehavior.commentaryLog) &&
+            mappedBehavior.commentaryLog.length > 0 && (
+              <CommentaryReplay
+                commentaryLog={mappedBehavior.commentaryLog}
+              />
+            )}
 
-        {/* Commentary Replay */}
-        {mappedBehavior?.commentaryLog &&
-          Array.isArray(mappedBehavior.commentaryLog) &&
-          mappedBehavior.commentaryLog.length > 0 && (
-            <CommentaryReplay
-              commentaryLog={mappedBehavior.commentaryLog}
+          {/* Behavioral Radar */}
+          {mappedLaps.length > 0 && (
+            <BehavioralRadar
+              lapTelemetries={mappedLaps}
+              allTimeAverage={allTimeBehavioralAverage}
             />
           )}
 
-        {/* Behavioral Radar */}
-        {mappedLaps.length > 0 && (
-          <BehavioralRadar
-            lapTelemetries={mappedLaps}
-            allTimeAverage={allTimeBehavioralAverage}
-          />
-        )}
+          {/* Pattern Detection */}
+          {allSessionsForTrackWithBehavior.length > 1 && (
+            <PatternDetection
+              trackName={selectedSession.trackName || "Unknown"}
+              allSessions={allSessionsForTrackWithBehavior as any}
+              currentSession={mappedSelected}
+            />
+          )}
 
-        {/* Pattern Detection */}
-        {allSessionsForTrackWithBehavior.length > 1 && (
-          <PatternDetection
-            trackName={selectedSession.trackName || "Unknown"}
-            allSessions={allSessionsForTrackWithBehavior as any}
-            currentSession={mappedSelected}
-          />
-        )}
-
-        {/* Empty states */}
-        {mappedLaps.length === 0 && (
-          <div className="rounded-lg bg-zinc-800 border border-zinc-700 p-6 text-center">
-            <p className="text-sm text-zinc-400">
-              No lap telemetry available for this session. Enable the plugin to
-              capture detailed behavioral data.
-            </p>
-          </div>
-        )}
+          {/* Empty states */}
+          {mappedLaps.length === 0 && (
+            <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-6 text-center">
+              <p className="text-sm text-[var(--text-dim)]">
+                No lap telemetry available for this session. Enable the plugin to
+                capture detailed behavioral data.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

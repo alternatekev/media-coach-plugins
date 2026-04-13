@@ -102,8 +102,8 @@ export default async function ComposureTrendsPage() {
   }))
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[var(--bg)]">
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
         <ComposureTrendsClient sessions={formattedSessions} />
       </div>
     </div>

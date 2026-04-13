@@ -51,7 +51,7 @@ export default function SROverviewCards({
     <div className="mb-8">
       {/* Primary SR Card */}
       <div
-        className="rounded-lg p-8 mb-6"
+        className="rounded-xl p-8 mb-6"
         style={{
           background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
           border: '1px solid rgba(16, 185, 129, 0.2)',
@@ -59,10 +59,10 @@ export default function SROverviewCards({
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            <p className="text-sm text-zinc-400 mb-1">Current {CATEGORY_LABELS[category] || category} Safety Rating</p>
+            <p className="text-sm text-[var(--text-dim)] mb-1">Current {CATEGORY_LABELS[category] || category} Safety Rating</p>
             <div className="flex items-baseline gap-2">
               <span className="text-5xl font-black text-emerald-400">{srValue.toFixed(2)}</span>
-              <span className="text-xl text-zinc-400">{licenseInfo.label}</span>
+              <span className="text-xl text-[var(--text-dim)]">{licenseInfo.label}</span>
             </div>
           </div>
           <Shield size={40} className="text-emerald-500 opacity-60" />
@@ -75,7 +75,7 @@ export default function SROverviewCards({
                 ? 'text-emerald-400'
                 : srTrend.direction === 'down'
                   ? 'text-rose-400'
-                  : 'text-zinc-400'
+                  : 'text-[var(--text-dim)]'
             }`}
           >
             {srTrend.direction === 'up' ? (
@@ -108,7 +108,7 @@ export default function SROverviewCards({
               >
                 <span className="font-medium">{CATEGORY_LABELS[cat] || cat}</span>
                 {rating && (
-                  <span className="ml-2 text-zinc-500">
+                  <span className="ml-2 text-[var(--text-muted)]">
                     {parseFloat(rating.safetyRating).toFixed(2)} • {rating.license}
                   </span>
                 )}

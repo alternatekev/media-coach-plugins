@@ -70,25 +70,32 @@ export default function DriverDNAPage({ sessions, ratingHistory }: Props) {
 
   if (!hasData) {
     return (
-      <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--bg)' }}>
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-4xl font-bold mb-2" style={{ color: 'var(--text)' }}>
-              Driver DNA
-            </h1>
-            <p style={{ color: 'var(--text-secondary)' }}>
-              Your unique racing profile and performance insights
-            </p>
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          {/* Hero Section */}
+          <div className="relative overflow-hidden bg-[var(--bg-panel)] rounded-xl border border-[var(--border)] mb-8">
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-panel)] via-[var(--bg-panel)]/80 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
+
+            {/* Content */}
+            <div className="relative z-10 px-6 py-8 md:py-12">
+              <div className="max-w-2xl">
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest mb-3">Performance Profile</p>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3" style={{ fontFamily: 'var(--ff-display)', color: 'var(--text)' }}>
+                  Driver DNA
+                </h1>
+                <p style={{ color: 'var(--text-secondary)' }} className="text-lg">
+                  Your unique racing profile and performance insights
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Empty state */}
-          <div
-            className="rounded-lg p-12 text-center"
-            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', borderWidth: '1px' }}
-          >
+          {/* Empty state card */}
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-12 text-center">
             <div className="mb-6 opacity-50">
-              <Target className="w-16 h-16 mx-auto" style={{ color: 'var(--k10-red)' }} />
+              <Target className="w-16 h-16 mx-auto" style={{ color: 'var(--border-accent)' }} />
             </div>
             <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>
               Complete at least 3 races to generate your Driver DNA profile
@@ -97,28 +104,50 @@ export default function DriverDNAPage({ sessions, ratingHistory }: Props) {
               You currently have {sessions.length} race{sessions.length !== 1 ? 's' : ''} logged. Keep racing and your profile will unlock!
             </p>
           </div>
-
-
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--bg)' }}>
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-2" style={{ color: 'var(--text)' }}>
-            Driver DNA
-          </h1>
-          <div className="flex items-center gap-2 mt-2">
-            <p className="text-lg font-semibold" style={{ color: 'var(--k10-red)' }}>
-              {archetype.name}
-            </p>
-            <p style={{ color: 'var(--text-secondary)' }}>
-              {archetype.description}
-            </p>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden bg-[var(--bg-panel)] rounded-xl border border-[var(--border)] mb-12">
+          {/* Decorative radar chart in hero — translucent, positioned right */}
+          <div className="absolute inset-0 flex items-center justify-end pointer-events-none pr-8 lg:pr-16">
+            <div className="w-[300px] h-[300px] lg:w-[380px] lg:h-[380px] opacity-25">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={radarData}>
+                  <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                  <PolarAngleAxis dataKey="dimension" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
+                  <PolarRadiusAxis tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} domain={[0, 100]} />
+                  <Radar name="DNA" dataKey="value" stroke="var(--border-accent)" fill="var(--border-accent)" fillOpacity={0.15} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-panel)] via-[var(--bg-panel)]/80 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
+
+          {/* Content */}
+          <div className="relative z-10 px-6 py-8 md:py-12">
+            <div className="max-w-2xl">
+              <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest mb-3">Performance Profile</p>
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2" style={{ fontFamily: 'var(--ff-display)', color: 'var(--text)' }}>
+                Driver DNA
+              </h1>
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
+                <p className="text-2xl font-bold" style={{ color: 'var(--border-accent)' }}>
+                  {archetype.name}
+                </p>
+              </div>
+              <p style={{ color: 'var(--text-secondary)' }} className="text-base">
+                {archetype.description}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -128,33 +157,32 @@ export default function DriverDNAPage({ sessions, ratingHistory }: Props) {
             const icon = dimensionIcons[insight.dimension]
             const trendIcon =
               insight.trend === 'improving' ? (
-                <TrendingUp className="w-4 h-4" style={{ color: '#4caf50' }} />
+                <TrendingUp className="w-4 h-4" style={{ color: 'hsl(142,60%,55%)' }} />
               ) : insight.trend === 'declining' ? (
-                <TrendingDown className="w-4 h-4" style={{ color: '#f44336' }} />
+                <TrendingDown className="w-4 h-4" style={{ color: 'hsl(0,80%,60%)' }} />
               ) : (
-                <Minus className="w-4 h-4" style={{ color: '#9e9e9e' }} />
+                <Minus className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
               )
 
             const trendLabel =
               insight.trend === 'improving' ? 'Improving' : insight.trend === 'declining' ? 'Declining' : 'Stable'
             const trendColor =
-              insight.trend === 'improving' ? '#4caf50' : insight.trend === 'declining' ? '#f44336' : '#9e9e9e'
+              insight.trend === 'improving' ? 'hsl(142,60%,55%)' : insight.trend === 'declining' ? 'hsl(0,80%,60%)' : 'var(--text-muted)'
 
             return (
               <div
                 key={insight.dimension}
-                className="rounded-lg p-6"
-                style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', borderWidth: '1px' }}
+                className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-5"
               >
                 {/* Header: Icon + Name + Numeric Score */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div style={{ color: 'var(--k10-red)' }}>{icon}</div>
+                    <div style={{ color: 'var(--border-accent)' }}>{icon}</div>
                     <h3 className="font-semibold" style={{ color: 'var(--text)' }}>
                       {insight.label}
                     </h3>
                   </div>
-                  <span className="text-lg font-bold" style={{ color: 'var(--k10-red)' }}>
+                  <span className="text-lg font-bold" style={{ color: 'var(--border-accent)' }}>
                     {Math.round(insight.value)}
                   </span>
                 </div>
@@ -169,7 +197,7 @@ export default function DriverDNAPage({ sessions, ratingHistory }: Props) {
                       className="h-full transition-all duration-500"
                       style={{
                         width: `${insight.value}%`,
-                        background: `linear-gradient(90deg, var(--k10-red), rgba(229, 57, 53, 0.6))`,
+                        background: `linear-gradient(90deg, var(--border-accent), rgba(229, 57, 53, 0.3))`,
                       }}
                     />
                   </div>
@@ -181,7 +209,7 @@ export default function DriverDNAPage({ sessions, ratingHistory }: Props) {
                 </p>
 
                 {/* Trend Badge */}
-                <div className="flex items-center gap-1 w-fit px-2 py-1 rounded-full" style={{ backgroundColor: `${trendColor}15` }}>
+                <div className="flex items-center gap-1 w-fit px-2 py-1 rounded-full" style={{ backgroundColor: `${trendColor}22` }}>
                   {trendIcon}
                   <span className="text-xs font-medium" style={{ color: trendColor }}>
                     {trendLabel}

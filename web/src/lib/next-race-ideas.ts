@@ -112,6 +112,7 @@ export interface RaceSuggestion {
     timeOfDay: number
     dayOfWeek: number
     ratingTrend: number
+    licenseLevel: number
   }
   strategy: {
     type: 'pitlane' | 'conservative' | 'careful' | 'form' | 'steady'
@@ -166,6 +167,19 @@ function licenseLevelToClass(level: number): string {
   if (level <= 12) return 'C'
   if (level <= 16) return 'B'
   return 'A'
+}
+
+/**
+ * Score license level: higher-licensed series get a boost (0-15).
+ * This rewards progression and surfaces more competitive races.
+ */
+function scoreLicenseLevel(minLicenseLevel: number): number {
+  // min_license_level: 1-4=Rookie, 5-8=D, 9-12=C, 13-16=B, 17+=A
+  if (minLicenseLevel >= 17) return 15   // A class
+  if (minLicenseLevel >= 13) return 12   // B class
+  if (minLicenseLevel >= 9) return 9     // C class
+  if (minLicenseLevel >= 5) return 5     // D class
+  return 2                                // Rookie
 }
 
 /**
@@ -815,6 +829,7 @@ export function computeNextRaceIdeas(
       const timeOfDayScore = scoreTimeOfDay(categorySessions, bestNextStart.nextStart)
       const dayOfWeekScore = scoreDayOfWeek(categorySessions, bestNextStart.nextStart)
       const ratingTrendScore = scoreRatingTrend(ratingHistory, category)
+      const licenseLevelScore = scoreLicenseLevel(season.min_license_level)
 
       const totalScore =
         trackFamiliarityScore +
@@ -823,7 +838,8 @@ export function computeNextRaceIdeas(
         carPerformanceScore +
         timeOfDayScore +
         dayOfWeekScore +
-        ratingTrendScore
+        ratingTrendScore +
+        licenseLevelScore
 
       const minutesUntilStart =
         (bestNextStart.nextStart.getTime() - now.getTime()) / (60 * 1000)
@@ -858,6 +874,7 @@ export function computeNextRaceIdeas(
           timeOfDay: timeOfDayScore,
           dayOfWeek: dayOfWeekScore,
           ratingTrend: ratingTrendScore,
+          licenseLevel: licenseLevelScore,
         },
         strategy,
         commentary: generateCommentary(
@@ -885,6 +902,7 @@ export function computeNextRaceIdeas(
               timeOfDay: timeOfDayScore,
               dayOfWeek: dayOfWeekScore,
               ratingTrend: ratingTrendScore,
+              licenseLevel: licenseLevelScore,
             },
             strategy,
           },
@@ -908,36 +926,70 @@ export function computeNextRaceIdeas(
 
 /**
  * Greedy diversity selection.
- * Pass 1: pick the soonest race for each unique (licenseClass, category) pair.
- * Pass 2: if fewer than `count` selected, backfill from remaining candidates
- *          sorted by score (prefer highest-scoring backfills).
+ *
+ * Goals: no duplicate series, no duplicate tracks, spread across license classes.
+ * Higher-scored candidates are preferred, but diversity constraints come first.
+ *
+ * Pass 1: Score-sorted. Pick the highest-scoring candidate for each unique
+ *          license class, skipping if we already have that series or track.
+ * Pass 2: Backfill remaining slots from score-sorted candidates,
+ *          still enforcing no duplicate series/track.
+ * Pass 3: If still short (very few eligible races), relax the track constraint.
+ *
+ * Final output sorted by start time.
  */
 function diversifySelections(
   timeSorted: RaceSuggestion[],
   count: number,
 ): RaceSuggestion[] {
-  const selected: RaceSuggestion[] = []
-  const seenSlots = new Set<string>()
-  const remaining: RaceSuggestion[] = []
+  // Work from a score-sorted copy so we prefer higher-quality picks
+  const scoreSorted = [...timeSorted].sort((a, b) => b.score - a.score)
 
-  // Pass 1: one per (licenseClass, category)
-  for (const s of timeSorted) {
-    const slot = `${s.licenseClass}:${s.category}`
-    if (!seenSlots.has(slot)) {
-      seenSlots.add(slot)
-      selected.push(s)
+  const selected: RaceSuggestion[] = []
+  const selectedIds = new Set<number>() // seriesId dedup
+  const seenLicenseClasses = new Set<string>()
+  const seenSeriesIds = new Set<number>()
+  const seenTracks = new Set<string>()
+
+  const canPick = (s: RaceSuggestion, relaxTrack = false): boolean => {
+    if (seenSeriesIds.has(s.seriesId)) return false
+    if (!relaxTrack && seenTracks.has(s.trackName.toLowerCase())) return false
+    return true
+  }
+
+  const pick = (s: RaceSuggestion) => {
+    selected.push(s)
+    selectedIds.add(s.seriesId)
+    seenSeriesIds.add(s.seriesId)
+    seenLicenseClasses.add(s.licenseClass)
+    seenTracks.add(s.trackName.toLowerCase())
+  }
+
+  // Pass 1: one per license class (highest scoring from each)
+  for (const s of scoreSorted) {
+    if (selected.length >= count) break
+    if (seenLicenseClasses.has(s.licenseClass)) continue
+    if (!canPick(s)) continue
+    pick(s)
+  }
+
+  // Pass 2: backfill from remaining, enforcing no duplicate series/track
+  if (selected.length < count) {
+    for (const s of scoreSorted) {
       if (selected.length >= count) break
-    } else {
-      remaining.push(s)
+      if (selectedIds.has(s.seriesId)) continue
+      if (!canPick(s)) continue
+      pick(s)
     }
   }
 
-  // Pass 2: backfill from remaining by score if we need more
+  // Pass 3: if still short, relax track constraint (allow same track, different series)
   if (selected.length < count) {
-    remaining.sort((a, b) => b.score - a.score)
-    for (const s of remaining) {
-      selected.push(s)
+    for (const s of scoreSorted) {
       if (selected.length >= count) break
+      if (selectedIds.has(s.seriesId)) continue
+      if (!canPick(s, true)) continue
+      pick(s)
     }
   }
 

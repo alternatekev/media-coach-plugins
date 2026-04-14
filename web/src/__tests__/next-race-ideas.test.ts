@@ -392,7 +392,7 @@ function makeSuggestion(overrides: Partial<RaceSuggestion>): RaceSuggestion {
     score: overrides.score ?? 50,
     scoreBreakdown: overrides.scoreBreakdown ?? {
       trackFamiliarity: 10, trackIncidentRate: 10, carFamiliarity: 5,
-      carPerformance: 5, timeOfDay: 5, dayOfWeek: 5, ratingTrend: 5,
+      carPerformance: 5, timeOfDay: 5, dayOfWeek: 5, ratingTrend: 5, licenseLevel: 5,
     },
     strategy: overrides.strategy ?? { type: 'steady', text: 'Steady' },
     commentary: overrides.commentary ?? 'Test commentary',
@@ -400,55 +400,63 @@ function makeSuggestion(overrides: Partial<RaceSuggestion>): RaceSuggestion {
 }
 
 describe('diversifySelections', () => {
-  it('picks one suggestion per (licenseClass, category) pair', () => {
+  it('spreads across license classes (one per class first)', () => {
     const suggestions = [
-      makeSuggestion({ licenseClass: 'C', category: 'road', seriesName: 'GT3 1', nextStartTime: new Date('2026-04-11T20:00:00Z') }),
-      makeSuggestion({ licenseClass: 'C', category: 'road', seriesName: 'GT3 2', nextStartTime: new Date('2026-04-11T20:05:00Z') }),
-      makeSuggestion({ licenseClass: 'D', category: 'road', seriesName: 'MX5', nextStartTime: new Date('2026-04-11T20:10:00Z') }),
-      makeSuggestion({ licenseClass: 'C', category: 'oval', seriesName: 'Oval C', nextStartTime: new Date('2026-04-11T20:15:00Z') }),
-      makeSuggestion({ licenseClass: 'B', category: 'road', seriesName: 'LMP2', nextStartTime: new Date('2026-04-11T20:20:00Z') }),
+      makeSuggestion({ licenseClass: 'C', category: 'road', seriesName: 'GT3 1', seriesId: 101, score: 80, trackName: 'Spa', nextStartTime: new Date('2026-04-11T20:00:00Z') }),
+      makeSuggestion({ licenseClass: 'C', category: 'road', seriesName: 'GT3 2', seriesId: 102, score: 75, trackName: 'Monza', nextStartTime: new Date('2026-04-11T20:05:00Z') }),
+      makeSuggestion({ licenseClass: 'D', category: 'road', seriesName: 'MX5', seriesId: 103, score: 70, trackName: 'Laguna Seca', nextStartTime: new Date('2026-04-11T20:10:00Z') }),
+      makeSuggestion({ licenseClass: 'C', category: 'oval', seriesName: 'Oval C', seriesId: 104, score: 65, trackName: 'Daytona', nextStartTime: new Date('2026-04-11T20:15:00Z') }),
+      makeSuggestion({ licenseClass: 'B', category: 'road', seriesName: 'LMP2', seriesId: 105, score: 60, trackName: 'Watkins Glen', nextStartTime: new Date('2026-04-11T20:20:00Z') }),
     ]
 
     const result = diversifySelections(suggestions, 5)
-
-    // Should pick GT3 1 (C:road), MX5 (D:road), Oval C (C:oval), LMP2 (B:road) — 4 unique slots
-    // Then backfill GT3 2 for the 5th
     expect(result).toHaveLength(5)
 
+    // Pass 1 picks one per license class (highest score from each): C→GT3 1, D→MX5, B→LMP2
+    // Pass 2 backfills: GT3 2, Oval C (different series + different tracks)
     const seriesNames = result.map(s => s.seriesName)
-    expect(seriesNames).toContain('GT3 1')
-    expect(seriesNames).toContain('MX5')
-    expect(seriesNames).toContain('Oval C')
-    expect(seriesNames).toContain('LMP2')
+    expect(seriesNames).toContain('GT3 1')  // C class pick
+    expect(seriesNames).toContain('MX5')    // D class pick
+    expect(seriesNames).toContain('LMP2')   // B class pick
+
+    // No duplicate series
+    const seriesIds = result.map(s => s.seriesId)
+    expect(new Set(seriesIds).size).toBe(5)
   })
 
-  it('spreads across categories when possible', () => {
+  it('deduplicates series and tracks across picks', () => {
     const suggestions = [
-      makeSuggestion({ licenseClass: 'C', category: 'road', nextStartTime: new Date('2026-04-11T20:00:00Z') }),
-      makeSuggestion({ licenseClass: 'C', category: 'oval', nextStartTime: new Date('2026-04-11T20:01:00Z') }),
-      makeSuggestion({ licenseClass: 'C', category: 'dirt_road', nextStartTime: new Date('2026-04-11T20:02:00Z') }),
-      makeSuggestion({ licenseClass: 'D', category: 'road', nextStartTime: new Date('2026-04-11T20:03:00Z') }),
-      makeSuggestion({ licenseClass: 'D', category: 'oval', nextStartTime: new Date('2026-04-11T20:04:00Z') }),
+      makeSuggestion({ licenseClass: 'C', seriesId: 101, score: 90, trackName: 'Spa', seriesName: 'Series A', nextStartTime: new Date('2026-04-11T20:00:00Z') }),
+      makeSuggestion({ licenseClass: 'D', seriesId: 102, score: 85, trackName: 'Spa', seriesName: 'Series B', nextStartTime: new Date('2026-04-11T20:01:00Z') }),
+      makeSuggestion({ licenseClass: 'B', seriesId: 103, score: 80, trackName: 'Monza', seriesName: 'Series C', nextStartTime: new Date('2026-04-11T20:02:00Z') }),
+      makeSuggestion({ licenseClass: 'A', seriesId: 104, score: 70, trackName: 'Laguna Seca', seriesName: 'Series D', nextStartTime: new Date('2026-04-11T20:03:00Z') }),
     ]
 
-    const result = diversifySelections(suggestions, 5)
-    expect(result).toHaveLength(5)
+    const result = diversifySelections(suggestions, 3)
+    expect(result).toHaveLength(3)
 
-    // All 5 have unique (licenseClass, category) pairs
-    const slots = result.map(s => `${s.licenseClass}:${s.category}`)
-    expect(new Set(slots).size).toBe(5)
+    // Pass 1: C→Series A (Spa), D→Series B skipped (Spa duplicate), B→Series C (Monza), then D needs pass 2
+    // Series B shares track with Series A so it's skipped in pass 1 and 2
+    // Series D picked instead for the 3rd slot
+    const seriesNames = result.map(s => s.seriesName)
+    expect(seriesNames).toContain('Series A')  // C class
+    expect(seriesNames).toContain('Series C')  // B class
+    // 3rd pick: Series D (A class, unique track) since Series B shares Spa track
+    expect(seriesNames).toContain('Series D')
   })
 
   it('returns sorted by soonest start time', () => {
     const suggestions = [
-      makeSuggestion({ licenseClass: 'B', category: 'road', nextStartTime: new Date('2026-04-11T21:00:00Z') }),
-      makeSuggestion({ licenseClass: 'C', category: 'road', nextStartTime: new Date('2026-04-11T20:00:00Z') }),
-      makeSuggestion({ licenseClass: 'D', category: 'road', nextStartTime: new Date('2026-04-11T20:30:00Z') }),
+      makeSuggestion({ licenseClass: 'B', seriesId: 101, score: 80, trackName: 'Spa', nextStartTime: new Date('2026-04-11T21:00:00Z') }),
+      makeSuggestion({ licenseClass: 'C', seriesId: 102, score: 70, trackName: 'Monza', nextStartTime: new Date('2026-04-11T20:00:00Z') }),
+      makeSuggestion({ licenseClass: 'D', seriesId: 103, score: 60, trackName: 'Laguna Seca', nextStartTime: new Date('2026-04-11T20:30:00Z') }),
     ]
 
     const result = diversifySelections(suggestions, 3)
-    expect(result[0].licenseClass).toBe('C') // soonest
-    expect(result[1].licenseClass).toBe('D')
-    expect(result[2].licenseClass).toBe('B') // latest
+    // All 3 picked (different license classes, series, tracks)
+    // Then sorted by start time
+    expect(result[0].licenseClass).toBe('C')  // 20:00 — soonest
+    expect(result[1].licenseClass).toBe('D')  // 20:30
+    expect(result[2].licenseClass).toBe('B')  // 21:00 — latest
   })
 })

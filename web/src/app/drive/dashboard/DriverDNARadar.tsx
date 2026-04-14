@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import Link from 'next/link'
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts'
 import { Target } from 'lucide-react'
 import { computeDriverDNA, getDriverArchetype } from '@/lib/driver-dna'
@@ -61,19 +60,17 @@ export default function DriverDNARadar({ sessions, ratingHistory }: Props) {
   return (
     <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-4 h-full relative flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)]" style={{ fontFamily: 'var(--ff-display)' }}>
           <Target size={24} className="text-[var(--border-accent)]" />
           Driver DNA
         </div>
-        <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-[var(--k10-red)]/15 text-[var(--k10-red)]">
-          {archetype.name}
-        </span>
+        <span className="text-sm text-[var(--text-muted)]">{archetype.name}</span>
       </div>
 
       {/* Radar Chart */}
       <div className="flex-1 min-h-0">
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={radarData}>
             <PolarGrid stroke="rgba(255,255,255,0.1)" />
             <PolarAngleAxis dataKey="dimension" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 14 }} />
@@ -90,14 +87,6 @@ export default function DriverDNARadar({ sessions, ratingHistory }: Props) {
           </RadarChart>
         </ResponsiveContainer>
       </div>
-
-      {/* Footer link */}
-      <Link
-        href="/drive/dna"
-        className="text-sm text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors text-right mt-1"
-      >
-        View full profile &rarr;
-      </Link>
     </div>
   )
 }

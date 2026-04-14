@@ -418,6 +418,9 @@ export default async function DashboardPage() {
             // e.g. "Global Mazda MX-5 Cup" where "Global" = Mazda
             const IRACING_BRAND_ALIASES: Record<string, string> = {
               'global': 'mazda',
+              'mx-5': 'mazda',
+              'mx5': 'mazda',
+              'miata': 'mazda',
               'dallara': 'dallara',
               'riley': 'riley',
             }

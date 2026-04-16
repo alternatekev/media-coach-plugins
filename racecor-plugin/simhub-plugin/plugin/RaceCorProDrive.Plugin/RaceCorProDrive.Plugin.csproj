@@ -53,6 +53,8 @@
   <!-- WinForms — needed for FolderBrowserDialog in settings panel -->
   <ItemGroup>
     <Reference Include="System.Windows.Forms" />
+    <!-- WMI — needed for Moza USB device discovery via Win32_PnPEntity -->
+    <Reference Include="System.Management" />
   </ItemGroup>
 
   <!--

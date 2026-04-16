@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using GameReaderCommon;
 using Newtonsoft.Json.Linq;
 using RaceCorProDrive.Plugin.Engine;
+using RaceCorProDrive.Plugin.Engine.Moza;
 using SimHub.Plugins;
 
 namespace RaceCorProDrive.Plugin
@@ -41,6 +42,9 @@ namespace RaceCorProDrive.Plugin
         private readonly Engine.Strategy.StrategyCoordinator _strategy = new Engine.Strategy.StrategyCoordinator();
         private IncidentCoachEngine _incidentCoach;
         private PedalProfileManager _pedalProfiles;
+
+        // Moza direct serial hardware manager — bypasses Pit House
+        private MozaSerialManager _mozaSerial;
 
         // iRacing Data API client — reads local cookies / credentials to fetch career data
         private readonly Engine.IRacingDataClient _iracingData = new Engine.IRacingDataClient();
@@ -153,6 +157,13 @@ namespace RaceCorProDrive.Plugin
             _pedalProfiles = new PedalProfileManager(pedalDataDir);
             _pedalProfiles.Load();
             SimHub.Logging.Current.Info($"[RaceCorProDrive] Pedal profiles loaded — Moza detected: {_pedalProfiles.MozaDetected}, active: {_pedalProfiles.ActiveProfile?.Name ?? "(none)"}, profiles: {_pedalProfiles.Profiles.Count}");
+
+            // Initialise Moza direct serial hardware manager (bypasses Pit House)
+            _mozaSerial = new MozaSerialManager(
+                msg => SimHub.Logging.Current.Info(msg),
+                msg => SimHub.Logging.Current.Warn(msg));
+            _mozaSerial.Start();
+            SimHub.Logging.Current.Info("[RaceCorProDrive] Moza serial manager started");
 
             // Initialise track map provider
             // The DLL is output directly into the SimHub root folder (not a Plugins\ subfolder),
@@ -522,6 +533,7 @@ namespace RaceCorProDrive.Plugin
         {
             _sdkBridge.Stop();
             _screenColorSampler.Dispose();
+            _mozaSerial?.Dispose();
             _incidentCoach?.End();
             StopHttpServer();
             this.SaveCommonSettings("GeneralSettings", Settings);
@@ -990,6 +1002,160 @@ namespace RaceCorProDrive.Plugin
                         ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                         ctx.Response.StatusCode = 200;
                         ctx.Response.OutputStream.Write(resultBytes, 0, resultBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    // ── Moza direct hardware actions ──────────────────────────
+                    if (action == "listMozaDevices" && _mozaSerial != null)
+                    {
+                        string json = _mozaSerial.GetDeviceListJson();
+                        byte[] listBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(listBytes, 0, listBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "getMozaWheelbaseSettings" && _mozaSerial != null)
+                    {
+                        string json = _mozaSerial.GetWheelbaseSettingsJson();
+                        byte[] resultBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(resultBytes, 0, resultBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "setMozaWheelbaseSetting" && _mozaSerial != null)
+                    {
+                        var qs = ctx.Request.QueryString;
+                        string key = qs["key"] ?? "";
+                        string val = qs["value"] ?? "";
+                        bool ok = ApplyMozaWheelbaseSetting(key, val);
+                        byte[] okBytes = System.Text.Encoding.UTF8.GetBytes(ok ? "{\"ok\":true}" : "{\"ok\":false,\"error\":\"Invalid key or value\"}");
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "getMozaPedalSettings" && _mozaSerial != null)
+                    {
+                        string json = _mozaSerial.GetPedalSettingsJson();
+                        byte[] resultBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(resultBytes, 0, resultBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "setMozaPedalSetting" && _mozaSerial != null)
+                    {
+                        var qs = ctx.Request.QueryString;
+                        string key = qs["key"] ?? "";
+                        string val = qs["value"] ?? "";
+                        bool ok = ApplyMozaPedalSetting(key, val);
+                        byte[] okBytes = System.Text.Encoding.UTF8.GetBytes(ok ? "{\"ok\":true}" : "{\"ok\":false,\"error\":\"Invalid key or value\"}");
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "getMozaHandbrakeSettings" && _mozaSerial != null)
+                    {
+                        string json = _mozaSerial.GetHandbrakeSettingsJson();
+                        byte[] resultBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(resultBytes, 0, resultBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "setMozaHandbrakeSetting" && _mozaSerial != null)
+                    {
+                        var qs = ctx.Request.QueryString;
+                        string key = qs["key"] ?? "";
+                        string val = qs["value"] ?? "";
+                        bool ok = ApplyMozaHandbrakeSetting(key, val);
+                        byte[] okBytes = System.Text.Encoding.UTF8.GetBytes(ok ? "{\"ok\":true}" : "{\"ok\":false,\"error\":\"Invalid key or value\"}");
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "getMozaShifterSettings" && _mozaSerial != null)
+                    {
+                        string json = _mozaSerial.GetShifterSettingsJson();
+                        byte[] resultBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(resultBytes, 0, resultBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "getMozaDashboardSettings" && _mozaSerial != null)
+                    {
+                        string json = _mozaSerial.GetDashboardSettingsJson();
+                        byte[] resultBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(resultBytes, 0, resultBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "getMozaWheelSettings" && _mozaSerial != null)
+                    {
+                        string json = _mozaSerial.GetWheelSettingsJson();
+                        byte[] resultBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(resultBytes, 0, resultBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "mozaRefresh" && _mozaSerial != null)
+                    {
+                        _mozaSerial.ForceRefresh();
+                        byte[] okBytes = System.Text.Encoding.UTF8.GetBytes("{\"ok\":true}");
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
+                        ctx.Response.OutputStream.Close();
+                        continue;
+                    }
+
+                    if (action == "mozaReconnect" && _mozaSerial != null)
+                    {
+                        _mozaSerial.ForceRediscovery();
+                        byte[] okBytes = System.Text.Encoding.UTF8.GetBytes("{\"ok\":true}");
+                        ctx.Response.ContentType = "application/json";
+                        ctx.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.OutputStream.Write(okBytes, 0, okBytes.Length);
                         ctx.Response.OutputStream.Close();
                         continue;
                     }
@@ -1672,6 +1838,12 @@ namespace RaceCorProDrive.Plugin
                     Jp(sb, "RaceCorProDrive.Plugin.DS.AmbientB", _screenColorSampler.HasColor ? _screenColorSampler.B : 0);
                     Jp(sb, "RaceCorProDrive.Plugin.DS.AmbientHasData", _screenColorSampler.HasColor ? 1 : 0);
 
+                    // ── Moza hardware summary ──
+                    if (_mozaSerial != null)
+                    {
+                        _mozaSerial.AppendPollSummary(sb, Jp, Jp);
+                    }
+
                     // ── Pedal profile curves (for dashboard visualization) ──
                     if (_pedalProfiles != null)
                     {
@@ -1736,6 +1908,110 @@ namespace RaceCorProDrive.Plugin
 
             SimHub.Logging.Current.Warn($"[RaceCorProDrive] {filename} not found in racecorprodrive-data folder");
             return "";
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  MOZA HARDWARE — HTTP SETTING WRITE HELPERS
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Parses a key/value pair and writes the corresponding wheelbase setting.
+        /// Keys match the property names in MozaWheelbaseSettings.
+        /// </summary>
+        private bool ApplyMozaWheelbaseSetting(string key, string valueStr)
+        {
+            if (_mozaSerial == null || string.IsNullOrEmpty(key)) return false;
+            if (!int.TryParse(valueStr, out int value)) return false;
+
+            byte deviceId = MozaDeviceRegistry.DeviceWheelbase;
+            switch (key.ToLowerInvariant())
+            {
+                case "ffbstrength": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.FfbStrength, (byte)value); return true;
+                case "maxtorque": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.MaxTorque, (byte)value); return true;
+                case "roadsensitivity": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.RoadSensitivity, (byte)value); return true;
+                case "speeddamping": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.SpeedDamping, (byte)value); return true;
+                case "minrotationangle": _mozaSerial.WriteSetting16(deviceId, MozaDeviceRegistry.WheelbaseCmd.MinRotationAngle, (ushort)value); return true;
+                case "maxrotationangle": _mozaSerial.WriteSetting16(deviceId, MozaDeviceRegistry.WheelbaseCmd.MaxRotationAngle, (ushort)value); return true;
+                case "softlock": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.SoftLock, (byte)value); return true;
+                case "friction": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.Friction, (byte)value); return true;
+                case "spring": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.Spring, (byte)value); return true;
+                case "damper": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.Damper, (byte)value); return true;
+                case "inertia": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.Inertia, (byte)value); return true;
+                case "tempprotection": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.TempProtection, (byte)value); return true;
+                case "handsoffprotection": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.WheelbaseCmd.HandsOffProtection, (byte)value); return true;
+                default: return false;
+            }
+        }
+
+        /// <summary>
+        /// Parses a key/value pair and writes the corresponding pedal setting.
+        /// Key format: "{axis}.{setting}" e.g., "throttle.deadzone", "brake.curveY3"
+        /// </summary>
+        private bool ApplyMozaPedalSetting(string key, string valueStr)
+        {
+            if (_mozaSerial == null || string.IsNullOrEmpty(key)) return false;
+            if (!int.TryParse(valueStr, out int value)) return false;
+
+            var parts = key.Split('.');
+            if (parts.Length != 2) return false;
+
+            MozaDeviceRegistry.PedalAxis axis;
+            switch (parts[0].ToLowerInvariant())
+            {
+                case "throttle": axis = MozaDeviceRegistry.PedalAxis.Throttle; break;
+                case "brake": axis = MozaDeviceRegistry.PedalAxis.Brake; break;
+                case "clutch": axis = MozaDeviceRegistry.PedalAxis.Clutch; break;
+                default: return false;
+            }
+
+            byte deviceId = MozaDeviceRegistry.DevicePedals;
+            byte offset;
+            bool isTwoByte = false;
+            switch (parts[1].ToLowerInvariant())
+            {
+                case "calibrationmin": offset = MozaDeviceRegistry.PedalCmd.CalibrationMin; isTwoByte = true; break;
+                case "calibrationmax": offset = MozaDeviceRegistry.PedalCmd.CalibrationMax; isTwoByte = true; break;
+                case "deadzone": offset = MozaDeviceRegistry.PedalCmd.Deadzone; break;
+                case "curvey1": offset = MozaDeviceRegistry.PedalCmd.CurveY1; break;
+                case "curvey2": offset = MozaDeviceRegistry.PedalCmd.CurveY2; break;
+                case "curvey3": offset = MozaDeviceRegistry.PedalCmd.CurveY3; break;
+                case "curvey4": offset = MozaDeviceRegistry.PedalCmd.CurveY4; break;
+                case "curvey5": offset = MozaDeviceRegistry.PedalCmd.CurveY5; break;
+                case "hidsource": offset = MozaDeviceRegistry.PedalCmd.HidSource; break;
+                default: return false;
+            }
+
+            byte cmdId = MozaDeviceRegistry.PedalCmd.GetCommand(axis, offset);
+            if (isTwoByte)
+                _mozaSerial.WriteSetting16(deviceId, cmdId, (ushort)value);
+            else
+                _mozaSerial.WriteSetting(deviceId, cmdId, (byte)value);
+            return true;
+        }
+
+        /// <summary>
+        /// Parses a key/value pair and writes the corresponding handbrake setting.
+        /// </summary>
+        private bool ApplyMozaHandbrakeSetting(string key, string valueStr)
+        {
+            if (_mozaSerial == null || string.IsNullOrEmpty(key)) return false;
+            if (!int.TryParse(valueStr, out int value)) return false;
+
+            byte deviceId = MozaDeviceRegistry.DeviceHandbrake;
+            switch (key.ToLowerInvariant())
+            {
+                case "calibrationmin": _mozaSerial.WriteSetting16(deviceId, MozaDeviceRegistry.HandbrakeCmd.CalibrationMin, (ushort)value); return true;
+                case "calibrationmax": _mozaSerial.WriteSetting16(deviceId, MozaDeviceRegistry.HandbrakeCmd.CalibrationMax, (ushort)value); return true;
+                case "deadzone": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.HandbrakeCmd.Deadzone, (byte)value); return true;
+                case "curvey1": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.HandbrakeCmd.CurveY1, (byte)value); return true;
+                case "curvey2": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.HandbrakeCmd.CurveY2, (byte)value); return true;
+                case "curvey3": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.HandbrakeCmd.CurveY3, (byte)value); return true;
+                case "curvey4": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.HandbrakeCmd.CurveY4, (byte)value); return true;
+                case "curvey5": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.HandbrakeCmd.CurveY5, (byte)value); return true;
+                case "buttonthreshold": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.HandbrakeCmd.ButtonThreshold, (byte)value); return true;
+                case "outputmode": _mozaSerial.WriteSetting(deviceId, MozaDeviceRegistry.HandbrakeCmd.OutputMode, (byte)value); return true;
+                default: return false;
+            }
         }
     }
 }

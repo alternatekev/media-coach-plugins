@@ -68,16 +68,21 @@ export async function POST(request: NextRequest) {
       ratingHistory = [],
       careerStats = [],
       recentRaces = [],
+      licenseData = [],
       category = 'road',
     } = body as {
       ratingHistory: { date: string | null; iRating: number }[]
       careerStats: Record<string, string>[]
       recentRaces: Record<string, string>[]
+      licenseData: { category: string; license: string; safetyRating: number; iRating: number }[]
       category: string
     }
 
     let historyImported = 0
+    let historySkipped = 0
+    let historyReceived = 0
     let statsProcessed = 0
+    let licensesUpdated = 0
     let racesProcessed = 0
     const errors: string[] = []
 
@@ -112,11 +117,12 @@ export async function POST(request: NextRequest) {
         })
       )
 
+      historyReceived = ratingHistory.length
       for (const point of ratingHistory) {
         try {
           if (!point.date || !point.iRating || point.iRating <= 0) continue
           const key = `${point.date}|${Math.round(point.iRating)}`
-          if (existingKeys.has(key)) continue
+          if (existingKeys.has(key)) { historySkipped++; continue }
 
           await db.insert(schema.ratingHistory).values({
             userId,
@@ -183,7 +189,84 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ── 3. Backfill driverRatings from the newly imported history ────────────
+    // ── 3. Import race results from DOM table ─────────────────────────────────
+    // Table columns: date, series, season, car, track, winner, start, finish, inc, points, sof
+    if (recentRaces.length > 0) {
+      // Get existing sessions to dedup
+      const existingSessions = await db.select({
+        metadata: schema.raceSessions.metadata,
+      }).from(schema.raceSessions)
+        .where(eq(schema.raceSessions.userId, userId))
+        .limit(500)
+
+      const existingKeys = new Set(
+        existingSessions
+          .map(s => {
+            const meta = s.metadata as Record<string, unknown> | null
+            return meta?.extensionKey as string | undefined
+          })
+          .filter(Boolean)
+      )
+
+      for (const race of recentRaces) {
+        try {
+          const date = race.date || race.Date || ''
+          const series = race.series || race.Series || ''
+          const track = race.track || race.Track || ''
+          const car = race.car || race.Car || ''
+          const start = parseInt(race.start || race.Start || '0', 10)
+          const finish = parseInt(race.finish || race.Finish || '0', 10)
+          const inc = parseInt(race.inc || race.Inc || '0', 10)
+          const sof = parseInt(race.sof || race.SOF || '0', 10)
+          const points = parseInt(race.points || race.Points || '0', 10)
+
+          if (!date || !track) continue
+
+          // Build a dedup key from date + track + series
+          const dedupKey = `${date}|${track}|${series}`.substring(0, 200)
+          if (existingKeys.has(dedupKey)) continue
+
+          // Parse the date (format: "Apr 13, 268:15 PM" → needs fixing)
+          let raceDate: Date
+          try {
+            // The DOM squishes year+time: "Apr 13, 268:15 PM" → "Apr 13, 26 8:15 PM"
+            const fixedDate = date.replace(/(\d{2})(\d+:\d+)/, '$1 $2')
+            // Add "20" prefix to 2-digit year: "Apr 13, 26" → "Apr 13, 2026"
+            const withFullYear = fixedDate.replace(/,\s*(\d{2})\s/, ', 20$1 ')
+            raceDate = new Date(withFullYear)
+            if (isNaN(raceDate.getTime())) raceDate = new Date()
+          } catch {
+            raceDate = new Date()
+          }
+
+          await db.insert(schema.raceSessions).values({
+            userId,
+            carModel: car || 'Unknown',
+            manufacturer: null,
+            category,
+            trackName: track,
+            sessionType: 'race',
+            finishPosition: finish || null,
+            incidentCount: inc || null,
+            metadata: {
+              source: 'extension_sync',
+              extensionKey: dedupKey,
+              seriesName: series,
+              startPosition: start,
+              strengthOfField: sof,
+              champPoints: points,
+            },
+            createdAt: raceDate,
+          })
+          racesProcessed++
+          existingKeys.add(dedupKey)
+        } catch (err: any) {
+          errors.push(`Race: ${err.message}`)
+        }
+      }
+    }
+
+    // ── 3b. Backfill driverRatings from the newly imported history ───────────
     // If we imported chart history, the latest point is the current rating.
     if (historyImported > 0) {
       const latestHistory = await db.select({
@@ -224,7 +307,48 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ── 4. Mark import timestamp ─────────────────────────────────────────────
+    // ── 4. Import license data from sidebar badges ────────────────────────────
+    // This is the most reliable source for current license/SR/iRating per category.
+    if (licenseData.length > 0) {
+      for (const lic of licenseData) {
+        try {
+          if (!lic.category || !lic.license) continue
+
+          const existing = await db.select().from(schema.driverRatings)
+            .where(and(
+              eq(schema.driverRatings.userId, userId),
+              eq(schema.driverRatings.category, lic.category),
+            ))
+            .limit(1)
+
+          const values = {
+            iRating: lic.iRating || 0,
+            safetyRating: lic.safetyRating > 0 ? lic.safetyRating.toFixed(2) : '0.00',
+            license: lic.license,
+          }
+
+          if (existing.length === 0) {
+            await db.insert(schema.driverRatings).values({
+              userId,
+              category: lic.category,
+              ...values,
+            })
+            licensesUpdated++
+          } else {
+            // Always update from the sidebar — it's the ground truth
+            await db.update(schema.driverRatings).set(values).where(and(
+              eq(schema.driverRatings.userId, userId),
+              eq(schema.driverRatings.category, lic.category),
+            ))
+            licensesUpdated++
+          }
+        } catch (err: any) {
+          errors.push(`License ${lic.category}: ${err.message}`)
+        }
+      }
+    }
+
+    // ── 5. Mark import timestamp ─────────────────────────────────────────────
     try {
       await db.update(schema.iracingAccounts).set({
         lastImportAt: new Date(),
@@ -232,14 +356,26 @@ export async function POST(request: NextRequest) {
       }).where(eq(schema.iracingAccounts.userId, userId))
     } catch { /* no iracing account linked yet — fine */ }
 
+    const parts: string[] = []
+    if (historyImported > 0) parts.push(`${historyImported} new rating points`)
+    if (historySkipped > 0 && historyImported === 0) parts.push(`${historySkipped} rating points already synced`)
+    if (licensesUpdated > 0) parts.push(`${licensesUpdated} license ratings updated`)
+    if (racesProcessed > 0) parts.push(`${racesProcessed} races`)
+    const message = parts.length > 0
+      ? `Synced: ${parts.join(', ')}.`
+      : 'No new data to sync.'
+
     return jsonWithCors(request, {
       success: true,
-      message: `Synced ${historyImported} rating history points, ${statsProcessed} career stats, ${racesProcessed} race results for ${category}.`,
+      message,
       imported: {
         ratingHistory: historyImported,
+        licenses: licensesUpdated,
         careerStats: statsProcessed,
         recentRaces: racesProcessed,
       },
+      received: historyReceived,
+      skipped: historySkipped,
       errors: errors.length > 0 ? errors : undefined,
     })
   } catch (err: any) {

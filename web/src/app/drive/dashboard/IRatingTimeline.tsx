@@ -28,7 +28,7 @@ type Props = {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const CATEGORY_META: Record<string, { label: string; color: string }> = {
-  road:       { label: 'Road',       color: '#e53935' },
+  road:       { label: 'Sports Car', color: '#e53935' },
   oval:       { label: 'Oval',       color: '#1e88e5' },
   dirt_road:  { label: 'Dirt Road',  color: '#43a047' },
   dirt_oval:  { label: 'Dirt Oval',  color: '#ff9800' },

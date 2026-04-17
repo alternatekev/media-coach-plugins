@@ -3,14 +3,38 @@
  *
  * Runs on members-ng.iracing.com. Listens for messages from the popup
  * and scrapes the current page for:
- *   1. iRating history (from the SVG chart)
- *   2. Career stats (from DOM tables)
- *   3. Race results (from the results table)
+ *   1. iRating history (from the SVG chart on the profile/stats page)
+ *   2. Career stats (from DOM tables on the profile/stats page)
+ *   3. License/SR/iRating (from sidebar badges on the profile page)
+ *   4. Full race results (from the results-stats/results page via S3 JSON intercept)
  *
- * The iRacing member site is fully SSR — switching category tabs does NOT
- * fire network requests. All data is baked into the DOM on page load, so
- * we read it directly from the rendered elements.
+ * The profile stats page is fully SSR — switching category tabs does NOT
+ * fire network requests. The results-stats page DOES make a fetch to an
+ * S3 pre-signed URL that returns all results as JSON. We intercept that.
  */
+
+// ─── S3 fetch interceptor (for results-stats page) ─────────────────────────
+// The results page fetches a pre-signed S3 JSON with all race results.
+// We monkey-patch fetch to capture this data before the page processes it.
+
+let capturedResultsData = null;
+
+const originalFetch = window.fetch;
+window.fetch = async function (...args) {
+  const response = await originalFetch.apply(this, args);
+  const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
+
+  if (url.includes('scorpio-assets.s3.amazonaws.com') && url.includes('series_search')) {
+    try {
+      const clone = response.clone();
+      const data = await clone.json();
+      capturedResultsData = data;
+      console.log('[RaceCor] Captured results data:', Array.isArray(data) ? data.length : 'non-array');
+    } catch { /* ignore parse errors */ }
+  }
+
+  return response;
+};
 
 // ─── Message handler ────────────────────────────────────────────────────────
 
@@ -23,31 +47,55 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 
   if (msg.type === 'PING') {
-    sendResponse({ ok: true, page: location.href });
+    const pageType = detectPageType();
+    sendResponse({ ok: true, page: location.href, pageType, hasResultsData: !!capturedResultsData });
     return;
   }
 });
 
 // ─── Main scraper ───────────────────────────────────────────────────────────
 
+function detectPageType() {
+  const url = location.href;
+  if (url.includes('results-stats/results')) return 'results';
+  if (url.includes('profile') && url.includes('tab=stats')) return 'profile-stats';
+  if (url.includes('profile')) return 'profile';
+  return 'unknown';
+}
+
 async function scrapeCurrentPage() {
+  const pageType = detectPageType();
+
   const result = {
     scrapedAt: new Date().toISOString(),
     url: location.href,
-    category: detectActiveCategory(),
+    pageType,
+    category: 'road',
     ratingHistory: [],
     careerStats: [],
     recentRaces: [],
+    licenseData: [],
+    fullResults: null, // from S3 JSON intercept on results page
   };
 
-  // 1. Rating history from SVG chart
-  result.ratingHistory = scrapeRatingChart();
-
-  // 2. Career stats from DOM tables
-  result.careerStats = scrapeCareerStats();
-
-  // 3. Race results from the results tab/table
-  result.recentRaces = scrapeRaceResults();
+  if (pageType === 'results') {
+    // ── Results & Stats page ──
+    // If we captured S3 data, use it. Otherwise scrape the visible DOM table.
+    if (capturedResultsData) {
+      result.fullResults = capturedResultsData;
+    }
+    // Also scrape visible table rows as fallback
+    result.recentRaces = scrapeRaceResults();
+    // Still grab license sidebar if visible
+    result.licenseData = scrapeLicenseSidebar();
+  } else {
+    // ── Profile stats page ──
+    result.category = detectActiveCategory();
+    result.ratingHistory = scrapeRatingChart();
+    result.careerStats = scrapeCareerStats();
+    result.recentRaces = scrapeRaceResults();
+    result.licenseData = scrapeLicenseSidebar();
+  }
 
   return result;
 }
@@ -257,6 +305,69 @@ function scrapeCareerStats() {
   }
 
   return stats;
+}
+
+// ─── License sidebar scraper ────────────────────────────────────────────────
+
+/**
+ * Scrape the "Licenses" sidebar on the right of the profile page.
+ * The sidebar lists each category in tab order:
+ *   Oval, Sports Car, Formula, Dirt Oval, Dirt Road
+ * Each widget shows: license+SR (e.g. "B 1.76"), iRating (e.g. "iR 459"),
+ * or "----" if no iRating exists.
+ */
+function scrapeLicenseSidebar() {
+  const CATEGORY_ORDER = ['oval', 'road', 'formula', 'dirt_oval', 'dirt_road'];
+
+  // Find the "Licenses" heading
+  const allEls = document.querySelectorAll('*');
+  let licensesSection = null;
+  for (const el of allEls) {
+    if (el.children.length === 0 && el.textContent.trim() === 'Licenses') {
+      licensesSection = el.parentElement;
+      break;
+    }
+  }
+  if (!licensesSection) return [];
+
+  // Extract all leaf text nodes in the Licenses section
+  const texts = Array.from(licensesSection.querySelectorAll('*'))
+    .filter(el => el.children.length === 0 && el.textContent.trim())
+    .map(el => el.textContent.trim())
+    .filter(t => t !== 'Licenses');
+
+  // Parse in pairs/triples: each category has "X N.NN" (license+SR)
+  // and optionally "iR NNN" (iRating). "----" means no iRating.
+  const licenses = [];
+  let catIdx = 0;
+
+  for (let i = 0; i < texts.length && catIdx < CATEGORY_ORDER.length; i++) {
+    const t = texts[i];
+    const licenseMatch = t.match(/^([ABCDPR])\s+(\d+\.\d+)$/);
+    if (licenseMatch) {
+      const entry = {
+        category: CATEGORY_ORDER[catIdx],
+        license: licenseMatch[1],
+        safetyRating: parseFloat(licenseMatch[2]),
+        iRating: 0,
+      };
+
+      // Next text might be "iR NNN" or "----"
+      const next = texts[i + 1] || '';
+      const irMatch = next.match(/^iR\s+(\d+)$/);
+      if (irMatch) {
+        entry.iRating = parseInt(irMatch[1], 10);
+        i++; // consume the iR line
+      } else if (next === '----') {
+        i++; // consume the ---- line
+      }
+
+      licenses.push(entry);
+      catIdx++;
+    }
+  }
+
+  return licenses;
 }
 
 // ─── Race results scraper ───────────────────────────────────────────────────

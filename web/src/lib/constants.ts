@@ -44,7 +44,7 @@ export const RATING_CATEGORIES = ['road', 'oval', 'dirt_road', 'dirt_oval'] as c
 export type RatingCategory = typeof RATING_CATEGORIES[number]
 
 export const CATEGORY_LABELS: Record<RatingCategory, string> = {
-  road: 'Road', oval: 'Oval', dirt_road: 'Dirt Road', dirt_oval: 'Dirt Oval',
+  road: 'Sports Car', oval: 'Oval', dirt_road: 'Dirt Road', dirt_oval: 'Dirt Oval',
 }
 
 // Brand palette (matches dashboard CSS variables + logomark colors)

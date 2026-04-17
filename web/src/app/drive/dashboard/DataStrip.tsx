@@ -40,7 +40,7 @@ interface DataStripProps {
 }
 
 const CAT_LABEL: Record<string, string> = {
-  road: 'Road',
+  road: 'Sports Car',
   oval: 'Oval',
   dirt_road: 'Dirt Road',
   dirt_oval: 'Dirt Oval',

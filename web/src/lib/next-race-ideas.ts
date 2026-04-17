@@ -655,8 +655,8 @@ function generateCommentary(
 
   const raceInterval =
     suggestion.repeatMinutes === null
-      ? `next race in ${suggestion.minutesUntilStart} minutes`
-      : `races repeat every ${suggestion.repeatMinutes} minutes`
+      ? `next race in ${Math.round(suggestion.minutesUntilStart)} minutes`
+      : `races repeat every ${Math.round(suggestion.repeatMinutes)} minutes`
 
   return `${suggestion.licenseClass}-class series with a ${familiarityLevel}. You have a ${incidentStatus} here — ${raceInterval}.`
 }
@@ -820,7 +820,7 @@ export function computeNextRaceIdeas(
         licenseLevelScore
 
       const minutesUntilStart =
-        (bestNextStart.nextStart.getTime() - now.getTime()) / (60 * 1000)
+        Math.round((bestNextStart.nextStart.getTime() - now.getTime()) / (60 * 1000))
 
       const strategy = computeStrategy(ratingHistory, category)
 

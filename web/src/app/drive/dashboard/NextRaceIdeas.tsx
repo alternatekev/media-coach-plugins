@@ -45,7 +45,7 @@ interface NextRaceIdeasProps {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const CAT_LABEL: Record<string, string> = {
-  road: 'Road',
+  road: 'Sports Car',
   formula: 'Formula',
   oval: 'Oval',
   dirt_road: 'Dirt Road',

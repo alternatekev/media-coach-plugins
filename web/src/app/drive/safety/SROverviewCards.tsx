@@ -16,7 +16,7 @@ interface SRTrend {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  road: 'Road',
+  road: 'Sports Car',
   oval: 'Oval',
   dirt_road: 'Dirt Road',
   dirt_oval: 'Dirt Oval',

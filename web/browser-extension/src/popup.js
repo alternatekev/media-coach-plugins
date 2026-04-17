@@ -1,11 +1,11 @@
 /**
  * RaceCor iRacing Sync — Popup Script
  *
- * On popup open:
- *   1. Check we're on the iRacing member site
- *   2. Fetch the signed-in Pro Drive account
- *   3. Scrape the page via content script
- *   4. Sync to Pro Drive
+ * On popup open, runs a full auto-sync from ANY iRacing member site page:
+ *   1. Check account + verify we're on iRacing
+ *   2. Navigate to profile stats → scrape ratings, licenses, career stats
+ *   3. Navigate to results-stats → trigger search → capture race history
+ *   4. Sync everything to Pro Drive
  *
  * All automatic — no clicks needed. Shows a retry button on failure.
  */
@@ -26,6 +26,7 @@ const steps = [
   document.getElementById('step1'),
   document.getElementById('step2'),
   document.getElementById('step3'),
+  document.getElementById('step4'),
 ];
 
 let activeTabId = null;
@@ -57,122 +58,216 @@ retryBtn.addEventListener('click', () => {
   run();
 });
 
+// ─── Navigation helper ─────────────────────────────────────────────────────
+
+/**
+ * Navigate the tab to a URL and wait for it to finish loading.
+ * Returns once the content script is ready on the new page.
+ */
+function navigateTab(tabId, url) {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      chrome.tabs.onUpdated.removeListener(listener);
+      reject(new Error('Page load timed out'));
+    }, 20000);
+
+    function listener(updatedTabId, changeInfo) {
+      if (updatedTabId !== tabId) return;
+      if (changeInfo.status === 'complete') {
+        chrome.tabs.onUpdated.removeListener(listener);
+        clearTimeout(timeout);
+        // Give content script a moment to inject
+        setTimeout(() => resolve(), 800);
+      }
+    }
+
+    chrome.tabs.onUpdated.addListener(listener);
+    chrome.tabs.update(tabId, { url });
+  });
+}
+
+/**
+ * Wait for the content script to respond to PING.
+ * Retries a few times since the script may still be initializing.
+ */
+async function waitForContentScript(tabId, maxRetries = 6) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const resp = await chrome.tabs.sendMessage(tabId, { type: 'PING' });
+      if (resp?.ok) return resp;
+    } catch {
+      // Content script not ready yet
+    }
+    await sleep(500);
+  }
+  throw new Error('Content script not responding — reload the page and try again');
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // ─── Main flow ──────────────────────────────────────────────────────────────
 
 async function run() {
+  let profileData = null;
+  let resultsData = null;
+
   try {
-    // Step 1: Check page + fetch account
+    // ── Step 1: Check we're on iRacing + fetch Pro Drive account ──
     setStep(0, 'active');
     setStatus('Checking page & account…', 'syncing');
 
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.url?.includes('members-ng.iracing.com')) {
-      throw new Error('Navigate to your iRacing member site first');
+      throw new Error('Navigate to any page on members-ng.iracing.com first');
     }
     activeTabId = tab.id;
 
-    // Ping content script to check page type
-    let pingResp;
-    try {
-      pingResp = await chrome.tabs.sendMessage(tab.id, { type: 'PING' });
-    } catch {
-      throw new Error('Content script not loaded — reload the iRacing page and try again');
-    }
-
-    const pageType = pingResp?.pageType || 'unknown';
-
-    // Fetch Pro Drive account
-    await fetchAccount();
-    setStep(0, 'done');
-
-    // Step 2: Scrape
-    setStep(1, 'active');
-
-    if (pageType === 'results') {
-      setStatus('Capturing race results…', 'syncing');
-    } else {
-      setStatus('Scraping stats…', 'syncing');
-    }
-
-    const scrapeResp = await chrome.tabs.sendMessage(activeTabId, { type: 'SCRAPE_STATS' });
-    if (!scrapeResp?.ok) {
-      throw new Error(scrapeResp?.error || 'Scrape failed');
-    }
-    const data = scrapeResp.data;
-    setStep(1, 'done');
-
-    // Step 3: Sync — route to the right endpoint based on page type
-    setStep(2, 'active');
-    setStatus('Syncing to Pro Drive…', 'syncing');
-
-    const extensionSyncEndpoint = endpointInput.value.trim();
-    const cookieHeader = await getSessionCookie(extensionSyncEndpoint);
+    // Check Pro Drive account
+    const endpoint = endpointInput.value.trim();
+    const cookieHeader = await getSessionCookie(endpoint);
     if (!cookieHeader) {
       throw new Error('Not logged into Pro Drive — sign in at prodrive.racecor.io first');
     }
+    await fetchAccount();
+    setStep(0, 'done');
 
-    let result;
+    // ── Step 2: Navigate to profile stats → scrape ratings & licenses ──
+    setStep(1, 'active');
+    setStatus('Scraping profile & ratings…', 'syncing');
 
-    if (pageType === 'results' && data.fullResults) {
-      // Results page: send the raw S3 JSON to /api/iracing/upload
-      // which already handles iRacing's native race format
-      const baseUrl = new URL(extensionSyncEndpoint).origin;
-      const uploadEndpoint = `${baseUrl}/api/iracing/upload`;
+    // Build the profile stats URL from the current page
+    const currentUrl = new URL(tab.url);
+    const profileStatsUrl = `${currentUrl.origin}/web/member-home/profile/tab/stats`;
 
-      const resp = await fetch(uploadEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieHeader,
-        },
-        credentials: 'include',
-        body: JSON.stringify(data.fullResults),
-      });
-
-      if (!resp.ok) {
-        const text = await resp.text();
-        throw new Error(`${resp.status}: ${text.substring(0, 200)}`);
-      }
-
-      result = await resp.json();
-      result._pageType = 'results';
-      result._resultCount = Array.isArray(data.fullResults) ? data.fullResults.length : 0;
-    } else {
-      // Profile page: send scraped DOM data to extension-sync
-      const resp = await fetch(extensionSyncEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookieHeader,
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
-      });
-
-      if (!resp.ok) {
-        const text = await resp.text();
-        throw new Error(`${resp.status}: ${text.substring(0, 200)}`);
-      }
-
-      result = await resp.json();
-      result._pageType = 'profile';
+    // Navigate if not already on profile stats page
+    if (!tab.url.includes('profile') || !tab.url.includes('tab/stats')) {
+      await navigateTab(activeTabId, profileStatsUrl);
     }
+    await waitForContentScript(activeTabId);
 
+    // Scrape profile data
+    const profileResp = await chrome.tabs.sendMessage(activeTabId, { type: 'SCRAPE_STATS' });
+    if (!profileResp?.ok) {
+      throw new Error(profileResp?.error || 'Profile scrape failed');
+    }
+    profileData = profileResp.data;
+    setStep(1, 'done');
+
+    // ── Step 3: Navigate to results-stats → capture race history ──
+    setStep(2, 'active');
+    setStatus('Capturing race history…', 'syncing');
+
+    const resultsUrl = `${currentUrl.origin}/web/racing/results-stats/results`;
+    await navigateTab(activeTabId, resultsUrl);
+    await waitForContentScript(activeTabId);
+
+    // Wait a moment for the page to render its search form
+    await sleep(1500);
+
+    // Tell the content script to trigger the search
+    const searchResp = await chrome.tabs.sendMessage(activeTabId, { type: 'TRIGGER_SEARCH' });
+    if (searchResp?.ok) {
+      // Wait for S3 data to be captured by the fetch interceptor
+      setStatus('Waiting for results data…', 'syncing');
+      resultsData = await waitForResultsData(activeTabId, 15000);
+    }
+    // If no results data captured, that's OK — profile data is the priority
     setStep(2, 'done');
 
+    // ── Step 4: Sync everything to Pro Drive ──
+    setStep(3, 'active');
+    setStatus('Syncing to Pro Drive…', 'syncing');
+
+    const syncResult = await syncAllData(profileData, resultsData, endpoint, cookieHeader);
+    setStep(3, 'done');
+
     // Show success
-    const msg = result.message || 'Synced!';
-    setStatus(msg, 'success');
-    showResults(data, result);
+    setStatus(syncResult.message, 'success');
+    showResults(profileData, resultsData, syncResult);
 
   } catch (err) {
-    // Mark current step as error
     const activeIdx = steps.findIndex(s => s.classList.contains('active'));
     if (activeIdx >= 0) setStep(activeIdx, 'error');
 
     setStatus(err.message, 'error');
     retryBtn.style.display = 'block';
   }
+}
+
+// ─── Wait for S3 results data ──────────────────────────────────────────────
+
+async function waitForResultsData(tabId, timeoutMs) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const ping = await chrome.tabs.sendMessage(tabId, { type: 'PING' });
+      if (ping?.hasResultsData) {
+        // Scrape to get the fullResults
+        const resp = await chrome.tabs.sendMessage(tabId, { type: 'SCRAPE_STATS' });
+        if (resp?.ok && resp.data?.fullResults) {
+          return resp.data.fullResults;
+        }
+      }
+    } catch {
+      // Content script may have reloaded
+    }
+    await sleep(1000);
+  }
+  return null; // Timed out — not fatal, we still have profile data
+}
+
+// ─── Sync all collected data ───────────────────────────────────────────────
+
+async function syncAllData(profileData, resultsData, endpoint, cookieHeader) {
+  const baseUrl = new URL(endpoint).origin;
+  const results = { profile: null, races: null };
+
+  // 1. Sync profile data (ratings, licenses, career stats) to extension-sync
+  if (profileData) {
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': cookieHeader },
+      credentials: 'include',
+      body: JSON.stringify(profileData),
+    });
+    if (resp.ok) {
+      results.profile = await resp.json();
+    } else {
+      const text = await resp.text();
+      throw new Error(`Profile sync failed: ${resp.status}: ${text.substring(0, 200)}`);
+    }
+  }
+
+  // 2. Sync race results to /api/iracing/upload (handles iRacing's native format)
+  if (resultsData && Array.isArray(resultsData) && resultsData.length > 0) {
+    const uploadEndpoint = `${baseUrl}/api/iracing/upload`;
+    const resp = await fetch(uploadEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': cookieHeader },
+      credentials: 'include',
+      body: JSON.stringify(resultsData),
+    });
+    if (resp.ok) {
+      results.races = await resp.json();
+    }
+    // Non-fatal if race upload fails — profile data already synced
+  }
+
+  // Build summary message
+  const parts = [];
+  if (results.profile?.message) parts.push(results.profile.message);
+  if (results.races?.imported?.sessions > 0) {
+    parts.push(`${results.races.imported.sessions} race results imported`);
+  }
+  if (parts.length === 0) parts.push('No new data to sync.');
+
+  return {
+    message: parts.join(' · '),
+    profile: results.profile,
+    races: results.races,
+  };
 }
 
 // ─── Account fetcher ────────────────────────────────────────────────────────
@@ -256,43 +351,45 @@ function setStatus(msg, type) {
   statusText.className = `value ${type || ''}`;
 }
 
-function showResults(data, result) {
+function showResults(profileData, resultsData, syncResult) {
   resultsDiv.style.display = 'block';
   resultRowsDiv.innerHTML = '';
 
-  let rows = [];
+  const rows = [];
 
-  if (result._pageType === 'results') {
-    // Results page import via /api/iracing/upload
-    const received = result._resultCount || 0;
-    const imported = result.imported?.sessions || 0;
-    const skipped = received - imported;
-    const historyPoints = result.imported?.ratingHistoryFromRaces || 0;
+  // Profile sync results
+  const pr = syncResult.profile;
+  if (pr) {
+    if (pr.imported?.ratingHistory > 0) rows.push(['Rating points', `${pr.imported.ratingHistory} new`]);
+    if (pr.skipped > 0 && pr.imported?.ratingHistory === 0) rows.push(['Rating points', `${pr.skipped} already synced`]);
+    if (pr.imported?.licenses > 0) rows.push(['Licenses', `${pr.imported.licenses} updated`]);
+    if (profileData?.category) rows.push(['Category', profileData.category]);
+  }
 
-    rows.push(['Results found', `${received}`]);
-    rows.push(['Races imported', `${imported} new`]);
-    if (skipped > 0) rows.push(['Already synced', `${skipped}`]);
-    if (historyPoints > 0) rows.push(['Rating points', `${historyPoints}`]);
-    if (result.imported?.ratings > 0) rows.push(['Ratings updated', `${result.imported.ratings}`]);
-  } else {
-    // Profile page import via extension-sync
-    rows = [
-      ['Category', data.category || 'unknown'],
-      ['Rating history', `${result.imported?.ratingHistory ?? data.ratingHistory?.length ?? 0} points`],
-      ['Licenses', `${result.imported?.licenses ?? 0} updated`],
-    ];
+  // Race results sync
+  const rr = syncResult.races;
+  if (rr) {
+    const received = rr.received?.races || 0;
+    const imported = rr.imported?.sessions || 0;
+    if (received > 0) rows.push(['Results found', `${received}`]);
+    if (imported > 0) rows.push(['Races imported', `${imported} new`]);
+    if (received > 0 && imported === 0) rows.push(['Race results', 'Already up to date']);
+    if (rr.imported?.ratingHistoryFromRaces > 0) rows.push(['iRating history', `${rr.imported.ratingHistoryFromRaces} points`]);
+  } else if (resultsData === null) {
+    rows.push(['Race history', 'No results captured']);
+  }
 
-    if (result.imported?.recentRaces > 0) {
-      rows.push(['Recent races', `${result.imported.recentRaces}`]);
+  // Rating date range
+  if (profileData?.ratingHistory?.length > 0) {
+    const first = profileData.ratingHistory[0];
+    const last = profileData.ratingHistory[profileData.ratingHistory.length - 1];
+    if (first.date && last.date) {
+      rows.push(['Rating span', `${first.date} → ${last.date}`]);
     }
+  }
 
-    if (data.ratingHistory?.length > 0) {
-      const first = data.ratingHistory[0];
-      const last = data.ratingHistory[data.ratingHistory.length - 1];
-      if (first.date && last.date) {
-        rows.push(['Date range', `${first.date} → ${last.date}`]);
-      }
-    }
+  if (rows.length === 0) {
+    rows.push(['Status', 'No new data found']);
   }
 
   for (const [label, value] of rows) {

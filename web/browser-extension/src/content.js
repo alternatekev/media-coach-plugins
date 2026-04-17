@@ -51,6 +51,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     sendResponse({ ok: true, page: location.href, pageType, hasResultsData: !!capturedResultsData });
     return;
   }
+
+  if (msg.type === 'TRIGGER_SEARCH') {
+    triggerResultsSearch()
+      .then(result => sendResponse({ ok: true, ...result }))
+      .catch(err => sendResponse({ ok: false, error: err.message }));
+    return true;
+  }
 });
 
 // ─── Main scraper ───────────────────────────────────────────────────────────
@@ -58,7 +65,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 function detectPageType() {
   const url = location.href;
   if (url.includes('results-stats/results')) return 'results';
-  if (url.includes('profile') && url.includes('tab=stats')) return 'profile-stats';
+  if (url.includes('profile') && (url.includes('tab=stats') || url.includes('tab/stats'))) return 'profile-stats';
   if (url.includes('profile')) return 'profile';
   return 'unknown';
 }
@@ -401,4 +408,63 @@ function scrapeRaceResults() {
   }
 
   return results;
+}
+
+// ─── Results page search trigger ───────────────────────────────────────────
+
+/**
+ * On the results-stats/results page, find and click the "Find Results"
+ * button to trigger the S3 fetch. The page uses a Chakra UI modal or
+ * inline form with a search/submit button.
+ *
+ * Strategy:
+ *   1. Look for visible "Find Results" button and click it
+ *   2. If the search form is collapsed, look for "Edit Search" and click that first
+ *   3. Then click "Find Results"
+ */
+async function triggerResultsSearch() {
+  // Helper: find a button by its visible text
+  function findButton(text) {
+    const buttons = document.querySelectorAll('button, [role="button"], a.btn');
+    for (const btn of buttons) {
+      const btnText = btn.textContent.trim().toLowerCase();
+      if (btnText.includes(text.toLowerCase())) return btn;
+    }
+    return null;
+  }
+
+  // If results are already captured (page auto-loaded), skip
+  if (capturedResultsData) {
+    return { alreadyCaptured: true, count: Array.isArray(capturedResultsData) ? capturedResultsData.length : 0 };
+  }
+
+  // Try clicking "Find Results" directly
+  let findBtn = findButton('Find Results');
+  if (findBtn) {
+    findBtn.click();
+    return { clicked: 'findResults' };
+  }
+
+  // Maybe the form is collapsed — click "Edit Search" first
+  const editBtn = findButton('Edit Search');
+  if (editBtn) {
+    editBtn.click();
+    // Wait for the modal/form to open
+    await new Promise(r => setTimeout(r, 800));
+
+    findBtn = findButton('Find Results');
+    if (findBtn) {
+      findBtn.click();
+      return { clicked: 'editThenFind' };
+    }
+  }
+
+  // Last resort: look for any submit button in a form
+  const submitBtn = document.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.click();
+    return { clicked: 'submit' };
+  }
+
+  return { clicked: null, note: 'No search button found — results may not load' };
 }

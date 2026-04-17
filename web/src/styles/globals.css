@@ -78,6 +78,10 @@
     --purple: #7c6cf0;
     --cyan: #00acc1;
 
+    /* Layout */
+    --header-h: 41px;
+    --datastrip-h: 38px;
+
     /* Typography */
     --ff: sofia-pro-comp, sans-serif;
     --ff-display: "stolzl", sans-serif;

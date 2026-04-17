@@ -193,10 +193,11 @@ export default function DataStrip({
 
   return (
     <div
-      className="border-b"
+      className="border-b absolute left-0 right-0 z-20 backdrop-blur-md"
       style={{
         background: 'var(--bg-surface)',
         borderColor: 'var(--border-accent)',
+        top: 'var(--header-h)',
       }}
     >
       <div className="max-w-[120rem] mx-auto px-6 flex items-center justify-start gap-0 py-1.5 overflow-x-auto">

@@ -111,46 +111,44 @@ export default function DriverDNAPage({ sessions, ratingHistory }: Props) {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden bg-[var(--bg-panel)] rounded-xl border border-[var(--border)] mb-12">
-          {/* Decorative radar chart in hero — translucent, positioned right */}
-          <div className="absolute inset-0 flex items-center justify-end pointer-events-none pr-8 lg:pr-16">
-            <div className="w-[300px] h-[300px] lg:w-[380px] lg:h-[380px] opacity-25">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={radarData}>
-                  <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                  <PolarAngleAxis dataKey="dimension" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
-                  <PolarRadiusAxis tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} domain={[0, 100]} />
-                  <Radar name="DNA" dataKey="value" stroke="var(--border-accent)" fill="var(--border-accent)" fillOpacity={0.15} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-panel)] via-[var(--bg-panel)]/80 to-transparent pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
-
-          {/* Content */}
-          <div className="relative z-10 px-6 py-8 md:py-12">
-            <div className="max-w-2xl">
-              <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest mb-3">Performance Profile</p>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2" style={{ fontFamily: 'var(--ff-display)', color: 'var(--text)' }}>
-                Driver DNA
-              </h1>
-              <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <p className="text-2xl font-bold" style={{ color: 'var(--border-accent)' }}>
-                  {archetype.name}
-                </p>
-              </div>
-              <p style={{ color: 'var(--text-secondary)' }} className="text-base">
-                {archetype.description}
-              </p>
-            </div>
+      {/* Hero — full-width banner matching Tracks / Cars page pattern */}
+      <div className="relative overflow-hidden bg-[var(--bg-panel)]">
+        {/* Decorative radar chart — positioned right, translucent */}
+        <div className="absolute inset-0 flex items-center justify-end pointer-events-none pr-8 lg:pr-16">
+          <div className="w-[300px] h-[300px] lg:w-[380px] lg:h-[380px] opacity-25">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarData}>
+                <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                <PolarAngleAxis dataKey="dimension" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
+                <PolarRadiusAxis tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} domain={[0, 100]} />
+                <Radar name="DNA" dataKey="value" stroke="var(--border-accent)" fill="var(--border-accent)" fillOpacity={0.15} />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-panel)] via-[var(--bg-panel)]/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
+
+        {/* Content */}
+        <div className="relative z-10 px-6 pt-8 pb-10 max-w-6xl mx-auto">
+          <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest mb-3">Performance Profile</p>
+          <h1 className="text-3xl lg:text-4xl font-black tracking-tight mb-2" style={{ fontFamily: 'var(--ff-display)', color: 'var(--text)' }}>
+            Driver DNA
+          </h1>
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <p className="text-2xl font-bold" style={{ color: 'var(--border-accent)' }}>
+              {archetype.name}
+            </p>
+          </div>
+          <p style={{ color: 'var(--text-secondary)' }} className="text-sm max-w-xl">
+            {archetype.description}
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Dimension Breakdown Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {insights.map((insight) => {

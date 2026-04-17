@@ -767,7 +767,7 @@ export default async function DashboardPage() {
   const trackKey = (name: string | null) => (name || "").toLowerCase();
 
   return (
-    <main className="min-h-screen relative">
+    <main className="fixed inset-0" style={{ zIndex: 1 }}>
       {isPluginConnected && allSessions.length > 0 && (
         <DataStrip
           displayName={displayName}
@@ -783,15 +783,23 @@ export default async function DashboardPage() {
           insights={whenInsights}
         />
       )}
-      <div className="max-w-[120rem] mx-auto px-6 py-6">
+      <div className="absolute inset-0 max-w-[120rem] mx-auto px-6 w-full">
         {isPluginConnected ? (
           <>
             {/* Dashboard top grid — suggested races + viz left, moments + session length right */}
             {(nextRaceSuggestions.length > 0 || recentMoments.length > 0 || vizData.length > 0) && (
-              <section className="mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] lg:grid-cols-[3fr_1fr] gap-4">
-                  {/* ── Left column ── */}
-                  <div className="flex flex-col gap-4">
+              <section
+                className="h-full grid grid-cols-1 md:grid-cols-[3fr_1fr] lg:grid-cols-[3fr_1fr] gap-4"
+              >
+                  {/* ── Left column — scrolls under the headers ── */}
+                  <div
+                    className="overflow-y-auto pb-6 pr-2"
+                    style={{
+                      scrollbarGutter: 'stable',
+                      paddingTop: 'calc(var(--header-h) + var(--datastrip-h) + 16px)',
+                    }}
+                  >
+                    <div className="flex flex-col gap-4">
                     {nextRaceSuggestions.length > 0 && (
                       <NextRaceIdeas
                         suggestions={nextRaceSuggestions}
@@ -828,9 +836,80 @@ export default async function DashboardPage() {
                         iRatingHistory,
                       }}
                     />
+
+                    {/* Data Management (collapsible) */}
+                    {isPluginConnected && raceCount > 0 && (
+                      <DataManagement totalSessions={raceCount} emptySessions={emptySessionCount} />
+                    )}
+
+                    {/* Pro Features */}
+                    {!hasEnoughData && (
+                      <section className="mb-6">
+                        <h2
+                          className="font-bold mb-2 flex items-center gap-2"
+                          style={{ fontSize: "var(--fs-2xl)", fontFamily: "var(--ff-display)" }}
+                        >
+                          <Shield size={24} className="text-[var(--border-accent)]" />
+                          Pro Features
+                        </h2>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {[
+                            { label: "AI Commentary", icon: "🎙️" },
+                            { label: "Incidents Panel", icon: "⚠️" },
+                            { label: "Virtual Spotter", icon: "👁️" },
+                            { label: "Live Leaderboard", icon: "🏆" },
+                            { label: "Datastream", icon: "📊" },
+                            { label: "WebGL Effects", icon: "✨" },
+                            { label: "Reflections", icon: "🔮" },
+                            { label: "Module Config", icon: "⚙️" },
+                          ].map((f) => (
+                            <div
+                              key={f.label}
+                              className="p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] text-center"
+                            >
+                              <div className="text-lg mb-1">{f.icon}</div>
+                              <div className="text-xs font-semibold text-[var(--text-secondary)]">
+                                {f.label}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="mt-3 text-xs text-[var(--text-muted)]">
+                          All Pro features are unlocked when your overlay is connected
+                          to your Pro Drive account.
+                        </p>
+                      </section>
+                    )}
+                    {/* Download link */}
+                    <section className="text-center">
+                      <a
+                        href="/api/download/latest"
+                        className="inline-flex items-center gap-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors"
+                      >
+                        <Download size={24} />
+                        Need to reinstall? Download RaceCor.io Overlay
+                      </a>
+                    </section>
+
+                    <footer className="mt-16 pt-6 border-t border-[var(--border)] text-center pb-6">
+                      <a
+                        href={SITE_URL}
+                        className="text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors"
+                      >
+                        &larr; Back to {SITE_NAME}
+                      </a>
+                    </footer>
+                    </div>
                   </div>
-                  {/* ── Right column ── */}
-                  <div className="flex flex-col gap-4">
+                  {/* ── Right column — scrolls under the headers ── */}
+                  <div
+                    className="overflow-y-auto pb-6 pl-2"
+                    style={{
+                      scrollbarGutter: 'stable',
+                      paddingTop: 'calc(var(--header-h) + var(--datastrip-h) + 16px)',
+                    }}
+                  >
+                    <div className="flex flex-col gap-4">
                     {(trackMasteryList.length > 0 || carAffinityList.length > 0) && (
                       <TopTracksAndCars
                         tracks={trackMasteryList}
@@ -851,87 +930,14 @@ export default async function DashboardPage() {
                         compact
                       />
                     )}
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* Empty state: plugin connected but all data sources are empty */}
-            {isPluginConnected && raceCount > 0 && nextRaceSuggestions.length === 0 && recentMoments.length === 0 && vizData.length === 0 && (
-              <section className="mb-6 p-8 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-center">
-                <p className="text-sm text-[var(--text-muted)]">
-                  Insights and visualizations will appear as you record more sessions.
-                </p>
-              </section>
-            )}
-
-            {/* iRating timeline + career summary replaced by DataStrip sparklines */}
-
-            {/* Data Management (collapsible) */}
-            {isPluginConnected && raceCount > 0 && (
-              <DataManagement totalSessions={raceCount} emptySessions={emptySessionCount} />
-            )}
-
-            {/* Pro Features */}
-            {!hasEnoughData && (
-              <section className="mb-6">
-                <h2
-                  className="font-bold mb-2 flex items-center gap-2"
-                  style={{ fontSize: "var(--fs-2xl)", fontFamily: "var(--ff-display)" }}
-                >
-                  <Shield size={24} className="text-[var(--border-accent)]" />
-                  Pro Features
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    { label: "AI Commentary", icon: "🎙️" },
-                    { label: "Incidents Panel", icon: "⚠️" },
-                    { label: "Virtual Spotter", icon: "👁️" },
-                    { label: "Live Leaderboard", icon: "🏆" },
-                    { label: "Datastream", icon: "📊" },
-                    { label: "WebGL Effects", icon: "✨" },
-                    { label: "Reflections", icon: "🔮" },
-                    { label: "Module Config", icon: "⚙️" },
-                  ].map((f) => (
-                    <div
-                      key={f.label}
-                      className="p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] text-center"
-                    >
-                      <div className="text-lg mb-1">{f.icon}</div>
-                      <div className="text-xs font-semibold text-[var(--text-secondary)]">
-                        {f.label}
-                      </div>
                     </div>
-                  ))}
-                </div>
-                <p className="mt-3 text-xs text-[var(--text-muted)]">
-                  All Pro features are unlocked when your overlay is connected
-                  to your Pro Drive account.
-                </p>
+                  </div>
               </section>
             )}
-            {/* Download link */}
-            <section className="text-center">
-              <a
-                href="/api/download/latest"
-                className="inline-flex items-center gap-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors"
-              >
-                <Download size={24} />
-                Need to reinstall? Download RaceCor.io Overlay
-              </a>
-            </section>
 
-            <footer className="mt-16 pt-6 border-t border-[var(--border)] text-center">
-              <a
-                href={SITE_URL}
-                className="text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors"
-              >
-                &larr; Back to {SITE_NAME}
-              </a>
-            </footer>
           </>
         ) : (
-          <>
+          <div className="h-full overflow-y-auto pb-6" style={{ paddingTop: '24px' }}>
             {/* Not Connected */}
             <section className="mb-6">
               <h1
@@ -1069,7 +1075,7 @@ export default async function DashboardPage() {
               </p>
             </section>
 
-            <footer className="mt-16 pt-6 border-t border-[var(--border)] text-center">
+            <footer className="mt-16 pt-6 border-t border-[var(--border)] text-center pb-6">
               <a
                 href={SITE_URL}
                 className="text-xs text-[var(--text-muted)] hover:text-[var(--text-dim)] transition-colors"
@@ -1077,7 +1083,7 @@ export default async function DashboardPage() {
                 &larr; Back to {SITE_NAME}
               </a>
             </footer>
-          </>
+          </div>
         )}
       </div>
     </main>

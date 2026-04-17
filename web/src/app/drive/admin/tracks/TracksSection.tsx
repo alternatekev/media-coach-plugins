@@ -106,6 +106,7 @@ function UploadForm({ onUploaded }: { onUploaded: () => void }) {
             className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--k10-red)]">
             <option value="iracing">iRacing</option>
             <option value="acc">ACC</option>
+            <option value="acevo">AC EVO</option>
           </select>
         </div>
       )}
@@ -524,50 +525,52 @@ export default function TracksSection() {
         >
           <UploadForm onUploaded={fetchTracks} />
 
-          {/* iRacing track name tools */}
-          <div className="mt-6 border border-[var(--border)] rounded-lg p-5 bg-[var(--bg-surface)]">
-            <h2 className="text-sm font-bold tracking-wide uppercase text-[var(--text-secondary)] mb-3">iRacing Track Names</h2>
-            <p className="text-xs text-[var(--text-muted)] mb-4">
-              Sync track names with iRacing's official naming, and fix race session references.
-            </p>
+          {/* iRacing track name tools — only show when 'iracing' game filter is selected */}
+          {game === 'iracing' && (
+            <div className="mt-6 border border-[var(--border)] rounded-lg p-5 bg-[var(--bg-surface)]">
+              <h2 className="text-sm font-bold tracking-wide uppercase text-[var(--text-secondary)] mb-3">iRacing Track Names</h2>
+              <p className="text-xs text-[var(--text-muted)] mb-4">
+                Sync track names with iRacing's official naming, and fix race session references.
+              </p>
 
-            <div className="flex flex-col gap-3">
-              <div>
-                <button
-                  onClick={handleRename}
-                  disabled={renameStatus === 'running'}
-                  className="px-4 py-2 rounded-md text-sm font-medium transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
-                  style={{
-                    background: 'var(--surface-secondary, #333)',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  {renameStatus === 'running' ? 'Renaming...' : 'Use iRacing Names'}
-                </button>
-                {renameResult && (
-                  <p className="text-xs text-[var(--text-muted)] mt-1.5">{renameResult}</p>
-                )}
-              </div>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <button
+                    onClick={handleRename}
+                    disabled={renameStatus === 'running'}
+                    className="px-4 py-2 rounded-md text-sm font-medium transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    style={{
+                      background: 'var(--surface-secondary, #333)',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {renameStatus === 'running' ? 'Renaming...' : 'Use iRacing Names'}
+                  </button>
+                  {renameResult && (
+                    <p className="text-xs text-[var(--text-muted)] mt-1.5">{renameResult}</p>
+                  )}
+                </div>
 
-              <div>
-                <button
-                  onClick={handleConsolidate}
-                  disabled={consolidateStatus === 'running'}
-                  className="px-4 py-2 rounded-md text-sm font-medium transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
-                  style={{
-                    background: 'var(--surface-secondary, #333)',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  {consolidateStatus === 'running' ? 'Consolidating...' : 'Consolidate Data'}
-                </button>
-                <p className="text-xs text-[var(--text-dim)] mt-1">Fix track names · merge sports car → road · remove bogus practice ratings</p>
-                {consolidateResult && (
-                  <p className="text-xs text-[var(--text-muted)] mt-1.5">{consolidateResult}</p>
-                )}
+                <div>
+                  <button
+                    onClick={handleConsolidate}
+                    disabled={consolidateStatus === 'running'}
+                    className="px-4 py-2 rounded-md text-sm font-medium transition-all disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    style={{
+                      background: 'var(--surface-secondary, #333)',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {consolidateStatus === 'running' ? 'Consolidating...' : 'Consolidate Data'}
+                  </button>
+                  <p className="text-xs text-[var(--text-dim)] mt-1">Fix track names · merge sports car → road · remove bogus practice ratings</p>
+                  {consolidateResult && (
+                    <p className="text-xs text-[var(--text-muted)] mt-1.5">{consolidateResult}</p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Missing tracks */}
           {missing.length > 0 && (

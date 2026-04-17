@@ -63,6 +63,8 @@ namespace RaceCorProDrive.Plugin
 
         // Track change detection — triggers map reload
         private string _lastTrackId = "";
+        // Raw SimHub TrackId (includes config info, e.g. "nurburgring gp")
+        private string _lastRawTrackSlug = "";
 
         // HTTP state server — exposes plugin state on port 8889 for Homebridge
         private HttpListener _httpListener;
@@ -300,6 +302,7 @@ namespace RaceCorProDrive.Plugin
             // ── Track map properties — SVG path + car positions ────────────────
             this.AttachDelegate("TrackMap.Ready", () => _trackMap.IsReady ? 1 : 0);
             this.AttachDelegate("TrackMap.TrackName", () => _trackMap.TrackName ?? "");
+            this.AttachDelegate("TrackMap.TrackSlug", () => _lastRawTrackSlug ?? "");
             this.AttachDelegate("TrackMap.SvgPath", () => _trackMap.SvgPath);
             this.AttachDelegate("TrackMap.PlayerX", () => _trackMap.PlayerX);
             this.AttachDelegate("TrackMap.PlayerY", () => _trackMap.PlayerY);
@@ -672,6 +675,14 @@ namespace RaceCorProDrive.Plugin
                 // iRacing: SessionInfo contains track name
                 var val = pm.GetPropertyValue("DataCorePlugin.GameData.TrackName")
                        ?? pm.GetPropertyValue("DataCorePlugin.GameData.TrackId");
+                // Also capture the raw TrackId (includes config info, e.g. "nurburgring gp")
+                // Used by the overlay to pass config hints to the track map API.
+                var rawId = pm.GetPropertyValue("DataCorePlugin.GameData.TrackId");
+                if (rawId != null)
+                {
+                    string slug = rawId.ToString().Trim();
+                    if (!string.IsNullOrEmpty(slug)) _lastRawTrackSlug = slug;
+                }
                 if (val != null)
                 {
                     string id = val.ToString().Trim();
@@ -1828,6 +1839,7 @@ namespace RaceCorProDrive.Plugin
                     // ── Track map ──
                     Jp(sb, "RaceCorProDrive.Plugin.TrackMap.Ready", _trackMap.IsReady ? 1 : 0);
                     Jp(sb, "RaceCorProDrive.Plugin.TrackMap.TrackName", Escape(_trackMap.TrackName ?? ""));
+                    Jp(sb, "RaceCorProDrive.Plugin.TrackMap.TrackSlug", Escape(_lastRawTrackSlug ?? ""));
                     Jp(sb, "RaceCorProDrive.Plugin.TrackMap.SvgPath", Escape(_trackMap.SvgPath ?? ""));
                     Jp(sb, "RaceCorProDrive.Plugin.TrackMap.PlayerX", _trackMap.PlayerX, ic);
                     Jp(sb, "RaceCorProDrive.Plugin.TrackMap.PlayerY", _trackMap.PlayerY, ic);

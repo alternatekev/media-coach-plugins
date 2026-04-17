@@ -252,6 +252,8 @@ export default async function DashboardPage() {
   // ── When-engine insights ────────────────────────────────────────────────────
   let whenInsights: { type: 'positive' | 'negative' | 'neutral'; text: string }[] = []
   let safetyRatingByCategory: { category: string; safetyRating: string; license: string }[] = []
+
+  // When-engine insights (needs 5+ sessions)
   if (isPluginConnected && dbUser && allSessions.length >= 5) {
     const fullRatingHistory = await db
       .select()
@@ -264,10 +266,18 @@ export default async function DashboardPage() {
       JSON.parse(JSON.stringify(fullRatingHistory)),
     )
     whenInsights = generateWhenInsights(profile)
+  }
 
-    // Latest safety rating + license per category
+  // Safety rating per category — always fetch if connected (not gated by session count)
+  if (isPluginConnected && dbUser) {
+    const srHistory = await db
+      .select()
+      .from(schema.ratingHistory)
+      .where(eq(schema.ratingHistory.userId, dbUser.id))
+      .orderBy(desc(schema.ratingHistory.createdAt))
+
     const seenSR = new Set<string>()
-    for (const row of fullRatingHistory) {
+    for (const row of srHistory) {
       if (!seenSR.has(row.category) && row.license !== 'R') {
         seenSR.add(row.category)
         safetyRatingByCategory.push({

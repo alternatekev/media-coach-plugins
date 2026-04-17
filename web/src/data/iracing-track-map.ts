@@ -238,6 +238,7 @@ export const IRACING_OFFICIAL_NAMES: Record<string, string> = {
   'interlagos-gp-grand-prix': 'Autódromo José Carlos Pace',
   'indianapolis-2022-ovalnascar-stock-car-oval': 'Indianapolis Motor Speedway',
   'nurburgring gp': 'Nürburgring Grand-Prix-Strecke',
+  'nurburgring-gp': 'Nürburgring Grand-Prix-Strecke',
   'nurburgring-combinedlong': 'Nürburgring Combined',
   'nurburgring-gpnochicane': 'Nürburgring Grand-Prix-Strecke',
   'adelaide-street-circuit': 'Adelaide Street Circuit',

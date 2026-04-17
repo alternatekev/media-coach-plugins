@@ -103,6 +103,7 @@ export function SearchFilterBar({ search, onSearch, game, onGame, sort, onSort, 
         <option value="">All Games</option>
         <option value="iracing">iRacing</option>
         <option value="acc">ACC</option>
+        <option value="acevo">AC EVO</option>
       </select>
       <select
         value={sort}
@@ -121,6 +122,7 @@ export function GameBadge({ game }: { game: string }) {
   const colors: Record<string, string> = {
     iracing: 'bg-blue-500/20 text-blue-400',
     acc: 'bg-green-500/20 text-green-400',
+    acevo: 'bg-orange-500/20 text-orange-400',
   }
   return (
     <span className={`text-[14px] px-1.5 py-0.5 rounded font-medium uppercase ${colors[game] || 'bg-gray-500/20 text-gray-400'}`}>

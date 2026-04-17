@@ -1,6 +1,7 @@
 import { db, schema } from '@/db'
 import { eq } from 'drizzle-orm'
 import { resolveIRacingTrackId } from '@/data/iracing-track-map'
+import { resolveAcevoTrackId } from '@/data/acevo-track-map'
 
 export interface TrackLookup {
   trackById: Map<string, string>
@@ -31,13 +32,14 @@ export async function buildTrackLookup(): Promise<TrackLookup> {
 
 /**
  * Resolve any track name to the canonical trackName stored in our DB.
- * Tries: exact name → displayName → iRacing mapping → partial match → keyword match.
+ * Tries: exact name → displayName → game-specific mapping (iRacing/ACEvo) → partial match → keyword match.
  * Returns null if no match found.
  */
 export function resolveTrackName(
   lookup: TrackLookup,
   rawName: string,
   configName?: string,
+  gameName?: string,
 ): string | null {
   const { trackById, trackByName, trackByDisplay } = lookup
   const lower = rawName.toLowerCase()
@@ -48,11 +50,17 @@ export function resolveTrackName(
   // 2. Match on displayName
   if (trackByDisplay.has(lower)) return trackByDisplay.get(lower)!
 
-  // 3. iRacing mapping → trackId → DB trackName
-  const mappedId = resolveIRacingTrackId(rawName, configName)
-  if (trackById.has(mappedId)) return trackById.get(mappedId)!
+  // 3. Game-specific mapping
+  let mappedId: string | null = null
+  if (gameName?.toLowerCase() === 'acevo') {
+    mappedId = resolveAcevoTrackId(rawName) || null
+  } else {
+    // Default to iRacing mapping for backward compatibility
+    mappedId = resolveIRacingTrackId(rawName, configName)
+  }
+  if (mappedId && trackById.has(mappedId)) return trackById.get(mappedId)!
 
-  // 4. Partial match — iRacing name contains a DB name or vice versa
+  // 4. Partial match — name contains a DB name or vice versa
   for (const [dbLower, dbName] of trackByName) {
     if (dbLower.includes(lower) || lower.includes(dbLower)) return dbName
   }
@@ -60,8 +68,8 @@ export function resolveTrackName(
     if (dbLower.includes(lower) || lower.includes(dbLower)) return dbName
   }
 
-  // 5. Slug normalization — strip year/config suffixes and try iRacing mapping again
-  //    e.g. "sonoma-2025-nascarlong-nascar-long" → "sonoma" → check IRACING_TRACK_MAP / trackById
+  // 5. Slug normalization — strip year/config suffixes and try mapping again
+  //    e.g. "sonoma-2025-nascarlong-nascar-long" → "sonoma" → check trackById
   const slugLower = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   // Try progressively shorter slug prefixes (drop trailing segments)
   const slugParts = slugLower.split('-')

@@ -321,12 +321,37 @@ namespace RaceCorProDrive.Plugin.Engine.Moza
                 var portNames = SerialPort.GetPortNames();
                 if (portNames == null || portNames.Length == 0) return;
 
+                // Prune disconnected devices so they can be re-discovered.
+                // Without this, a device that hit MaxFailures stays in _devices
+                // forever and the ContainsKey check below blocks rediscovery —
+                // even after the hardware is power-cycled or replugged.
+                var portNameSet = new HashSet<string>(portNames, StringComparer.OrdinalIgnoreCase);
+                foreach (var kvp in _devices.ToArray())
+                {
+                    if (!kvp.Value.IsConnected)
+                    {
+                        // Port vanished from the system — remove immediately
+                        if (!portNameSet.Contains(kvp.Key))
+                        {
+                            _devices.TryRemove(kvp.Key, out _);
+                            _logInfo($"[MozaSerial] Pruned stale device entry for {kvp.Key} (port no longer present)");
+                        }
+                        // Port still exists but device disconnected — allow rediscovery
+                        // by removing the entry so the loop below can re-classify and reopen
+                        else
+                        {
+                            _devices.TryRemove(kvp.Key, out _);
+                            _logInfo($"[MozaSerial] Clearing disconnected device on {kvp.Key} for rediscovery");
+                        }
+                    }
+                }
+
                 // Query WMI for USB serial device descriptions
                 var portDescriptions = GetUsbSerialDescriptions();
 
                 foreach (var portName in portNames)
                 {
-                    // Skip already-known ports
+                    // Skip already-known connected ports
                     if (_devices.ContainsKey(portName)) continue;
 
                     // Try to match against Moza USB patterns
@@ -817,29 +842,37 @@ namespace RaceCorProDrive.Plugin.Engine.Moza
         /// Appends Moza summary properties to the main HTTP poll response StringBuilder.
         /// Uses the same Jp() pattern as Plugin.cs.
         /// </summary>
+        /// <summary>
+        /// Property name prefix — must match the convention used by Plugin.cs for all
+        /// other dataset properties so that the overlay can find them at the expected paths.
+        /// The overlay looks for "RaceCorProDrive.Plugin.DS.MozaConnected" (and the Demo variant);
+        /// without this prefix the properties are invisible to the frontend.
+        /// </summary>
+        private const string Ds = "RaceCorProDrive.Plugin.DS.";
+
         public void AppendPollSummary(StringBuilder sb, Action<StringBuilder, string, int> jpInt, Action<StringBuilder, string, string> jpStr)
         {
-            jpInt(sb, "MozaConnected", IsConnected ? 1 : 0);
-            jpInt(sb, "MozaDeviceCount", DeviceCount);
+            jpInt(sb, Ds + "MozaConnected", IsConnected ? 1 : 0);
+            jpInt(sb, Ds + "MozaDeviceCount", DeviceCount);
 
             var wb = Wheelbase;
-            jpInt(sb, "MozaWheelbaseConnected", wb != null ? 1 : 0);
-            jpInt(sb, "MozaPedalsConnected", Pedals != null ? 1 : 0);
-            jpInt(sb, "MozaHandbrakeConnected", Handbrake != null ? 1 : 0);
-            jpInt(sb, "MozaShifterConnected", Shifter != null ? 1 : 0);
-            jpInt(sb, "MozaDashboardConnected", Dashboard != null ? 1 : 0);
-            jpInt(sb, "MozaWheelConnected", SteeringWheel != null ? 1 : 0);
+            jpInt(sb, Ds + "MozaWheelbaseConnected", wb != null ? 1 : 0);
+            jpInt(sb, Ds + "MozaPedalsConnected", Pedals != null ? 1 : 0);
+            jpInt(sb, Ds + "MozaHandbrakeConnected", Handbrake != null ? 1 : 0);
+            jpInt(sb, Ds + "MozaShifterConnected", Shifter != null ? 1 : 0);
+            jpInt(sb, Ds + "MozaDashboardConnected", Dashboard != null ? 1 : 0);
+            jpInt(sb, Ds + "MozaWheelConnected", SteeringWheel != null ? 1 : 0);
 
             if (wb?.WheelbaseSettings != null && wb.WheelbaseSettings.HasData)
             {
-                jpInt(sb, "MozaWheelbaseFFBStrength", wb.WheelbaseSettings.FfbStrength);
-                jpInt(sb, "MozaWheelbaseRotationRange", wb.WheelbaseSettings.RotationRange);
-                jpStr(sb, "MozaWheelbaseModel", wb.WheelbaseSettings.Model ?? "");
+                jpInt(sb, Ds + "MozaWheelbaseFFBStrength", wb.WheelbaseSettings.FfbStrength);
+                jpInt(sb, Ds + "MozaWheelbaseRotationRange", wb.WheelbaseSettings.RotationRange);
+                jpStr(sb, Ds + "MozaWheelbaseModel", wb.WheelbaseSettings.Model ?? "");
             }
 
             if (!string.IsNullOrEmpty(PitHouseWarning))
             {
-                jpStr(sb, "MozaPitHouseWarning", PitHouseWarning.Replace("\"", "\\\""));
+                jpStr(sb, Ds + "MozaPitHouseWarning", PitHouseWarning.Replace("\"", "\\\""));
             }
         }
 

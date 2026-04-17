@@ -128,6 +128,44 @@ export default async function TrackDetailPage({
     }
   }
 
+  // ── Extract best lap times from session metadata ───────────────────────────
+  const lapTimeHistory: Array<{ date: string; bestLapTime: number; carModel: string }> = trackSessions
+    .filter(s => {
+      const meta = s.metadata as Record<string, any> | null
+      return meta?.bestLapTime && meta.bestLapTime > 0
+    })
+    .map(s => {
+      const meta = s.metadata as Record<string, any>
+      return {
+        date: s.createdAt.toISOString(),
+        bestLapTime: meta.bestLapTime,
+        carModel: s.carModel,
+      }
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  // ── Fetch brand logos for cars used ───────────────────────────────────────
+  const brandLookup: Record<string, { logoSvg: string | null; logoPng: string | null; brandColor: string | null }> = {}
+  {
+    const brands = await db.select().from(schema.carLogos)
+    const uniqueCars = [...new Set(trackSessions.map(s => s.carModel))]
+    for (const carModel of uniqueCars) {
+      const ml = carModel.toLowerCase()
+      for (const brand of brands) {
+        const bk = brand.brandKey.toLowerCase()
+        const bn = brand.brandName.toLowerCase()
+        if (ml.includes(bk) || ml.includes(bn)) {
+          brandLookup[carModel] = {
+            logoSvg: brand.logoSvg,
+            logoPng: brand.logoPng,
+            brandColor: brand.brandColorHex,
+          }
+          break
+        }
+      }
+    }
+  }
+
   // ── Compute aggregate stats ───────────────────────────────────────────────
   const positions = trackSessions
     .filter(s => s.finishPosition && s.finishPosition > 0)
@@ -214,8 +252,10 @@ export default async function TrackDetailPage({
         cleanRaces,
       }}
       positionHistory={positionHistory}
+      lapTimeHistory={lapTimeHistory}
       irHistory={irHistory}
       carsUsed={carsUsed}
+      brandLookup={brandLookup}
       recentSessions={trackSessions.map(s => ({
         id: s.id,
         carModel: s.carModel,

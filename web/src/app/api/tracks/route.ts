@@ -31,12 +31,41 @@ export async function GET(request: NextRequest) {
     rawCsv: schema.trackMaps.rawCsv,
   }
 
-  // Try exact match on trackName first (game-provided name)
-  let results = await db
-    .select(selectFields)
-    .from(schema.trackMaps)
-    .where(eq(schema.trackMaps.trackName, trackName.trim()))
-    .limit(1)
+  // If a config hint is provided (multi-config venue), try it as a direct trackId
+  // first — the raw SimHub TrackId (e.g. "nurburgring gp") often IS the DB key.
+  // This must run before the trackName match, which is ambiguous for multi-config
+  // venues (e.g. "Nürburgring Nordschleife" could be GP, Nordschleife, or Combined).
+  let results = configName
+    ? await db
+        .select(selectFields)
+        .from(schema.trackMaps)
+        .where(eq(schema.trackMaps.trackId, configName.toLowerCase().trim()))
+        .limit(1)
+    : []
+
+  // Try alternate separator for the config hint (spaces ↔ dashes)
+  if (results.length === 0 && configName) {
+    const configLower = configName.toLowerCase().trim()
+    const altConfig = configLower.includes('-')
+      ? configLower.replace(/-/g, ' ')
+      : configLower.replace(/ /g, '-')
+    if (altConfig !== configLower) {
+      results = await db
+        .select(selectFields)
+        .from(schema.trackMaps)
+        .where(eq(schema.trackMaps.trackId, altConfig))
+        .limit(1)
+    }
+  }
+
+  // Try exact match on trackName (game-provided name)
+  if (results.length === 0) {
+    results = await db
+      .select(selectFields)
+      .from(schema.trackMaps)
+      .where(eq(schema.trackMaps.trackName, trackName.trim()))
+      .limit(1)
+  }
 
   // Fall back to iRacing track mapping → Pro Drive trackId
   if (results.length === 0) {
@@ -46,6 +75,22 @@ export async function GET(request: NextRequest) {
       .from(schema.trackMaps)
       .where(eq(schema.trackMaps.trackId, mappedId))
       .limit(1)
+
+    // Some DB entries use spaces (e.g. "nurburgring gp" from manual uploads)
+    // while mappings use dashes (e.g. "nurburgring-gp" from slugify).
+    // Try the alternate separator if exact match failed.
+    if (results.length === 0) {
+      const altId = mappedId.includes('-')
+        ? mappedId.replace(/-/g, ' ')
+        : mappedId.replace(/ /g, '-')
+      if (altId !== mappedId) {
+        results = await db
+          .select(selectFields)
+          .from(schema.trackMaps)
+          .where(eq(schema.trackMaps.trackId, altId))
+          .limit(1)
+      }
+    }
   }
 
   // Last resort: raw slug match

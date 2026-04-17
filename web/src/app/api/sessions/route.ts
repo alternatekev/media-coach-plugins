@@ -50,12 +50,15 @@ export async function POST(request: NextRequest) {
     let resolvedTrack = trackName
     try {
       const trackLookup = await buildTrackLookup()
-      resolvedTrack = resolveTrackName(trackLookup, trackName) || trackName
+      resolvedTrack = resolveTrackName(trackLookup, trackName, undefined, normalizedGameName) || trackName
     } catch {
       // Track resolution is best-effort — fall back to raw name
     }
 
     // ── Dedup: skip if a session with this gameId or subsessionId already exists ──
+    // ACEvo sessions use gameId-based dedup (SimHub provides a session identifier).
+    // iRacing sessions use subsessionId for unique session identification.
+    // Both are tracked in metadata for dedup purposes.
     if (gameId || body.subsessionId) {
       const existingWithMeta = await db.select({
         id: schema.raceSessions.id,

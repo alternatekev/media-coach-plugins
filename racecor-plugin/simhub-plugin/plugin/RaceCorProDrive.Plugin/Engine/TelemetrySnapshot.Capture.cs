@@ -886,6 +886,7 @@ namespace RaceCorProDrive.Plugin.Engine
             switch (game)
             {
                 case GameId.ACC:
+                case GameId.ACEvo:
                     return GetRaw<float>(pm, "Physics.KersCharge", "DataCorePlugin.GameRawData.");
                 case GameId.IRacing:
                 default:

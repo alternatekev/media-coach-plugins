@@ -201,6 +201,8 @@ export async function POST(request: NextRequest) {
               carId: race.car_id ?? null,
               carClassId: race.car_class_id ?? null,
               carClassName: race.car_class_name || '',
+              bestLapTime: race.best_lap_time ?? race.bestLapTime ?? null,
+              averageLapTime: race.average_lap ?? race.averageLap ?? null,
               iracingTrackId: race.track?.track_id ?? null,
               prodriveTrackId: resolveIRacingTrackId(race.track?.track_name || '', race.track?.config_name),
               trackConfig: race.track?.config_name || '',

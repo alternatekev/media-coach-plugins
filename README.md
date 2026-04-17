@@ -6,9 +6,9 @@
 
 ![Dashboard](racecor-plugin/simhub-plugin/docs/dashboard-screenshot.png)
 
-A broadcast-grade sim racing HUD and telemetry platform. RaceCorProDrive replaces your in-sim dashboard with a transparent overlay that displays real-time telemetry, race strategy, AI-generated commentary, and ambient smart lighting — all from a single SimHub plugin.
+RaceCor.io ProDrive, built under the K10 Motorsports brand, is a broadcast-grade sim racing platform for iRacing that turns raw telemetry into real-time strategic coaching and cinematic visuals — a SimHub plugin written in C# captures 100+ telemetry properties, runs them through tire lifecycle, fuel, pit strategy, and opponent-tracking modules, evaluates 33+ commentary triggers, and serves everything as a flat JSON API on localhost:8889; an Electron overlay polls that API at 30fps and renders the data as a frameless, click-through, always-on-top HUD with WebGL2 post-processing effects (glare, bloom, ambient light sampling, g-force vignette), a full-field leaderboard, an SVG track map, a pitbox strategy panel, and a composable AI commentary system built from 240+ pre-generated Claude Haiku prompt fragments that fire based on race severity; a Homebridge plugin maps flag and event telemetry to HomeKit smart lights in real time; a Next.js 16 web app handles two domains — a marketing site at k10motorsports.racing and a Discord-authenticated Pro Drive members area at prodrive.racecor.io with driver performance dashboards, iRating/Safety Rating tracking across all iRacing categories, session debrief, composure and behavior coaching (grounded in academic aggression research), and an admin design-token editor that generates CSS consumed by the overlay's 12 F1-themed visual modes; and the whole thing ships as a single Windows installer with auto-update, backed by 400+ tests across C#, Jest, Python, and Playwright, with the v1.0 roadmap targeting live Claude Haiku commentary at 200–400ms latency and a second phase of opponent-intelligence pit optimization.
 
-Built for iRacing. Cross-game support via SimHub's telemetry abstraction.
+Cross-game support via SimHub's telemetry abstraction.
 
 ## Overview
 

@@ -214,25 +214,25 @@ export async function POST(request: NextRequest) {
           errors.push(`Race ${race.subsession_id || '?'}: ${err.message}`)
         }
       }
-    }
 
-    // ── 2b. Clean up old DOM-scraped duplicates ──
-    // If there are any extension_sync sessions, remove them — S3 data is authoritative.
-    if (extensionSessionsByKey.size > 0 && sessionsImported > 0) {
-      const idsToDelete = [...extensionSessionsByKey.values()]
-      let cleaned = 0
-      for (const id of idsToDelete) {
-        try {
-          await db.delete(schema.raceSessions)
-            .where(and(
-              eq(schema.raceSessions.id, id),
-              eq(schema.raceSessions.userId, userId),
-            ))
-          cleaned++
-        } catch { /* ignore individual delete errors */ }
-      }
-      if (cleaned > 0) {
-        console.log(`[iracing/upload] cleaned ${cleaned} old DOM-scraped duplicate sessions`)
+      // ── 2b. Clean up old DOM-scraped duplicates ──
+      // If there are any extension_sync sessions, remove them — S3 data is authoritative.
+      if (extensionSessionsByKey.size > 0 && sessionsImported > 0) {
+        const idsToDelete = [...extensionSessionsByKey.values()]
+        let cleaned = 0
+        for (const id of idsToDelete) {
+          try {
+            await db.delete(schema.raceSessions)
+              .where(and(
+                eq(schema.raceSessions.id, id),
+                eq(schema.raceSessions.userId, userId),
+              ))
+            cleaned++
+          } catch { /* ignore individual delete errors */ }
+        }
+        if (cleaned > 0) {
+          console.log(`[iracing/upload] cleaned ${cleaned} old DOM-scraped duplicate sessions`)
+        }
       }
     }
 

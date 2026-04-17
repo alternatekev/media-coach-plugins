@@ -8,6 +8,7 @@ import { eq, and } from 'drizzle-orm'
  * Query params:
  *   ?id=<sessionId>   — delete a specific session
  *   ?purge=empty      — delete all sessions with 0 laps and no best lap time
+ *   ?purge=all        — delete ALL iRacing data (sessions, ratings, history, account link)
  */
 export async function DELETE(request: NextRequest) {
   const session = await auth()
@@ -74,7 +75,39 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: true, purged: deletedCount, total: allSessions.length })
     }
 
-    return NextResponse.json({ error: 'Provide ?id=<sessionId> or ?purge=empty' }, { status: 400 })
+    if (purge === 'all') {
+      // Delete ALL iRacing-related data for this user.
+      // Order matters: child tables first (FK cascade would handle it, but be explicit).
+      // session_behavior and lap_telemetry cascade from raceSessions.
+
+      const deletedSessions = await db.delete(schema.raceSessions)
+        .where(eq(schema.raceSessions.userId, userId))
+        .returning()
+
+      const deletedRatings = await db.delete(schema.ratingHistory)
+        .where(eq(schema.ratingHistory.userId, userId))
+        .returning()
+
+      const deletedDriverRatings = await db.delete(schema.driverRatings)
+        .where(eq(schema.driverRatings.userId, userId))
+        .returning()
+
+      const deletedAccounts = await db.delete(schema.iracingAccounts)
+        .where(eq(schema.iracingAccounts.userId, userId))
+        .returning()
+
+      return NextResponse.json({
+        success: true,
+        cleared: {
+          sessions: deletedSessions.length,
+          ratingHistory: deletedRatings.length,
+          driverRatings: deletedDriverRatings.length,
+          iracingAccounts: deletedAccounts.length,
+        },
+      })
+    }
+
+    return NextResponse.json({ error: 'Provide ?id=<sessionId> or ?purge=empty or ?purge=all' }, { status: 400 })
   } catch (err) {
     console.error('[sessions/manage] DELETE error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })

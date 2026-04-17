@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { Car, LayoutGrid, List } from 'lucide-react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { Car, LayoutGrid, List, Flag, Cone, Timer } from 'lucide-react'
 import RaceCard from './RaceCard'
 import RaceListView from './RaceListView'
 import type { BrandInfo } from '@/types/brand'
@@ -38,13 +38,31 @@ interface CardLookups {
 }
 
 type ViewMode = 'cards' | 'list'
+type SessionTab = 'races' | 'practices' | 'time_trials'
 
-const STORAGE_KEY = 'k10-race-history-view'
+const VIEW_STORAGE_KEY = 'k10-race-history-view'
+const TAB_STORAGE_KEY = 'k10-race-history-tab'
 
 function readSavedView(): ViewMode {
   if (typeof window === 'undefined') return 'cards'
-  const saved = localStorage.getItem(STORAGE_KEY)
+  const saved = localStorage.getItem(VIEW_STORAGE_KEY)
   return saved === 'list' ? 'list' : 'cards'
+}
+
+function readSavedTab(): SessionTab {
+  if (typeof window === 'undefined') return 'races'
+  const saved = localStorage.getItem(TAB_STORAGE_KEY)
+  if (saved === 'practices' || saved === 'time_trials') return saved
+  return 'races'
+}
+
+// ── Session type helpers ─────────────────────────────────────────────────────
+
+function getSessionCategory(s: RaceSession): SessionTab {
+  const t = (s.sessionType || s.category || '').toLowerCase()
+  if (t.includes('practice') || t.includes('warmup') || t.includes('qual')) return 'practices'
+  if (t.includes('time trial') || t.includes('time_trial') || t.includes('timetrial') || t.includes('lone qual')) return 'time_trials'
+  return 'races'
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -57,22 +75,53 @@ export default function RaceHistory({
   lookups: CardLookups
 }) {
   const [view, setView] = useState<ViewMode>('cards')
+  const [tab, setTab] = useState<SessionTab>('races')
 
-  // Restore saved preference on mount
+  // Restore saved preferences on mount
   useEffect(() => {
     setView(readSavedView())
+    setTab(readSavedTab())
   }, [])
 
   const changeView = useCallback((mode: ViewMode) => {
     setView(mode)
-    localStorage.setItem(STORAGE_KEY, mode)
+    localStorage.setItem(VIEW_STORAGE_KEY, mode)
+  }, [])
+
+  const changeTab = useCallback((t: SessionTab) => {
+    setTab(t)
+    localStorage.setItem(TAB_STORAGE_KEY, t)
   }, [])
 
   const trackKey = (name: string | null) => (name || '').toLowerCase()
 
+  // Split cards by session type
+  const { races, practices, timeTrials } = useMemo(() => {
+    const races: DisplayCard[] = []
+    const practices: DisplayCard[] = []
+    const timeTrials: DisplayCard[] = []
+
+    for (const card of displayCards) {
+      const cat = getSessionCategory(card.session)
+      if (cat === 'practices') practices.push(card)
+      else if (cat === 'time_trials') timeTrials.push(card)
+      else races.push(card)
+    }
+
+    return { races, practices, timeTrials }
+  }, [displayCards])
+
+  const activeCards = tab === 'practices' ? practices : tab === 'time_trials' ? timeTrials : races
+
+  const tabs: { key: SessionTab; label: string; icon: typeof Flag; count: number }[] = [
+    { key: 'races', label: 'Races', icon: Flag, count: races.length },
+    { key: 'practices', label: 'Practice', icon: Cone, count: practices.length },
+    { key: 'time_trials', label: 'Time Trials', icon: Timer, count: timeTrials.length },
+  ]
+
   return (
     <section className="mb-8">
-      {/* Header with toggle */}
+      {/* Header with tabs + view toggle */}
       <div className="flex items-center justify-between mb-4">
         <h2
           className="font-bold flex items-center gap-2"
@@ -82,37 +131,63 @@ export default function RaceHistory({
           Race History
         </h2>
 
-        <div className="flex items-center rounded-lg border border-[var(--border)] overflow-hidden">
-          <button
-            onClick={() => changeView('cards')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
-              view === 'cards'
-                ? 'bg-white/10 text-[var(--text)]'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-panel)]'
-            }`}
-          >
-            <LayoutGrid size={14} />
-            Cards
-          </button>
-          <button
-            onClick={() => changeView('list')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
-              view === 'list'
-                ? 'bg-white/10 text-[var(--text)]'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-panel)]'
-            }`}
-          >
-            <List size={14} />
-            List
-          </button>
+        <div className="flex items-center gap-3">
+          {/* Session type tabs */}
+          <div className="flex items-center rounded-lg border border-[var(--border)] overflow-hidden">
+            {tabs.map(({ key, label, icon: Icon, count }) => (
+              <button
+                key={key}
+                onClick={() => changeTab(key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  tab === key
+                    ? 'bg-white/10 text-[var(--text)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-panel)]'
+                }`}
+              >
+                <Icon size={13} />
+                {label}
+                {count > 0 && (
+                  <span className={`text-[10px] ml-0.5 tabular-nums ${tab === key ? 'text-[var(--text-secondary)]' : 'text-[var(--text-muted)]'}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* View mode toggle */}
+          <div className="flex items-center rounded-lg border border-[var(--border)] overflow-hidden">
+            <button
+              onClick={() => changeView('cards')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
+                view === 'cards'
+                  ? 'bg-white/10 text-[var(--text)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-panel)]'
+              }`}
+            >
+              <LayoutGrid size={14} />
+              Cards
+            </button>
+            <button
+              onClick={() => changeView('list')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
+                view === 'list'
+                  ? 'bg-white/10 text-[var(--text)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-panel)]'
+              }`}
+            >
+              <List size={14} />
+              List
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      {displayCards.length > 0 ? (
+      {activeCards.length > 0 ? (
         view === 'cards' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {displayCards.map(({ session: s, practiceSession, qualifyingSession }) => (
+            {activeCards.map(({ session: s, practiceSession, qualifyingSession }) => (
               <RaceCard
                 key={s.id}
                 session={s}
@@ -129,14 +204,18 @@ export default function RaceHistory({
             ))}
           </div>
         ) : (
-          <RaceListView cards={displayCards} lookups={lookups} />
+          <RaceListView cards={activeCards} lookups={lookups} />
         )
       ) : (
         <div className="p-8 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-center">
           <Car size={32} className="mx-auto mb-3 text-[var(--text-muted)]" />
-          <p className="text-sm text-[var(--text-dim)] mb-1">No races recorded yet</p>
+          <p className="text-sm text-[var(--text-dim)] mb-1">
+            {tab === 'races' && 'No races recorded yet'}
+            {tab === 'practices' && 'No practice sessions recorded yet'}
+            {tab === 'time_trials' && 'No time trials recorded yet'}
+          </p>
           <p className="text-xs text-[var(--text-muted)]">
-            Your session data will appear here after your next race with data sync enabled.
+            Your session data will appear here after your next {tab === 'races' ? 'race' : tab === 'practices' ? 'practice' : 'time trial'} with data sync enabled.
           </p>
         </div>
       )}

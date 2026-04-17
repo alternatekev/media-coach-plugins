@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Sun } from 'lucide-react'
+import { Radio, Sun } from 'lucide-react'
 
 interface RatingEntry {
   category: string
@@ -44,6 +44,7 @@ const CAT_LABEL: Record<string, string> = {
   oval: 'Oval',
   dirt_road: 'Dirt Road',
   dirt_oval: 'Dirt Oval',
+  formula: 'Formula',
 }
 
 const CAT_COLOR: Record<string, string> = {
@@ -187,6 +188,9 @@ export default function DataStrip({
     return byCategory
   }, [iRatingHistory])
 
+  const hasRatingData = iRatingHistory.length > 0 || iRatingByCategory.length > 0
+  const hasSessionData = raceCount > 0
+
   return (
     <div
       className="border-b"
@@ -199,6 +203,19 @@ export default function DataStrip({
         <Stat label="Races" value={raceCount} />
         <Separator />
         <Stat label="Laps" value={totalLaps} />
+
+        {/* No rating data hint */}
+        {hasSessionData && !hasRatingData && (
+          <>
+            <Separator />
+            <div className="flex items-center gap-2 px-3 shrink-0">
+              <Radio size={14} style={{ color: 'var(--border-accent)' }} />
+              <span className="text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
+                Run the overlay during a live session to start tracking iRating &amp; Safety Rating
+              </span>
+            </div>
+          </>
+        )}
 
         {/* Sparklines per category (only those with history data) */}
         {iRatingByCategory.map((entry) => {

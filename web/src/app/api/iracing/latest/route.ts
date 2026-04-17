@@ -187,15 +187,17 @@ export async function POST(request: NextRequest) {
 
       // Merge legacy sports_car → road (iRacing merged these in 2024 S2)
       try {
-        await db.update(schema.raceSessions)
-          .set({ category: 'road' })
-          .where(and(eq(schema.raceSessions.userId, userId), eq(schema.raceSessions.category, 'sports_car')))
-        await db.update(schema.ratingHistory)
-          .set({ category: 'road' })
-          .where(and(eq(schema.ratingHistory.userId, userId), eq(schema.ratingHistory.category, 'sports_car')))
-        await db.update(schema.driverRatings)
-          .set({ category: 'road' })
-          .where(and(eq(schema.driverRatings.userId, userId), eq(schema.driverRatings.category, 'sports_car')))
+        for (const legacyCat of ['sports_car', 'sportscar']) {
+          await db.update(schema.raceSessions)
+            .set({ category: 'road' })
+            .where(and(eq(schema.raceSessions.userId, userId), eq(schema.raceSessions.category, legacyCat)))
+          await db.update(schema.ratingHistory)
+            .set({ category: 'road' })
+            .where(and(eq(schema.ratingHistory.userId, userId), eq(schema.ratingHistory.category, legacyCat)))
+          await db.update(schema.driverRatings)
+            .set({ category: 'road' })
+            .where(and(eq(schema.driverRatings.userId, userId), eq(schema.driverRatings.category, legacyCat)))
+        }
       } catch {}
 
       try {
@@ -227,6 +229,8 @@ function detectCategory(seriesName: string): string {
   if (s.includes('dirt') && s.includes('road')) return 'dirt_road'
   if (s.includes('dirt')) return 'dirt_road'
   if (s.includes('oval') || s.includes('nascar') || s.includes('indycar') || s.includes('stock')) return 'oval'
+  if (s.includes('formula') || s.includes('f1') || s.includes('ir-04') || s.includes('ir04')
+    || s.includes('super formula') || s.includes('w series')) return 'formula'
   // iRacing merged road + sports car into a single "road" license in 2024 S2
   return 'road'
 }

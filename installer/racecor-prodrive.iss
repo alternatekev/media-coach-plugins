@@ -60,6 +60,7 @@ Name: "custom";  Description: "Custom installation"; Flags: iscustom
 Name: "plugin";  Description: "SimHub Plugin";            Types: full plugin custom
 Name: "overlay"; Description: "Overlay Application";      Types: full overlay custom
 Name: "overlay\desktop"; Description: "Desktop shortcut"; Types: full overlay
+Name: "streamdeck"; Description: "Stream Deck Plugin"; Types: full custom; Check: IsStreamDeckInstalled
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Components: overlay; Flags: unchecked
@@ -79,8 +80,8 @@ Source: "..\racecor-plugin\simhub-plugin\RaceCorProDrive.pdb"; DestDir: "{code:G
 ; ── Dataset files ──
 Source: "..\racecor-plugin\simhub-plugin\racecorprodrive-data\*"; DestDir: "{code:GetSimHubDir}\racecorprodrive-data"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: plugin
 
-; ── Stream Deck profile ──
-Source: "..\racecor-overlay\streamdeck\*"; DestDir: "{app}\streamdeck"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: overlay
+; ── Stream Deck plugin (installed to user's StreamDeck Plugins directory) ──
+Source: "..\racecor-overlay\streamdeck\racecor\com.k10motorsports.racecor.overlay.sdPlugin\*"; DestDir: "{userappdata}\Elgato\StreamDeck\Plugins\com.k10motorsports.racecor.overlay.sdPlugin"; Excludes: "logs,logs\*"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: streamdeck
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Components: overlay
@@ -106,6 +107,7 @@ Type: files; Name: "{code:GetSimHubDir}\RaceCor-ioProDrive.pdb"
 Type: filesandordirs; Name: "{code:GetSimHubDir}\RaceCorProDrive.dll"
 Type: filesandordirs; Name: "{code:GetSimHubDir}\RaceCorProDrive.pdb"
 Type: filesandordirs; Name: "{code:GetSimHubDir}\racecorprodrive-data"
+Type: filesandordirs; Name: "{userappdata}\Elgato\StreamDeck\Plugins\com.k10motorsports.racecor.overlay.sdPlugin"
 
 [Code]
 var
@@ -287,6 +289,24 @@ begin
   SaveStringToFile(ConfigPath, Content, False);
 end;
 
+// ── Stream Deck detection ───────────────────────────────────────
+// Returns True if the Elgato Stream Deck Plugins directory exists,
+// indicating Stream Deck is installed. Used as a Check function on
+// the streamdeck component so it only appears when relevant.
+function IsStreamDeckInstalled(): Boolean;
+begin
+  Result := DirExists(ExpandConstant('{userappdata}\Elgato\StreamDeck\Plugins'));
+end;
+
+function IsStreamDeckRunning(): Boolean;
+var
+  ExecResult: Integer;
+begin
+  Exec('cmd.exe', '/c tasklist /FI "IMAGENAME eq StreamDeck.exe" | find /i "StreamDeck.exe"',
+       '', SW_HIDE, ewWaitUntilTerminated, ExecResult);
+  Result := (ExecResult = 0);
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   KillResult: Integer;
@@ -311,5 +331,21 @@ begin
     { Clean legacy plugin reference so SimHub doesn't crash on next launch }
     if Result = '' then
       CleanLegacyPluginConfig();
+  end;
+
+  { Stream Deck: warn if running, remove old version before install }
+  if (Result = '') and WizardIsComponentSelected('streamdeck') then
+  begin
+    if IsStreamDeckRunning() then
+      MsgBox('Stream Deck is currently running.' + #13#10#13#10 +
+             'The plugin will be installed, but you will need to restart ' +
+             'Stream Deck for it to take effect.', mbInformation, MB_OK);
+
+    { Remove previous version so we get a clean install }
+    if DirExists(ExpandConstant('{userappdata}\Elgato\StreamDeck\Plugins\com.k10motorsports.racecor.overlay.sdPlugin')) then
+    begin
+      DelTree(ExpandConstant('{userappdata}\Elgato\StreamDeck\Plugins\com.k10motorsports.racecor.overlay.sdPlugin'), True, True, True);
+      Log('Removed previous Stream Deck plugin');
+    end;
   end;
 end;

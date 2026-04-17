@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Clock, Flag, MapPin } from 'lucide-react'
+import { Clock, Flag, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
 interface RaceDetailHeroProps {
@@ -151,15 +151,6 @@ export default function RaceDetailHero(props: RaceDetailHeroProps) {
 
       {/* ── Content ────────────────────────────────────────────────────── */}
       <div className="relative z-10 px-6 pt-4 pb-8 max-w-6xl mx-auto">
-        {/* Back link */}
-        <Link
-          href="/drive/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors mb-6"
-        >
-          <ArrowLeft size={16} aria-hidden="true" />
-          Back to Dashboard
-        </Link>
-
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
           {/* Left: Race identity */}
           <div className="flex-1 min-w-0">

@@ -60,8 +60,20 @@ export function resolveTrackName(
     if (dbLower.includes(lower) || lower.includes(dbLower)) return dbName
   }
 
-  // 5. Word-level matching — any significant word from the input appears in a trackId
-  const words = rawName.split(/[\s,.-]+/).filter(w => w.length > 3).map(w => w.toLowerCase())
+  // 5. Slug normalization — strip year/config suffixes and try iRacing mapping again
+  //    e.g. "sonoma-2025-nascarlong-nascar-long" → "sonoma" → check IRACING_TRACK_MAP / trackById
+  const slugLower = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  // Try progressively shorter slug prefixes (drop trailing segments)
+  const slugParts = slugLower.split('-')
+  for (let len = slugParts.length; len >= 1; len--) {
+    const prefix = slugParts.slice(0, len).join('-')
+    // Skip pure numbers (years like "2025")
+    if (/^\d+$/.test(prefix)) continue
+    if (trackById.has(prefix)) return trackById.get(prefix)!
+  }
+
+  // 6. Word-level matching — any significant non-numeric word from the input appears in a trackId
+  const words = rawName.split(/[\s,.-]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).map(w => w.toLowerCase())
   for (const word of words) {
     for (const [dbId, dbName] of trackById) {
       if (dbId.includes(word)) return dbName

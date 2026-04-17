@@ -98,6 +98,15 @@ export const IRACING_TRACK_MAP: Record<string, string> = {
   'Motorsport Arena Oschersleben': 'oschersleben',
   'St. Petersburg Grand Prix': 'st-petersburg',
 
+  // ── Raw overlay / SimHub slugs (sent by the plugin as trackName) ──
+  'SONOMA 2025 NASCARLONG': 'sonoma',
+  'sonoma-2025-nascarlong-nascar-long': 'sonoma',
+  'sonoma-2025-sportscaralt-sports-car-course-alt': 'sonoma',
+  'sonoma-2025-sportscar-sports-car-course': 'sonoma',
+  'sonoma-2025-irl12-indycar-2012-2018': 'sonoma',
+  'sonoma-rallycross-rallycross': 'sonoma',
+  'sonoma-cup-cup-historic': 'sonoma',
+
   // ── Common iRacing tracks not yet in master list ──
   'Twin Ring Motegi': 'motegi',
   'Tsukuba Circuit': 'tsukuba',

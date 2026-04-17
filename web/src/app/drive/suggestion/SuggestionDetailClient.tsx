@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Trophy, Shield, Gauge, Car, Flag } from 'lucide-react'
+import { MapPin, Trophy, Shield, Gauge, Car, Flag } from 'lucide-react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -135,14 +135,6 @@ export default function SuggestionDetailClient(props: SuggestionDetailClientProp
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
 
         <div className="relative z-10 px-6 pt-4 pb-8 max-w-6xl mx-auto">
-          <Link
-            href="/drive/dashboard"
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors mb-6"
-          >
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </Link>
-
           <div className="flex items-center gap-2 mb-2">
             <span
               className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"

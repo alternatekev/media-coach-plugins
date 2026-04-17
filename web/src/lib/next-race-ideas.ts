@@ -709,7 +709,7 @@ function findNextRaceStart(
             sessionTime += repeatMinutes * 60 * 1000
           }
           const minutesUntil = (sessionTime - now.getTime()) / (60 * 1000)
-          if (minutesUntil >= 5 && minutesUntil <= 120) {
+          if (minutesUntil >= 5 && minutesUntil <= 480) {
             return {
               nextStart: new Date(sessionTime),
               repeatMinutes: repeatMinutes || null,
@@ -718,7 +718,7 @@ function findNextRaceStart(
         } else {
           // Future day: just use first session time
           const minutesUntil = (candidateDate.getTime() - now.getTime()) / (60 * 1000)
-          if (minutesUntil >= 5 && minutesUntil <= 120) {
+          if (minutesUntil >= 5 && minutesUntil <= 480) {
             return {
               nextStart: candidateDate,
               repeatMinutes: repeatMinutes || null,
@@ -734,7 +734,7 @@ function findNextRaceStart(
     for (const sessionTimeStr of descriptor.session_times) {
       const sessionStart = new Date(sessionTimeStr)
       const minutesUntil = (sessionStart.getTime() - now.getTime()) / (60 * 1000)
-      if (minutesUntil >= 5 && minutesUntil <= 120) {
+      if (minutesUntil >= 5 && minutesUntil <= 480) {
         return {
           nextStart: sessionStart,
           repeatMinutes: null,
@@ -758,38 +758,35 @@ export function computeNextRaceIdeas(
   const now = new Date()
   const suggestions: RaceSuggestion[] = []
 
-  // Build a map of category -> driver current license
+  // Build a map of category -> driver current license level
+  // If the driver has no rating data for a category, default to Rookie (level 1)
+  // so they still get suggestions for categories they race in but haven't tracked ratings for.
   const driverLicenseMap = new Map<string, number>()
   for (const rating of driverRatings) {
     driverLicenseMap.set(rating.category, licenseTolevel(rating.license))
   }
 
-  // Filter sessions to relevant categories
-  const categoriesWithData = new Set(driverRatings.map(r => r.category))
+  // Also include categories the driver has session data for (e.g. from JSON import)
+  const categoriesFromSessions = new Set(sessions.map(s => s.category).filter(Boolean))
+  for (const cat of categoriesFromSessions) {
+    if (!driverLicenseMap.has(cat)) {
+      driverLicenseMap.set(cat, 1) // Rookie default
+    }
+  }
 
   // Process each season in the schedule
   for (const season of schedule) {
-    // Check if driver has a license for this season's license group
-    const driverHasLicense = Array.from(categoriesWithData).some(category => {
-      const driverLevel = driverLicenseMap.get(category) || 0
-      return driverLevel >= season.min_license_level
-    })
-
-    if (!driverHasLicense) {
-      continue
-    }
-
     // Process each schedule in this season
     for (const scheduleItem of season.schedules) {
       const track = scheduleItem.track
       const category = track.category || 'road'
 
-      // Check if driver has data for this category
-      if (!categoriesWithData.has(category)) {
+      // Check if driver has session data or rating data for this category
+      if (!driverLicenseMap.has(category)) {
         continue
       }
 
-      const driverLevel = driverLicenseMap.get(category) || 0
+      const driverLevel = driverLicenseMap.get(category) || 1
       if (driverLevel < season.min_license_level) {
         continue
       }
@@ -917,11 +914,33 @@ export function computeNextRaceIdeas(
   // Sort by soonest start time
   suggestions.sort((a, b) => a.nextStartTime.getTime() - b.nextStartTime.getTime())
 
-  // Diversify: pick up to 5 suggestions spanning different license classes and categories.
-  // Greedy approach: iterate through time-sorted candidates. Accept a candidate if it
-  // brings a new (licenseClass + category) combination, or if we haven't filled 5 yet
-  // and no better diverse option remains.
-  return diversifySelections(suggestions, 5)
+  // Diversify: pick up to 5 suggestions per category so each discipline gets its own column.
+  return diversifyByCategory(suggestions, 5)
+}
+
+/**
+ * Diversify per category — returns up to `perCategory` suggestions for each
+ * racing discipline (road, formula, oval, dirt_road, dirt_oval).
+ * Within each category, applies greedy diversity (no duplicate series, prefer
+ * different tracks, spread across license classes).
+ */
+function diversifyByCategory(
+  timeSorted: RaceSuggestion[],
+  perCategory: number,
+): RaceSuggestion[] {
+  // Group candidates by category
+  const byCategory = new Map<string, RaceSuggestion[]>()
+  for (const s of timeSorted) {
+    if (!byCategory.has(s.category)) byCategory.set(s.category, [])
+    byCategory.get(s.category)!.push(s)
+  }
+
+  const all: RaceSuggestion[] = []
+  for (const [, candidates] of byCategory) {
+    all.push(...diversifySelections(candidates, perCategory))
+  }
+
+  return all
 }
 
 /**

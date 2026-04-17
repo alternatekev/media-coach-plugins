@@ -30,6 +30,11 @@ export async function POST() {
   const userId = users[0].id
 
   // Delete ALL iRacing data for this user
+  // raceSessions deletion cascades to lap_telemetry + session_behavior via FK
+  const sessionsDeleted = await db.delete(schema.raceSessions)
+    .where(eq(schema.raceSessions.userId, userId))
+    .returning()
+
   const historyDeleted = await db.delete(schema.ratingHistory)
     .where(eq(schema.ratingHistory.userId, userId))
     .returning()
@@ -38,16 +43,17 @@ export async function POST() {
     .where(eq(schema.driverRatings.userId, userId))
     .returning()
 
-  const sessionsDeleted = await db.delete(schema.raceSessions)
-    .where(eq(schema.raceSessions.userId, userId))
+  const accountsDeleted = await db.delete(schema.iracingAccounts)
+    .where(eq(schema.iracingAccounts.userId, userId))
     .returning()
 
   return NextResponse.json({
     success: true,
     deleted: {
+      sessionRows: sessionsDeleted.length,
       historyRows: historyDeleted.length,
       ratingRows: ratingsDeleted.length,
-      sessionRows: sessionsDeleted.length,
+      accountRows: accountsDeleted.length,
     },
   })
 }

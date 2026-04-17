@@ -135,8 +135,10 @@ export async function POST(request: NextRequest) {
     }
 
     // ── 3. Import career summary → driverRatings ──
+    // iRacing merged road + sports car into a single "road" license in 2024 S2.
+    // Category 5 (sports_car) is mapped to road. Formula (6) stays separate.
     const categoryMap: Record<number, string> = {
-      1: 'oval', 2: 'road', 3: 'dirt_oval', 4: 'dirt_road', 5: 'road'
+      1: 'oval', 2: 'road', 3: 'dirt_oval', 4: 'dirt_road', 5: 'road', 6: 'formula'
     }
 
     if (Array.isArray(careerSummary)) {
@@ -172,9 +174,17 @@ export async function POST(request: NextRequest) {
     //   Nested:    { road: { irating: [{ when, value }, ...], sr: [...] } }
     //   API wrap:  { road: { irating: { data: [...], type: 1 }, sr: { data: [...] } } }
     //   Raw API:   { road: { data: [...], type: 1, category_id: 2 } }
+    // Normalize category names — iRacing merged sports_car into road in 2024 S2
+    const normalizeCategory = (cat: string): string => {
+      const c = cat.toLowerCase().replace(/[\s-]+/g, '_')
+      if (c === 'sports_car' || c === 'sportscar') return 'road'
+      return c
+    }
+
     const chartDiag: Record<string, { rawType: string; pointCount: number; sample: unknown; inserted: number; skipped: number; errors: number }> = {}
     if (chartData && typeof chartData === 'object') {
-      for (const [category, raw] of Object.entries(chartData)) {
+      for (const [rawCategory, raw] of Object.entries(chartData)) {
+        const category = normalizeCategory(rawCategory)
         const diag = { rawType: Array.isArray(raw) ? 'array' : typeof raw, pointCount: 0, sample: null as unknown, inserted: 0, skipped: 0, errors: 0 }
 
         // Normalise: try every known shape to extract the iRating points array
@@ -234,6 +244,21 @@ export async function POST(request: NextRequest) {
         consolidation = await consolidateUserTracks(userId)
       } catch {}
     }
+
+    // ── 5b. Merge legacy sports_car → road (iRacing merged these in 2024 S2) ──
+    try {
+      for (const legacyCat of ['sports_car', 'sportscar']) {
+        await db.update(schema.raceSessions)
+          .set({ category: 'road' })
+          .where(and(eq(schema.raceSessions.userId, userId), eq(schema.raceSessions.category, legacyCat)))
+        await db.update(schema.ratingHistory)
+          .set({ category: 'road' })
+          .where(and(eq(schema.ratingHistory.userId, userId), eq(schema.ratingHistory.category, legacyCat)))
+        await db.update(schema.driverRatings)
+          .set({ category: 'road' })
+          .where(and(eq(schema.driverRatings.userId, userId), eq(schema.driverRatings.category, legacyCat)))
+      }
+    } catch {}
 
     // ── 6. Mark import complete ──
     try {
@@ -301,6 +326,8 @@ function detectCategory(seriesName: string): string {
   if (s.includes('dirt') && s.includes('road')) return 'dirt_road'
   if (s.includes('dirt')) return 'dirt_road'
   if (s.includes('oval') || s.includes('nascar') || s.includes('indycar') || s.includes('stock')) return 'oval'
+  if (s.includes('formula') || s.includes('f1') || s.includes('ir-04') || s.includes('ir04')
+    || s.includes('super formula') || s.includes('w series')) return 'formula'
   // iRacing merged road + sports car into a single "road" license in 2024 S2
   return 'road'
 }

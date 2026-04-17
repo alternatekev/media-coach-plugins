@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Gauge, MapPin, Car } from 'lucide-react'
+import { Trophy, Gauge, MapPin, Car } from 'lucide-react'
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -123,9 +123,6 @@ export default function CarDetailClient(props: CarDetailClientProps) {
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
 
         <div className="relative z-10 px-6 pt-4 pb-8 max-w-6xl mx-auto">
-          <Link href="/drive/dashboard" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors mb-6">
-            <ArrowLeft size={16} /> Back to Dashboard
-          </Link>
 
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div className="flex-1 min-w-0">

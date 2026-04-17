@@ -371,6 +371,7 @@ export default async function DashboardPage() {
           seriesName: s.seriesName,
           trackName: s.trackName,
           trackConfig: s.trackConfig ?? undefined,
+          category: s.category,
           license: s.licenseClass,
           official: s.isOfficial,
           fixed: s.isFixed,
@@ -718,25 +719,29 @@ export default async function DashboardPage() {
       <div className="max-w-[120rem] mx-auto px-6 py-6">
         {isPluginConnected ? (
           <>
-            {/* Dashboard top grid — suggested race + viz left, moments + session length right */}
-            {(nextRaceSuggestions.length > 0 || recentMoments.length > 0 || vizData.length > 0) && (
+            {/* Next Race Ideas — full-width multi-column layout */}
+            {nextRaceSuggestions.length > 0 && (
+              <section className="mb-6">
+                <NextRaceIdeas
+                  suggestions={nextRaceSuggestions}
+                  lookups={{
+                    trackMapLookup,
+                    trackLogoLookup,
+                    trackImageLookup,
+                    trackDisplayNameLookup,
+                    carImageLookup,
+                    brandLogoLookup,
+                  }}
+                />
+              </section>
+            )}
+
+            {/* Dashboard top grid — viz left, moments + session length right */}
+            {(recentMoments.length > 0 || vizData.length > 0) && (
               <section className="mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] lg:grid-cols-[3fr_1fr] gap-4">
                   {/* ── Left column ── */}
                   <div className="flex flex-col gap-4">
-                    {nextRaceSuggestions.length > 0 && (
-                      <NextRaceIdeas
-                        suggestions={nextRaceSuggestions}
-                        lookups={{
-                          trackMapLookup,
-                          trackLogoLookup,
-                          trackImageLookup,
-                          trackDisplayNameLookup,
-                          carImageLookup,
-                          brandLogoLookup,
-                        }}
-                      />
-                    )}
                     {vizData.length > 0 && (
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         <RaceCalendarHeatmap sessions={vizData} />

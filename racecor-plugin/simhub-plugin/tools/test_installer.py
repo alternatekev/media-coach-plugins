@@ -58,6 +58,14 @@ EXPORT_MANIFEST = {
     "dashboard_root": "DashTemplates/k10 motorsports",
 }
 
+# Stream Deck plugin paths (relative to overlay repo root)
+OVERLAY_ROOT = os.path.abspath(os.path.join(ACTUAL_REPO_ROOT, "..", "racecor-overlay"))
+STREAMDECK_PLUGIN_DIR = os.path.join(
+    OVERLAY_ROOT, "streamdeck", "racecor",
+    "com.k10motorsports.racecor.overlay.sdPlugin"
+)
+STREAMDECK_PLUGIN_UUID = "com.k10motorsports.racecor.overlay"
+
 
 def repo_file_exists(relpath):
     """Check if a file exists in the real repo."""
@@ -239,6 +247,63 @@ class TestExportStructure(unittest.TestCase):
         self.assertIn("exit /b 1", content)
 
 
+class TestInstallerStreamDeckStructure(unittest.TestCase):
+    """Validate that install.bat includes optional Stream Deck support."""
+
+    def test_install_bat_references_streamdeck(self):
+        with open(INSTALL_BAT, "r") as f:
+            content = f.read()
+        self.assertIn("Stream Deck", content,
+                      "Installer should mention Stream Deck")
+
+    def test_install_bat_references_streamdeck_plugin_uuid(self):
+        with open(INSTALL_BAT, "r") as f:
+            content = f.read()
+        self.assertIn(STREAMDECK_PLUGIN_UUID, content,
+                      "Installer should reference the Stream Deck plugin UUID")
+
+    def test_install_bat_references_appdata_plugins_path(self):
+        with open(INSTALL_BAT, "r") as f:
+            content = f.read()
+        self.assertIn("Elgato", content,
+                      "Installer should reference Elgato AppData path")
+        self.assertIn("StreamDeck", content)
+        self.assertIn("Plugins", content)
+
+    def test_install_bat_streamdeck_is_optional(self):
+        """Stream Deck install must be prompted, not automatic."""
+        with open(INSTALL_BAT, "r") as f:
+            content = f.read()
+        # Should ask the user (set /p for input)
+        self.assertIn("set /p", content,
+                      "Installer should prompt user for Stream Deck install")
+
+    def test_install_bat_checks_streamdeck_manifest(self):
+        with open(INSTALL_BAT, "r") as f:
+            content = f.read()
+        self.assertIn("manifest.json", content,
+                      "Installer should verify Stream Deck manifest exists")
+
+    def test_install_bat_checks_streamdeck_running(self):
+        with open(INSTALL_BAT, "r") as f:
+            content = f.read()
+        self.assertIn("StreamDeck.exe", content,
+                      "Installer should check if Stream Deck is running")
+
+    def test_install_bat_removes_old_streamdeck_plugin(self):
+        """Installer should clean up old plugin before copying new one."""
+        with open(INSTALL_BAT, "r") as f:
+            content = f.read()
+        self.assertIn("rmdir", content,
+                      "Installer should remove old Stream Deck plugin directory")
+
+    def test_install_bat_excludes_streamdeck_logs(self):
+        with open(INSTALL_BAT, "r") as f:
+            content = f.read()
+        self.assertIn("logs", content.lower(),
+                      "Installer should handle Stream Deck logs exclusion")
+
+
 class TestRepoSourceFiles(unittest.TestCase):
     """Verify all files referenced by the installer exist in the repo."""
 
@@ -253,6 +318,38 @@ class TestRepoSourceFiles(unittest.TestCase):
         for relpath in INSTALL_MANIFEST["dataset_files"]:
             self.assertTrue(repo_file_exists(relpath),
                             f"{relpath} missing from repo")
+
+    def test_streamdeck_plugin_source_exists(self):
+        """The Stream Deck .sdPlugin directory should exist in the overlay repo."""
+        if not os.path.isdir(OVERLAY_ROOT):
+            self.skipTest("racecor-overlay repo not found as sibling directory")
+        self.assertTrue(os.path.isdir(STREAMDECK_PLUGIN_DIR),
+                        f"Stream Deck plugin not found at {STREAMDECK_PLUGIN_DIR}")
+
+    def test_streamdeck_manifest_exists(self):
+        if not os.path.isdir(STREAMDECK_PLUGIN_DIR):
+            self.skipTest("Stream Deck plugin directory not found")
+        manifest = os.path.join(STREAMDECK_PLUGIN_DIR, "manifest.json")
+        self.assertTrue(os.path.isfile(manifest),
+                        "Stream Deck manifest.json missing")
+
+    def test_streamdeck_manifest_valid_json(self):
+        if not os.path.isdir(STREAMDECK_PLUGIN_DIR):
+            self.skipTest("Stream Deck plugin directory not found")
+        manifest = os.path.join(STREAMDECK_PLUGIN_DIR, "manifest.json")
+        with open(manifest, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        self.assertIn("Actions", data, "Manifest should define Actions")
+        self.assertIn("Name", data, "Manifest should define Name")
+
+    def test_streamdeck_plugin_has_bin(self):
+        if not os.path.isdir(STREAMDECK_PLUGIN_DIR):
+            self.skipTest("Stream Deck plugin directory not found")
+        bin_dir = os.path.join(STREAMDECK_PLUGIN_DIR, "bin")
+        self.assertTrue(os.path.isdir(bin_dir),
+                        "Stream Deck plugin should have bin/ directory")
+        self.assertTrue(os.path.isfile(os.path.join(bin_dir, "plugin.js")),
+                        "Stream Deck plugin should have bin/plugin.js")
 
     def test_dataset_json_files_are_valid(self):
         """Every JSON file in the dataset folder should parse without error."""
@@ -365,6 +462,118 @@ class TestSimulatedInstall(unittest.TestCase):
         self.assertTrue(os.path.isfile(dll))
         for relpath in INSTALL_MANIFEST["dataset_files"]:
             self.assertTrue(os.path.isfile(os.path.join(self.simhub, relpath)))
+
+
+# ===================================================================
+# Tests: Simulated Stream Deck Install (any OS)
+# ===================================================================
+
+class TestSimulatedStreamDeckInstall(unittest.TestCase):
+    """
+    Simulate the optional Stream Deck plugin installation to verify
+    the .sdPlugin bundle is correctly copied to the target directory.
+    """
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp(prefix="mediabroadcaster_sd_test_")
+        # Simulate %APPDATA%\Elgato\StreamDeck\Plugins\
+        self.sd_plugins = os.path.join(self.tmpdir, "Elgato", "StreamDeck", "Plugins")
+        os.makedirs(self.sd_plugins)
+        self.sd_dest = os.path.join(
+            self.sd_plugins,
+            "com.k10motorsports.racecor.overlay.sdPlugin"
+        )
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _skip_if_no_overlay(self):
+        if not os.path.isdir(STREAMDECK_PLUGIN_DIR):
+            self.skipTest("Stream Deck plugin source not found")
+
+    def _simulate_streamdeck_install(self):
+        """Replicate what install.bat does for the Stream Deck plugin."""
+        # Remove old version if present
+        if os.path.isdir(self.sd_dest):
+            shutil.rmtree(self.sd_dest)
+
+        # Copy plugin bundle, excluding logs/
+        shutil.copytree(
+            STREAMDECK_PLUGIN_DIR,
+            self.sd_dest,
+            ignore=shutil.ignore_patterns("logs"),
+        )
+
+        # Clean up logs if they slipped through
+        logs_dir = os.path.join(self.sd_dest, "logs")
+        if os.path.isdir(logs_dir):
+            shutil.rmtree(logs_dir)
+
+    def test_manifest_installed(self):
+        self._skip_if_no_overlay()
+        self._simulate_streamdeck_install()
+        manifest = os.path.join(self.sd_dest, "manifest.json")
+        self.assertTrue(os.path.isfile(manifest))
+        with open(manifest, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        self.assertIn("Actions", data)
+
+    def test_bin_installed(self):
+        self._skip_if_no_overlay()
+        self._simulate_streamdeck_install()
+        plugin_js = os.path.join(self.sd_dest, "bin", "plugin.js")
+        self.assertTrue(os.path.isfile(plugin_js),
+                        "bin/plugin.js should be installed")
+
+    def test_logs_excluded(self):
+        self._skip_if_no_overlay()
+        # Create a logs dir in source if it doesn't exist (to test exclusion)
+        logs_src = os.path.join(STREAMDECK_PLUGIN_DIR, "logs")
+        created_logs = False
+        if not os.path.isdir(logs_src):
+            os.makedirs(logs_src, exist_ok=True)
+            with open(os.path.join(logs_src, "test.log"), "w") as f:
+                f.write("test log")
+            created_logs = True
+        try:
+            self._simulate_streamdeck_install()
+            logs_dest = os.path.join(self.sd_dest, "logs")
+            self.assertFalse(os.path.isdir(logs_dest),
+                             "logs/ directory should not be installed")
+        finally:
+            if created_logs:
+                shutil.rmtree(logs_src, ignore_errors=True)
+
+    def test_install_is_idempotent(self):
+        self._skip_if_no_overlay()
+        self._simulate_streamdeck_install()
+        self._simulate_streamdeck_install()  # second run
+        manifest = os.path.join(self.sd_dest, "manifest.json")
+        self.assertTrue(os.path.isfile(manifest))
+
+    def test_old_version_replaced(self):
+        """Installing over an existing plugin should replace it cleanly."""
+        self._skip_if_no_overlay()
+        # Create a fake old plugin with a stale file
+        os.makedirs(self.sd_dest, exist_ok=True)
+        stale_file = os.path.join(self.sd_dest, "OLD_FILE_SHOULD_BE_GONE.txt")
+        with open(stale_file, "w") as f:
+            f.write("stale")
+
+        self._simulate_streamdeck_install()
+        self.assertFalse(os.path.isfile(stale_file),
+                         "Old files should be removed on reinstall")
+        # But new files should be there
+        self.assertTrue(os.path.isfile(
+            os.path.join(self.sd_dest, "manifest.json")))
+
+    def test_imgs_installed(self):
+        """Stream Deck action icons should be installed."""
+        self._skip_if_no_overlay()
+        self._simulate_streamdeck_install()
+        imgs_dir = os.path.join(self.sd_dest, "imgs")
+        self.assertTrue(os.path.isdir(imgs_dir),
+                        "imgs/ directory should be installed")
 
 
 # ===================================================================

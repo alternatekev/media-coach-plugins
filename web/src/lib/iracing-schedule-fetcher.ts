@@ -17,12 +17,14 @@ const WEEK_PLANNER_URL = 'https://iracing-week-planner.tmo.lol'
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 // Category ID mapping: week planner catid → our category string
+// Week planner IDs: 1=oval, 2=road, 3=dirt_oval, 4=dirt_road, 5=sports_car (→road), 6=formula
 const CATID_MAP: Record<number, string> = {
   1: 'oval',
+  2: 'road',
   3: 'dirt_oval',
   4: 'dirt_road',
-  5: 'road',  // iRacing merged sports car into road in 2024 S2
-  6: 'road',
+  5: 'road',     // iRacing merged sports car into road in 2024 S2
+  6: 'formula',
 }
 
 // In-memory cache
@@ -114,7 +116,14 @@ async function fetchFromWeekPlanner(): Promise<IRacingSchedule[]> {
   rawJson = rawJson.replace(/\\(?!["\\\/bfnrtu])/g, '\\\\')
 
   const rawData: WeekPlannerSeries[] = JSON.parse(rawJson)
-  console.log(`[iracing-schedule-fetcher] Parsed ${rawData.length} series from week planner`)
+
+  // Log category distribution for debugging
+  const catCounts = new Map<string, number>()
+  for (const s of rawData) {
+    const cat = s.licenceGroup === 6 ? 'formula' : (CATID_MAP[s.catid] || 'road')
+    catCounts.set(cat, (catCounts.get(cat) || 0) + 1)
+  }
+  console.log(`[iracing-schedule-fetcher] Parsed ${rawData.length} series:`, Object.fromEntries(catCounts))
 
   // Step 5: Map to our IRacingSchedule interface
   return rawData.map(mapToIRacingSchedule)
@@ -163,7 +172,11 @@ interface WeekPlannerTrack {
 }
 
 function mapToIRacingSchedule(series: WeekPlannerSeries): IRacingSchedule {
-  const category = CATID_MAP[series.catid] || 'road'
+  // iRacing licence groups: 1=oval, 2=road, 3=dirt_oval, 4=dirt_road, 5=sports_car(→road), 6=formula
+  // Formula shares catid 2 with road, so we use licenceGroup to distinguish it
+  const category = series.licenceGroup === 6
+    ? 'formula'
+    : CATID_MAP[series.catid] || 'road'
 
   return {
     season_id: series.seasonid,

@@ -660,7 +660,7 @@
   }
 
   .commentary-title {
-    font-family: var(--ff);
+    font-family: var(--ff-display);
     font-size: 20px;
     font-weight: 700;
     line-height: 1.0;
@@ -695,9 +695,9 @@
     mask-image: none;
   }
   .commentary-text {
-    font-family: sofia-pro-comp, var(--ff);
+    font-family: var(--ff-display);
     font-size: 15px;
-    font-weight: var(--fw-medium);
+    font-weight: var(--fw-regular);
     line-height: 1.2;
     color: var(--text-primary);
   }
@@ -1185,7 +1185,7 @@
   }
   .rating-value {
     font-family: var(--ff-mono);
-    font-size: 22px;
+    font-size: 18px;
     font-weight: var(--fw-black);
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -1897,6 +1897,7 @@
     display: flex;
     gap: var(--gap);
     flex: 1;
+    min-height: 0;
   }
   .ctrl-item {
     flex: 1;
@@ -1949,6 +1950,7 @@
     z-index: 1;
   }
   .ctrl-value {
+    font-family: var(--ff-mono);
     font-size: 22px;
     font-weight: var(--fw-black);
     position: relative;
@@ -2025,6 +2027,7 @@
   /* Layered pedals — all three histograms overlaid */
   .pedals-area {
     flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -2616,38 +2619,6 @@
     border: 1px solid hsla(0, 60%, 50%, 0.15);
   }
 
-  /* ── iRacing Data Sync Card ──────────────────────────────── */
-  .conn-card-iracing {
-    background: hsla(35, 50%, 30%, 0.08);
-    border: 1px solid hsla(35, 50%, 45%, 0.15);
-  }
-  .conn-card-icon.iracing {
-    background: hsla(35, 50%, 35%, 0.2);
-    border-radius: 8px;
-  }
-  .conn-btn.iracing-btn {
-    background: hsl(35, 85%, 48%);
-    color: #000;
-    font-weight: 700;
-  }
-  .conn-btn.iracing-btn:disabled {
-    background: hsla(35, 50%, 35%, 0.5);
-    color: hsla(0,0%,100%,0.4);
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-  .conn-btn.iracing-sync-btn {
-    background: hsla(35, 60%, 50%, 0.15);
-    color: hsl(35, 80%, 65%);
-    border: 1px solid hsla(35, 60%, 50%, 0.25);
-    font-size: 10px;
-    padding: 4px 10px;
-  }
-  .conn-btn.iracing-sync-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
   /* Pro feature info panel (when not connected) */
   .conn-pro-info {
     background: hsla(0,0%,100%,0.02);
@@ -3012,6 +2983,7 @@
     color: var(--text-secondary);
     letter-spacing: -0.02em;
     text-align: right;
+    font-variant-numeric: tabular-nums;
   }
   .ds-value.ds-positive { color: hsla(0, 70%, 55%, 1.0); }
   .ds-value.ds-negative { color: hsla(145, 65%, 50%, 1.0); }
@@ -3325,6 +3297,7 @@
     font-weight: 600;
     color: hsla(0, 0%, 100%, 0.9);
     text-align: right;
+    font-variant-numeric: tabular-nums;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -3334,116 +3307,240 @@
   .pb-value.on  { color: var(--orange, #ff8c00); }
   .pb-value.off { color: hsla(0, 0%, 100%, 0.25); }
 
-  /* ── Tire grid (2×2 layout) ── */
-  .pb-tire-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3px 10px;
+  /* ── Strategist suggestion button ── */
+  .pb-strat-suggest {
+    margin-bottom: 6px;
   }
-  .pb-tire-cell {
+  .pb-strat-suggest.hidden { display: none; }
+  .pb-strat-btn {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid hsla(45, 100%, 50%, 0.35);
+    border-radius: 5px;
+    background: hsla(45, 100%, 50%, 0.08);
+    color: hsla(45, 100%, 70%, 1);
+    font-family: var(--ff);
     font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: left;
+  }
+  .pb-strat-btn:hover,
+  .pb-strat-btn:focus-visible {
+    background: hsla(45, 100%, 50%, 0.16);
+    border-color: hsla(45, 100%, 50%, 0.55);
+    outline: none;
+  }
+  .pb-strat-icon {
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .pb-strat-label {
+    flex: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* ── Circle wear charts (2×2 grid) ── */
+  .pb-tire-circles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
     padding: 2px 0;
     position: relative;
   }
-  .pb-tire-pos {
+
+  /* ── Car silhouette (top-down, centered between tires) ── */
+  .pb-car-silhouette {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 0;
+    color: hsla(0, 0%, 100%, 1);
+  }
+  .pb-car-svg {
+    width: 80px;
+    height: auto;
+  }
+  .pb-circle-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .pb-wear-ring {
+    width: 72px;
+    height: 72px;
+    transform: rotate(-90deg);
+  }
+  .pb-ring-bg {
+    fill: none;
+    stroke: hsla(0, 0%, 100%, 0.06);
+    stroke-width: 4;
+  }
+  .pb-ring-fill {
+    fill: none;
+    stroke: var(--green, #4ade80);
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease, stroke 0.4s ease;
+  }
+  .pb-ring-fill.warn { stroke: var(--orange, #ff8c00); }
+  .pb-ring-fill.crit { stroke: #ef4444; }
+
+  .pb-circle-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .pb-circle-pct {
+    font-family: var(--ff-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: hsla(0, 0%, 100%, 0.9);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .pb-circle-temp {
+    font-family: var(--ff-mono);
+    font-size: 9px;
+    color: hsla(0, 0%, 100%, 0.45);
+    line-height: 1.1;
+    margin-top: 1px;
+  }
+  .pb-circle-pos {
+    font-size: 9px;
     font-weight: 600;
-    font-size: var(--fs-xs);
-    color: hsla(0, 0%, 100%, 0.5);
-    min-width: 18px;
-  }
-  .pb-tire-status {
-    font-family: var(--ff-mono);
-    font-size: var(--fs-xs);
-    font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-  .pb-tire-status.changing { color: var(--green, #4ade80); }
-  .pb-tire-status.keeping {
-    color: hsla(0, 0%, 100%, 0.2);
-    font-size: var(--fs-xs);
-  }
-  .pb-tire-pressure {
-    font-family: var(--ff-mono);
-    font-size: var(--fs-xs);
-    color: hsla(0, 0%, 100%, 0.7);
-    margin-left: auto;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-  .pb-tire-temp {
-    font-family: var(--ff-mono);
-    font-size: var(--fs-xs);
-    color: hsla(0, 0%, 100%, 0.8);
-    margin-left: auto;
+    color: hsla(0, 0%, 100%, 0.4);
+    letter-spacing: 0.5px;
+    margin-top: 0px;
+    text-transform: uppercase;
   }
 
-  /* ── Tyre wear bars ── */
-  .pb-tire-bar {
-    flex: 1;
-    height: 4px;
-    background: hsla(0, 0%, 100%, 0.08);
-    border-radius: 2px;
-    overflow: hidden;
-    margin: 0 4px;
+  /* ── Selectable tire state (pit change toggle) ── */
+  .pb-circle-cell.selectable {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 3px 2px;
+    transition: background 0.15s, box-shadow 0.15s;
   }
-  .pb-tire-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    background: var(--green, #4ade80);
-    transition: width 0.4s ease, background 0.4s ease;
-    width: 0%;
+  .pb-circle-cell.selectable:hover {
+    background: hsla(0, 0%, 100%, 0.04);
   }
-  .pb-tire-bar-fill.warn { background: var(--orange, #ff8c00); }
-  .pb-tire-bar-fill.crit { background: #ef4444; }
-  .pb-tire-pct {
-    font-family: var(--ff-mono);
-    font-size: var(--fs-xs);
-    color: hsla(0, 0%, 100%, 0.7);
-    min-width: 28px;
-    text-align: right;
+  .pb-circle-cell.selected {
+    background: hsla(142, 70%, 50%, 0.10);
+    box-shadow: 0 0 0 1px hsla(142, 70%, 50%, 0.35);
+  }
+  .pb-circle-cell.selected .pb-ring-bg {
+    stroke: hsla(142, 70%, 50%, 0.18);
+  }
+  .pb-circle-cell.selected .pb-circle-pos {
+    color: var(--green, #4ade80);
+  }
+  /* Strategist-suggested highlight (amber glow before user accepts) */
+  .pb-circle-cell.suggested {
+    box-shadow: 0 0 0 1px hsla(45, 100%, 50%, 0.30);
+    background: hsla(45, 100%, 50%, 0.06);
+  }
+  .pb-circle-cell.suggested .pb-circle-pos {
+    color: hsla(45, 100%, 70%, 1);
   }
 
-  /* ── Fuel gauge ── */
-  .pb-fuel-gauge {
-    text-align: center;
+
+  /* ── Fuel tank gauge ── */
+  .pb-fuel-tank {
     margin-bottom: 8px;
-    padding: 6px 0;
+    padding: 4px 0 2px;
   }
-  .pb-fuel-bar-bg {
-    height: 6px;
-    background: hsla(0, 0%, 100%, 0.08);
-    border-radius: 3px;
+  .pb-fuel-tank-bar {
+    position: relative;
+    height: 14px;
+    background: hsla(0, 0%, 100%, 0.06);
+    border-radius: 4px;
     overflow: hidden;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
   }
-  .pb-fuel-bar-fill {
-    height: 100%;
+  .pb-fuel-tank-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
     border-radius: 3px;
     background: var(--green, #4ade80);
     transition: width 0.4s ease, background 0.4s ease;
     width: 0%;
+    z-index: 1;
   }
-  .pb-fuel-bar-fill.warn { background: var(--orange, #ff8c00); }
-  .pb-fuel-bar-fill.crit { background: #ef4444; }
-  .pb-fuel-level {
+  .pb-fuel-tank-fill.warn { background: var(--orange, #ff8c00); }
+  .pb-fuel-tank-fill.crit { background: #ef4444; }
+  /* Pit-add overlay — ghost bar showing fuel that would be added */
+  .pb-fuel-tank-add {
+    position: absolute;
+    top: 0; bottom: 0;
+    border-radius: 3px;
+    background: hsla(142, 70%, 50%, 0.18);
+    border-left: 1px solid hsla(142, 70%, 50%, 0.5);
+    transition: left 0.4s ease, width 0.4s ease;
+    width: 0%;
+    left: 0%;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .pb-fuel-tank-add.active {
+    background: hsla(142, 70%, 50%, 0.22);
+  }
+  .pb-fuel-tank-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .pb-fuel-tank-level {
     font-family: var(--ff-mono);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: white;
     line-height: 1.1;
+    font-variant-numeric: tabular-nums;
   }
-  .pb-fuel-unit {
+  .pb-fuel-tank-cap {
     font-size: var(--fs-xs);
     font-weight: 500;
-    color: hsla(0, 0%, 100%, 0.4);
-    text-transform: uppercase;
+    color: hsla(0, 0%, 100%, 0.35);
     letter-spacing: 0.5px;
+  }
+  /* Interactive pit-add row */
+  .pb-fuel-pit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+  }
+  .pb-fuel-pit-row .pb-value.selectable {
+    cursor: pointer;
+    border-radius: 3px;
+    padding: 1px 6px;
+    transition: background 0.15s;
+  }
+  .pb-fuel-pit-row .pb-value.selectable:hover {
+    background: hsla(0, 0%, 100%, 0.06);
+  }
+  .pb-fuel-pit-row .pb-value.accepted {
+    color: var(--green, #4ade80);
+    background: hsla(142, 70%, 50%, 0.10);
   }
 
   /* ── Weather hero ── */
@@ -3462,6 +3559,7 @@
     font-weight: 700;
     color: white;
     line-height: 1.1;
+    font-variant-numeric: tabular-nums;
   }
 
   /* ── Car adjustments compact grid ── */
@@ -3488,6 +3586,7 @@
     font-size: var(--fs-xs);
     font-weight: 600;
     color: hsla(0, 0%, 100%, 1);
+    font-variant-numeric: tabular-nums;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -3519,8 +3618,7 @@
     100% { background: transparent; }
   }
   .pb-flash .pb-value,
-  .pb-flash .pb-adj-val,
-  .pb-flash .pb-tire-status {
+  .pb-flash .pb-adj-val {
     filter: brightness(1.5);
     transition: filter 1.4s ease;
   }
@@ -4203,42 +4301,7 @@
     line-height: 1.5;
   }
 
-  /* ── Moza debug panel ── */
-  .moza-debug-panel {
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 6px;
-    padding: 8px 10px;
-    margin-top: 4px;
-    font-family: var(--ff-mono);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-  .moza-debug-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  .moza-debug-key {
-    color: hsla(0, 0%, 100%, 0.35);
-    white-space: nowrap;
-  }
-  .moza-debug-val {
-    color: hsla(0, 0%, 100%, 0.6);
-    text-align: right;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 180px;
-  }
-  .moza-debug-json {
-    font-size: 14px;
-    max-width: 180px;
-    word-break: break-all;
-    white-space: normal;
-    max-height: 60px;
-    overflow-y: auto;
-  }
+  /* Moza debug panel removed — replaced by moza-settings.css */
 
   /* Hidden sections */
   .section-hidden { display: none !important; }
@@ -4548,12 +4611,21 @@
     opacity: 0.5;
     transform: scale(1);
     pointer-events: auto;
+    cursor: pointer;
+  }
+  .idle-logo.idle-visible:hover {
+    opacity: 0.7;
+  }
+  /* When nav bar is expanded, remove left rounding to connect flush */
+  .idle-logo.nav-active {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
   .idle-logo img {
     width: 75%;
     height: auto;
   }
-  /* Hide dashboard + car brand logo in idle (logo-only shows K10 mark only) */
+  /* Hide dashboard + car brand logo in idle (logo-only shows RaceCor mark only) */
   body.idle-state #dashboard,
   body.idle-state .leaderboard-panel,
   body.idle-state .datastream-panel,
@@ -4563,11 +4635,15 @@
   body.idle-state .pit-banner,
   body.idle-state .rc-banner,
   body.idle-state .grid-module,
-  body.idle-state #carLogoSquare,
+  body.idle-state #gameLogoOverlay,
   body.idle-state .game-logo {
     opacity: 0 !important;
     pointer-events: none !important;
     transition: opacity 0.6s ease;
+  }
+  /* Car brand logo: force hidden immediately in idle — no fade delay */
+  body.idle-state #carLogoSquare {
+    display: none !important;
   }
   /* Settings overlay must stay accessible in idle */
   body.idle-state .settings-overlay {
@@ -4909,6 +4985,7 @@
     font-size: 18px;
     font-weight: var(--fw-bold);
     color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
   }
   /* Tinted stat items */
   .re-tint-gold .re-stat   { border-color: hsla(45, 100%, 50%, 0.18); background: hsla(45, 100%, 50%, 0.06); }
@@ -5924,31 +6001,7 @@ html, body {
         <div class="ctrl-item" id="ctrlABS" style="--ctrl-pct:0%;"><div class="ctrl-label">ABS</div><div class="ctrl-value">—</div></div>
         <div class="ctrl-no-adj" id="ctrlNoAdj">NO ADJUSTMENTS</div>
       </div>
-      <div class="panel pedals-area" id="pedalsArea">
-        <div class="pedal-labels-row">
-          <div class="pedal-label-group">
-            <div class="pedal-channel-label throttle">THROTTLE</div>
-            <div class="pedal-pct" style="color:hsla(0,0%,100%,0.85);">0%</div>
-          </div>
-          <div class="pedal-label-group">
-            <div class="pedal-channel-label brake">BRAKE</div>
-            <div class="pedal-pct" style="color:hsla(0,0%,100%,0.85);">0%</div>
-          </div>
-          <div class="pedal-label-group" id="clutchLabelGroup">
-            <div class="pedal-channel-label clutch">CLUTCH</div>
-            <div class="pedal-pct" style="color:hsla(0,0%,100%,0.85);">0%</div>
-          </div>
-        </div>
-        <div class="pedal-viz-stack">
-          <div class="pedal-viz-layer throttle-layer" id="throttleHist"></div>
-          <div class="pedal-viz-layer brake-layer" id="brakeHist"></div>
-          <div class="pedal-viz-layer clutch-layer" id="clutchHist"></div>
-          <canvas class="pedal-trace-canvas" id="pedalTraceCanvas" width="240" height="80"></canvas>
-          <!-- Pedal curve overlay: response curves fill the histogram space -->
-          <canvas class="pedal-curve-canvas" id="pedalCurveCanvas" width="240" height="80"></canvas>
-        </div>
-        <div class="pedal-profile-label" id="pedalProfileLabel"></div>
-      </div>
+      <!-- Pedals area removed -->
     </div>
 
     <!-- COL: Maps stacked — rendered dynamically from TrackMapProvider -->
@@ -6254,47 +6307,133 @@ html, body {
         <div class="pb-tab active" data-pb-tab="tyres" onclick="switchPbTab(this)">Tyres</div>
         <div class="pb-tab" data-pb-tab="fuel" onclick="switchPbTab(this)">Fuel</div>
         <div class="pb-tab" data-pb-tab="weather" onclick="switchPbTab(this)">Weather</div>
-        <div class="pb-tab" data-pb-tab="adj" onclick="switchPbTab(this)">Setup</div>
-        <div class="pb-tab" data-pb-tab="camera" onclick="switchPbTab(this)">Camera</div>
       </div>
 
       <!-- ═══ TYRES TAB ═══ -->
       <div class="pb-page active" id="pbPageTyres" data-pb-page="tyres">
-        <!-- Pit tyre selections (2×2 grid) -->
-        <div class="pb-section-label">Pit Selections</div>
-        <div class="pb-tire-grid">
-          <div class="pb-tire-cell"><span class="pb-tire-pos">LF</span><span class="pb-tire-status keeping" id="pbTireLF">KEEP</span><span class="pb-tire-pressure" id="pbPressLF">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">RF</span><span class="pb-tire-status keeping" id="pbTireRF">KEEP</span><span class="pb-tire-pressure" id="pbPressRF">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">LR</span><span class="pb-tire-status keeping" id="pbTireLR">KEEP</span><span class="pb-tire-pressure" id="pbPressLR">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">RR</span><span class="pb-tire-status keeping" id="pbTireRR">KEEP</span><span class="pb-tire-pressure" id="pbPressRR">—</span></div>
+
+        <!-- Strategist suggestion — hidden until strategy says change tires -->
+        <div class="pb-strat-suggest hidden" id="pbStratSuggest">
+          <button class="pb-strat-btn" id="pbStratBtn" tabindex="0">
+            <span class="pb-strat-icon">⚡</span>
+            <span class="pb-strat-label" id="pbStratLabel">Accept tire change</span>
+          </button>
         </div>
-        <!-- Live tyre data -->
-        <div class="pb-section-label" style="margin-top:8px">Wear</div>
-        <div class="pb-tire-grid">
-          <div class="pb-tire-cell"><span class="pb-tire-pos">LF</span><span class="pb-tire-bar"><span class="pb-tire-bar-fill" id="pbWearLF"></span></span><span class="pb-tire-pct" id="pbWearLFVal">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">RF</span><span class="pb-tire-bar"><span class="pb-tire-bar-fill" id="pbWearRF"></span></span><span class="pb-tire-pct" id="pbWearRFVal">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">LR</span><span class="pb-tire-bar"><span class="pb-tire-bar-fill" id="pbWearLR"></span></span><span class="pb-tire-pct" id="pbWearLRVal">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">RR</span><span class="pb-tire-bar"><span class="pb-tire-bar-fill" id="pbWearRR"></span></span><span class="pb-tire-pct" id="pbWearRRVal">—</span></div>
+
+        <!-- 2×2 circle wear charts with car silhouette -->
+        <div class="pb-tire-circles">
+          <!-- Car silhouette (top-down view) centered between the 4 tires -->
+          <div class="pb-car-silhouette" id="pbCarSilhouette">
+            <!-- GT / Roadster (default) — adapted from noun-project icon, nose at top -->
+            <svg class="pb-car-svg pb-car-gt" id="pbCarGT" viewBox="0 0 110 135" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <g opacity="0.2">
+                <!-- Body shell -->
+                <path d="M75.6,53.2s0,0,0,0c0,4.6,0,12.4,0,23.4,0,.2,0,.4,0,.6.3,1.3.5,2.7.5,4.1.2,3.9-.1,7.8-.8,11.7-.5,2.7-1.3,4.9-3.4,6.6-1.7,1.2-3.6,2.1-5.6,2.5-4.9,1.1-9.9,1.4-14.9,1.1-2.4-.1-4.7-.4-7.1-.9-2.4-.3-4.7-1.2-6.7-2.7-1.9-1.6-3.2-3.9-3.5-6.4-.9-4.4-1.1-8.8-.8-13.3,0-.9.2-1.9.4-2.8,0-.1,0-.3,0-.4,0-13,0-20.8,0-23.4h0s0,0,0,0,0,0,0,0c-.5.2-1,.3-1.5.3-.7,0-1.3-.4-1.6-1-.6-1-.9-2,0-3h0c.3-.3.7-.4,1.1-.6.5-.2,1.2-.4,2-.8h0c0,0,0,0,0-.1,0-.9,0-2.8,0-5.7,0-.2,0-.5,0-.7-.2-.9-.3-1.8-.4-2.7-.2-2.8,0-5.5.2-8.3.2-2.1.7-4.1,1.5-6,.9-1.9,2.3-3.5,4-4.6,2.9-1.9,6.4-2.4,9.7-2.9,2.9-.4,5.8-.5,8.7-.3,2.5.1,5,.5,7.5,1,1.1.3,2.2.6,3.3,1.1,2,.8,3.8,2.3,5.1,4.1,1.4,2.3,2.3,4.9,2.5,7.6.2,2.3.3,4.6.3,6.8,0,1,0,2-.2,3-.2.9-.3,1.8-.4,2.7,0,1.8,0,3.4,0,4.8,0,0,0,0,0,0,.7.3,1.5.6,2.4.9h0c.5.1.9.5,1.2,1,.2.5.3,1,0,1.5-.4,1.1-1,2-2.4,1.9h0c-.4,0-.8-.2-1.2-.3h0ZM73.7,47.4c0-2.6,0-4.1,0-4.7,0-.5,0-1.1.1-1.6.1-.6.2-1.1.3-1.7.2-3.1.1-6.2-.3-9.3-.2-5.2-4.1-9.5-9.2-10.2-5-1.1-10.2-1.3-15.3-.8-1.9.2-3.8.5-5.7,1-3.9.9-7,3.9-7.8,7.8-.2.9-.4,1.8-.5,2.8-.4,3-.4,6-.2,9,0,.4.1.7.2,1.1.1.5.2,1,.2,1.5,0,1.9,0,3.6,0,5.1h0s0,0,0,0l2.1-.9h0s0,0,0-.1c-.1-3.3,3.8-4.7,6.3-5.3h0c4.6-1,9.2-1.4,13.9-1,1.9.1,3.9.4,5.8.8,1.6.3,3.1.8,4.6,1.4,1.7.8,3.2,2.2,3.1,4.2,0,0,0,0,0,.1l2.1.9s0,0,0,0h0ZM54.7,54.9h0c4.1,0,8.1.5,12.1,1.6,0,0,0,0,0,0,.8-2.9,1.6-5.8,2.4-8.5,0-.4.2-.9.4-1.8,0-.3,0-.5-.1-.7-.6-1-1.5-1.7-2.6-2-.8-.3-1.6-.6-2.5-.8-6.4-1.4-13.1-1.4-19.5,0-.8.2-1.7.4-2.5.8-1.1.3-2,1-2.6,2-.2.2-.2.5-.1.7.2.8.3,1.4.4,1.8.7,2.7,1.5,5.5,2.4,8.5,0,0,0,0,0,0,3.9-1.1,8-1.7,12.1-1.6h0ZM38.6,49.4l-.3-1.1s0,0-.1,0c-2,1-4.1,1.8-6.2,2.6,0,0-.1.1,0,.2l.2.6c0,0,.1.1.2.1.1,0,.2,0,.3,0,1.9-.6,3.8-1.3,5.9-2.2,0,0,0,0,0,0h0ZM70.7,49.5s0,0,0,0c2.1.8,4.2,1.6,6.1,2.2h0c.1,0,.2,0,.3,0,0,0,.2,0,.2-.1l.2-.6h0c0,0,0-.2,0-.2-2.1-.8-4.2-1.7-6.3-2.6h0s0,0-.1,0l-.3,1.1ZM70.3,75.8v-24.5s0,0,0,0c0,0,0,0,0,0-.3,1.1-.9,3.3-1.9,6.7h0c0,.3-.1.7-.1,1,0,5.8,0,9.7-.1,11.8,0,.8.1,1.5.5,2.2.5.9,1.1,1.9,1.7,2.8,0,0,0,0,0,0h0ZM39.1,51.3v24.4h0s0,0,0,0c0,0,0,0,0,0l1.4-2.5h0c.4-.6.6-1.3.7-2.1,0-2.4,0-6.5,0-12.4h0c0-.2,0-.5-.1-.7-.7-2.5-1.4-4.7-1.9-6.7,0,0,0,0,0,0h0ZM72.1,52.1c0,2.1,0,11,0,26.8h0c0,.5-.3.9-.7,1.1-.5,0-.9-.2-1.1-.6-.3-.4-.4-.6-.5-.8-.7-1.1-1.7-2.7-2.8-4.8h0c-.5-.8-.7-1.8-.7-2.7,0-3.4,0-6.7,0-10,0-.9,0-1.8.1-2.7,0,0,0,0,0,0-4-1.1-8-1.6-12.1-1.5-2.5,0-5.1.3-7.6.7-1.2.2-2.4.5-3.5.8,0,0,0,0,0,0,0,.4,0,.8,0,1.1,0,3.4,0,7.1,0,10.9,0,1.1-.1,2.1-.6,3.1-.5.9-1.5,2.7-3.2,5.6-.1.3-.3.5-.6.7-.4.3-.9.2-1.2-.2-.2-.2-.3-.5-.3-.8,0-7.2,0-16.1,0-26.8,0,0,0,0,0,0l-1.5.6c0,0,0,0,0,.1v23.7c0,.5,0,1-.1,1.5-.3,1.4-.4,2.8-.5,4.3-.1,3.7.2,7.3.8,10.9.1.7.3,1.4.6,2,1.2,3.2,3.8,4.6,6.9,5.2,4.9,1,9.9,1.4,14.8,1.1,2.6-.2,5.2-.5,7.7-1.1,2.4-.5,4.8-1.5,6.2-3.6.9-1.7,1.5-3.6,1.7-5.5.5-3.5.7-7.1.5-10.6,0-1.1-.2-2.2-.4-3.2,0-.2,0-.5,0-.7v-24h0c0,0,0-.2-.1-.2l-1.4-.5s0,0,0,0c0,0,0,0,0,0h0Z"/>
+                <!-- Hood stripes -->
+                <path d="M43.7,30.7c-.4,2.3-.8,4.6-1.1,6.8,0,.3-.2.6-.5.8-.3.1-.7,0-.9-.1-.3-.2-.4-.6-.3-1,.3-2.1.6-4.2,1-6.8.5-2.6.9-4.6,1.4-6.7h0c0-.4.3-.7.7-.8.3,0,.7,0,.9.2.2.2.3.6.2.9-.5,2.1-1,4.4-1.4,6.7h0Z"/>
+                <path d="M67.5,30.4c.5,2.6.8,4.6,1,6.8h0c0,.4,0,.7-.3,1-.3.2-.6.2-.9.1-.3-.1-.5-.4-.5-.8-.3-2.2-.6-4.4-1.1-6.8-.4-2.3-.9-4.6-1.4-6.7,0-.3,0-.7.2-.9.2-.2.6-.3.9-.2.4.1.6.4.7.8.5,2.1,1,4.1,1.4,6.7Z"/>
+                <!-- Trunk / rear panel -->
+                <path d="M54.6,78.5c2.7,0,5.3-.2,7.9-.5.8-.1,1.3-.2,1.7-.3h0c.5-.1,1-.2,1.5-.2.5,0,1,.3,1.4.7.6.6.9,1.4.8,2.3,0,1.9.1,5,.2,9.5,0,1.4-1.1,2.6-2.4,3.1-1.2.4-2.5.7-3.7.8-4.9.7-9.9.7-14.8,0-1.3-.1-2.5-.4-3.7-.8-1.4-.4-2.3-1.6-2.4-3.1.1-4.5.2-7.7.2-9.5,0-.8.2-1.7.8-2.3.4-.4.8-.6,1.4-.7.5,0,1,0,1.5.2.4,0,1,.2,1.7.3,2.6.4,5.3.5,7.9.5h0ZM54.6,92.5h0c3.2,0,6.3-.2,9.4-.9.5-.1.9-.3,1.4-.5.6-.2.9-.8.9-1.4,0-1.4-.1-4.6-.2-9.6,0-.2,0-.3,0-.5,0-.3-.3-.4-.6-.4-7.1,1.3-14.5,1.3-21.6,0-.3,0-.5.2-.6.4,0,.2,0,.3,0,.5-.1,5-.2,8.1-.2,9.6,0,.6.3,1.1.9,1.4.4.2.9.4,1.4.5,3.1.6,6.3.9,9.4.9h0Z"/>
+                <!-- Left taillight -->
+                <path d="M45.2,97.6c1.2.4.8,2.1-.4,1.8-.2,0-.2,0-.3,0-2-.5-4-1.3-5.8-2.3-.7-.4-1.2-1-1.4-1.8-.4-1.2-.8-2.5-1-3.8,0-.2,0-.5,0-.8.1-.3.4-.5.7-.5.3,0,.6.1.8.4.1.2.2.4.2.6.1.6.4,1.8.9,3.4.2.6.4.7,1,1h0c1.2.7,2.5,1.2,3.8,1.6.3,0,.8.2,1.4.4h0Z"/>
+                <!-- Right taillight -->
+                <path d="M69.9,95.1c0,0,0-.1.1-.2.5-1.3.8-2.7,1.1-4.1.1-.4.4-.7.8-.7.2,0,.5,0,.7.2.4.4.3.8.1,1.5-.2.9-.5,2-.8,3.1-.1.4-.3.7-.5,1.1-.4.6-.9,1-1.5,1.3-1.8.9-3.6,1.7-5.5,2.1-.3,0-.6,0-.8-.2-.2-.2-.3-.5-.3-.7,0-.6.6-.8,1.1-1h0c1.6-.4,3.2-1.1,4.6-1.9.3-.1.5-.3.7-.5h0Z"/>
+              </g>
+            </svg>
+            <!-- Formula / Open-wheel — noun-project icon, nose at top -->
+            <svg class="pb-car-svg pb-car-formula" id="pbCarFormula" viewBox="38 25 34 65" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="display:none">
+              <g opacity="0.2">
+                <path fill-rule="evenodd" d="M51.8,81.7l-.4,1.4h-.9l.2-1.4h-1.1v-1l.3-.5v-.5h-.5v-1h-.9v2.2c0,.2-.2.4-.4.4h-2.4c-.2,0-.4-.2-.4-.4v-6.6c0-.2.2-.4.4-.4h2.4c.2,0,.4.2.4.4v2.6l1.3-.8v.7l-1.1.6v.5h1.1v-2.1h-.5v-2h.5v-.8h-1.3v-.2h-2.3v-11.7s1.1-3.6,1.1-3.6v-.4c3.3-4.3,3.7-4.9,5-6.5h.5v-1.5l-3.2-2.5h-1v2c0,.2-.2.4-.4.4h-2.4c-.2,0-.4-.2-.4-.4v-6.6c0-.2.2-.4.4-.4h2.4c.2,0,.4.2.4.4v2h.6v-1.4h.5l.2.8v2.3l2.5,1.9v-1.8s-1.8,0-2.2,0l-.2-.2v-.7h2.9s0-.9,0-.9h-2.9v-.7h3.1v-1.9l.6-3.4-5.6.7-.6,1.3h-2.4s0-4.5,0-4.5l8.8-1.2v-.3h2.1v.3l8.8,1.2v4.6c0,0-2.3,0-2.3,0l-.6-1.3-5.7-.7.6,3.4v1.9h3.1v.7h-2.9v.9h2.9s0,.6,0,.6l-.2.2c-.4,0-2.2,0-2.2,0v1.8l2.5-1.9v-2.3l.2-.8h.5v1.4h.6v-2c0-.2.2-.4.4-.4h2.4c.2,0,.4.2.4.4v6.6c0,.2-.2.4-.4.4h-2.3c-.2,0-.4-.2-.4-.4v-2h-1l-3.2,2.5v1.5h.5c1.2,1.6,1.7,2.2,5,6.5v.4l1.1,3.6v11.7h-2.3v.2h-1.3v.8h.5v2h-.5v2.1h1.1v-.5s-1.1-.6-1.1-.6v-.7l1.3.8v-2.6c0-.2.2-.4.4-.4h2.4c.2,0,.4.2.4.4v6.6c0,.2-.2.4-.4.4h-2.4c-.2,0-.4-.2-.4-.4v-2.2h-.9v1h-.5v.5l.3.5v1h-1.1l.2,1.4h-.8l-.4-1.4h-6.4ZM55,57.8l-.6.2-.8,2.1v2.1s.5,0,.5,0v1.8c-.1,0-.8.5-.8.5v2h1.8c0,0,1.8,0,1.8,0v-2l-.7-.5v-1.8c-.1,0,.3,0,.3,0v-2.1s-.8-2.1-.8-2.1l-.6-.2Z"/>
+                <path fill-rule="evenodd" d="M49.2,83.2h11.8l1.6,2.6h-14.9l1.6-2.6Z"/>
+              </g>
+            </svg>
+          </div>
+          <div class="pb-circle-cell" id="pbCircleLF">
+            <svg class="pb-wear-ring" viewBox="0 0 64 64">
+              <circle class="pb-ring-bg" cx="32" cy="32" r="28"></circle>
+              <circle class="pb-ring-fill" id="pbRingLF" cx="32" cy="32" r="28"
+                      stroke-dasharray="175.93" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="pb-circle-inner">
+              <span class="pb-circle-pct" id="pbWearLFVal">—</span>
+              <span class="pb-circle-temp" id="pbTempLF">—</span>
+            </div>
+            <span class="pb-circle-pos">LF</span>
+          </div>
+          <div class="pb-circle-cell" id="pbCircleRF">
+            <svg class="pb-wear-ring" viewBox="0 0 64 64">
+              <circle class="pb-ring-bg" cx="32" cy="32" r="28"></circle>
+              <circle class="pb-ring-fill" id="pbRingRF" cx="32" cy="32" r="28"
+                      stroke-dasharray="175.93" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="pb-circle-inner">
+              <span class="pb-circle-pct" id="pbWearRFVal">—</span>
+              <span class="pb-circle-temp" id="pbTempRF">—</span>
+            </div>
+            <span class="pb-circle-pos">RF</span>
+          </div>
+          <div class="pb-circle-cell" id="pbCircleLR">
+            <svg class="pb-wear-ring" viewBox="0 0 64 64">
+              <circle class="pb-ring-bg" cx="32" cy="32" r="28"></circle>
+              <circle class="pb-ring-fill" id="pbRingLR" cx="32" cy="32" r="28"
+                      stroke-dasharray="175.93" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="pb-circle-inner">
+              <span class="pb-circle-pct" id="pbWearLRVal">—</span>
+              <span class="pb-circle-temp" id="pbTempLR">—</span>
+            </div>
+            <span class="pb-circle-pos">LR</span>
+          </div>
+          <div class="pb-circle-cell" id="pbCircleRR">
+            <svg class="pb-wear-ring" viewBox="0 0 64 64">
+              <circle class="pb-ring-bg" cx="32" cy="32" r="28"></circle>
+              <circle class="pb-ring-fill" id="pbRingRR" cx="32" cy="32" r="28"
+                      stroke-dasharray="175.93" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="pb-circle-inner">
+              <span class="pb-circle-pct" id="pbWearRRVal">—</span>
+              <span class="pb-circle-temp" id="pbTempRR">—</span>
+            </div>
+            <span class="pb-circle-pos">RR</span>
+          </div>
         </div>
-        <div class="pb-section-label" style="margin-top:8px">Temp</div>
-        <div class="pb-tire-grid">
-          <div class="pb-tire-cell"><span class="pb-tire-pos">LF</span><span class="pb-tire-temp" id="pbTempLF">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">RF</span><span class="pb-tire-temp" id="pbTempRF">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">LR</span><span class="pb-tire-temp" id="pbTempLR">—</span></div>
-          <div class="pb-tire-cell"><span class="pb-tire-pos">RR</span><span class="pb-tire-temp" id="pbTempRR">—</span></div>
-        </div>
+
       </div>
 
       <!-- ═══ FUEL TAB ═══ -->
       <div class="pb-page" id="pbPageFuel" data-pb-page="fuel">
-        <div class="pb-fuel-gauge">
-          <div class="pb-fuel-bar-bg"><div class="pb-fuel-bar-fill" id="pbFuelBar"></div></div>
-          <div class="pb-fuel-level" id="pbFuelLevel">—</div>
-          <div class="pb-fuel-unit" id="pbFuelUnit"></div>
+
+        <!-- Strategist fuel suggestion — hidden until strategy says refuel -->
+        <div class="pb-strat-suggest hidden" id="pbFuelStratSuggest">
+          <button class="pb-strat-btn" id="pbFuelStratBtn" tabindex="0">
+            <span class="pb-strat-icon">⛽</span>
+            <span class="pb-strat-label" id="pbFuelStratLabel">Accept fuel stop</span>
+          </button>
         </div>
+
+        <!-- Tank gauge — full-width bar representing tank capacity -->
+        <div class="pb-fuel-tank">
+          <div class="pb-fuel-tank-bar">
+            <div class="pb-fuel-tank-fill" id="pbFuelBar"></div>
+            <!-- Pit-add overlay: shows how much the pit stop would add -->
+            <div class="pb-fuel-tank-add" id="pbFuelAddBar"></div>
+          </div>
+          <div class="pb-fuel-tank-labels">
+            <span class="pb-fuel-tank-level" id="pbFuelLevel">—</span>
+            <span class="pb-fuel-tank-cap" id="pbFuelCap"></span>
+          </div>
+        </div>
+
+        <!-- Fuel stats -->
         <div class="pb-row"><span class="pb-label">Per lap</span><span class="pb-value" id="pbFuelPerLap">—</span></div>
         <div class="pb-row"><span class="pb-label">Laps left</span><span class="pb-value" id="pbFuelLaps">—</span></div>
-        <div class="pb-row"><span class="pb-label">Pit add</span><span class="pb-value" id="pbFuelVal">—</span></div>
+
+        <!-- Pit fuel add — interactive -->
+        <div class="pb-fuel-pit-row" id="pbFuelPitRow">
+          <span class="pb-label">Pit add</span>
+          <span class="pb-value selectable" id="pbFuelVal">—</span>
+        </div>
+
         <div class="pb-divider"></div>
         <div class="pb-row"><span class="pb-label">Fast repair</span><span class="pb-value off" id="pbFastRepair">NO</span></div>
         <div class="pb-row"><span class="pb-label">Tearoff</span><span class="pb-value off" id="pbWindshield">NO</span></div>
@@ -6310,32 +6449,7 @@ html, body {
         <div class="pb-row"><span class="pb-label">Conditions</span><span class="pb-value" id="pbConditions">Dry</span></div>
       </div>
 
-      <!-- ═══ SETUP / ADJUSTMENTS TAB ═══ -->
-      <div class="pb-page" id="pbPageAdj" data-pb-page="adj">
-        <div class="pb-adj-grid" id="pbAdjGrid">
-          <div class="pb-adj-item" id="pbRowBB"><span class="pb-adj-label">BB</span><span class="pb-adj-val zero" id="pbAdjBB">—</span></div>
-          <div class="pb-adj-item" id="pbRowTC"><span class="pb-adj-label">TC</span><span class="pb-adj-val zero" id="pbAdjTC">—</span></div>
-          <div class="pb-adj-item" id="pbRowABS"><span class="pb-adj-label">ABS</span><span class="pb-adj-val zero" id="pbAdjABS">—</span></div>
-          <div class="pb-adj-item" id="pbRowARBF"><span class="pb-adj-label">ARB F</span><span class="pb-adj-val zero" id="pbAdjARBF">—</span></div>
-          <div class="pb-adj-item" id="pbRowARBR"><span class="pb-adj-label">ARB R</span><span class="pb-adj-val zero" id="pbAdjARBR">—</span></div>
-          <div class="pb-adj-item" id="pbRowEng"><span class="pb-adj-label">ENG</span><span class="pb-adj-val zero" id="pbAdjEng">—</span></div>
-          <div class="pb-adj-item" id="pbRowFuel"><span class="pb-adj-label">FUEL MIX</span><span class="pb-adj-val zero" id="pbAdjFuel">—</span></div>
-          <div class="pb-adj-item" id="pbRowWJL"><span class="pb-adj-label">WJ L</span><span class="pb-adj-val zero" id="pbAdjWJL">—</span></div>
-          <div class="pb-adj-item" id="pbRowWJR"><span class="pb-adj-label">WJ R</span><span class="pb-adj-val zero" id="pbAdjWJR">—</span></div>
-          <div class="pb-adj-item" id="pbRowWingF"><span class="pb-adj-label">WING F</span><span class="pb-adj-val zero" id="pbAdjWingF">—</span></div>
-          <div class="pb-adj-item" id="pbRowWingR"><span class="pb-adj-label">WING R</span><span class="pb-adj-val zero" id="pbAdjWingR">—</span></div>
-        </div>
-      </div>
-
-      <!-- ═══ CAMERA / FFB TAB ═══ -->
-      <div class="pb-page" id="pbPageCamera" data-pb-page="camera">
-        <div class="pb-section-label">Force Feedback</div>
-        <div class="pb-row"><span class="pb-label">Max force</span><span class="pb-value" id="pbFFBMax">—</span></div>
-        <div class="pb-divider"></div>
-        <div class="pb-section-label">Mirrors</div>
-        <div class="pb-row"><span class="pb-label">Rearview</span><span class="pb-value" id="pbMirror">—</span></div>
-        <div class="pb-info">Camera and mirror settings are controlled in-sim</div>
-      </div>
+      <!-- Setup and Camera tabs removed -->
 
     </div>
   </div>
@@ -7083,7 +7197,28 @@ const _defaultSettings = {
   useRemoteTokens: true,       // fetch CSS token builds from K10 Pro Drive API
   theme: 'dark',               // 'dark' or 'light' — synced with web dashboard preference
   apiBase: 'https://prodrive.racecor.io', // K10 Pro Drive API base URL
-  iracingDataSync: true // Sync race sessions to Pro Drive by default
+  iracingDataSync: true, // Sync race sessions to Pro Drive by default
+  // Screen recording
+  recordingQuality: 'high',     // 'low', 'medium', 'high'
+  recordingMic: true,           // include microphone audio
+  recordingMicDevice: '',       // deviceId — empty = system default
+  recordingSystemAudioDevice: '',// deviceId — virtual audio cable for game sound
+  recordingMicVolume: 0.8,      // 0.0–1.0 — mic gain in the mix
+  recordingSystemVolume: 1.0,   // 0.0–1.0 — system/game audio gain
+  recordingWebcamDevice: '',    // deviceId — empty = no facecam
+  recordingFacecam: null,       // { width, height, x, y, margin, ... }
+  recordingFacecamSize: 'medium', // 'small', 'medium', 'large'
+  recordingFacecamPos: 'bottom-right', // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
+  recordingDirectory: '',       // empty = system Videos folder
+  recordingOutputFormat: 'mp4', // 'mp4' (transcode) or 'webm' (raw)
+  recordingEncoder: 'auto',    // 'auto', 'h264_nvenc', 'h264_qsv', 'h264_amf', 'libx264'
+  recordingDeleteSource: true,  // delete .webm after successful MP4 transcode
+  // Phase 4: Smart recording
+  recordingAutoRecord: false,   // auto-start/stop based on pit lane + session
+  recordingAutoStopOnPit: true, // stop recording on pit entry (stint split)
+  // Phase 4: Replay buffer
+  replayBufferEnabled: false,   // keep rolling buffer in memory
+  replayBufferDuration: 60,     // buffer length in seconds (30–120)
 };
 
 let _settings = Object.assign({}, _defaultSettings);
@@ -7121,11 +7256,19 @@ function _fmtLapTime(secs) {
 
 
 // ── modules/js/keyboard.js ──
-// Global keyboard shortcuts — dispatched via Electron globalShortcut → IPC
+// ═══════════════════════════════════════════════════════════════
+// Global action handlers — dispatched via Electron IPC from
+// hotkeys, Stream Deck plugin, or HTTP action API.
+// ═══════════════════════════════════════════════════════════════
 
-  // ═══ Ctrl+Shift+D — restart demo ═══
-  if (window.k10 && window.k10.onRestartDemo) {
-    window.k10.onRestartDemo(function() {
+(function initKeyboardActions() {
+  'use strict';
+  var k = window.k10;
+  if (!k) return;
+
+  // ── Restart demo ──
+  if (k.onRestartDemo) {
+    k.onRestartDemo(function() {
       var baseUrl = window._simhubUrlOverride || SIMHUB_URL;
       var sep = baseUrl.indexOf('?') === -1 ? '?' : '&';
       fetch(baseUrl + sep + 'action=restartdemo')
@@ -7134,12 +7277,148 @@ function _fmtLapTime(secs) {
     });
   }
 
-  // ═══ Ctrl+Shift+M — reset track map ═══
-  if (window.k10 && window.k10.onResetTrackmap) {
-    window.k10.onResetTrackmap(function() {
+  // ── Reset track map ──
+  if (k.onResetTrackmap) {
+    k.onResetTrackmap(function() {
       if (typeof resetTrackMap === 'function') resetTrackMap();
     });
   }
+
+  // ── Pitbox tab cycling ──
+  if (k.onPitboxNextTab) {
+    k.onPitboxNextTab(function() {
+      if (typeof pitboxCycleTab === 'function') pitboxCycleTab(1);
+    });
+  }
+  if (k.onPitboxPrevTab) {
+    k.onPitboxPrevTab(function() {
+      if (typeof pitboxCycleTab === 'function') pitboxCycleTab(-1);
+    });
+  }
+
+  // ── Dismiss commentary ──
+  if (k.onDismissCommentary) {
+    k.onDismissCommentary(function() {
+      if (typeof hideCommentary === 'function') hideCommentary();
+    });
+  }
+
+  // ── Cycle rating / position page ──
+  if (k.onCycleRating) {
+    k.onCycleRating(function() {
+      if (typeof cycleRatingPos === 'function') cycleRatingPos();
+    });
+  }
+
+  // ── Cycle car logo ──
+  if (k.onCycleCarLogo) {
+    k.onCycleCarLogo(function() {
+      if (typeof cycleCarLogo === 'function') cycleCarLogo();
+    });
+  }
+
+  // ── Zoom in/out (CSS transform scale) ──
+  if (k.onZoomIn) {
+    k.onZoomIn(function() {
+      _adjustZoom(0.05);
+    });
+  }
+  if (k.onZoomOut) {
+    k.onZoomOut(function() {
+      _adjustZoom(-0.05);
+    });
+  }
+
+  // ── Toggle leaderboard visibility ──
+  if (k.onToggleLeaderboard) {
+    k.onToggleLeaderboard(function() {
+      var toggle = document.querySelector('.settings-toggle[data-key="showLeaderboard"]');
+      if (toggle && typeof toggleSetting === 'function') toggleSetting(toggle);
+    });
+  }
+
+  // ── Mode presets ──
+  if (k.onPresetBroadcast) {
+    k.onPresetBroadcast(function() { _applyPreset('broadcast'); });
+  }
+  if (k.onPresetPractice) {
+    k.onPresetPractice(function() { _applyPreset('practice'); });
+  }
+  if (k.onPresetQualifying) {
+    k.onPresetQualifying(function() { _applyPreset('qualifying'); });
+  }
+
+  // ── Zoom helper (CSS transform) ──
+  var _currentZoom = 1.0;
+  function _adjustZoom(delta) {
+    _currentZoom = Math.max(0.5, Math.min(2.0, _currentZoom + delta));
+    document.body.style.transform = _currentZoom === 1.0 ? '' : 'scale(' + _currentZoom + ')';
+    document.body.style.transformOrigin = 'top left';
+    console.log('[K10] Zoom: ' + (_currentZoom * 100).toFixed(0) + '%');
+  }
+
+  // ── Mode preset definitions ──
+  // Each preset defines which settings keys should be on/off.
+  // Keys not listed keep their current value.
+  var _presets = {
+    broadcast: {
+      showLeaderboard: true,
+      showCommentary: true,
+      showMaps: true,
+      showPosition: true,
+      showPitBox: false,
+      showDatastream: false,
+      showSpotter: false,
+    },
+    practice: {
+      showLeaderboard: false,
+      showCommentary: true,
+      showMaps: true,
+      showPosition: true,
+      showPitBox: true,
+      showDatastream: true,
+      showSpotter: true,
+    },
+    qualifying: {
+      showLeaderboard: true,
+      showCommentary: true,
+      showMaps: true,
+      showPosition: true,
+      showPitBox: false,
+      showDatastream: false,
+      showSpotter: true,
+    },
+  };
+
+  function _applyPreset(name) {
+    var preset = _presets[name];
+    if (!preset) return;
+    // Update settings and toggle DOM state for each key
+    Object.keys(preset).forEach(function(key) {
+      var val = preset[key];
+      // Update global settings object
+      if (typeof _settings !== 'undefined') _settings[key] = val;
+      // Find the toggle element and sync its UI state
+      var toggle = document.querySelector('.settings-toggle[data-key="' + key + '"]');
+      if (toggle) {
+        toggle.classList.toggle('on', val);
+        var section = toggle.dataset.section;
+        if (section) {
+          var els = document.querySelectorAll('#' + section + ', .' + section);
+          for (var i = 0; i < els.length; i++) {
+            els[i].classList.toggle('section-hidden', !val);
+          }
+        }
+      }
+    });
+    // Persist and reflow
+    if (typeof saveSettings === 'function') saveSettings();
+    if (typeof applyLayout === 'function') applyLayout();
+    if (typeof _collapseParentColumns === 'function') _collapseParentColumns();
+    console.log('[K10] Applied preset: ' + name);
+  }
+
+})();
 
 
 // ── modules/js/car-logos.js ──
@@ -8942,7 +9221,6 @@ function _fmtLapTime(secs) {
     if (_profileLabel) {
       var name = profileData.profileName || '';
       var source = profileData.source || '';
-      if (source === 'moza') name = '⚡ ' + name;
       _profileLabel.textContent = name;
       _profileLabel.title = profileData.carName || '';
     }
@@ -9319,79 +9597,15 @@ function bindPedalProfileToCar() {
   }).catch(function () {});
 }
 
-function importMozaPedals() {
-  var url = (window._simhubUrlOverride || SIMHUB_URL) + '?action=importMozaPedals';
-  fetch(url).then(function (r) { return r.json(); }).then(function (result) {
-    if (result.ok) {
-      loadPedalProfiles(); // refresh the dropdown
-      var btn = document.getElementById('mozaImportBtn');
-      if (btn) { btn.textContent = 'Imported!'; setTimeout(function () { btn.textContent = 'Import from Moza'; }, 3000); }
-    }
-  }).catch(function () {});
-}
+// Moza Pithouse import and debug removed — replaced by direct
+// hardware integration in moza-settings.js
 
-// Detect Moza status and update UI when the Pedals tab loads
 function updatePedalSettingsUI() {
-  var profile = window.getCurrentPedalProfile ? window.getCurrentPedalProfile() : null;
-  var statusLabel = document.getElementById('mozaStatusLabel');
-  var importBtn = document.getElementById('mozaImportBtn');
-
-  if (profile) {
-    if (profile.mozaDetected) {
-      if (statusLabel) statusLabel.textContent = 'Moza Pithouse detected';
-      if (importBtn) importBtn.disabled = false;
-    } else {
-      if (statusLabel) statusLabel.textContent = 'Moza not detected';
-      if (importBtn) importBtn.disabled = true;
-    }
-  } else {
-    if (statusLabel) statusLabel.textContent = 'No profile data from plugin';
-    if (importBtn) importBtn.disabled = true;
-  }
-
   // Load profile list if not yet loaded
   if (!_pedalProfilesLoaded) loadPedalProfiles();
 
   // Render large curve preview
   renderPedalSettingsCurve();
-
-  // Update debug panel
-  _updateMozaDebug(profile);
-}
-
-function _updateMozaDebug(profile) {
-  var el = function (id) { return document.getElementById(id); };
-
-  if (!profile) {
-    var ids = ['dbgMozaDetected', 'dbgProfileSource', 'dbgProfileName',
-               'dbgCarName', 'dbgThrottlePts', 'dbgBrakePts', 'dbgClutchPts',
-               'dbgThrottleDz', 'dbgBrakeDz'];
-    ids.forEach(function (id) { var e = el(id); if (e) e.textContent = '—'; });
-    var jsonEl = el('dbgRawJson');
-    if (jsonEl) jsonEl.textContent = 'No profile data';
-    return;
-  }
-
-  var set = function (id, val) { var e = el(id); if (e) e.textContent = val; };
-
-  set('dbgMozaDetected', profile.mozaDetected ? 'YES' : 'NO');
-  set('dbgProfileSource', profile.source || '(none)');
-  set('dbgProfileName', profile.profileName || '(unnamed)');
-  set('dbgCarName', profile.carName || '(none)');
-  set('dbgThrottlePts', profile.throttleCurve ? profile.throttleCurve.length + ' pts' : '—');
-  set('dbgBrakePts', profile.brakeCurve ? profile.brakeCurve.length + ' pts' : '—');
-  set('dbgClutchPts', profile.clutchCurve ? profile.clutchCurve.length + ' pts' : '—');
-  set('dbgThrottleDz', profile.throttleDeadzone != null ? (profile.throttleDeadzone * 100).toFixed(1) + '%' : '—');
-  set('dbgBrakeDz', profile.brakeDeadzone != null ? (profile.brakeDeadzone * 100).toFixed(1) + '%' : '—');
-
-  var jsonEl = el('dbgRawJson');
-  if (jsonEl) {
-    try {
-      jsonEl.textContent = JSON.stringify(profile, null, 1);
-    } catch (e) {
-      jsonEl.textContent = '(error)';
-    }
-  }
 }
 
 // Hook into tab switch to refresh pedal settings
@@ -10701,263 +10915,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.updateGameLogo) window.updateGameLogo(window._currentGameId || 'iracing', !isOn);
   }
 
-  // ─── iRacing Data Sync (embedded browser login) ───
-
-  function updateIRacingCard(status) {
-    var notConn = document.getElementById('iracingNotConnected');
-    var conn    = document.getElementById('iracingConnected');
-    var name    = document.getElementById('iracingDisplayName');
-    var openBtn = document.getElementById('iracingOpenBtn');
-
-    if (status && status.connected) {
-      if (notConn) notConn.style.display = 'none';
-      if (conn) conn.style.display = '';
-      if (name) name.textContent = status.displayName || 'iRacing Member';
-      if (openBtn) openBtn.textContent = 'Open iRacing';
-    } else {
-      if (notConn) notConn.style.display = '';
-      if (conn) conn.style.display = 'none';
-      if (openBtn) openBtn.textContent = 'Open iRacing';
-    }
-  }
-
-  async function connectIRacing() {
-    var btn = document.getElementById('iracingOpenBtn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Opening...'; }
-
-    try {
-      var result = await window.k10.iracingConnect();
-      if (result && result.success) {
-        updateIRacingCard({ connected: true, displayName: result.displayName, custId: result.custId });
-      }
-    } catch (e) {
-      console.error('[K10] iRacing connect error:', e);
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Open iRacing'; }
-    }
-  }
-  window.connectIRacing = connectIRacing;
-
-  // disconnectIRacing is now handled by the sidebar panel on the iRacing window
-
-  // syncIRacing is now handled by the sidebar panel on the iRacing window
-
-  // Listen for sync events pushed from main process
-  if (window.k10 && window.k10.onIRacingSync) {
-    console.log('[Connections] onIRacingSync handler REGISTERED');
-    window.k10.onIRacingSync(function(data) {
-      console.log('[Connections] onIRacingSync FIRED — ratings:', JSON.stringify(data.ratings || {}).slice(0, 300));
-      updateIRacingCard({
-        connected: true,
-        displayName: data.displayName,
-        custId: data.custId,
-        lastSync: data.exportedAt,
-      });
-
-      // ── Auto-populate iRating/SR from sync data ──
-      // The DOM scraping captures iRating into data.ratings — bridge it
-      // to window._manualIRating so the overlay and poll engine can use it.
-      if (data.ratings) {
-        var scrapedIR = 0;
-        var scrapedSR = 0;
-        var scrapedLic = '';
-
-        // Strategy 1: explicit irating_raw from "iRating: 1234" pattern
-        if (data.ratings.irating_raw && data.ratings.irating_raw.length > 0) {
-          scrapedIR = parseInt(data.ratings.irating_raw[0]) || 0;
-          console.log('[Connections] iRating from irating_raw: ' + scrapedIR);
-        }
-
-        // Strategy 2: byCategory (from nearby-number matching)
-        if (!scrapedIR && data.ratings.byCategory) {
-          // Pick first available — inactive categories already filtered by scraper
-          scrapedIR = data.ratings.byCategory['sports car']
-            || data.ratings.byCategory['formula']
-            || data.ratings.byCategory['road']
-            || data.ratings.byCategory['oval']
-            || data.ratings.byCategory['dirt road']
-            || data.ratings.byCategory['dirt oval']
-            || Object.values(data.ratings.byCategory)[0]
-            || 0;
-          if (scrapedIR) console.log('[Connections] iRating from byCategory: ' + scrapedIR);
-        }
-
-        // Safety rating from scrape
-        if (data.ratings.sr_raw && data.ratings.sr_raw.length > 0) {
-          scrapedSR = parseFloat(data.ratings.sr_raw[0].rating) || 0;
-          scrapedLic = data.ratings.sr_raw[0].class || '';
-        }
-        if (!scrapedSR && data.ratings.licenseMatches && data.ratings.licenseMatches.length > 0) {
-          scrapedSR = parseFloat(data.ratings.licenseMatches[0].rating) || 0;
-          scrapedLic = data.ratings.licenseMatches[0].class || '';
-        }
-
-        // Also check dashboard licenses
-        if (!scrapedSR && data.licenses && data.licenses.length > 0) {
-          scrapedSR = data.licenses[0].rating || 0;
-          scrapedLic = data.licenses[0].class || '';
-        }
-
-        // Apply to the overlay if we got values
-        if (scrapedIR > 0 || scrapedSR > 0) {
-          console.log('[Connections] Applying scraped ratings — iR: ' + scrapedIR + ', SR: ' + scrapedSR + ' ' + scrapedLic);
-          if (scrapedIR > 0) window._manualIRating = scrapedIR;
-          if (scrapedSR > 0) window._manualSafetyRating = scrapedSR;
-          if (scrapedLic) window._manualLicense = scrapedLic;
-
-          // Persist so it survives restarts
-          var ratingData = {
-            iRating: scrapedIR || window._manualIRating || 0,
-            safetyRating: scrapedSR || window._manualSafetyRating || 0,
-            license: scrapedLic || window._manualLicense || '',
-            history: [],
-            source: 'iracing-sync',
-            syncedAt: data.exportedAt,
-          };
-          if (window.k10 && window.k10.saveRatingData) {
-            window.k10.saveRatingData(ratingData);
-          }
-          try { localStorage.setItem('k10-rating-data', JSON.stringify(ratingData)); } catch(e) {}
-
-          if (window.debugConsole) {
-            window.debugConsole.logIRacingSync('success',
-              'Applied ratings — iR: ' + scrapedIR + ', SR: ' + scrapedLic + ' ' + scrapedSR);
-          }
-
-          // ── Sync each scraped category to the web database ──
-          // Post to /api/ratings for each category with real data.
-          // This is the lightweight path that records a rating data point
-          // without needing custId or historical chartData.
-          var ratingToken = window._k10Token;
-          if (ratingToken && data.ratings && data.ratings.byCategory) {
-            var API_BASE = (window._k10ApiBase || 'https://prodrive.racecor.io');
-            var cats = data.ratings.byCategory;
-            var catKeys = Object.keys(cats);
-            console.log('[Connections] Syncing ' + catKeys.length + ' rating categories to Pro Drive...');
-
-            // Find license/SR for each category from the licenses array
-            // Licenses order on the dashboard: Oval, Sports Car, Formula, Dirt Oval, Dirt Road
-            var licenseMap = {};
-            if (data.licenses && data.licenses.length > 0) {
-              var licCategories = ['oval', 'sports car', 'formula', 'dirt oval', 'dirt road'];
-              for (var li = 0; li < Math.min(data.licenses.length, licCategories.length); li++) {
-                licenseMap[licCategories[li]] = data.licenses[li];
-              }
-            }
-
-            catKeys.forEach(function(cat) {
-              var ir = cats[cat];
-              var catLic = licenseMap[cat] || {};
-              var sr = catLic.rating || 0;
-              var lic = catLic.class || 'R';
-              // Map category names to API format
-              var apiCat = cat.replace(/\s+/g, '_');
-
-              console.log('[Connections] POST /api/ratings — ' + apiCat + ': iR=' + ir + ', SR=' + sr + ' ' + lic);
-              fetch(API_BASE + '/api/ratings', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer ' + ratingToken
-                },
-                body: JSON.stringify({
-                  category: apiCat,
-                  iRating: ir,
-                  safetyRating: sr,
-                  license: lic,
-                  source: 'iracing-dom-scrape',
-                  scrapedAt: data.exportedAt
-                })
-              })
-              .then(function(r) {
-                if (r.ok) {
-                  console.log('[Connections] Rating sync OK for ' + apiCat);
-                  if (window.debugConsole) window.debugConsole.logIRacingSync('success', 'Rating synced: ' + apiCat + ' iR=' + ir);
-                } else {
-                  console.warn('[Connections] Rating sync failed for ' + apiCat + ': ' + r.status);
-                  if (window.debugConsole) window.debugConsole.logIRacingSync('error', 'Rating sync failed for ' + apiCat + ': ' + r.status);
-                }
-              })
-              .catch(function(err) {
-                console.error('[Connections] Rating sync error for ' + apiCat + ':', err.message || err);
-              });
-            });
-          } else if (!ratingToken) {
-            console.log('[Connections] No Pro Drive token — skipping web sync');
-            if (window.debugConsole) window.debugConsole.logIRacingSync('warn', 'Not signed in to Pro Drive — ratings not synced to web');
-          }
-        } else {
-          console.log('[Connections] No iRating values found in sync data');
-          if (window.debugConsole) {
-            window.debugConsole.logIRacingSync('warn', 'No iRating values found in sync data');
-          }
-        }
-      }
-
-      // ── Forward full Electron sync data to Pro Drive web API ──
-      // Forward when we have chartData (historical iRating from chart scraping)
-      // or recentRaces (from API or DOM scraping)
-      var token = window._k10Token;
-      if (token && data && (data.chartData || (data.recentRaces && data.recentRaces.length > 0))) {
-        var API_BASE = (window._k10ApiBase || 'https://prodrive.racecor.io');
-        console.log('[Connections] Forwarding full sync data to Pro Drive API...');
-        if (window.debugConsole) window.debugConsole.logIRacingSync('info', 'Forwarding sync data to Pro Drive API...');
-        fetch(API_BASE + '/api/iracing/import', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify(data)
-        })
-        .then(function(r) { return r.ok ? r.json() : r.json().then(function(e) { throw new Error(e.error || r.status); }); })
-        .then(function(result) {
-          console.log('[Connections] Pro Drive import result:', result);
-          if (window.debugConsole) {
-            var imp = result.imported || {};
-            window.debugConsole.logIRacingSync('success',
-              'Pro Drive import: ' + (imp.sessions || 0) + ' sessions, ' +
-              (imp.historyPoints || 0) + ' iRating points');
-          }
-        })
-        .catch(function(err) {
-          console.warn('[Connections] Pro Drive import failed:', err.message || err);
-          if (window.debugConsole) window.debugConsole.logIRacingSync('error', 'Pro Drive import failed: ' + (err.message || err));
-        });
-      }
-    });
-  }
-
-  // iRacing client logs now pipe to the sidebar console on the iRacing window
-
-  // Init: load persisted status on startup
-  async function initIRacingState() {
-    try {
-      var status = await window.k10.getIRacingStatus();
-      updateIRacingCard(status);
-    } catch (e) {
-      // Not available yet — leave as disconnected
-    }
-  }
-
-  // Auto-connect: main process tries iRacing sync on startup with persisted cookies.
-  // If it succeeds, update the card to show connected state.
-  if (window.k10 && window.k10.onIRacingAutoConnected) {
-    window.k10.onIRacingAutoConnected(function(result) {
-      if (result && result.success) {
-        updateIRacingCard({
-          connected: true,
-          displayName: result.displayName,
-          custId: result.custId,
-          lastSync: result.exportedAt
-        });
-        if (window.debugConsole) {
-          window.debugConsole.logIRacingSync('success', 'Auto-connected to iRacing');
-        }
-      }
-    });
-  }
-
   // ─── Logo subtitle ───
   function updateLogoSubtitle(value) {
     _settings.logoSubtitle = value;
@@ -11986,6 +11943,37 @@ document.addEventListener('DOMContentLoaded', function () {
   const _prev = {};
   let _initialized = false;
 
+  // ── Strategist state ──
+  let _stratVisible = false;   // is the strategist suggesting a tire change?
+  let _stratTires = [false, false, false, false]; // [LF, RF, LR, RR] suggestion
+
+  // ── Tire selection state (for pit change) ──
+  // Tracks which tires the driver wants changed at the next pit stop.
+  // Default: all deselected. Strategist "accept" selects all 4.
+  var _tireSelected = [false, false, false, false]; // [LF, RF, LR, RR]
+  var _tireSelectable = false;  // true when strategy suggests or pit window is open
+  var _tireFocusIdx = -1;      // wheel-button focus index (0-3, -1 = strat button)
+
+  // ── Fuel strategist state ──
+  var _fuelStratVisible = false;  // is the strategist suggesting a fuel stop?
+  var _fuelAccepted = false;      // user accepted the fuel suggestion
+
+  // ── Pit-lane state for fuel hold ──
+  var _prevInPitLane = null;
+  var _lastFuelFormatted = '—';
+  var _lastFuelPerLap = '—';
+  var _lastFuelLaps = '—';
+  var _lastMaxFuelRaw = 0;  // hold tank capacity across pit resets
+
+  // ── Car silhouette state ──
+  let _lastCarType = '';  // 'gt' or 'formula'
+  // Open-wheel / formula car patterns (case-insensitive substring match on CarModel)
+  var _formulaPatterns = [
+    'dallara', 'formula', 'skip barber', 'super formula', 'f3', 'f4',
+    'ir-01', 'ir-04', 'ir-18', 'ir18', 'ir01', 'ir04',
+    'indy', 'pm-18', 'usp', 'w12', 'w13', 'radical'
+  ];
+
   // ── Wheel button input counters ──
   // The plugin increments these each time the corresponding SimHub action fires.
   // We detect changes per-frame and dispatch the appropriate UI action.
@@ -11996,8 +11984,11 @@ document.addEventListener('DOMContentLoaded', function () {
   let _lastIncrement = -1;
   let _lastDecrement = -1;
   let _lastToggle = -1;
-  var _tabOrder = ['tyres', 'fuel', 'weather', 'adj', 'camera'];
+  var _tabOrder = ['tyres', 'fuel', 'weather'];
   var _pbHidden = false;  // "off" state — pitbox dismissed via tab cycling past the edges
+
+  // SVG circle constants — radius 28, circumference = 2πr ≈ 175.93
+  var RING_CIRCUMFERENCE = 2 * Math.PI * 28;
 
   function cacheElements() {
     var $ = function(id) { return document.getElementById(id); };
@@ -12005,26 +11996,36 @@ document.addEventListener('DOMContentLoaded', function () {
       panel:       $('pitBoxPanel'),
       noData:      $('pbNoData'),
       content:     $('pbContent'),
-      // Tyres tab — pit selections
-      tireLF:      $('pbTireLF'),   tireRF:      $('pbTireRF'),
-      tireLR:      $('pbTireLR'),   tireRR:      $('pbTireRR'),
-      pressLF:     $('pbPressLF'),  pressRF:     $('pbPressRF'),
-      pressLR:     $('pbPressLR'),  pressRR:     $('pbPressRR'),
-      // Tyres tab — wear bars
-      wearLF:      $('pbWearLF'),   wearLFVal:   $('pbWearLFVal'),
-      wearRF:      $('pbWearRF'),   wearRFVal:   $('pbWearRFVal'),
-      wearLR:      $('pbWearLR'),   wearLRVal:   $('pbWearLRVal'),
-      wearRR:      $('pbWearRR'),   wearRRVal:   $('pbWearRRVal'),
-      // Tyres tab — temps
-      tempLF:      $('pbTempLF'),   tempRF:      $('pbTempRF'),
-      tempLR:      $('pbTempLR'),   tempRR:      $('pbTempRR'),
+      // Strategist
+      stratSuggest: $('pbStratSuggest'),
+      stratBtn:     $('pbStratBtn'),
+      stratLabel:   $('pbStratLabel'),
+      // Car silhouette
+      carGT:       $('pbCarGT'),
+      carFormula:  $('pbCarFormula'),
+      // Tyres tab — circle cells (for selection interaction)
+      circleLF:    $('pbCircleLF'),   circleRF:    $('pbCircleRF'),
+      circleLR:    $('pbCircleLR'),   circleRR:    $('pbCircleRR'),
+      // Tyres tab — circle charts
+      ringLF:      $('pbRingLF'),     ringRF:      $('pbRingRF'),
+      ringLR:      $('pbRingLR'),     ringRR:      $('pbRingRR'),
+      wearLFVal:   $('pbWearLFVal'),  wearRFVal:   $('pbWearRFVal'),
+      wearLRVal:   $('pbWearLRVal'),  wearRRVal:   $('pbWearRRVal'),
+      // Tyres tab — temps (inside circles)
+      tempLF:      $('pbTempLF'),     tempRF:      $('pbTempRF'),
+      tempLR:      $('pbTempLR'),     tempRR:      $('pbTempRR'),
       // Fuel tab
       fuelBar:     $('pbFuelBar'),
+      fuelAddBar:  $('pbFuelAddBar'),
       fuelLevel:   $('pbFuelLevel'),
-      fuelUnit:    $('pbFuelUnit'),
+      fuelCap:     $('pbFuelCap'),
       fuelPerLap:  $('pbFuelPerLap'),
       fuelLaps:    $('pbFuelLaps'),
       fuelVal:     $('pbFuelVal'),
+      fuelPitRow:  $('pbFuelPitRow'),
+      fuelStratSuggest: $('pbFuelStratSuggest'),
+      fuelStratBtn:     $('pbFuelStratBtn'),
+      fuelStratLabel:   $('pbFuelStratLabel'),
       fastRepair:  $('pbFastRepair'),
       windshield:  $('pbWindshield'),
       // Weather tab
@@ -12050,6 +12051,95 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
+  // ── Tire selection interaction ──
+  var _circleEls = function() {
+    return [_els.circleLF, _els.circleRF, _els.circleLR, _els.circleRR];
+  };
+
+  function toggleTire(idx) {
+    if (!_tireSelectable) return;
+    _tireSelected[idx] = !_tireSelected[idx];
+    syncTireSelectionUI();
+  }
+
+  function selectAllTires() {
+    _tireSelected = [true, true, true, true];
+    syncTireSelectionUI();
+  }
+
+  function deselectAllTires() {
+    _tireSelected = [false, false, false, false];
+    syncTireSelectionUI();
+  }
+
+  function syncTireSelectionUI() {
+    var cells = _circleEls();
+    for (var i = 0; i < 4; i++) {
+      if (!cells[i]) continue;
+      cells[i].classList.toggle('selected', _tireSelected[i]);
+      // Remove suggested highlight once user has interacted (accepted or toggled)
+      cells[i].classList.remove('suggested');
+    }
+  }
+
+  function setTiresSelectable(selectable) {
+    if (selectable === _tireSelectable) return;
+    _tireSelectable = selectable;
+    var cells = _circleEls();
+    for (var i = 0; i < 4; i++) {
+      if (!cells[i]) continue;
+      cells[i].classList.toggle('selectable', selectable);
+      if (!selectable) {
+        cells[i].classList.remove('selected', 'suggested');
+      }
+    }
+    if (!selectable) {
+      _tireSelected = [false, false, false, false];
+      _tireFocusIdx = -1;
+    }
+  }
+
+  function showStrategistSuggestions() {
+    // Highlight all 4 tires with "suggested" amber style
+    var cells = _circleEls();
+    for (var i = 0; i < 4; i++) {
+      if (cells[i]) cells[i].classList.add('suggested');
+    }
+  }
+
+  // Wire click handlers (called once after first cacheElements)
+  var _clicksBound = false;
+  function bindTireClicks() {
+    if (_clicksBound || !_els) return;
+    _clicksBound = true;
+    var cells = _circleEls();
+    for (var i = 0; i < 4; i++) {
+      (function(idx) {
+        if (cells[idx]) {
+          cells[idx].addEventListener('click', function() { toggleTire(idx); });
+        }
+      })(i);
+    }
+    // Strategist "accept" button — selects all 4 tires
+    if (_els.stratBtn) {
+      _els.stratBtn.addEventListener('click', function() {
+        selectAllTires();
+      });
+    }
+    // Fuel strategist "accept" button
+    if (_els.fuelStratBtn) {
+      _els.fuelStratBtn.addEventListener('click', function() {
+        _fuelAccepted = true;
+        if (_els.fuelVal) {
+          _els.fuelVal.classList.add('accepted');
+        }
+        if (_els.fuelAddBar) {
+          _els.fuelAddBar.classList.add('active');
+        }
+      });
+    }
+  }
+
   // ── Tab switching ──
   window.switchPbTab = function(el) {
     var tab = el.dataset.pbTab;
@@ -12063,6 +12153,37 @@ document.addEventListener('DOMContentLoaded', function () {
     el.classList.add('active');
     var page = document.querySelector('[data-pb-page="' + tab + '"]');
     if (page) page.classList.add('active');
+  };
+
+  // ── Tab cycling (called from IPC / Stream Deck / HTTP action) ──
+  // dir: +1 = next, -1 = prev
+  window.pitboxCycleTab = function(dir) {
+    var panel = document.getElementById('pitBoxPanel');
+    if (_pbHidden) {
+      _pbHidden = false;
+      if (panel) panel.classList.remove('pb-dismissed');
+      var revealIdx = dir === 1 ? 0 : _tabOrder.length - 1;
+      var revealTab = document.querySelector('.pb-tab[data-pb-tab="' + _tabOrder[revealIdx] + '"]');
+      if (revealTab) switchPbTab(revealTab);
+      return;
+    }
+    var activeTab = document.querySelector('.pb-tab.active');
+    var currentKey = activeTab ? activeTab.dataset.pbTab : _tabOrder[0];
+    var idx = _tabOrder.indexOf(currentKey);
+    var atEnd   = (dir === 1  && idx === _tabOrder.length - 1);
+    var atStart = (dir === -1 && idx === 0);
+    if (atEnd || atStart) {
+      _pbHidden = true;
+      if (panel) panel.classList.add('pb-dismissed');
+      var allTabs = document.querySelectorAll('.pb-tab');
+      var allPages = document.querySelectorAll('.pb-page');
+      for (var t = 0; t < allTabs.length; t++) allTabs[t].classList.remove('active');
+      for (var p = 0; p < allPages.length; p++) allPages[p].classList.remove('active');
+    } else {
+      var nextIdx = idx + dir;
+      var nextTab = document.querySelector('.pb-tab[data-pb-tab="' + _tabOrder[nextIdx] + '"]');
+      if (nextTab) switchPbTab(nextTab);
+    }
   };
 
   // ── Flash animation ──
@@ -12084,7 +12205,16 @@ document.addEventListener('DOMContentLoaded', function () {
     rowEl.classList.toggle('hidden', !visible);
   }
 
-  // ── Wear bar helpers ──
+  // ── Wear helpers ──
+
+  // Parse demo wear: plugin sends 0=new, 1=gone. Invert to 1=new, 0=gone.
+  function _parseDemoWear(val) {
+    if (val == null || val === '') return null;
+    var v = parseFloat(val);
+    if (isNaN(v)) return null;
+    return Math.max(0, Math.min(1, 1 - v));
+  }
+
   // Parse tyre wear with null-awareness and raw telemetry fallback.
   // Returns null when no data available, otherwise 0-1 (1=new, 0=worn).
   function _parseTyreWear(gameDataVal, rawL, rawM, rawR) {
@@ -12101,19 +12231,21 @@ document.addEventListener('DOMContentLoaded', function () {
     return null; // No data available yet
   }
 
-  function updateWearBar(fillEl, valEl, wear) {
-    if (!fillEl || !valEl) return;
+  function updateWearRing(ringEl, valEl, wear) {
+    if (!ringEl || !valEl) return;
     if (wear === null || wear === undefined) {
-      // No data — show placeholder instead of fake 100%
-      fillEl.style.width = '0%';
-      fillEl.className = 'pb-tire-bar-fill';
+      // No data — empty ring, placeholder text
+      ringEl.style.strokeDashoffset = RING_CIRCUMFERENCE;
+      ringEl.className.baseVal = 'pb-ring-fill';
       valEl.textContent = '—';
       return;
     }
-    var pct = Math.max(0, Math.min(100, (1 - wear) * 100));
+    // iRacing: 1 = new tyre, 0 = fully worn → wear IS remaining life
+    var pct = Math.max(0, Math.min(100, wear * 100));
     var remaining = Math.round(pct);
-    fillEl.style.width = remaining + '%';
-    fillEl.className = 'pb-tire-bar-fill' +
+    // dashoffset: 0 = full circle, CIRCUMFERENCE = empty circle
+    ringEl.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - pct / 100);
+    ringEl.className.baseVal = 'pb-ring-fill' +
       (remaining < 20 ? ' crit' : remaining < 40 ? ' warn' : '');
     valEl.textContent = remaining + '%';
   }
@@ -12142,10 +12274,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (!isIRacing) return;
 
+    var _demo = +d['RaceCorProDrive.Plugin.DemoMode'] || 0;
     var pb = function(key) { return d['RaceCorProDrive.Plugin.PitBox.' + key]; };
     var dc = function(key) { return d['DataCorePlugin.GameRawData.Telemetry.' + key]; };
-    var ds = function(key) { return d['RaceCorProDrive.Plugin.DS.' + key]; };
+    var ds = function(key) {
+      return _demo ? d['RaceCorProDrive.Plugin.Demo.DS.' + key]
+                   : d['RaceCorProDrive.Plugin.DS.' + key];
+    };
     var gd = function(key) { return d['DataCorePlugin.GameData.' + key]; };
+    // Demo-aware tire data: demo mode uses different property names
+    var demoTyre = function(key) { return d['RaceCorProDrive.Plugin.Demo.' + key]; };
 
     // 0=imperial, 1=metric. Cannot use `|| 1` fallback here because 0 is a
     // valid value (imperial) — `0 || 1` would incorrectly evaluate to metric.
@@ -12157,60 +12295,229 @@ document.addEventListener('DOMContentLoaded', function () {
     //  TYRES TAB
     // ════════════════════════════════════════
 
-    // Pit selections
-    updateTire('LF', _els.tireLF, _els.pressLF, pb('TireLF'), pb('PressureLF'));
-    updateTire('RF', _els.tireRF, _els.pressRF, pb('TireRF'), pb('PressureRF'));
-    updateTire('LR', _els.tireLR, _els.pressLR, pb('TireLR'), pb('PressureLR'));
-    updateTire('RR', _els.tireRR, _els.pressRR, pb('TireRR'), pb('PressureRR'));
+    // ── Bind click handlers on first run ──
+    bindTireClicks();
 
-    // Wear bars — iRacing sends 0-1 where 1=new, 0=worn.
-    // Use null-aware parsing: null/undefined means "no data yet" (show —),
-    // whereas 0 means "fully worn" (show 0%).
-    // Fall back to raw telemetry average if GameData returns null (first lap).
-    var wearFL = _parseTyreWear(gd('TyreWearFrontLeft'), dc('LFwearL'), dc('LFwearM'), dc('LFwearR'));
-    var wearFR = _parseTyreWear(gd('TyreWearFrontRight'), dc('RFwearL'), dc('RFwearM'), dc('RFwearR'));
-    var wearRL = _parseTyreWear(gd('TyreWearRearLeft'), dc('LRwearL'), dc('LRwearM'), dc('LRwearR'));
-    var wearRR = _parseTyreWear(gd('TyreWearRearRight'), dc('RRwearL'), dc('RRwearM'), dc('RRwearR'));
-    updateWearBar(_els.wearLF, _els.wearLFVal, wearFL);
-    updateWearBar(_els.wearRF, _els.wearRFVal, wearFR);
-    updateWearBar(_els.wearLR, _els.wearLRVal, wearRL);
-    updateWearBar(_els.wearRR, _els.wearRRVal, wearRR);
+    // ── Strategist tire suggestion ──
+    // Show the "accept" button when the strategy engine flags tire health
+    // as needing attention (TireHealthState >= 2 means "change recommended").
+    // In demo mode, simulate strategy suggestion when any tire drops below 50% wear.
+    var st = function(key) { return d['RaceCorProDrive.Plugin.Strategy.' + key]; };
+    var tireHealth = parseInt(st('TireHealthState')) || 0;
+    var tireLapsLeft = st('TireLapsRemaining');
+    var shouldSuggest = tireHealth >= 2;
 
-    // Tyre temps
-    if (_els.tempLF) _els.tempLF.textContent = formatTemp(gd('TyreTempFrontLeft'), units);
-    if (_els.tempRF) _els.tempRF.textContent = formatTemp(gd('TyreTempFrontRight'), units);
-    if (_els.tempLR) _els.tempLR.textContent = formatTemp(gd('TyreTempRearLeft'), units);
-    if (_els.tempRR) _els.tempRR.textContent = formatTemp(gd('TyreTempRearRight'), units);
+    // Demo mode: simulate strategist when tire wear is notable
+    if (_demo && !shouldSuggest) {
+      var demoWearFL = _parseDemoWear(demoTyre('TyreWearFL'));
+      var demoWearFR = _parseDemoWear(demoTyre('TyreWearFR'));
+      var demoWearRL = _parseDemoWear(demoTyre('TyreWearRL'));
+      var demoWearRR = _parseDemoWear(demoTyre('TyreWearRR'));
+      // Trigger when any tire is below 60% remaining life
+      if ((demoWearFL !== null && demoWearFL < 0.6) ||
+          (demoWearFR !== null && demoWearFR < 0.6) ||
+          (demoWearRL !== null && demoWearRL < 0.6) ||
+          (demoWearRR !== null && demoWearRR < 0.6)) {
+        shouldSuggest = true;
+        // Estimate laps remaining from worst tire
+        var worstWear = Math.min(
+          demoWearFL !== null ? demoWearFL : 1,
+          demoWearFR !== null ? demoWearFR : 1,
+          demoWearRL !== null ? demoWearRL : 1,
+          demoWearRR !== null ? demoWearRR : 1
+        );
+        tireLapsLeft = Math.max(1, Math.round(worstWear * 20));
+      }
+    }
+
+    if (shouldSuggest !== _stratVisible) {
+      _stratVisible = shouldSuggest;
+      if (_els.stratSuggest) {
+        _els.stratSuggest.classList.toggle('hidden', !shouldSuggest);
+      }
+      // When strategist first appears, enable tire selection and show suggestions
+      if (shouldSuggest) {
+        setTiresSelectable(true);
+        showStrategistSuggestions();
+        deselectAllTires(); // default: none selected until user accepts
+      }
+    }
+    // Keep tires selectable while strategist is active
+    if (shouldSuggest) setTiresSelectable(true);
+
+    if (shouldSuggest && _els.stratLabel) {
+      var lapsStr = (tireLapsLeft != null && tireLapsLeft !== '')
+        ? ' · ~' + Math.round(parseFloat(tireLapsLeft)) + ' laps left'
+        : '';
+      _els.stratLabel.textContent = 'Accept tire change' + lapsStr;
+      _stratTires = [true, true, true, true];
+    } else {
+      _stratTires = [false, false, false, false];
+      // If strategist disappears, clear selection state
+      if (!shouldSuggest && _tireSelectable) {
+        setTiresSelectable(false);
+      }
+    }
+
+    // ── Car silhouette switching ──
+    // Detect formula/open-wheel cars from CarModel string
+    var carModel = (_demo ? demoTyre('CarModel') : gd('CarModel')) || '';
+    var carModelLower = carModel.toLowerCase();
+    var carType = 'gt';
+    for (var fi = 0; fi < _formulaPatterns.length; fi++) {
+      if (carModelLower.indexOf(_formulaPatterns[fi]) !== -1) {
+        carType = 'formula';
+        break;
+      }
+    }
+    if (carType !== _lastCarType) {
+      _lastCarType = carType;
+      if (_els.carGT) _els.carGT.style.display = carType === 'gt' ? '' : 'none';
+      if (_els.carFormula) _els.carFormula.style.display = carType === 'formula' ? '' : 'none';
+    }
+
+    // ── Circle wear charts ──
+    // iRacing sends 0-1 where 1=new, 0=worn.
+    // Null-aware parsing: null/undefined = "no data yet" (show —),
+    // 0 = "fully worn" (show 0%).
+    // In demo mode, wear comes from Plugin.Demo.TyreWear* (0=new, 1=worn — inverted).
+    // In live mode, falls back to raw telemetry average if GameData returns null (first lap).
+    var wearFL, wearFR, wearRL, wearRR;
+    if (_demo) {
+      // Demo wear is 0=new, 1=gone — invert to match iRacing's 1=new convention
+      wearFL = _parseDemoWear(demoTyre('TyreWearFL'));
+      wearFR = _parseDemoWear(demoTyre('TyreWearFR'));
+      wearRL = _parseDemoWear(demoTyre('TyreWearRL'));
+      wearRR = _parseDemoWear(demoTyre('TyreWearRR'));
+    } else {
+      wearFL = _parseTyreWear(gd('TyreWearFrontLeft'), dc('LFwearL'), dc('LFwearM'), dc('LFwearR'));
+      wearFR = _parseTyreWear(gd('TyreWearFrontRight'), dc('RFwearL'), dc('RFwearM'), dc('RFwearR'));
+      wearRL = _parseTyreWear(gd('TyreWearRearLeft'), dc('LRwearL'), dc('LRwearM'), dc('LRwearR'));
+      wearRR = _parseTyreWear(gd('TyreWearRearRight'), dc('RRwearL'), dc('RRwearM'), dc('RRwearR'));
+    }
+    updateWearRing(_els.ringLF, _els.wearLFVal, wearFL);
+    updateWearRing(_els.ringRF, _els.wearRFVal, wearFR);
+    updateWearRing(_els.ringLR, _els.wearLRVal, wearRL);
+    updateWearRing(_els.ringRR, _els.wearRRVal, wearRR);
+
+    // Tyre temps (inside circle charts)
+    var tempFL = _demo ? demoTyre('TyreTempFL') : gd('TyreTempFrontLeft');
+    var tempFR = _demo ? demoTyre('TyreTempFR') : gd('TyreTempFrontRight');
+    var tempRL = _demo ? demoTyre('TyreTempRL') : gd('TyreTempRearLeft');
+    var tempRR = _demo ? demoTyre('TyreTempRR') : gd('TyreTempRearRight');
+    if (_els.tempLF) _els.tempLF.textContent = formatTemp(tempFL, units);
+    if (_els.tempRF) _els.tempRF.textContent = formatTemp(tempFR, units);
+    if (_els.tempLR) _els.tempLR.textContent = formatTemp(tempRL, units);
+    if (_els.tempRR) _els.tempRR.textContent = formatTemp(tempRR, units);
 
     // ════════════════════════════════════════
     //  FUEL TAB
     // ════════════════════════════════════════
 
+    // Detect pit lane state to hold fuel display during pit service
+    var inPitLane = +(d['DataCorePlugin.GameData.IsInPitLane'] || d['DataCorePlugin.GameRawData.Telemetry.IsOnPitRoad']) > 0;
+    if (_demo) inPitLane = false; // demo mode doesn't pit
+
     var fuelPct = parseFloat(ds('FuelPct')) || 0;
-    var fuelFormatted = ds('FuelFormatted') || '—';
-    var fuelPerLap = ds('FuelPerLapFormatted') || '—';
+    var fuelFormattedRaw = ds('FuelFormatted') || '';
+    var fuelPerLapRaw = ds('FuelPerLapFormatted') || '';
     var fuelLaps = parseFloat(ds('FuelLapsRemaining')) || 0;
     var fuelDisplay = pb('FuelDisplay') || '—';
     var fuelRequested = pb('FuelRequested');
-    var unitLabel = units === 0 ? 'gallons' : 'liters';
+    var unitLabel = units === 0 ? 'gal' : 'L';
 
-    // Fuel gauge bar
+    // Hold last-known-good fuel values while in pit lane (telemetry can
+    // momentarily report zeros/blanks during pit service)
+    if (!inPitLane && fuelFormattedRaw) _lastFuelFormatted = fuelFormattedRaw;
+    if (!inPitLane && fuelPerLapRaw) _lastFuelPerLap = fuelPerLapRaw;
+    if (!inPitLane && fuelLaps > 0) _lastFuelLaps = fuelLaps.toFixed(1);
+    var fuelFormatted = fuelFormattedRaw || _lastFuelFormatted;
+    var fuelPerLap = fuelPerLapRaw || _lastFuelPerLap;
+
+    _prevInPitLane = inPitLane;
+
+    // Tank capacity — read from GameData.MaxFuel (liters), convert if imperial.
+    // Hold the last known value: MaxFuel can momentarily drop to 0 during pit service.
+    var maxFuelRawLive = _demo
+      ? parseFloat(d['RaceCorProDrive.Plugin.Demo.MaxFuel']) || 0
+      : parseFloat(d['DataCorePlugin.GameData.MaxFuel']) || 0;
+    if (maxFuelRawLive > 0) _lastMaxFuelRaw = maxFuelRawLive;
+    var maxFuelRaw = _lastMaxFuelRaw;
+    var maxFuelDisplay = units === 0 ? maxFuelRaw / 3.78541 : maxFuelRaw;
+
+    // ── Fuel strategist suggestion ──
+    var fuelHealth = parseInt(st('FuelHealthState')) || 0;
+    var fuelStratLaps = st('FuelLapsRemaining');
+    var shouldSuggestFuel = fuelHealth >= 2;
+
+    // Demo mode: simulate fuel strategist when fuel drops below 30%
+    if (_demo && !shouldSuggestFuel && fuelPct > 0 && fuelPct < 30) {
+      shouldSuggestFuel = true;
+      fuelStratLaps = fuelLaps > 0 ? fuelLaps.toFixed(0) : null;
+    }
+
+    if (shouldSuggestFuel !== _fuelStratVisible) {
+      _fuelStratVisible = shouldSuggestFuel;
+      if (_els.fuelStratSuggest) {
+        _els.fuelStratSuggest.classList.toggle('hidden', !shouldSuggestFuel);
+      }
+      // Reset accepted state when suggestion changes
+      if (!shouldSuggestFuel) {
+        _fuelAccepted = false;
+        if (_els.fuelVal) _els.fuelVal.classList.remove('accepted');
+        if (_els.fuelAddBar) _els.fuelAddBar.classList.remove('active');
+      }
+    }
+    if (shouldSuggestFuel && _els.fuelStratLabel) {
+      var fuelLapsStr = (fuelStratLaps != null && fuelStratLaps !== '')
+        ? ' · ~' + Math.round(parseFloat(fuelStratLaps)) + ' laps left'
+        : '';
+      _els.fuelStratLabel.textContent = 'Accept fuel stop' + fuelLapsStr;
+    }
+
+    // Tank gauge bar — full width = full tank capacity
     if (_els.fuelBar) {
       _els.fuelBar.style.width = Math.min(100, fuelPct) + '%';
-      _els.fuelBar.className = 'pb-fuel-bar-fill' +
+      _els.fuelBar.className = 'pb-fuel-tank-fill' +
         (fuelPct < 10 ? ' crit' : fuelPct < 25 ? ' warn' : '');
     }
+
+    // Pit-add ghost overlay on the bar
+    if (_els.fuelAddBar && maxFuelRaw > 0) {
+      // Parse the numeric pit fuel add from the display string
+      var pitAddMatch = fuelDisplay.match(/[\d.]+/);
+      var pitAddVal = pitAddMatch ? parseFloat(pitAddMatch[0]) : 0;
+      // Convert back to liters if imperial for percentage calculation
+      var pitAddLiters = units === 0 ? pitAddVal * 3.78541 : pitAddVal;
+      var pitAddPct = maxFuelRaw > 0 ? (pitAddLiters / maxFuelRaw) * 100 : 0;
+      if (fuelRequested && pitAddPct > 0) {
+        _els.fuelAddBar.style.left = Math.min(100, fuelPct) + '%';
+        _els.fuelAddBar.style.width = Math.min(100 - fuelPct, pitAddPct) + '%';
+      } else {
+        _els.fuelAddBar.style.width = '0%';
+      }
+    }
+
+    // Labels: current level + tank capacity
     if (_els.fuelLevel) _els.fuelLevel.textContent = fuelFormatted;
-    if (_els.fuelUnit) _els.fuelUnit.textContent = unitLabel;
+    if (_els.fuelCap) {
+      _els.fuelCap.textContent = maxFuelDisplay > 0
+        ? '/ ' + maxFuelDisplay.toFixed(1) + ' ' + unitLabel + ' tank'
+        : '';
+    }
     if (_els.fuelPerLap) _els.fuelPerLap.textContent = fuelPerLap;
     if (_els.fuelLaps) {
       _els.fuelLaps.textContent = fuelLaps > 0 && fuelLaps < 99
-        ? fuelLaps.toFixed(1) : '—';
+        ? fuelLaps.toFixed(1) : (inPitLane ? _lastFuelLaps : '—');
     }
     // Pit fuel add
     if (_els.fuelVal) {
       _els.fuelVal.textContent = fuelRequested ? fuelDisplay : 'OFF';
-      _els.fuelVal.className = 'pb-value ' + (fuelRequested ? 'active' : 'inactive');
+      var fuelValClass = 'pb-value selectable';
+      if (fuelRequested) fuelValClass += ' active';
+      else fuelValClass += ' inactive';
+      if (_fuelAccepted) fuelValClass += ' accepted';
+      _els.fuelVal.className = fuelValClass;
       checkAndFlash('fuel', fuelDisplay + '|' + fuelRequested, _els.fuelVal.parentElement);
     }
 
@@ -12328,28 +12635,26 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (pbInc !== _lastIncrement)  { _lastIncrement = pbInc;  /* TODO: increment focused value */ }
       if (pbDec !== _lastDecrement)  { _lastDecrement = pbDec;  /* TODO: decrement focused value */ }
-      if (pbTog !== _lastToggle) { _lastToggle = pbTog; /* TODO: toggle focused element on/off */ }
+      // Wheel Toggle button — on tyre tab, toggles tire selection
+      if (pbTog !== _lastToggle) {
+        _lastToggle = pbTog;
+        var togTabEl = document.querySelector('.pb-tab.active');
+        var togTabKey = togTabEl ? togTabEl.dataset.pbTab : '';
+        if (togTabKey === 'tyres' && _tireSelectable) {
+          if (_tireFocusIdx === -1) {
+            // Focus is on strategist button — accept (select all)
+            selectAllTires();
+          } else if (_tireFocusIdx >= 0 && _tireFocusIdx < 4) {
+            toggleTire(_tireFocusIdx);
+          }
+        }
+      }
     }
 
     // Enable flash detection after first full frame
     if (!_initialized) _initialized = true;
   };
 
-  // ── Tire update helper ──
-  function updateTire(pos, statusEl, pressEl, isChanging, pressStr) {
-    if (statusEl) {
-      statusEl.textContent = isChanging ? 'CHANGE' : 'KEEP';
-      statusEl.className = 'pb-tire-status ' + (isChanging ? 'changing' : 'keeping');
-    }
-    if (pressEl) {
-      var p = pressStr || '—';
-      pressEl.textContent = isChanging ? p : '—';
-      pressEl.style.opacity = isChanging ? '1' : '0.3';
-    }
-    var key = 'tire' + pos;
-    var val = (isChanging ? 1 : 0) + '|' + pressStr;
-    checkAndFlash(key, val, statusEl ? statusEl.parentElement : null);
-  }
 
   function updateToggle(key, el, isOn) {
     if (!el) return;
@@ -18691,10 +18996,10 @@ document.addEventListener('DOMContentLoaded', function () {
       liveDeltaEl.textContent = '';
     }
 
-    // Sectors — prefer cloud-configured count (from poll-engine _sectorData), fall back to plugin prop
+    // Sectors — use cloud-configured count only (no SimHub fallback)
     var curSector = +(p[dsPre + 'CurrentSector']) || 1;
     var cloudSectors = window._sectorData && window._sectorData.sectorCount;
-    var sectorCount = cloudSectors || +(p[dsPre + 'SectorCount']) || 3;
+    var sectorCount = cloudSectors || 0;
     var splitsStr = p[dsPre + 'SectorSplits'] || '';
     var splits, deltas, states;
     if (splitsStr) {
@@ -18790,7 +19095,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Track map — local zoom view centered on player + opponents
     var mapReady = +v('RaceCorProDrive.Plugin.TrackMap.Ready') || 0;
     if (mapReady) {
-      var svgPath = (p['RaceCorProDrive.Plugin.TrackMap.SvgPath'] || '');
+      var _dhTrackName = (p['RaceCorProDrive.Plugin.TrackMap.TrackName']
+                       || p['DataCorePlugin.GameData.TrackName'] || '');
+      // ONLY use web API SVG — never fall back to plugin's local SimHub recording
+      var svgPath = (window._trackApiSvgCache && window._trackApiSvgCache[_dhTrackName]) || '';
       var dhTrack = document.getElementById('dhMapTrack');
       if (dhTrack && svgPath && dhTrack.getAttribute('d') !== svgPath) {
         dhTrack.setAttribute('d', svgPath);
@@ -19003,7 +19311,61 @@ document.addEventListener('DOMContentLoaded', function () {
   const _trackDisplayNameCache = {};    // { gameTrackName → displayName }
   const _trackSectorCountCache = {};   // { gameTrackName → sectorCount (3 or 7) }
   const _trackDisplayNamePending = {};  // { gameTrackName → true } (in-flight requests)
+  // Exposed on window so drive-hud.js can also prefer API track maps
+  const _trackApiSvgCache = window._trackApiSvgCache = {}; // { gameTrackName → svgPath from rawCsv }
   const K10_DISPLAY_NAME_API = 'https://prodrive.racecor.io/api/tracks';
+
+  // ─── CSV → SVG conversion (mirrors C# TrackMapProvider + track-svg.ts) ───
+  // When the web API has authoritative rawCsv data, we convert it here so the
+  // overlay can prefer it over the plugin's locally-cached track recording.
+  function _csvToSvgPath(csv) {
+    var lines = csv.trim().split('\n');
+    var pts = [];
+    for (var i = 0; i < lines.length; i++) {
+      var parts = lines[i].split(',');
+      if (parts.length < 3) continue;
+      var x = parseFloat(parts[0]), z = parseFloat(parts[1]), pct = parseFloat(parts[2]);
+      if (isNaN(x) || isNaN(z)) continue;
+      // Skip degenerate sentinel points SimHub writes at lap end
+      if (x === 0 && z === 0 && pct > 0.99) continue;
+      pts.push({ x: x, y: z, p: isNaN(pct) ? 0 : pct });
+    }
+    if (pts.length < 10) return '';
+
+    // Normalize to 0–100 viewBox with 5% padding (uniform scale)
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (var j = 0; j < pts.length; j++) {
+      if (pts[j].x < minX) minX = pts[j].x;
+      if (pts[j].x > maxX) maxX = pts[j].x;
+      if (pts[j].y < minY) minY = pts[j].y;
+      if (pts[j].y > maxY) maxY = pts[j].y;
+    }
+    var rangeX = maxX - minX || 1, rangeY = maxY - minY || 1;
+    var scale = 90.0 / Math.max(rangeX, rangeY);
+    var offX = (100.0 - rangeX * scale) / 2.0;
+    var offY = (100.0 - rangeY * scale) / 2.0;
+    for (var k = 0; k < pts.length; k++) {
+      pts[k].x = (pts[k].x - minX) * scale + offX;
+      pts[k].y = (pts[k].y - minY) * scale + offY;
+    }
+
+    // Catmull-Rom → cubic Bézier spline
+    var f = function(n) { return n.toFixed(2); };
+    var path = 'M ' + f(pts[0].x) + ',' + f(pts[0].y);
+    var len = pts.length;
+    for (var m = 0; m < len; m++) {
+      var p0 = pts[(m - 1 + len) % len];
+      var p1 = pts[m];
+      var p2 = pts[(m + 1) % len];
+      var p3 = pts[(m + 2) % len];
+      var cx1 = p1.x + (p2.x - p0.x) / 6.0;
+      var cy1 = p1.y + (p2.y - p0.y) / 6.0;
+      var cx2 = p2.x - (p3.x - p1.x) / 6.0;
+      var cy2 = p2.y - (p3.y - p1.y) / 6.0;
+      path += ' C ' + f(cx1) + ',' + f(cy1) + ' ' + f(cx2) + ',' + f(cy2) + ' ' + f(p2.x) + ',' + f(p2.y);
+    }
+    return path + ' Z';
+  }
 
   function resolveTrackDisplayName(gameTrackName) {
     if (_trackDisplayNameCache[gameTrackName] || _trackDisplayNamePending[gameTrackName]) return;
@@ -19013,13 +19375,32 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(function(data) {
         // displayName from API already falls back to trackName server-side
         _trackDisplayNameCache[gameTrackName] = (data && data.displayName) || gameTrackName;
-        // Cache sector count from API (default 3 if not present)
-        _trackSectorCountCache[gameTrackName] = (data && data.sectorCount) || 3;
+        // Cache sector count from API (0 if not present — don't assume 3)
+        _trackSectorCountCache[gameTrackName] = (data && data.sectorCount) || 0;
+        // Prefer pre-built SVG from the API (authoritative, curated data).
+        // Falls back to building from rawCsv if svgPath isn't returned.
+        // This overrides the plugin's local track recording (which may be stale/corrupt).
+        if (data && data.svgPath) {
+          _trackApiSvgCache[gameTrackName] = data.svgPath;
+          console.log('[K10] Track map override from web API for:', gameTrackName,
+            '(' + data.svgPath.length + ' chars)');
+        } else if (data && data.rawCsv) {
+          try {
+            var apiSvg = _csvToSvgPath(data.rawCsv);
+            if (apiSvg) {
+              _trackApiSvgCache[gameTrackName] = apiSvg;
+              console.log('[K10] Track map override from rawCsv for:', gameTrackName,
+                '(' + apiSvg.length + ' chars)');
+            }
+          } catch (e) {
+            console.warn('[K10] Failed to convert API rawCsv to SVG for', gameTrackName, e);
+          }
+        }
       })
       .catch(function() {
-        // API unreachable — use the game name and default sectors
+        // API unreachable — use the game name, no assumed sectors
         _trackDisplayNameCache[gameTrackName] = gameTrackName;
-        _trackSectorCountCache[gameTrackName] = 3;
+        _trackSectorCountCache[gameTrackName] = 0;
       })
       .finally(function() {
         delete _trackDisplayNamePending[gameTrackName];
@@ -19148,10 +19529,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Expose rolling/formation start state for leaderboard sparklines
     window._isRollingStart = (sessNum === 2 || sessNum === 3); // Warmup or ParadeLaps
 
-    // Idle detection: use REAL session state (not demo-swapped) so the overlay
-    // stays logo-only when no game is actually running, regardless of demo mode.
+    // Idle detection: show logo-only when no game is running AND not in demo mode.
+    // Demo mode should always show the full HUD so the overlay can be previewed.
     // Pre-race states (1=GetInCar, 2=Warmup, 3=ParadeLaps) keep the HUD active.
-    const nowIdle = !gameRunning || realSessNum === 0;
+    const nowIdle = !_demo && (!gameRunning || realSessNum === 0);
     const idleLogo = document.getElementById('idleLogo');
     if (nowIdle !== _isIdle) {
       _isIdle = nowIdle;
@@ -19168,6 +19549,10 @@ document.addEventListener('DOMContentLoaded', function () {
         // Session going active — reveal HUD from logo-only startup
         if (typeof revealFromLogoOnly === 'function') revealFromLogoOnly();
       }
+      // Notify main process so it can switch window mode (taskbar, always-on-top)
+      if (window.k10 && window.k10.notifyIdleState) {
+        window.k10.notifyIdleState(nowIdle);
+      }
     }
     // Skip rest of update in idle (except settings remain responsive)
     // Periodically refresh race ideas while idle (every 5 min)
@@ -19177,7 +19562,11 @@ document.addEventListener('DOMContentLoaded', function () {
         refreshNextRaceIdeas();
       }
     }
-    if (_isIdle) { _pollActive = false; return; }
+    // Moza hardware status must update even when idle — user may open
+    // settings to configure hardware without being in a race session.
+    if (window.updateMozaStatus) window.updateMozaStatus(p);
+
+    if (_isIdle) return;
 
     // ─── Gear / Speed / RPM ───
     const gear = ds('DataCorePlugin.GameData.Gear', 'Demo.Gear') || 'N';
@@ -19245,6 +19634,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ─── Pedal curve overlay (response curves from active profile) ───
     if (window.updatePedalCurves) window.updatePedalCurves(p);
+
+    // Moza status update moved before idle return (see above)
 
     // ─── WebGL FX update ───
     if (window.updateGLFX) window.updateGLFX(rpmRatio, thr, brk, clt);
@@ -19683,7 +20074,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const ratVals = document.querySelectorAll('.rating-value');
-    if (ratVals.length >= 2) { ratVals[0].textContent = ir > 0 ? ir : '—'; ratVals[1].textContent = sr > 0 ? sr.toFixed(2) : '—'; }
+    if (ratVals.length >= 2) { ratVals[0].textContent = ir > 0 ? (ir >= 1000 ? (ir / 1000).toFixed(1) + 'k' : String(ir)) : '—'; ratVals[1].textContent = sr > 0 ? sr.toFixed(2) : '—'; }
     updateIRBar(ir);
     updateSRPie(sr);
 
@@ -19743,11 +20134,11 @@ document.addEventListener('DOMContentLoaded', function () {
       const curSector = +(p[dsPre + 'CurrentSector']) || 1;
       const lapDelta = +(p[dsPre + 'LapDelta']) || 0;
 
-      // Sector count: use cloud-configured value from K10 API, fall back to 3
+      // Sector count: use cloud-configured value from K10 API only (no fallback)
       const _gameTrack = p['RaceCorProDrive.Plugin.TrackMap.TrackName']
                       || p['DataCorePlugin.GameData.TrackName'] || '';
       if (_gameTrack) resolveTrackDisplayName(_gameTrack); // ensure API call fires
-      const sectorCount = (_gameTrack && _trackSectorCountCache[_gameTrack]) || 3;
+      const sectorCount = (_gameTrack && _trackSectorCountCache[_gameTrack]) || 0;
 
       // Build sector arrays from plugin data (pad to sectorCount)
       const splits = [], deltas = [], states = [];
@@ -20048,12 +20439,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ─── Track map ───
     const mapReady = +v('RaceCorProDrive.Plugin.TrackMap.Ready') || 0;
-    const mapPath = mapReady ? (vs('RaceCorProDrive.Plugin.TrackMap.SvgPath') || '') : '';
+    const pluginPath = mapReady ? (vs('RaceCorProDrive.Plugin.TrackMap.SvgPath') || '') : '';
     const mapPX   = +v('RaceCorProDrive.Plugin.TrackMap.PlayerX') || 50;
     const mapPY   = +v('RaceCorProDrive.Plugin.TrackMap.PlayerY') || 50;
     const mapOpp  = vs('RaceCorProDrive.Plugin.TrackMap.Opponents') || '';
     const mapHeading = +v('RaceCorProDrive.Plugin.TrackMap.PlayerHeading') || 0;
-    // Use plugin path if available; show no track when map isn't ready
+    // ONLY use web API track maps — never fall back to plugin's local SimHub recording.
+    // SimHub .shtl recordings are often stale/corrupt (e.g. Nordschleife teleport lines).
+    const _curTrackName = vs('RaceCorProDrive.Plugin.TrackMap.TrackName')
+                       || vs('DataCorePlugin.GameData.TrackName') || '';
+    const mapPath = _trackApiSvgCache[_curTrackName] || '';
     try { updateTrackMap(mapPath, mapPX, mapPY, mapOpp, speed, mapHeading); } catch(e) { console.error('[K10] Track map error:', e); }
     // Full map label: show display name (from K10 API) or fall back to game name
     const fullMapLbl = document.getElementById('fullMapLabel');
@@ -20144,6 +20539,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ─── Drive HUD ───
     try { if (window.updateDriveHud) window.updateDriveHud(p, !!_demo); } catch(e) { console.error('[K10] Drive HUD error:', e); }
+
+    // ─── Telemetry sidecar (write frame when recording) ───
+    try {
+      if (typeof window.sidecarCaptureFrame === 'function' && typeof window.recorderIsRecording === 'function' && window.recorderIsRecording()) {
+        window.sidecarCaptureFrame(p, !!_demo);
+      }
+    } catch(e) { console.error('[K10] Sidecar error:', e); }
+
+    // ─── Auto-record triggers (Phase 4) ───
+    try {
+      if (typeof window.checkAutoRecordTriggers === 'function') {
+        window.checkAutoRecordTriggers(p, !!_demo, _inPitLane, sessNum, serverEndOfRace);
+      }
+    } catch(e) { console.error('[K10] Auto-record error:', e); }
 
     } catch (err) {
       console.error('[K10 render] Error in frame #' + _pollFrame + ':', err);

@@ -444,7 +444,13 @@ export default function TracksSection() {
       const res = await fetch('/api/iracing/consolidate-tracks', { method: 'POST' })
       const data = await res.json()
       if (data.success) {
-        setConsolidateResult(`Updated ${data.updated ?? 0} sessions. ${data.unmatchedTracks?.length ?? 0} unmatched tracks.`)
+        const parts: string[] = []
+        const t = data.tracks
+        if (t?.updated) parts.push(`${t.updated} tracks fixed`)
+        if (t?.unmatchedTracks?.length) parts.push(`${t.unmatchedTracks.length} unmatched`)
+        if (data.categoriesMerged) parts.push(`${data.categoriesMerged} categories merged`)
+        if (data.bogusRatingsDeleted) parts.push(`${data.bogusRatingsDeleted} bogus ratings removed`)
+        setConsolidateResult(parts.length > 0 ? parts.join(' · ') : 'Everything looks clean — no changes needed.')
         fetchTracks()
       } else {
         setConsolidateResult(`Error: ${data.error}`)
@@ -553,8 +559,9 @@ export default function TracksSection() {
                     color: 'var(--text-primary)',
                   }}
                 >
-                  {consolidateStatus === 'running' ? 'Fixing...' : 'Fix Track Names'}
+                  {consolidateStatus === 'running' ? 'Consolidating...' : 'Consolidate Data'}
                 </button>
+                <p className="text-xs text-[var(--text-dim)] mt-1">Fix track names · merge sports car → road · remove bogus practice ratings</p>
                 {consolidateResult && (
                   <p className="text-xs text-[var(--text-muted)] mt-1.5">{consolidateResult}</p>
                 )}

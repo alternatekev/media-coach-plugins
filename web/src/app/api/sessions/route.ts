@@ -115,8 +115,15 @@ export async function POST(request: NextRequest) {
       }
     }).returning()
 
-    // Only insert rating history and update driverRatings for iRacing sessions with valid ratings
-    if (isIRacing && (preRaceIRating > 0 || preRaceSR > 0)) {
+    // Only insert rating history and update driverRatings for iRacing RACE sessions
+    // with real ratings. Practice/qualifying sessions often report iRating 1 / SR 0.01
+    // which are placeholder values — skip those entirely.
+    const isPracticeOrQual = (sessionType || '').toLowerCase().includes('practice')
+      || (sessionType || '').toLowerCase().includes('qual')
+      || (sessionType || '').toLowerCase().includes('warmup')
+    const hasRealRatings = preRaceIRating > 100 && preRaceSR > 0.5
+
+    if (isIRacing && !isPracticeOrQual && hasRealRatings) {
       await db.insert(schema.ratingHistory).values({
         userId: result.user.id,
         category: _detectCategory(sessionType),
@@ -129,8 +136,8 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Update current ratings only for iRacing sessions with valid ratings
-    if (isIRacing && preRaceIRating > 0) {
+    // Update current ratings only for iRacing race sessions with real ratings
+    if (isIRacing && !isPracticeOrQual && hasRealRatings) {
       const category = _detectCategory(sessionType)
       const existing = await db.select().from(schema.driverRatings)
         .where(eq(schema.driverRatings.userId, result.user.id))

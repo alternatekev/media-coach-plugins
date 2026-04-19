@@ -61,12 +61,23 @@ All nine sections wired against the shared form primitives
 - [x] RaceRules (incident thresholds, flag override)
 - [x] Modes (rally, drive)
 
-### Phase C — Overlay cleanup (follow-up)
+### Phase C — Beta cycle (run both UIs side-by-side)
+
+Decision: keep the legacy overlay settings panel in place for one beta cycle so
+users can fall back if the web admin surface has rough edges. Migration of the
+actual cleanup is deferred to a follow-up branch after beta feedback lands.
+
+- [x] Add "Settings have moved" banner at the top of the overlay settings panel
+- [x] Banner "Open web admin" button calls `k10.openDashboard('/drive/admin/overlay-settings')`
+- [x] `openDashboard(path)` accepts an optional route so we can deep-link into the new settings page
+- [ ] Collect beta feedback on web admin UX (naming, grouping, missing fields)
+
+### Phase C′ — Overlay cleanup (after beta)
 
 - [ ] Remove settings sections from `dashboard.html` (keep Connections / Moza / Recording)
 - [ ] Gut `settings.js` (keep quick-settings strip only)
 - [ ] Build quick-settings strip (visualPreset, zoom, webGL, leaderboard/commentary quick toggles)
-- [ ] Update overlay "Settings" button to `k10.openDashboard('/drive/admin/overlay-settings')`
+- [ ] Replace overlay "Settings" button with a direct `k10.openDashboard('/drive/admin/overlay-settings')` call
 
 ### Phase D — Verification
 

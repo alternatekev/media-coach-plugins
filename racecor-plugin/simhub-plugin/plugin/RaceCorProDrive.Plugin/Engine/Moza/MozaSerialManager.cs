@@ -365,14 +365,14 @@ namespace RaceCorProDrive.Plugin.Engine.Moza
                         testPort.Dispose();
                         portOpenStatus = "Open";
                     }
+                    catch (System.IO.FileNotFoundException)
+                    {
+                        portOpenStatus = "NotFound";
+                    }
                     catch (System.IO.IOException ex)
                     {
                         portOpenStatus = "AccessDenied";
                         portOpenError = ex.Message;
-                    }
-                    catch (System.IO.FileNotFoundException)
-                    {
-                        portOpenStatus = "NotFound";
                     }
                     catch (Exception ex)
                     {

@@ -672,25 +672,47 @@ namespace RaceCorProDrive.Plugin.Engine.Moza
         }
 
         /// <summary>
-        /// Checks if Pit House is running (serial port conflict warning).
+        /// Checks for processes that commonly hold Moza COM ports open. PitHouse
+        /// UI is the obvious one, but closing the UI leaves PitHouse's background
+        /// service and Moza's sync daemon running — they keep the port locked.
+        /// Users who reported "PitHouse is closed but Moza still doesn't work"
+        /// were usually hitting one of these.
         /// </summary>
+        private static readonly string[] PitHouseProcessCandidates = new[]
+        {
+            "PitHouse",              // main UI
+            "MozaBackgroundSystem",  // sync daemon, keeps running after UI close
+            "MozaService",           // some installers register this as a service helper
+            "MozaUsbGateway",        // USB bridge, holds devices for the daemon
+            "Nextmotion",            // older Moza companion
+        };
+
         private void CheckForPitHouse()
         {
             try
             {
-                var processes = System.Diagnostics.Process.GetProcessesByName("PitHouse");
-                if (processes.Length > 0)
+                var offenders = new List<string>();
+                foreach (var name in PitHouseProcessCandidates)
                 {
-                    PitHouseWarning = "Moza Pit House is running — it may hold serial ports open, preventing direct hardware access.";
+                    var processes = System.Diagnostics.Process.GetProcessesByName(name);
+                    if (processes.Length > 0)
+                    {
+                        offenders.Add(name + ".exe");
+                        foreach (var p in processes) p.Dispose();
+                    }
+                }
+
+                if (offenders.Count > 0)
+                {
+                    PitHouseWarning = "Moza software is running and holding serial ports: "
+                        + string.Join(", ", offenders)
+                        + ". Quit these processes (Pit House + its background service) so the plugin can access the hardware.";
                     _logWarn($"[MozaSerial] {PitHouseWarning}");
                 }
                 else
                 {
                     PitHouseWarning = "";
                 }
-
-                foreach (var p in processes)
-                    p.Dispose();
             }
             catch { /* ignore — process enumeration can fail */ }
         }

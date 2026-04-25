@@ -12,6 +12,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="MessagePack" Version="2.5.187" />
   </ItemGroup>
 
   <ItemGroup>

@@ -70,6 +70,10 @@ namespace RaceCorProDrive.Plugin
         private HttpListener _httpListener;
         private Thread _httpThread;
 
+        // WebSocket telemetry server — exposes plugin state on port 8890 for overlay
+        private Transport.WsServer _wsServer;
+        private Transport.WsTelemetryPublisher _wsPublisher;
+
         // Pitbox wheel button counters — each incremented by a SimHub action,
         // read by dashboard each poll frame to detect changes.
         private volatile int _pitboxTabCycle = 0;
@@ -371,6 +375,21 @@ namespace RaceCorProDrive.Plugin
             // Start local HTTP server for Homebridge integration
             StartHttpServer();
 
+            // Start WebSocket server for overlay (port 8890, PR 5 migrates to 8889)
+            try
+            {
+                _wsServer = new Transport.WsServer(8890, "/racecor");
+                _wsServer.Start();
+                _wsPublisher = new Transport.WsTelemetryPublisher(_wsServer);
+                SimHub.Logging.Current.Info("[RaceCorProDrive] WebSocket telemetry server started on port 8890");
+            }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Warn($"[RaceCorProDrive] WebSocket server failed to start: {ex.Message}");
+                _wsServer = null;
+                _wsPublisher = null;
+            }
+
             SimHub.Logging.Current.Info("[RaceCorProDrive] Initialisation complete");
         }
 
@@ -479,6 +498,31 @@ namespace RaceCorProDrive.Plugin
                     _current.IsInPitLane);
             }
 
+            // Publish telemetry via WebSocket (every frame for real-time overlay)
+            if (_wsPublisher != null)
+            {
+                try
+                {
+                    var telemetryDict = Transport.TelemetryFrame.BuildDict(
+                        _current,
+                        Settings.DemoMode,
+                        _engine,
+                        _strategy,
+                        _incidentCoach,
+                        _trackMap,
+                        new[] { _pitboxTabCycle, _pitboxTabCycleBack, _pitboxNext, _pitboxPrev, _pitboxIncrement, _pitboxDecrement, _pitboxToggle },
+                        _leaderboardJson,
+                        _screenColorSampler,
+                        _mozaSerial,
+                        _pedalProfiles);
+                    _wsPublisher.Tick(telemetryDict);
+                }
+                catch (Exception ex)
+                {
+                    SimHub.Logging.Current.Warn($"[RaceCorProDrive] WebSocket telemetry tick failed: {ex.Message}");
+                }
+            }
+
             // Only run commentary evaluation every N frames
             _frameCount++;
             if (_frameCount < EvalEveryNFrames) return;
@@ -539,6 +583,7 @@ namespace RaceCorProDrive.Plugin
             _mozaSerial?.Dispose();
             _incidentCoach?.End();
             StopHttpServer();
+            _wsServer?.Stop();
             this.SaveCommonSettings("GeneralSettings", Settings);
             SimHub.Logging.Current.Info("[RaceCorProDrive] Plugin stopped, settings saved");
         }

@@ -48,6 +48,10 @@
     <!-- log4net + Newtonsoft.Json via NuGet so CI doesn't need SimHub installed -->
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <!-- WebSocket server (pure-managed, net48 compatible) -->
+    <PackageReference Include="Fleck" Version="1.2.0" />
+    <!-- MessagePack serialization (stay on 2.5.x for net48 compatibility) -->
+    <PackageReference Include="MessagePack" Version="2.5.187" />
   </ItemGroup>
 
   <!-- WinForms — needed for FolderBrowserDialog in settings panel -->

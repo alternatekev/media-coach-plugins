@@ -26,13 +26,6 @@ dist/
 # ── Plugin CI build output ────────────────────────────────────────
 racecor-plugin/build/
 
-# ── Installer build artifacts ──────────────────────────────────────
-installer/output/
-installer/staging/
-
-# ── Electron-builder output (dist/ already covered, but be explicit)
-racecor-overlay/dist/
-
 # ── Claude / MCP config (may contain API tokens) ─────────────────
 .claude/
 .vercel

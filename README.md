@@ -6,7 +6,7 @@
 
 ![Dashboard](racecor-plugin/simhub-plugin/docs/dashboard-screenshot.png)
 
-RaceCor.io ProDrive, built under the K10 Motorsports brand, is a broadcast-grade sim racing platform for iRacing that turns raw telemetry into real-time strategic coaching and cinematic visuals — a SimHub plugin written in C# captures 100+ telemetry properties, runs them through tire lifecycle, fuel, pit strategy, and opponent-tracking modules, evaluates 33+ commentary triggers, and serves everything as a flat JSON API on localhost:8889; an Electron overlay polls that API at 30fps and renders the data as a frameless, click-through, always-on-top HUD with WebGL2 post-processing effects (glare, bloom, ambient light sampling, g-force vignette), a full-field leaderboard, an SVG track map, a pitbox strategy panel, and a composable AI commentary system built from 240+ pre-generated Claude Haiku prompt fragments that fire based on race severity; a Homebridge plugin maps flag and event telemetry to HomeKit smart lights in real time; a Next.js 16 web app handles two domains — a marketing site at k10motorsports.racing and a Discord-authenticated Pro Drive members area at prodrive.racecor.io with driver performance dashboards, iRating/Safety Rating tracking across all iRacing categories, session debrief, composure and behavior coaching (grounded in academic aggression research), and an admin design-token editor that generates CSS consumed by the overlay's 12 F1-themed visual modes; and the whole thing ships as a single Windows installer with auto-update, backed by 400+ tests across C#, Jest, Python, and Playwright, with the v1.0 roadmap targeting live Claude Haiku commentary at 200–400ms latency and a second phase of opponent-intelligence pit optimization.
+RaceCor.io ProDrive, built under the K10 Motorsports brand, is a broadcast-grade sim racing platform for iRacing that turns raw telemetry into real-time strategic coaching and cinematic visuals — a SimHub plugin written in C# captures 100+ telemetry properties, runs them through tire lifecycle, fuel, pit strategy, and opponent-tracking modules, evaluates 33+ commentary triggers, and serves everything as a flat JSON API on localhost:8889; an Electron overlay polls that API at 30fps and renders the data as a frameless, click-through, always-on-top HUD with WebGL2 post-processing effects (glare, bloom, ambient light sampling, g-force vignette), a full-field leaderboard, an SVG track map, a pitbox strategy panel, and a composable AI commentary system built from 240+ pre-generated Claude Haiku prompt fragments that fire based on race severity; a companion [prodrive-homebridge](https://github.com/k10-motorsports/prodrive-homebridge) plugin maps flag and event telemetry to HomeKit smart lights in real time; a Next.js 16 web app handles two domains — a marketing site at k10motorsports.racing and a Discord-authenticated Pro Drive members area at prodrive.racecor.io with driver performance dashboards, iRating/Safety Rating tracking across all iRacing categories, session debrief, composure and behavior coaching (grounded in academic aggression research), and an admin design-token editor that generates CSS consumed by the overlay's 12 F1-themed visual modes; and the whole thing ships as a single Windows installer with auto-update, backed by 400+ tests across C#, Jest, Python, and Playwright, with the v1.0 roadmap targeting live Claude Haiku commentary at 200–400ms latency and a second phase of opponent-intelligence pit optimization.
 
 Cross-game support via SimHub's telemetry abstraction.
 
@@ -14,16 +14,16 @@ Cross-game support via SimHub's telemetry abstraction.
 
 RaceCorProDrive spans two repositories:
 
-- **This repo** (`alternatekev/k10-motorsports`, open source): SimHub plugin, Electron overlay, Homebridge plugin, installer, MCP agents, docs.
-- **`alternatekev/racecor-prodrive-server`** (closed source): the marketing site at [racecorprodrive.racing](https://racecorprodrive.racing), the Discord-authenticated Pro Drive members area at [prodrive.racecor.io](https://prodrive.racecor.io), mock telemetry server, and the shared component library.
+- **This repo** (`k10-motorsports/prodrive-plugin`, open source): SimHub plugin, Electron overlay, installer, MCP agents, docs.
+- **[`k10-motorsports/prodrive-homebridge`](https://github.com/k10-motorsports/prodrive-homebridge)**: Homebridge plugin that maps telemetry to HomeKit smart lights.
+- **[`k10-motorsports/prodrive-edit`](https://github.com/k10-motorsports/prodrive-edit)**: AI-powered race editing pipeline — telemetry-driven camera switching and race condensing.
+- **`k10-motorsports/prodrive-server`** (closed source): the marketing site at [racecorprodrive.racing](https://racecorprodrive.racing), the Discord-authenticated Pro Drive members area at [prodrive.racecor.io](https://prodrive.racecor.io), mock telemetry server, and the shared component library.
 
-This README covers the open-source rig-side tooling:
+This README covers the rig-side tooling in this repo:
 
 **A SimHub plugin** that processes raw telemetry at ~100ms intervals — evaluating 33+ trigger conditions, tracking tire wear and fuel consumption, computing sector splits, estimating iRating, normalizing cross-game data, and serving everything over HTTP as a flat JSON API.
 
 **An Electron overlay** that renders that telemetry as a transparent, always-on-top HUD with WebGL post-processing effects, ambient light sampling, drive mode, leaderboard, and a modular panel system — 28+ JavaScript modules, no build step, running at ~30fps.
-
-**A Homebridge plugin** that maps the same telemetry to Apple HomeKit smart lights, so your room reacts to race flags, proximity warnings, and event severity in real-time.
 
 ## Feature Highlights
 
@@ -52,10 +52,6 @@ The overlay renders as a frameless, click-through, always-on-top window with nat
 **Visual Effects** — A WebGL2 fragment shader system provides glare, bloom pulse, light sweep, panel glow, dome specular highlights, g-force vignette, and RPM redline effects. An ambient light engine samples a configurable screen region at ~4fps and uses LERP interpolation to drive CSS variable updates across all panels for reactive glass refraction effects.
 
 **Drive HUD Mode** — A fullscreen driving-focused mode (Ctrl+Shift+F) showing only track map, sectors, lap delta, position, spotter, and incident count — designed for direct racing without stream production elements.
-
-### Homebridge HomeKit Lights (TypeScript)
-
-Maps telemetry to HomeKit light colors in real-time. Three modes: flags only (green/yellow/red/blue/white/debris), events only (proximity-based coloring), or combined (flags → severity → proximity priority chain). Supports blinking effects for urgent situations, per-light mode overrides, and multiple independent lights.
 
 ### Web (Next.js 16)
 
@@ -89,26 +85,7 @@ Build from source: **[racecor-plugin/simhub-plugin/docs/DEVELOPMENT.md](racecor-
 
 ### Homebridge HomeKit Lights
 
-Prerequisites: [Homebridge](https://homebridge.io/) (v1.6+), Node.js 18+, SimHub web server enabled, at least one color-capable smart light.
-
-```bash
-cd racecor-plugin/homebridge-plugin && npm install && npm run build && npm link
-```
-
-Add the `RaceCorProDriveLights` platform to your Homebridge `config.json`:
-
-```json
-{
-  "platform": "RaceCorProDriveLights",
-  "name": "RaceCorProDrive Lights",
-  "simhubUrl": "http://localhost:8888",
-  "mode": "all_colors",
-  "enableBlink": true,
-  "lights": [{ "name": "Sim Rig Light", "uniqueId": "racecor-light-1" }]
-}
-```
-
-Full setup walkthrough with multi-light configuration and automation scripts: **[racecor-plugin/homebridge-plugin/docs/HOMEKIT.md](racecor-plugin/homebridge-plugin/docs/HOMEKIT.md)**
+The Homebridge plugin has moved to **[k10-motorsports/prodrive-homebridge](https://github.com/k10-motorsports/prodrive-homebridge)** — see that repo for installation and configuration.
 
 ## Repository Structure
 
@@ -135,7 +112,7 @@ Full setup walkthrough with multi-light configuration and automation scripts: **
 │   ├── data/                             Track + car research data
 │   ├── streamdeck/                       Elgato Stream Deck profile + icons
 │   └── images/                           Branding, car logos, country flags
-├── racecor-plugin/                       SimHub C# plugin + homebridge plugin
+├── racecor-plugin/                       SimHub C# plugin
 │   ├── simhub-plugin/                    SimHub plugin + data
 │   │   ├── plugin/RaceCorProDrive.Plugin/ C# source (.NET Framework 4.8, WPF)
 │   │   │   ├── Plugin.cs                 Entry point, HTTP server, action registration
@@ -156,9 +133,6 @@ Full setup walkthrough with multi-light configuration and automation scripts: **
 │   │   ├── tests/                        C# unit tests + Python dataset validation
 │   │   ├── tools/                        Telemetry replay, fragment generation
 │   │   └── DashTemplates/                SimHub dashboard templates
-│   └── homebridge-plugin/                Homebridge platform plugin (TypeScript)
-│       ├── src/__tests__/                Jest test suite (133 tests)
-│       └── docs/                         Homebridge-specific documentation
 ├── src/agents/                           MCP servers (Model Context Protocol)
 │   ├── simhub-telemetry/                 Live telemetry data reader
 │   ├── k10-plugin/                       Plugin source + dataset inspector
@@ -180,9 +154,8 @@ Full setup walkthrough with multi-light configuration and automation scripts: **
 | [AI_STRATEGIST_DESIGN.md](AI_STRATEGIST_DESIGN.md) | Strategy engine design — tire lifecycle, fuel strategy, pit optimizer, opponent intelligence |
 | **Dashboard Overlay** | |
 | [racecor-overlay/README.md](racecor-overlay/README.md) | Electron overlay setup, panel reference, architecture, drive mode, OBS, Stream Deck |
-| **Homebridge Plugin** | |
-| [HOMEBRIDGE_PLUGIN.md](racecor-plugin/homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md) | Platform architecture, color mapping, polling loop, per-light overrides |
-| [HOMEKIT.md](racecor-plugin/homebridge-plugin/docs/HOMEKIT.md) | Apple HomeKit setup, light modes, multi-light configuration, troubleshooting |
+| **Homebridge Plugin** (separate repo) | |
+| [prodrive-homebridge](https://github.com/k10-motorsports/prodrive-homebridge) | Homebridge plugin source, color mapping, polling loop, per-light overrides, HomeKit setup |
 | **Shared** | |
 | [DATASETS.md](racecor-plugin/simhub-plugin/docs/DATASETS.md) | Topic schema, trigger conditions, fragment format, how to add new topics |
 | [TESTING.md](racecor-plugin/simhub-plugin/docs/TESTING.md) | Test suites, CI integration |
@@ -198,10 +171,9 @@ cd racecor-plugin/simhub-plugin/tests/RaceCorProDrive.Tests && dotnet test
 
 # Python dataset validation (28 tests)
 python3 racecor-plugin/simhub-plugin/tests/validate_datasets.py
-
-# Homebridge Jest tests (133 tests)
-cd racecor-plugin/homebridge-plugin && npm test
 ```
+
+The Homebridge plugin's Jest test suite lives in [k10-motorsports/prodrive-homebridge](https://github.com/k10-motorsports/prodrive-homebridge).
 
 The C# test project uses standalone reimplementations of the plugin's engine logic (no SimHub dependencies), so it runs on any platform with the .NET 6.0 SDK.
 

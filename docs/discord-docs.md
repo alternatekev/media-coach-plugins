@@ -38,10 +38,12 @@ All project documentation on GitHub. Links go to the `main` branch.
 
 ## Homebridge Plugin (HomeKit Lighting)
 
-- [README](https://github.com/alternatekev/media-coach-simhub-plugin/blob/main/racecor-plugin/homebridge-plugin/README.md) — telemetry-to-HomeKit smart light mapping
-- [Implementation Summary](https://github.com/alternatekev/media-coach-simhub-plugin/blob/main/racecor-plugin/homebridge-plugin/docs/HOMEBRIDGE_IMPLEMENTATION.md) — platform plugin architecture and TypeScript structure
-- [Plugin Architecture](https://github.com/alternatekev/media-coach-simhub-plugin/blob/main/racecor-plugin/homebridge-plugin/docs/HOMEBRIDGE_PLUGIN.md) — detailed architecture with source file layout
-- [HomeKit Setup Guide](https://github.com/alternatekev/media-coach-simhub-plugin/blob/main/racecor-plugin/homebridge-plugin/docs/HOMEKIT.md) — connecting HomeKit lights with prerequisites and setup
+The Homebridge plugin lives in its own repo: **[k10-motorsports/prodrive-homebridge](https://github.com/k10-motorsports/prodrive-homebridge)**.
+
+- [README](https://github.com/k10-motorsports/prodrive-homebridge/blob/main/README.md) — telemetry-to-HomeKit smart light mapping
+- [Implementation Summary](https://github.com/k10-motorsports/prodrive-homebridge/blob/main/docs/HOMEBRIDGE_IMPLEMENTATION.md) — platform plugin architecture and TypeScript structure
+- [Plugin Architecture](https://github.com/k10-motorsports/prodrive-homebridge/blob/main/docs/HOMEBRIDGE_PLUGIN.md) — detailed architecture with source file layout
+- [HomeKit Setup Guide](https://github.com/k10-motorsports/prodrive-homebridge/blob/main/docs/HOMEKIT.md) — connecting HomeKit lights with prerequisites and setup
 
 ---
 

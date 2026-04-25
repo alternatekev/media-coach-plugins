@@ -58,46 +58,7 @@ Output goes directly to the SimHub folder with no target framework or runtime id
 
 ## Homebridge Plugin (TypeScript)
 
-### Prerequisites
-
-- Node.js 18+
-- [Homebridge](https://homebridge.io/) v1.6+
-- SimHub with the web server enabled (for runtime, not for building)
-
-### Building
-
-```bash
-cd homebridge-plugin
-npm install
-npm run build
-```
-
-This compiles TypeScript from `src/` to `dist/`. The compiled output is what Homebridge loads at runtime.
-
-### Development Workflow
-
-```bash
-# Watch mode — recompiles on file changes
-npm run watch
-
-# Link for local Homebridge development
-npm link
-
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Lint
-npm run lint
-```
-
-After `npm link`, restart Homebridge to pick up changes. The plugin is registered as `homebridge-racecor-lights` and uses the `RaceCorProDriveLights` platform alias.
-
-### Dependencies
-
-The plugin has zero runtime dependencies. All functionality uses Node.js built-in modules (`http` for SimHub API polling). Development dependencies are TypeScript, Jest, and the Homebridge type definitions.
+The Homebridge plugin lives in its own repo: **[k10-motorsports/prodrive-homebridge](https://github.com/k10-motorsports/prodrive-homebridge)**. See that repo's README for build, watch, link, and test instructions.
 
 ## Dataset Development
 
@@ -139,10 +100,9 @@ cd tests/RaceCorProDrive.Tests && dotnet test
 
 # Python dataset validation (28 tests)
 python3 tests/validate_datasets.py
-
-# Homebridge Jest tests (133 tests)
-cd homebridge-plugin && npm test
 ```
+
+The Homebridge plugin's Jest test suite lives in [k10-motorsports/prodrive-homebridge](https://github.com/k10-motorsports/prodrive-homebridge).
 
 ```bash
 # Installer and export tool tests (34 tests)
@@ -179,8 +139,6 @@ git commit -m "Update built plugin and dashboard"
 │   ├── Engine/                     Core logic (no manual edits to .csproj needed)
 │   ├── Models/                     Data models
 │   └── Properties/                 Assembly info
-├── homebridge-plugin/              Homebridge plugin source (TypeScript)
-│   └── src/__tests__/              Jest tests
 ├── racecorprodrive-data/                        Shared data files (JSON)
 ├── tests/
 │   ├── RaceCorProDrive.Tests/        C# unit tests (.NET 6.0, NUnit)

@@ -77,21 +77,7 @@ python3 tests/validate_datasets.py
 
 ## Homebridge Jest Tests
 
-```bash
-cd homebridge-plugin
-npm install
-npm test
-```
-
-133 tests across 3 files:
-
-**colorMapper.test.ts (84 tests)** — Flag color mapping for all 8 flag states. Severity color mapping for levels 0-5. Proximity color mapping at boundary values. Blink configuration for each blinkable state. HSB-to-hex and hex-to-HSB conversion accuracy.
-
-**simhubClient.test.ts (24 tests)** — HTTP response parsing for each SimHub property. Timeout handling. Connection error recovery. Default state on failure. Color format normalization.
-
-**perLightMode.test.ts (25 tests)** — Per-light mode override falls back to global when not specified. Per-light blink override falls back to global. Mixed configurations (some lights override, some inherit). Edge cases: undefined vs. explicit false for blink toggle.
-
-Tests use mock HTTP responses and don't require a running SimHub instance.
+The Homebridge plugin has its own repo and CI: **[k10-motorsports/prodrive-homebridge](https://github.com/k10-motorsports/prodrive-homebridge)**.
 
 ## Installer and Export Tests
 
@@ -115,18 +101,17 @@ On Windows, an additional **TestLiveInstall** class (3 tests) can be enabled wit
 
 ## CI Integration
 
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs all test suites on every push and pull request. None of the suites require SimHub, iRacing, Homebridge, or any external service.
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs all test suites on every push and pull request. None of the suites require SimHub, iRacing, or any external service.
 
-The workflow runs four parallel jobs:
+The workflow runs three parallel jobs:
 
 | Job | Runner | What It Runs |
 |-----|--------|--------------|
 | Python Tests | `ubuntu-latest` | Dataset validation (28), telemetry replay (4 scenarios), installer tests (34) |
 | C# Tests | `ubuntu-latest` | NUnit test project (200+), .NET 6.0 SDK |
-| Homebridge Tests | `ubuntu-latest` | `npm ci`, TypeScript build, Jest (133) |
 | Windows Installer | `windows-latest` | Live `.bat` execution against fake SimHub directory (3) |
 
-The first three jobs share `ubuntu-latest` and run in parallel. The Windows job runs separately on `windows-latest` to test the actual batch file execution. All four jobs complete in under 2 minutes total.
+The first two jobs share `ubuntu-latest` and run in parallel. The Windows job runs separately on `windows-latest` to test the actual batch file execution.
 
 To run locally without CI:
 
@@ -137,7 +122,4 @@ python3 tools/test_installer.py
 
 # C# (.NET 6.0 SDK)
 cd tests/RaceCorProDrive.Tests && dotnet test
-
-# Homebridge (Node.js 18+)
-cd homebridge-plugin && npm ci && npm test
 ```

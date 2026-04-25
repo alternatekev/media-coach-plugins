@@ -25,6 +25,8 @@ namespace RaceCorProDrive.Plugin.Transport
         /// <param name="screenColorSampler">Screen color sampler (for ambient light).</param>
         /// <param name="mozaSerial">Moza hardware manager (nullable).</param>
         /// <param name="pedalProfiles">Pedal profile manager (nullable).</param>
+        /// <param name="lightsPhase">Formation-lights phase (0=off, 1-5=building reds, 6=all-red, 7=green, 8=fade). Tracked at plugin scope, not on the snapshot.</param>
+        /// <param name="trackSlug">Raw SimHub TrackId (e.g. "nurburgring gp"). Tracked at plugin scope, not on the snapshot.</param>
         /// <returns>Flat dictionary of wire keys → values.</returns>
         public static Dictionary<string, object> BuildDict(
             TelemetrySnapshot s,
@@ -37,7 +39,9 @@ namespace RaceCorProDrive.Plugin.Transport
             string leaderboardJson = null,
             Engine.ScreenColorSampler screenColorSampler = null,
             Engine.Moza.MozaSerialManager mozaSerial = null,
-            Engine.PedalProfileManager pedalProfiles = null)
+            Engine.PedalProfileManager pedalProfiles = null,
+            int lightsPhase = 0,
+            string trackSlug = null)
         {
             if (s == null) throw new ArgumentNullException(nameof(s));
 
@@ -48,8 +52,10 @@ namespace RaceCorProDrive.Plugin.Transport
             pitboxCounters = pitboxCounters ?? new int[7];
             leaderboardJson = leaderboardJson ?? "[]";
 
-            // Demo telemetry reference (use engine's DemoTelemetry if engine is non-null, otherwise s)
-            var dt = engine?.DemoTelemetry ?? s;
+            // Demo telemetry reference. Field surface differs from TelemetrySnapshot
+            // (e.g. Rpm vs. Rpms, Fuel vs. FuelLevel, LatG vs. LatAccel) — Demo wire keys
+            // below MUST use DemoTelemetryProvider's names to match the HTTP path.
+            var dt = engine?.DemoTelemetry ?? new Engine.DemoTelemetryProvider();
 
             // ── Game data (live telemetry from snapshot) ──
             dict["DataCorePlugin.GameRunning"] = (demo || s.GameRunning) ? 1 : 0;
@@ -362,14 +368,14 @@ namespace RaceCorProDrive.Plugin.Transport
             // Demo mode
             dict["RaceCorProDrive.Plugin.DemoMode"] = demo ? 1 : 0;
             dict["RaceCorProDrive.Plugin.Demo.Gear"] = Escape(dt.Gear ?? "N");
-            dict["RaceCorProDrive.Plugin.Demo.Rpm"] = dt.Rpms;
+            dict["RaceCorProDrive.Plugin.Demo.Rpm"] = dt.Rpm;
             dict["RaceCorProDrive.Plugin.Demo.MaxRpm"] = dt.MaxRpm;
             dict["RaceCorProDrive.Plugin.Demo.SpeedMph"] = dt.SpeedMph;
             dict["RaceCorProDrive.Plugin.Demo.Throttle"] = dt.Throttle * 100;
             dict["RaceCorProDrive.Plugin.Demo.Brake"] = dt.Brake * 100;
             dict["RaceCorProDrive.Plugin.Demo.Clutch"] = dt.Clutch * 100;
-            dict["RaceCorProDrive.Plugin.Demo.Fuel"] = dt.FuelLevel;
-            dict["RaceCorProDrive.Plugin.Demo.MaxFuel"] = dt.FuelMaxCapacity;
+            dict["RaceCorProDrive.Plugin.Demo.Fuel"] = dt.Fuel;
+            dict["RaceCorProDrive.Plugin.Demo.MaxFuel"] = dt.MaxFuel;
             dict["RaceCorProDrive.Plugin.Demo.FuelPerLap"] = dt.FuelPerLap;
             dict["RaceCorProDrive.Plugin.Demo.RemainingLaps"] = dt.RemainingLaps;
             dict["RaceCorProDrive.Plugin.Demo.TyreTempFL"] = dt.TyreTempFL;
@@ -405,8 +411,8 @@ namespace RaceCorProDrive.Plugin.Transport
             dict["RaceCorProDrive.Plugin.Demo.IRBehind"] = dt.IRBehind;
 
             // Demo Datastream
-            dict["RaceCorProDrive.Plugin.Demo.DS.LatG"] = dt.LatAccel;
-            dict["RaceCorProDrive.Plugin.Demo.DS.LongG"] = dt.LongAccel;
+            dict["RaceCorProDrive.Plugin.Demo.DS.LatG"] = dt.LatG;
+            dict["RaceCorProDrive.Plugin.Demo.DS.LongG"] = dt.LongG;
             dict["RaceCorProDrive.Plugin.Demo.DS.YawRate"] = dt.YawRate;
             dict["RaceCorProDrive.Plugin.Demo.DS.SteerTorque"] = dt.SteerTorque;
             dict["RaceCorProDrive.Plugin.Demo.DS.TrackTemp"] = dt.TrackTemp;
@@ -441,7 +447,7 @@ namespace RaceCorProDrive.Plugin.Transport
             dict["RaceCorProDrive.Plugin.Grid.GriddedCars"] = s.GriddedCars;
             dict["RaceCorProDrive.Plugin.Grid.TotalCars"] = s.TotalCars;
             dict["RaceCorProDrive.Plugin.Grid.PaceMode"] = s.PaceMode;
-            dict["RaceCorProDrive.Plugin.Grid.LightsPhase"] = s.LightsPhase;
+            dict["RaceCorProDrive.Plugin.Grid.LightsPhase"] = lightsPhase;
             dict["RaceCorProDrive.Plugin.Grid.StartType"] = Escape(s.IsStandingStart ? "standing" : "rolling");
             dict["RaceCorProDrive.Plugin.Grid.TrackCountry"] = Escape(s.TrackCountry ?? "");
 
@@ -468,7 +474,7 @@ namespace RaceCorProDrive.Plugin.Transport
             {
                 dict["RaceCorProDrive.Plugin.TrackMap.Ready"] = trackMap.IsReady ? 1 : 0;
                 dict["RaceCorProDrive.Plugin.TrackMap.TrackName"] = Escape(trackMap.TrackName ?? "");
-                dict["RaceCorProDrive.Plugin.TrackMap.TrackSlug"] = Escape(s.TrackId ?? "");
+                dict["RaceCorProDrive.Plugin.TrackMap.TrackSlug"] = Escape(trackSlug ?? "");
                 dict["RaceCorProDrive.Plugin.TrackMap.SvgPath"] = Escape(trackMap.SvgPath ?? "");
                 dict["RaceCorProDrive.Plugin.TrackMap.PlayerX"] = trackMap.PlayerX;
                 dict["RaceCorProDrive.Plugin.TrackMap.PlayerY"] = trackMap.PlayerY;
@@ -479,7 +485,7 @@ namespace RaceCorProDrive.Plugin.Transport
             {
                 dict["RaceCorProDrive.Plugin.TrackMap.Ready"] = 0;
                 dict["RaceCorProDrive.Plugin.TrackMap.TrackName"] = "";
-                dict["RaceCorProDrive.Plugin.TrackMap.TrackSlug"] = Escape(s.TrackId ?? "");
+                dict["RaceCorProDrive.Plugin.TrackMap.TrackSlug"] = Escape(trackSlug ?? "");
                 dict["RaceCorProDrive.Plugin.TrackMap.SvgPath"] = "";
                 dict["RaceCorProDrive.Plugin.TrackMap.PlayerX"] = 0.0;
                 dict["RaceCorProDrive.Plugin.TrackMap.PlayerY"] = 0.0;

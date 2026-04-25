@@ -171,7 +171,7 @@ namespace RaceCorProDrive.Plugin.Transport
                 Socket = socket;
             }
 
-            public bool IsOpen => Socket?.IsOpen ?? false;
+            public bool IsOpen => Socket?.IsAvailable ?? false;
 
             public void Send(byte[] data)
             {

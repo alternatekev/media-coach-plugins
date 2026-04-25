@@ -514,7 +514,9 @@ namespace RaceCorProDrive.Plugin
                         _leaderboardJson,
                         _screenColorSampler,
                         _mozaSerial,
-                        _pedalProfiles);
+                        _pedalProfiles,
+                        _lightsPhase,
+                        _lastRawTrackSlug);
                     _wsPublisher.Tick(telemetryDict);
                 }
                 catch (Exception ex)
